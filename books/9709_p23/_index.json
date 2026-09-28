@@ -1,0 +1,101 @@
+[
+ {
+  "file": "9709_p23_ch01_chapter_1_algebra.md",
+  "chapter": 1,
+  "title": "Chapter 1 Algebra",
+  "page_from": 11,
+  "page_to": 31,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch02_chapter_2_logarithms_and_exponentials.md",
+  "chapter": 2,
+  "title": "Chapter 2 Logarithms and exponentials",
+  "page_from": 32,
+  "page_to": 59,
+  "pages_present": 28,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch03_chapter_3_trigonometry.md",
+  "chapter": 3,
+  "title": "Chapter 3 Trigonometry",
+  "page_from": 60,
+  "page_to": 86,
+  "pages_present": 27,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch04_chapter_4_differentiation.md",
+  "chapter": 4,
+  "title": "Chapter 4 Differentiation",
+  "page_from": 87,
+  "page_to": 125,
+  "pages_present": 39,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch05_chapter_5_integration.md",
+  "chapter": 5,
+  "title": "Chapter 5 Integration",
+  "page_from": 126,
+  "page_to": 144,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch06_chapter_6_numerical_solution_of_equations.md",
+  "chapter": 6,
+  "title": "Chapter 6 Numerical solution of equations",
+  "page_from": 145,
+  "page_to": 162,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch07_chapter_7_further_algebra.md",
+  "chapter": 7,
+  "title": "Chapter 7 Further algebra",
+  "page_from": 163,
+  "page_to": 185,
+  "pages_present": 23,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch08_chapter_8_further_integration.md",
+  "chapter": 8,
+  "title": "Chapter 8 Further integration",
+  "page_from": 186,
+  "page_to": 216,
+  "pages_present": 31,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch09_chapter_9_differential_equations.md",
+  "chapter": 9,
+  "title": "Chapter 9 Differential equations",
+  "page_from": 217,
+  "page_to": 235,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch10_chapter_10_vectors.md",
+  "chapter": 10,
+  "title": "Chapter 10 Vectors",
+  "page_from": 236,
+  "page_to": 279,
+  "pages_present": 44,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p23_ch11_chapter_11_complex_numbers.md",
+  "chapter": 11,
+  "title": "Chapter 11 Complex numbers",
+  "page_from": 280,
+  "page_to": 349,
+  "pages_present": 70,
+  "pages_missing": []
+ }
+]

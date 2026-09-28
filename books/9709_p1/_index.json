@@ -1,0 +1,83 @@
+[
+ {
+  "file": "9709_p1_ch01_1_quadratics.md",
+  "chapter": 1,
+  "title": "1 Quadratics",
+  "page_from": 13,
+  "page_to": 44,
+  "pages_present": 32,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch02_2_functions.md",
+  "chapter": 2,
+  "title": "2 Functions",
+  "page_from": 45,
+  "page_to": 81,
+  "pages_present": 37,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch03_3_coordinate_geometry.md",
+  "chapter": 3,
+  "title": "3 Coordinate geometry",
+  "page_from": 82,
+  "page_to": 110,
+  "pages_present": 29,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch04_4_circular_measure.md",
+  "chapter": 4,
+  "title": "4 Circular measure",
+  "page_from": 111,
+  "page_to": 127,
+  "pages_present": 17,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch05_5_trigonometry.md",
+  "chapter": 5,
+  "title": "5 Trigonometry",
+  "page_from": 128,
+  "page_to": 166,
+  "pages_present": 39,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch06_6_series.md",
+  "chapter": 6,
+  "title": "6 Series",
+  "page_from": 167,
+  "page_to": 201,
+  "pages_present": 35,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch07_7_differentiation.md",
+  "chapter": 7,
+  "title": "7 Differentiation",
+  "page_from": 202,
+  "page_to": 222,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch08_8_further_differentiation.md",
+  "chapter": 8,
+  "title": "8 Further differentiation",
+  "page_from": 223,
+  "page_to": 249,
+  "pages_present": 27,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p1_ch09_9_integration.md",
+  "chapter": 9,
+  "title": "9 Integration",
+  "page_from": 250,
+  "page_to": 295,
+  "pages_present": 46,
+  "pages_missing": []
+ }
+]

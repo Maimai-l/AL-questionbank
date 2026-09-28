@@ -1,0 +1,182 @@
+[
+ {
+  "file": "9618_ch01_1_information_representation_and_multimedia.md",
+  "chapter": 1,
+  "title": "1 Information representation and multimedia",
+  "page_from": 17,
+  "page_to": 42,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch02_2_communication.md",
+  "chapter": 2,
+  "title": "2 Communication",
+  "page_from": 43,
+  "page_to": 83,
+  "pages_present": 41,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch03_3_hardware.md",
+  "chapter": 3,
+  "title": "3 Hardware",
+  "page_from": 84,
+  "page_to": 122,
+  "pages_present": 39,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch04_4_processor_fundamentals.md",
+  "chapter": 4,
+  "title": "4 Processor fundamentals",
+  "page_from": 123,
+  "page_to": 151,
+  "pages_present": 29,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch05_5_system_software.md",
+  "chapter": 5,
+  "title": "5 System software",
+  "page_from": 152,
+  "page_to": 174,
+  "pages_present": 23,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch06_6_security_privacy_and_data_integrity.md",
+  "chapter": 6,
+  "title": "6 Security, privacy and data integrity",
+  "page_from": 175,
+  "page_to": 193,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch07_7_ethics_and_ownership.md",
+  "chapter": 7,
+  "title": "7 Ethics and ownership",
+  "page_from": 194,
+  "page_to": 211,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch08_8_databases.md",
+  "chapter": 8,
+  "title": "8 Databases",
+  "page_from": 212,
+  "page_to": 232,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch09_9_algorithm_design_and_problem_solving.md",
+  "chapter": 9,
+  "title": "9 Algorithm design and problem solving",
+  "page_from": 233,
+  "page_to": 253,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch10_10_data_types_and_structures.md",
+  "chapter": 10,
+  "title": "10 Data types and structures",
+  "page_from": 254,
+  "page_to": 279,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch11_11_programming.md",
+  "chapter": 11,
+  "title": "11 Programming",
+  "page_from": 280,
+  "page_to": 298,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch12_12_software_development.md",
+  "chapter": 12,
+  "title": "12 Software development",
+  "page_from": 299,
+  "page_to": 319,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch13_13_data_representation.md",
+  "chapter": 13,
+  "title": "13 Data representation",
+  "page_from": 320,
+  "page_to": 343,
+  "pages_present": 24,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch14_14_communication_and_internet_technologies.md",
+  "chapter": 14,
+  "title": "14 Communication and internet technologies",
+  "page_from": 344,
+  "page_to": 361,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch15_15_hardware.md",
+  "chapter": 15,
+  "title": "15 Hardware",
+  "page_from": 362,
+  "page_to": 387,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch16_16_system_software_and_virtual_machines.md",
+  "chapter": 16,
+  "title": "16 System software and virtual machines",
+  "page_from": 388,
+  "page_to": 425,
+  "pages_present": 38,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch17_17_security.md",
+  "chapter": 17,
+  "title": "17 Security",
+  "page_from": 426,
+  "page_to": 440,
+  "pages_present": 15,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch18_18_artificial_intelligence_ai.md",
+  "chapter": 18,
+  "title": "18 Artificial intelligence (AI)",
+  "page_from": 441,
+  "page_to": 465,
+  "pages_present": 25,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch19_19_computational_thinking_and_problem_solving.md",
+  "chapter": 19,
+  "title": "19 Computational thinking and problem solving",
+  "page_from": 466,
+  "page_to": 513,
+  "pages_present": 48,
+  "pages_missing": []
+ },
+ {
+  "file": "9618_ch20_20_further_programming.md",
+  "chapter": 20,
+  "title": "20 Further programming",
+  "page_from": 514,
+  "page_to": 556,
+  "pages_present": 43,
+  "pages_missing": []
+ }
+]

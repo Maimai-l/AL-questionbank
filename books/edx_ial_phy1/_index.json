@@ -1,0 +1,128 @@
+[
+ {
+  "file": "edx_ial_phy1_ch01_working_as_a_physicist.md",
+  "chapter": 1,
+  "title": "Working as a physicist",
+  "page_from": 13,
+  "page_to": 18,
+  "pages_present": 6,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch02_1a_motion.md",
+  "chapter": 2,
+  "title": "1A Motion",
+  "page_from": 19,
+  "page_to": 44,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch03_1b_energy.md",
+  "chapter": 3,
+  "title": "1B Energy",
+  "page_from": 45,
+  "page_to": 56,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch04_1c_momentum.md",
+  "chapter": 4,
+  "title": "1C Momentum",
+  "page_from": 57,
+  "page_to": 68,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch05_2a_fluids.md",
+  "chapter": 5,
+  "title": "2A Fluids",
+  "page_from": 69,
+  "page_to": 84,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch06_2b_solid_material_properties.md",
+  "chapter": 6,
+  "title": "2B Solid material properties",
+  "page_from": 85,
+  "page_to": 98,
+  "pages_present": 14,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch07_3a_basic_waves.md",
+  "chapter": 7,
+  "title": "3A Basic waves",
+  "page_from": 99,
+  "page_to": 110,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch08_3b_the_behaviour_of_waves.md",
+  "chapter": 8,
+  "title": "3B The behaviour of waves",
+  "page_from": 111,
+  "page_to": 128,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch09_3c_more_wave_properties_of_light.md",
+  "chapter": 9,
+  "title": "3C More wave properties of light",
+  "page_from": 129,
+  "page_to": 140,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch10_3d_quantum_physics.md",
+  "chapter": 10,
+  "title": "3D Quantum physics",
+  "page_from": 141,
+  "page_to": 158,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch11_4a_electrical_quantities.md",
+  "chapter": 11,
+  "title": "4A Electrical quantities",
+  "page_from": 159,
+  "page_to": 182,
+  "pages_present": 24,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch12_4b_complete_electrical_circuits.md",
+  "chapter": 12,
+  "title": "4B Complete electrical circuits",
+  "page_from": 183,
+  "page_to": 204,
+  "pages_present": 22,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch13_maths_skills.md",
+  "chapter": 13,
+  "title": "Maths skills",
+  "page_from": 205,
+  "page_to": 210,
+  "pages_present": 6,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy1_ch14_preparing_for_your_exams.md",
+  "chapter": 14,
+  "title": "Preparing for your exams",
+  "page_from": 211,
+  "page_to": 215,
+  "pages_present": 5,
+  "pages_missing": []
+ }
+]
