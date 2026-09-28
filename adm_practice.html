@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TMUA / TARA 刷题</title>
+<!-- Questions come from adm_practice.js (pipeline/export/export_adm_practice.py). Practice
+     records are kept apart from them: in this browser's localStorage, and in the JSON file
+     that 导出记录 writes. A record holds only question ids, answers and times, so a rebuilt
+     question file keeps every record valid and rescored against the current answer key. -->
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script src="vendor/katex/katex.min.js"></script>
+<script src="vendor/katex/auto-render.min.js"></script>
+<script>
+// vendor/ sits next to this page in data/; when the page is opened elsewhere, fall back to the CDN
+if (!window.katex) {
+  document.write('<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">');
+  document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/scr'+'ipt>');
+  document.write('<scr'+'ipt src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/scr'+'ipt>');
+}
+</script>
+<script src="adm_practice.js"></script>
+<style>
+:root{--primary:#006DAA;--secondary:#4678BE;--hdr:#5077B9;--content-bg:#fff;--content-fg:#000;--zebra:#f2f2f2;--sel:#ffff80;--good:#11753a;--bad:#cc0000}
+body.cs-lightyellow{--content-bg:#ffffcc}
+body.cs-salmon{--content-bg:#fad3c0}
+body.cs-yellow{--content-bg:#ffff00}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:Tahoma,Verdana,Arial,Helvetica,sans-serif;font-size:16px;color:#000;background:var(--content-bg)}
+body.exam{overflow:hidden}
+button{font-family:inherit;cursor:pointer}
+u{text-decoration:underline}
+.hidden{display:none!important}
+
+/* ---- home ---- */
+#home{min-height:100%;background:#fff}
+#home .bar{background:var(--primary);color:#fff;height:47px;display:flex;align-items:center;gap:18px;padding:0 16px;font-size:21px}
+#home .tabs{display:flex;height:32px;background:var(--secondary)}
+#home .tabs button{background:transparent;border:0;color:#fff;font-size:16px;padding:0 18px}
+#home .tabs button.on{background:rgba(0,0,0,.2)}
+#home main{max-width:1000px;margin:0 auto;padding:20px 16px 60px;display:grid;gap:26px}
+#home main>section{min-width:0}
+#home h2{margin:0 0 8px;font-size:18px;color:var(--primary)}
+#home .note{color:#555;font-size:14px;margin:0 0 8px}
+.wrap{overflow-x:auto}
+table.ht{width:100%;border-collapse:collapse;font-size:15px}
+.ht th{background:var(--hdr);color:#fff;text-align:left;padding:6px 8px;border:1px solid #fff;white-space:nowrap}
+.ht td{border:1px solid #d0d0d0;padding:5px 8px}
+.ht tr:nth-child(even) td{background:var(--zebra)}
+.ht .num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hb{background:var(--primary);color:#fff;border:0;padding:4px 12px;font-size:14px}
+.hb.alt{background:#fff;color:var(--primary);border:1px solid var(--primary)}
+.hb:hover{filter:brightness(1.1)}
+.form{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end}
+.form label{display:grid;gap:3px;font-size:14px;color:#333}
+.form select,.form input{font:inherit;font-size:15px;padding:3px 4px;min-width:0}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.ok{color:var(--good)}.bad{color:var(--bad)}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.tile{border:1px solid #d0d0d0;padding:8px 14px;min-width:120px}
+.tile b{display:block;font-size:24px;color:var(--primary);font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:#555}
+.bars{display:grid;grid-template-columns:minmax(0,13em) minmax(60px,1fr) auto;gap:6px 10px;align-items:center;font-size:14px}
+.bars .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bars .track{height:14px;background:#e8eef6;border-radius:0 4px 4px 0}
+.bars .fill{height:100%;background:var(--primary);border-radius:0 4px 4px 0;min-width:2px}
+.bars .val{font-variant-numeric:tabular-nums;color:#333;white-space:nowrap}
+.bars>div:hover{background:#f2f6fb}
+#trend{width:100%;max-width:760px;height:auto;display:block;margin-top:6px}
+#trend text{font-size:11px;fill:#555;font-family:inherit}
+#home h3{font-size:15px;margin:18px 0 6px;color:#333}
+
+/* ---- title bar ---- */
+#titlebar{position:fixed;top:0;left:0;right:0;height:47px;background:var(--primary);color:#fff;display:flex;justify-content:space-between}
+#title{font-size:21.33px;padding:0 10px;line-height:44px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#tinfo{display:flex;flex-direction:column;align-items:flex-end;padding-right:4px;font-size:16px}
+.tbtn{background:transparent;border:1px solid transparent;color:#fff;font-size:16px;height:23px;line-height:21px;padding:0 2px;display:flex;align-items:center;gap:4px}
+.tbtn:hover{border-color:#fff}
+#timer.low{color:#ffff00}
+/* ---- toolbar ---- */
+#toolbar{position:fixed;top:47px;left:0;right:0;height:32px;background:var(--secondary);color:#fff;display:flex;justify-content:space-between;align-items:stretch}
+.bbtn{background:transparent;border:0;color:#fff;font-size:16px;padding:0 8px;display:flex;align-items:center;gap:5px;height:100%}
+.bbtn:hover{background:rgba(255,255,255,.15)}
+.bbtn[disabled]{opacity:.45;cursor:default;background:transparent}
+#flagBtn.on,#origBtn.on{background:rgba(0,0,0,.18)}
+#cs{background:var(--secondary);color:#fff;border:1px solid #000;font-family:inherit;font-size:16px;width:270px;max-width:40vw;padding:0 6px;height:100%}
+/* ---- content ---- */
+#content{position:fixed;top:79px;bottom:35px;left:0;right:0;overflow:auto;background:var(--content-bg);color:var(--content-fg)}
+#q{padding:18px 18px 40px 26px;max-width:1100px}
+#stem{font-family:Arial,Helvetica,sans-serif;line-height:1.5;margin-bottom:26px}
+#stem p{margin:0 0 12px}
+#stem img,.opt img{max-width:100%}
+#stem img.full{max-width:min(100%,900px);display:block}
+#stem table{border-collapse:collapse;margin:8px 0 14px}
+#stem td{border:1px solid #999;padding:3px 8px}
+#stem .katex-display{margin:22px 0 22px 140px;text-align:left}
+#stem .katex-display>.katex{text-align:left}
+.opt{display:flex;width:fit-content;max-width:100%;padding-right:12px;align-items:center;gap:12px;margin:0 0 18px 36px;min-height:34px;cursor:pointer;font-family:"Times New Roman",serif;font-size:18px}
+.opt input{width:16px;height:16px;margin:0;cursor:pointer;flex:none}
+.opt .lab{font-family:Arial,sans-serif;font-size:16px;min-width:20px}
+.opt .katex{font-size:1.15em}
+.opt.right{outline:2px solid var(--good);outline-offset:4px}
+.opt.wrong{outline:2px solid var(--bad);outline-offset:4px}
+#explain{margin:28px 0 0 26px;padding:12px 16px;border:2px solid var(--secondary);background:#fff;font-family:Arial,sans-serif;line-height:1.5;max-width:900px}
+#explain h4{margin:0 0 6px;color:var(--primary)}
+#explain p{margin:0 0 10px}
+#result{padding:24px 26px;font-family:Arial,sans-serif;max-width:900px}
+#result h3{margin:0 0 6px;font-size:22px}
+#result table{margin-top:14px}
+#result tbody tr{cursor:pointer}
+#result tbody tr:hover td{outline:1px solid #2E6CA4}
+/* ---- nav bar ---- */
+#navbar{position:fixed;bottom:0;left:0;right:0;height:35px;background:var(--primary);border-top:2px solid #fff;display:flex;justify-content:space-between}
+#navbar .grp{display:flex}
+.nbtn{background:transparent;border:0;color:#fff;font-size:18.67px;padding:0 8px;display:flex;align-items:center;gap:4px;height:100%;border-right:2px solid #fff}
+.grp.r .nbtn{border-right:0;border-left:2px solid #fff}
+.nbtn:hover{background:rgba(255,255,255,.15)}
+.ico{width:20px;height:20px;flex:none}
+
+/* ---- dialogs ---- */
+.overlay{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center}
+.overlay.dim{background:rgba(0,0,0,.25)}
+.dlg{background:#2E6CA4;color:#fff;padding:6px;box-shadow:0 2px 10px rgba(0,0,0,.35);display:flex;flex-direction:column}
+.dlg .dt{font-size:22px;padding:10px 10px 8px;display:flex;align-items:center;gap:8px}
+.dlg .dt small{font-size:17px}
+#navDlg{width:min(1150px,92vw);height:min(770px,86vh)}
+#navWrap{flex:1;overflow:auto;background:#fff}
+table.nt{width:100%;border-collapse:collapse;color:#000;font-size:20px}
+.nt th{background:var(--hdr);color:#fff;font-size:24px;font-weight:bold;height:44px;border:2px solid #fff;position:sticky;top:0;cursor:pointer;user-select:none}
+.nt td{border:2px solid #d0d0d0;height:51px;padding:0 4px}
+.nt tr:nth-child(even) td{background:var(--zebra)}
+.nt tr.cur td{background:var(--sel)!important}
+.nt tbody tr{cursor:pointer}
+.nt tbody tr:hover td{outline:1px solid #2E6CA4}
+.nt .red{color:#cc0000}
+.dfoot{display:flex;justify-content:space-between;align-items:flex-end;padding:6px 2px 4px;font-size:20px;gap:10px}
+.dbtn{background:transparent;color:#fff;border:2px solid #fff;font-size:22px;padding:2px 18px;min-width:108px}
+.dbtn:hover{background:rgba(255,255,255,.15)}
+.dbtn:focus{outline:2px solid #fff;outline-offset:1px}
+#confirmDlg{width:min(620px,92vw)}
+#confirmDlg .body{background:#fff;color:#000;padding:20px;font-size:17px;line-height:1.5}
+#confirmDlg .dfoot{justify-content:flex-end}
+</style>
+</head>
+<body>
+
+<!-- ================= HOME: 选卷与记录 ================= -->
+<div id="home">
+  <div class="bar">TMUA / TARA 刷题</div>
+  <div class="tabs"><button data-ex="TMUA">TMUA</button><button data-ex="TARA">TARA(TSA、BMAT 第 1 部分)</button></div>
+  <main>
+    <section>
+      <h2>整卷</h2>
+      <p class="note">按原卷题量和时间作答;结束后可逐题查看答案与解析。</p>
+      <div class="wrap"><table class="ht"><thead><tr><th>试卷</th><th class="num">题数</th><th class="num">时间</th><th class="num">最近成绩</th><th></th></tr></thead><tbody id="paperBody"></tbody></table></div>
+    </section>
+    <section>
+      <h2>按主题练习</h2>
+      <div class="form">
+        <label>主题<select id="fTopic"></select></label>
+        <label>题目范围<select id="fScope"><option value="all">全部</option><option value="new">没做过的</option><option value="wrong">最近一次做错的</option><option value="flag">标记过的</option></select></label>
+        <label>题数<input id="fCount" type="number" min="1" max="100" value="10" style="width:5em"></label>
+        <label>每题分钟(0 为不计时)<input id="fMin" type="number" min="0" step="0.5" value="2" style="width:5em"></label>
+        <button class="hb" id="fStart">开始</button>
+      </div>
+      <p class="note" id="fInfo" style="margin-top:6px"></p>
+    </section>
+    <section>
+      <h2>统计</h2>
+      <p class="note">每道题按最近一次做完的作答计;只统计已结束的练习。</p>
+      <div class="tiles" id="tiles"></div>
+      <h3>各主题正确率(由低到高)</h3>
+      <div class="bars" id="bars"></div>
+      <h3>整卷成绩</h3>
+      <div id="trendBox"></div>
+    </section>
+    <section>
+      <h2>做题记录</h2>
+      <p class="note">记录只保存在这个浏览器里,和题目数据分开。换电脑或清理浏览器前先导出;导入时与现有记录合并。</p>
+      <div class="wrap"><table class="ht"><thead><tr><th>时间</th><th>内容</th><th class="num">成绩</th><th class="num">用时</th><th></th></tr></thead><tbody id="recBody"></tbody></table></div>
+      <div class="tools">
+        <button class="hb alt" id="expBtn">导出记录</button>
+        <button class="hb alt" id="impBtn">导入记录</button>
+        <input type="file" id="impFile" accept=".json,application/json" class="hidden">
+        <button class="hb alt" id="clrBtn">清空记录</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ================= EXAM SCREEN ================= -->
+<div id="exam" class="hidden">
+  <div id="titlebar">
+    <div id="title"></div>
+    <div id="tinfo">
+      <button class="tbtn" id="timer" title="Show/hide time">
+        <svg class="ico" viewBox="0 0 20 20"><circle cx="10" cy="11" r="7" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M10 7v4.2l2.6 1.6" stroke="#fff" stroke-width="1.6" fill="none"/><path d="M8 2.5h4" stroke="#fff" stroke-width="1.6"/></svg>
+        <span id="timerText"></span>
+      </button>
+      <button class="tbtn" id="counter" title="Show/hide question count">
+        <svg class="ico" viewBox="0 0 20 20"><path d="M3 6h14M3 10h14M3 14h14" stroke="#fff" stroke-width="1.6"/><path d="M15 4l2 2-2 2" stroke="#fff" stroke-width="1.4" fill="none"/></svg>
+        <span id="counterText"></span>
+      </button>
+    </div>
+  </div>
+  <div id="toolbar">
+    <button class="bbtn" id="explainBtn">
+      <svg class="ico" viewBox="0 0 20 20"><path d="M10 3a5 5 0 0 0-3 9v2h6v-2a5 5 0 0 0-3-9z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M8 16h4M8.5 18h3" stroke="#fff" stroke-width="1.4"/><path d="M2 8h2M16 8h2M4 3l1.4 1.4M16 3l-1.4 1.4" stroke="#fff" stroke-width="1.2"/></svg>
+      <span>E<u>x</u>plain Answer</span></button>
+    <div style="display:flex">
+      <button class="bbtn" id="origBtn" title="Show the question as printed"><span><u>O</u>riginal</span></button>
+      <button class="bbtn" id="flagBtn">
+        <svg class="ico" viewBox="0 0 20 20"><path d="M5 18V3" stroke="#3a3a10" stroke-width="1.6"/><path id="flagPath" d="M5.5 3.5c3-1.5 5 1.5 9 0v7c-4 1.5-6-1.5-9 0z" fill="none" stroke="#f3e34a" stroke-width="1.6"/></svg>
+        <span><u>F</u>lag for Review</span></button>
+      <select id="cs" title="Color Scheme">
+        <option value="">Color Scheme</option>
+        <option value="cs-lightyellow">Black on Light Yellow</option>
+        <option value="cs-salmon">Black on Salmon</option>
+        <option value="cs-white">Black on White</option>
+        <option value="cs-yellow">Black on Yellow</option>
+      </select>
+    </div>
+  </div>
+  <div id="content">
+    <div id="q">
+      <div id="stem"></div>
+      <div id="opts"></div>
+      <div id="explain" class="hidden"></div>
+    </div>
+    <div id="result" class="hidden"></div>
+  </div>
+  <div id="navbar">
+    <div class="grp">
+      <button class="nbtn" id="endBtn">
+        <svg class="ico" viewBox="0 0 20 20"><path d="M2 10h9M8 6.5l3.5 3.5L8 13.5" stroke="#fff" stroke-width="2" fill="none"/><path d="M12 3h5v14h-5" stroke="#fff" stroke-width="2" fill="none"/></svg>
+        <span id="endText"><u>E</u>nd Exam</span></button>
+    </div>
+    <div class="grp r">
+      <button class="nbtn" id="prevBtn">
+        <svg class="ico" viewBox="0 0 20 20"><path d="M17 10H4M9 4.5L3.5 10 9 15.5" stroke="#fff" stroke-width="2.2" fill="none"/></svg>
+        <span><u>P</u>revious</span></button>
+      <button class="nbtn" id="navBtn">
+        <svg class="ico" viewBox="0 0 20 20" id="navIco"><g fill="#fff"><circle cx="10" cy="2.6" r="1.8"/><circle cx="15.2" cy="4.8" r="1.8"/><circle cx="17.4" cy="10" r="1.8"/><circle cx="15.2" cy="15.2" r="1.8"/><circle cx="10" cy="17.4" r="1.8"/><circle cx="4.8" cy="15.2" r="1.8"/><circle cx="2.6" cy="10" r="1.8"/><circle cx="4.8" cy="4.8" r="1.8"/></g><path d="M10 6.5l1 2.5 2.6.2-2 1.7.7 2.6-2.3-1.4-2.3 1.4.7-2.6-2-1.7 2.6-.2z" fill="#fff"/></svg>
+        <span>Na<u>v</u>igator</span></button>
+      <button class="nbtn" id="nextBtn">
+        <span><u>N</u>ext</span>
+        <svg class="ico" viewBox="0 0 20 20"><path d="M3 10h13M11 4.5l5.5 5.5-5.5 5.5" stroke="#fff" stroke-width="2.2" fill="none"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- Navigator -->
+<div class="overlay hidden" id="navOv">
+  <div class="dlg" id="navDlg" role="dialog" aria-label="Navigator">
+    <div class="dt"><svg class="ico" style="width:30px;height:30px" viewBox="0 0 20 20"><use href="#navIco"/></svg>Navigator <small>- select a question to go to it</small></div>
+    <div id="navWrap"><table class="nt"><thead><tr>
+      <th data-k="n">Question # <span class="arr">▲</span></th><th data-k="s" style="width:27%">Status <span class="arr"></span></th><th data-k="f" style="width:31.5%">Flagged <span class="arr"></span></th>
+    </tr></thead><tbody id="navBody"></tbody></table></div>
+    <div class="dfoot"><span id="navCount"></span><button class="dbtn" id="navClose"><u>C</u>lose</button></div>
+  </div>
+</div>
+
+<!-- Confirm -->
+<div class="overlay dim hidden" id="confOv">
+  <div class="dlg" id="confirmDlg" role="dialog">
+    <div class="dt" id="confTitle"></div>
+    <div class="body" id="confBody"></div>
+    <div class="dfoot"><button class="dbtn" id="confYes"><u>Y</u>es</button><button class="dbtn" id="confNo"><u>N</u>o</button></div>
+  </div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id), Q=ADM.q;
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* ===== records: kept apart from the question data ===== */
+const KEY='adm-practice-records';
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(d&&Array.isArray(d.attempts))return d}catch(e){}return{format:'adm-practice-records/v1',attempts:[]}}
+let REC=load();
+function save(){try{localStorage.setItem(KEY,JSON.stringify(REC))}catch(e){alert('记录没有保存成功(浏览器不允许本地存储)。请先导出记录。')}}
+function score(a){let r=0,n=0;a.qids.forEach((id,i)=>{if(!Q[id])return;n++;if(a.ans[i]===Q[id].a)r++});return{r,n}}
+function history(){ // per question: last answer correct?, ever flagged
+  const h={};REC.attempts.slice().sort((x,y)=>x.start-y.start).forEach(a=>a.qids.forEach((id,i)=>{
+    if(!Q[id]||!a.end)return;const o=h[id]||(h[id]={});o.done=true;o.right=a.ans[i]===Q[id].a;if(a.flag[i])o.flag=true}));return h}
+const mmss=s=>{s=Math.round(s||0);const m=Math.floor(s/60);return m+':'+String(s%60).padStart(2,'0')};
+
+/* ===== home ===== */
+let EX='TMUA';
+function home(){
+  document.body.className='';$('exam').classList.add('hidden');$('home').classList.remove('hidden');
+  document.querySelectorAll('#home .tabs button').forEach(b=>b.classList.toggle('on',b.dataset.ex===EX));
+  const last={};REC.attempts.forEach(a=>{if(a.paper&&a.end&&(!last[a.paper]||a.start>last[a.paper].start))last[a.paper]=a});
+  $('paperBody').innerHTML=ADM.papers.filter(p=>p.exam===EX).map(p=>{const a=last[p.id],s=a&&score(a);
+    return '<tr><td>'+esc(p.title)+'</td><td class="num">'+p.q.length+'</td><td class="num">'+p.minutes+' 分钟</td><td class="num">'+(s?s.r+' / '+s.n:'')+'</td><td><button class="hb" data-p="'+p.id+'">开始</button></td></tr>'}).join('');
+  document.querySelectorAll('#paperBody button').forEach(b=>b.onclick=()=>{const p=ADM.papers.find(x=>x.id===b.dataset.p);start({title:p.title,paper:p.id,qids:p.q.slice(),minutes:p.minutes})});
+  const t=ADM.topics[EX];
+  $('fTopic').innerHTML='<option value="">全部主题</option>'+Object.keys(t).sort().map(k=>'<option value="'+k+'">'+esc(t[k])+'</option>').join('');
+  $('fMin').value=EX==='TMUA'?3.5:2;
+  pool();
+  stats();
+  $('recBody').innerHTML=REC.attempts.slice().sort((x,y)=>y.start-x.start).map(a=>{const s=score(a);
+    return '<tr><td>'+new Date(a.start).toLocaleString('zh-CN',{hour12:false})+'</td><td>'+esc(a.title)+(a.end?'':' <span class="bad">(未完成)</span>')+'</td><td class="num">'+s.r+' / '+s.n+'</td><td class="num">'+mmss(a.time.reduce((x,y)=>x+y,0))+'</td><td style="white-space:nowrap">'+(a.end?'<button class="hb alt" data-v="'+a.id+'">查看</button> ':'<button class="hb" data-c="'+a.id+'">继续</button> ')+'<button class="hb alt" data-d="'+a.id+'">删除</button></td></tr>'}).join('')||'<tr><td colspan="5">还没有记录。</td></tr>';
+  document.querySelectorAll('#recBody [data-v]').forEach(b=>b.onclick=()=>review(REC.attempts.find(a=>a.id===b.dataset.v)));
+  document.querySelectorAll('#recBody [data-c]').forEach(b=>b.onclick=()=>resume(REC.attempts.find(a=>a.id===b.dataset.c)));
+  document.querySelectorAll('#recBody [data-d]').forEach(b=>b.onclick=()=>{if(!window.confirm('删除这条记录?'))return;REC.attempts=REC.attempts.filter(a=>a.id!==b.dataset.d);save();home()});
+}
+function stats(){
+  const h=history(),ids=ADM.papers.filter(p=>p.exam===EX).flatMap(p=>p.q),done=ids.filter(id=>h[id]);
+  const right=done.filter(id=>h[id].right).length,att=REC.attempts.filter(a=>a.end&&a.qids.some(id=>Q[id]&&ids.includes(id)));
+  const secs=att.reduce((x,a)=>x+a.time.reduce((y,z)=>y+z,0),0),pct=(r,n)=>n?Math.round(100*r/n)+'%':'—';
+  $('tiles').innerHTML=[['做过的题',done.length+' / '+ids.length],['正确率',pct(right,done.length)],['练习次数',att.length],['总用时',Math.round(secs/60)+' 分钟']]
+    .map(([k,v])=>'<div class="tile"><b>'+v+'</b><span>'+k+'</span></div>').join('');
+  const T={};done.forEach(id=>{const t=Q[id].t,o=T[t]||(T[t]={r:0,n:0});o.n++;if(h[id].right)o.r++});
+  const rows=Object.entries(T).sort((a,b)=>a[1].r/a[1].n-b[1].r/b[1].n||b[1].n-a[1].n);
+  $('bars').innerHTML=rows.map(([t,o])=>{const name=ADM.topics[EX][t]||t,tip=name+':'+o.r+' / '+o.n+' 题正确';
+    return '<div class="name" title="'+esc(tip)+'">'+esc(name)+'</div><div class="track" title="'+esc(tip)+'"><div class="fill" style="width:'+(100*o.r/o.n)+'%"></div></div><div class="val">'+pct(o.r,o.n)+' <span style="color:#777">('+o.r+'/'+o.n+')</span></div>'}).join('')
+    ||'<div style="grid-column:1/-1;color:#555">做完一次练习后显示。</div>';
+  const full=att.filter(a=>a.paper).sort((x,y)=>x.end-y.end).map(a=>{const s=score(a);return{a,p:s.n?s.r/s.n:0,s}});
+  if(full.length<1){$('trendBox').innerHTML='<p class="note">做完一份整卷后显示。</p>';return}
+  const W=760,H=200,L=40,R=12,Tp=12,B=24,x=i=>L+(full.length===1?(W-L-R)/2:i*(W-L-R)/(full.length-1)),y=p=>Tp+(1-p)*(H-Tp-B);
+  let g='';[0,.25,.5,.75,1].forEach(p=>{g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(p)+'" y2="'+y(p)+'" stroke="#e3e3e3"/><text x="'+(L-6)+'" y="'+(y(p)+4)+'" text-anchor="end">'+p*100+'%</text>'});
+  const pts=full.map((d,i)=>x(i)+','+y(d.p)).join(' ');
+  g+='<polyline points="'+pts+'" fill="none" stroke="#006DAA" stroke-width="2"/>';
+  g+=full.map((d,i)=>'<g><title>'+esc(d.a.title)+':'+d.s.r+' / '+d.s.n+'('+new Date(d.a.end).toLocaleDateString('zh-CN')+')</title><circle cx="'+x(i)+'" cy="'+y(d.p)+'" r="10" fill="transparent"/><circle cx="'+x(i)+'" cy="'+y(d.p)+'" r="4.5" fill="#006DAA" stroke="#fff" stroke-width="2"/></g>').join('');
+  const last=full[full.length-1];
+  g+='<text x="'+x(full.length-1)+'" y="'+(H-6)+'" text-anchor="'+(full.length>1?'end':'middle')+'">最近:'+esc(last.a.title)+' '+last.s.r+'/'+last.s.n+'</text>';
+  $('trendBox').innerHTML='<svg id="trend" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="整卷成绩走势">'+g+'</svg>'}
+function pool(){
+  const t=$('fTopic').value,sc=$('fScope').value,h=history();
+  const ids=ADM.papers.filter(p=>p.exam===EX).flatMap(p=>p.q).filter(id=>(!t||Q[id].t===t)&&(sc==='all'||(sc==='new'&&!h[id])||(sc==='wrong'&&h[id]&&!h[id].right)||(sc==='flag'&&h[id]&&h[id].flag)));
+  $('fInfo').textContent='符合条件的题共 '+ids.length+' 道,随机抽取。';return ids}
+['fTopic','fScope'].forEach(id=>$(id).onchange=pool);
+$('fStart').onclick=()=>{const ids=pool();if(!ids.length)return;
+  for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+  const n=Math.max(1,Math.min(ids.length,+$('fCount').value||10)),t=$('fTopic').value;
+  start({title:EX+' · '+(t?ADM.topics[EX][t]:'全部主题')+' · '+n+' 题',paper:null,qids:ids.slice(0,n),minutes:Math.round((+$('fMin').value||0)*n*10)/10})};
+document.querySelectorAll('#home .tabs button').forEach(b=>b.onclick=()=>{EX=b.dataset.ex;home()});
+$('expBtn').onclick=()=>{const b=new Blob([JSON.stringify(REC,null,1)],{type:'application/json'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(b);a.download='tmua_tara_records_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+$('impBtn').onclick=()=>$('impFile').click();
+$('impFile').onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{let d;try{d=JSON.parse(t)}catch(x){}
+  if(!d||!Array.isArray(d.attempts)){alert('不是做题记录文件');return}
+  const have=new Set(REC.attempts.map(a=>a.id));let k=0;d.attempts.forEach(a=>{if(a&&a.id&&!have.has(a.id)&&Array.isArray(a.qids)){REC.attempts.push(a);k++}});
+  save();home();alert('导入 '+k+' 条记录')});e.target.value=''};
+$('clrBtn').onclick=()=>{if(REC.attempts.length&&window.confirm('清空全部记录?建议先导出。')){REC.attempts=[];save();home()}};
+
+/* ===== exam ===== */
+const L='ABCDEFGH';
+let S=null,showTimer=true,showCounter=true,sortK='n',sortAsc=true,tickId=null;
+function md(s){ // paragraphs, **bold**, images and pipe tables, as the bank text is written
+  return String(s||'').split(/\n{2,}/).map(b=>{const t=b.trim();if(!t)return'';
+    const lines=t.split('\n').filter(l=>!/^#*\s*PLEASE TURN OVER\s*$/i.test(l.trim()));if(!lines.length)return'';
+    if(lines.every(l=>l.trim().startsWith('|')))return'<table>'+lines.filter(l=>!/^\|[\s:|-]+\|$/.test(l.trim())).map(l=>'<tr>'+l.trim().replace(/^\||\|$/g,'').split('|').map(c=>'<td>'+inline(c.trim())+'</td>').join('')+'</tr>').join('')+'</table>';
+    return'<p>'+lines.map(inline).join('<br>')+'</p>'}).join('')}
+function inline(s){return esc(s.replace(/^#+\s*/,'')).replace(/!\[[^\]]*\]\(([^)\s]+)\)/g,'<img src="$1" alt="">').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
+function typeset(el){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false})}catch(e){}}
+
+function start(o){
+  const a={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),title:o.title,paper:o.paper,qids:o.qids,minutes:o.minutes,
+    ans:o.qids.map(()=>null),flag:o.qids.map(()=>false),time:o.qids.map(()=>0),start:Date.now(),end:null};
+  REC.attempts.push(a);save();open(a,false)}
+function resume(a){open(a,false)}
+function review(a){open(a,true)}
+function open(a,rev){
+  S={a,rev,cur:0,seen:a.qids.map((_,i)=>a.ans[i]!=null),mark:Date.now()};
+  document.body.className='exam '+($('cs').value||'');$('home').classList.add('hidden');$('exam').classList.remove('hidden');
+  $('title').textContent=a.title;$('endText').innerHTML=rev?'Back to <u>E</u>xam List':'<u>E</u>nd Exam';
+  ['prevBtn','nextBtn','navBtn','flagBtn','explainBtn','endBtn'].forEach(id=>$(id).disabled=false);
+  $('explainBtn').disabled=!rev;$('flagBtn').disabled=rev;
+  clearInterval(tickId);if(!rev)tickId=setInterval(tick,250);tick();
+  if(rev)result();else go(0)}
+function stamp(){if(!S||S.rev)return;const now=Date.now();S.a.time[S.cur]+=(now-S.mark)/1000;S.mark=now;save()}
+function go(i){
+  stamp();const a=S.a,n=a.qids.length;
+  S.cur=Math.max(0,Math.min(n-1,i));S.seen[S.cur]=true;
+  $('q').classList.remove('hidden');$('result').classList.add('hidden');
+  const id=a.qids[S.cur],q=Q[id]||{},mine=a.ans[S.cur];
+  S.orig=false;$('origBtn').classList.toggle('hidden',!!q.img);$('origBtn').classList.remove('on');
+  $('stem').innerHTML=q.img?'<img class="full" src="'+q.img+'" alt="Question '+(S.cur+1)+'">':md(q.s);
+  $('opts').innerHTML=[...(q.L||'ABCDE')].map((k,j)=>{const cls=S.rev?(k===q.a?' right':k===mine?' wrong':''):'';
+    const txt=q.o?String(q.o[j]).replace(/\$([^$]+)\$/g,'$\\displaystyle $1$'):'';
+    return '<label class="opt'+cls+'"><input type="radio" name="o" value="'+k+'"'+(mine===k?' checked':'')+(S.rev?' disabled':'')+'><span class="lab">'+k+'</span><span>'+inline(txt)+'</span></label>'}).join('');
+  document.querySelectorAll('#opts input').forEach(r=>r.onchange=()=>{a.ans[S.cur]=r.value;save()});
+  $('explain').classList.add('hidden');
+  typeset($('q'));$('content').scrollTop=0;
+  $('counterText').textContent=showCounter?(S.cur+1)+' of '+n:'';
+  $('prevBtn').classList.toggle('hidden',S.cur===0);
+  $('nextBtn').classList.toggle('hidden',S.cur===n-1);
+  setFlagUI()}
+function setFlagUI(){const on=S.a.flag[S.cur];$('flagBtn').classList.toggle('on',on);$('flagPath').setAttribute('fill',on?'#f3e34a':'none')}
+function fmt(ms){ms=Math.max(0,ms);const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')}
+function used(){return S.a.time.reduce((x,y)=>x+y,0)*1000+(S.rev?0:Date.now()-S.mark)}
+function tick(){if(!S)return;
+  if(S.rev){$('timerText').textContent=showTimer?'Time Used '+fmt(S.a.time.reduce((x,y)=>x+y,0)*1000):'';return}
+  if(S.a.minutes){const left=S.a.minutes*60000-used();
+    $('timerText').textContent=showTimer?'Time Remaining '+fmt(left):'';$('timer').classList.toggle('low',left<=5*60000);
+    if(left<=0)finish()}
+  else $('timerText').textContent=showTimer?'Time Used '+fmt(used()):''}
+function status(i){return S.a.ans[i]?'Complete':S.seen[i]?'Incomplete':'Unseen'}
+const flagSvg='<svg class="ico" viewBox="0 0 20 20" style="vertical-align:middle"><path d="M5 18V3" stroke="#555" stroke-width="1.6"/><path d="M5.5 3.5c3-1.5 5 1.5 9 0v7c-4 1.5-6-1.5-9 0z" fill="#f3e34a" stroke="#b9a800" stroke-width="1.2"/></svg> Flagged';
+function openNav(){
+  const n=S.a.qids.length,key=i=>sortK==='n'?i:sortK==='s'?['Complete','Incomplete','Unseen'].indexOf(status(i))*1000+i:(S.a.flag[i]?0:1)*1000+i;
+  const idx=[...Array(n).keys()].sort((a,b)=>(key(a)-key(b))*(sortAsc?1:-1));
+  $('navBody').innerHTML=idx.map(i=>{const st=status(i);return '<tr data-i="'+i+'" class="'+(i===S.cur?'cur':'')+'"><td>Question '+(i+1)+'</td><td class="'+(st==='Complete'?'':'red')+'">'+st+'</td><td>'+(S.a.flag[i]?flagSvg:'')+'</td></tr>'}).join('');
+  document.querySelectorAll('.nt th').forEach(th=>th.querySelector('.arr').textContent=th.dataset.k===sortK?(sortAsc?'▲':'▼'):'');
+  $('navCount').textContent=S.a.ans.filter(a=>!a).length+' Unseen/Incomplete';
+  document.querySelectorAll('#navBody tr').forEach(tr=>tr.onclick=()=>{closeNav();go(+tr.dataset.i)});
+  $('navOv').classList.remove('hidden');$('navClose').focus()}
+function closeNav(){$('navOv').classList.add('hidden')}
+document.querySelectorAll('.nt th').forEach(th=>th.onclick=()=>{if(sortK===th.dataset.k)sortAsc=!sortAsc;else{sortK=th.dataset.k;sortAsc=true}openNav()});
+let confCb=null;
+function confirmBox(t,h,cb){$('confTitle').textContent=t;$('confBody').innerHTML=h;confCb=cb;$('confOv').classList.remove('hidden');$('confNo').focus()}
+function closeConf(){$('confOv').classList.add('hidden')}
+$('confYes').onclick=()=>{closeConf();confCb&&confCb()};$('confNo').onclick=closeConf;
+function finish(){if(S.rev)return;stamp();S.a.end=Date.now();save();clearInterval(tickId);closeNav();closeConf();
+  S.rev=true;open(S.a,true)}
+function result(){
+  const a=S.a,s=score(a),t=a.time.reduce((x,y)=>x+y,0);
+  $('q').classList.add('hidden');$('result').classList.remove('hidden');
+  $('prevBtn').classList.add('hidden');$('nextBtn').classList.add('hidden');$('flagBtn').disabled=true;
+  $('counterText').textContent='';
+  $('result').innerHTML='<h3>Score: '+s.r+' / '+s.n+'</h3><div>Time used '+mmss(t)+(a.minutes?' of '+a.minutes+':00':'')+'. Select a question to review it.</div>'+
+    '<table class="ht"><thead><tr><th>Question</th><th>Your answer</th><th>Correct</th><th></th><th class="num">Time</th><th>Topic</th><th>Flagged</th></tr></thead><tbody>'+
+    a.qids.map((id,i)=>{const q=Q[id]||{},ok=a.ans[i]===q.a,tn=(ADM.topics[(ADM.papers.find(p=>p.id===q.p)||{}).exam]||{})[q.t]||'';
+      return '<tr data-i="'+i+'"><td>'+(i+1)+(a.paper?'':' <small>('+esc(id)+')</small>')+'</td><td>'+(a.ans[i]||'—')+'</td><td>'+(q.a||'?')+'</td><td class="'+(ok?'ok':'bad')+'">'+(ok?'✓':'✗')+'</td><td class="num">'+mmss(a.time[i])+'</td><td>'+esc(tn)+'</td><td>'+(a.flag[i]?'⚑':'')+'</td></tr>'}).join('')+'</tbody></table>';
+  document.querySelectorAll('#result tbody tr').forEach(tr=>tr.onclick=()=>go(+tr.dataset.i));
+  $('content').scrollTop=0}
+
+$('nextBtn').onclick=()=>go(S.cur+1);$('prevBtn').onclick=()=>go(S.cur-1);
+$('navBtn').onclick=()=>S.rev?result():openNav();$('navClose').onclick=closeNav;
+$('origBtn').onclick=()=>{const q=Q[S.a.qids[S.cur]]||{};S.orig=!S.orig;$('origBtn').classList.toggle('on',S.orig);
+  $('stem').innerHTML=S.orig?'<img class="full" src="'+q.img0+'" alt="">':md(q.s);if(!S.orig)typeset($('stem'))};
+$('flagBtn').onclick=()=>{S.a.flag[S.cur]=!S.a.flag[S.cur];save();setFlagUI()};
+$('timer').onclick=()=>{showTimer=!showTimer;tick()};
+$('counter').onclick=()=>{showCounter=!showCounter;$('counterText').textContent=showCounter&&$('result').classList.contains('hidden')?(S.cur+1)+' of '+S.a.qids.length:''};
+$('cs').onchange=e=>document.body.className='exam '+e.target.value;
+$('explainBtn').onclick=()=>{const q=Q[S.a.qids[S.cur]]||{},e=$('explain');
+  if(!e.classList.contains('hidden')){e.classList.add('hidden');return}
+  e.innerHTML='<h4>Answer: '+(q.a||'?')+'</h4>'+(q.x?md(q.x):'<p>No worked solution for this question.</p>');e.classList.remove('hidden');typeset(e)};
+$('endBtn').onclick=()=>{
+  if(S.rev){clearInterval(tickId);S=null;home();return}
+  const inc=S.a.ans.filter(a=>!a).length;
+  confirmBox('End Exam','You have chosen to end the exam.'+(inc?'<br><br><b>You have '+inc+' unseen/incomplete question'+(inc>1?'s':'')+'.</b>':'')+'<br><br>If you click Yes, you will NOT be able to return to the exam.<br><br>Are you sure you want to end the exam?',finish)};
+window.addEventListener('pagehide',()=>{if(S&&!S.rev)stamp()});
+document.addEventListener('keydown',e=>{if(!S)return;
+  if(!$('confOv').classList.contains('hidden')){if(e.key==='Escape')closeConf();return}
+  if(!$('navOv').classList.contains('hidden')){if(e.key==='Escape'||(e.altKey&&e.code==='KeyC')){e.preventDefault();closeNav()}return}
+  if(e.altKey){const id={KeyN:'nextBtn',KeyP:'prevBtn',KeyF:'flagBtn',KeyV:'navBtn',KeyE:'endBtn',KeyX:'explainBtn',KeyO:'origBtn'}[e.code];
+    if(id){e.preventDefault();const b=$(id);if(!b.disabled&&!b.classList.contains('hidden'))b.click()}}});
+home();
+</script>
+</body>
+</html>
