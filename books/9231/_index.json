@@ -1,0 +1,218 @@
+[
+ {
+  "file": "9231_ch01_roots_of_polynomial_equations.md",
+  "chapter": 1,
+  "title": "Roots of polynomial equations",
+  "page_from": 13,
+  "page_to": 27,
+  "pages_present": 15,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch02_rational_functions.md",
+  "chapter": 2,
+  "title": "Rational functions",
+  "page_from": 28,
+  "page_to": 56,
+  "pages_present": 29,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch03_summation_of_series.md",
+  "chapter": 3,
+  "title": "Summation of series",
+  "page_from": 57,
+  "page_to": 69,
+  "pages_present": 13,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch04_matrices_1.md",
+  "chapter": 4,
+  "title": "Matrices 1",
+  "page_from": 70,
+  "page_to": 104,
+  "pages_present": 35,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch05_polar_coordinates.md",
+  "chapter": 5,
+  "title": "Polar coordinates",
+  "page_from": 105,
+  "page_to": 129,
+  "pages_present": 25,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch06_vectors.md",
+  "chapter": 6,
+  "title": "Vectors",
+  "page_from": 130,
+  "page_to": 150,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch07_proof_by_induction.md",
+  "chapter": 7,
+  "title": "Proof by induction",
+  "page_from": 151,
+  "page_to": 165,
+  "pages_present": 15,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch08_continuous_random_variables.md",
+  "chapter": 8,
+  "title": "Continuous random variables",
+  "page_from": 166,
+  "page_to": 200,
+  "pages_present": 35,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch09_inferential_statistics.md",
+  "chapter": 9,
+  "title": "Inferential statistics",
+  "page_from": 201,
+  "page_to": 231,
+  "pages_present": 31,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch10_chi_squared_tests.md",
+  "chapter": 10,
+  "title": "Chi-squared tests",
+  "page_from": 232,
+  "page_to": 260,
+  "pages_present": 29,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch11_non_parametric_tests.md",
+  "chapter": 11,
+  "title": "Non-parametric tests",
+  "page_from": 261,
+  "page_to": 290,
+  "pages_present": 30,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch12_probability_generating_functions.md",
+  "chapter": 12,
+  "title": "Probability generating functions",
+  "page_from": 291,
+  "page_to": 319,
+  "pages_present": 29,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch13_projectiles.md",
+  "chapter": 13,
+  "title": "Projectiles",
+  "page_from": 320,
+  "page_to": 332,
+  "pages_present": 13,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch14_equilibrium_of_a_rigid_body.md",
+  "chapter": 14,
+  "title": "Equilibrium of a rigid body",
+  "page_from": 333,
+  "page_to": 364,
+  "pages_present": 32,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch15_circular_motion.md",
+  "chapter": 15,
+  "title": "Circular motion",
+  "page_from": 365,
+  "page_to": 390,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch16_hooke_s_law.md",
+  "chapter": 16,
+  "title": "Hooke's law",
+  "page_from": 391,
+  "page_to": 408,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch17_linear_motion_under_a_variable_force.md",
+  "chapter": 17,
+  "title": "Linear motion under a variable force",
+  "page_from": 409,
+  "page_to": 421,
+  "pages_present": 13,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch18_momentum.md",
+  "chapter": 18,
+  "title": "Momentum",
+  "page_from": 422,
+  "page_to": 442,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch19_hyperbolic_functions.md",
+  "chapter": 19,
+  "title": "Hyperbolic functions",
+  "page_from": 443,
+  "page_to": 458,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch20_matrices_2.md",
+  "chapter": 20,
+  "title": "Matrices 2",
+  "page_from": 459,
+  "page_to": 483,
+  "pages_present": 25,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch21_differentiation.md",
+  "chapter": 21,
+  "title": "Differentiation",
+  "page_from": 484,
+  "page_to": 508,
+  "pages_present": 25,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch22_integration.md",
+  "chapter": 22,
+  "title": "Integration",
+  "page_from": 509,
+  "page_to": 535,
+  "pages_present": 27,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch23_complex_numbers.md",
+  "chapter": 23,
+  "title": "Complex numbers",
+  "page_from": 536,
+  "page_to": 555,
+  "pages_present": 20,
+  "pages_missing": []
+ },
+ {
+  "file": "9231_ch24_differential_equations.md",
+  "chapter": 24,
+  "title": "Differential equations",
+  "page_from": 556,
+  "page_to": 586,
+  "pages_present": 31,
+  "pages_missing": []
+ }
+]
