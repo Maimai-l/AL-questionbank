@@ -1,0 +1,236 @@
+[
+ {
+  "file": "9702_ch01_physical_quantities_and_units.md",
+  "chapter": 1,
+  "title": "Physical quantities and units",
+  "page_from": 17,
+  "page_to": 44,
+  "pages_present": 28,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch02_kinematics.md",
+  "chapter": 2,
+  "title": "Kinematics",
+  "page_from": 45,
+  "page_to": 67,
+  "pages_present": 23,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch03_dynamics.md",
+  "chapter": 3,
+  "title": "Dynamics",
+  "page_from": 68,
+  "page_to": 88,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch04_forces_density_and_pressure.md",
+  "chapter": 4,
+  "title": "Forces, density and pressure",
+  "page_from": 89,
+  "page_to": 102,
+  "pages_present": 14,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch05_work_energy_and_power.md",
+  "chapter": 5,
+  "title": "Work, energy and power",
+  "page_from": 103,
+  "page_to": 115,
+  "pages_present": 13,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch06_deformation_of_solids.md",
+  "chapter": 6,
+  "title": "Deformation of solids",
+  "page_from": 116,
+  "page_to": 125,
+  "pages_present": 10,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch07_waves.md",
+  "chapter": 7,
+  "title": "Waves",
+  "page_from": 126,
+  "page_to": 148,
+  "pages_present": 23,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch08_superposition.md",
+  "chapter": 8,
+  "title": "Superposition",
+  "page_from": 149,
+  "page_to": 176,
+  "pages_present": 28,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch09_electricity.md",
+  "chapter": 9,
+  "title": "Electricity",
+  "page_from": 177,
+  "page_to": 192,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch10_d_c_circuits.md",
+  "chapter": 10,
+  "title": "D.C. circuits",
+  "page_from": 193,
+  "page_to": 211,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch11_particle_physics.md",
+  "chapter": 11,
+  "title": "Particle physics",
+  "page_from": 212,
+  "page_to": 231,
+  "pages_present": 20,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch12_motion_in_a_circle.md",
+  "chapter": 12,
+  "title": "Motion in a circle",
+  "page_from": 239,
+  "page_to": 246,
+  "pages_present": 8,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch13_gravitational_fields.md",
+  "chapter": 13,
+  "title": "Gravitational fields",
+  "page_from": 247,
+  "page_to": 258,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch14_temperature.md",
+  "chapter": 14,
+  "title": "Temperature",
+  "page_from": 259,
+  "page_to": 268,
+  "pages_present": 10,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch15_ideal_gases.md",
+  "chapter": 15,
+  "title": "Ideal gases",
+  "page_from": 269,
+  "page_to": 279,
+  "pages_present": 11,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch16_thermodynamics.md",
+  "chapter": 16,
+  "title": "Thermodynamics",
+  "page_from": 280,
+  "page_to": 287,
+  "pages_present": 8,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch17_oscillations.md",
+  "chapter": 17,
+  "title": "Oscillations",
+  "page_from": 288,
+  "page_to": 301,
+  "pages_present": 14,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch18_electric_fields.md",
+  "chapter": 18,
+  "title": "Electric fields",
+  "page_from": 302,
+  "page_to": 317,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch19_capacitance.md",
+  "chapter": 19,
+  "title": "Capacitance",
+  "page_from": 318,
+  "page_to": 329,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch20_magnetic_fields.md",
+  "chapter": 20,
+  "title": "Magnetic fields",
+  "page_from": 330,
+  "page_to": 355,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch21_alternating_currents.md",
+  "chapter": 21,
+  "title": "Alternating currents",
+  "page_from": 356,
+  "page_to": 364,
+  "pages_present": 9,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch22_quantum_physics.md",
+  "chapter": 22,
+  "title": "Quantum physics",
+  "page_from": 365,
+  "page_to": 380,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch23_nuclear_physics.md",
+  "chapter": 23,
+  "title": "Nuclear physics",
+  "page_from": 381,
+  "page_to": 396,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch24_medical_physics.md",
+  "chapter": 24,
+  "title": "Medical physics",
+  "page_from": 397,
+  "page_to": 417,
+  "pages_present": 21,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch25_astronomy_and_cosmology.md",
+  "chapter": 25,
+  "title": "Astronomy and cosmology",
+  "page_from": 418,
+  "page_to": 429,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "9702_ch26_practical_work.md",
+  "chapter": 26,
+  "title": "Practical work",
+  "page_from": 430,
+  "page_to": 451,
+  "pages_present": 22,
+  "pages_missing": []
+ }
+]

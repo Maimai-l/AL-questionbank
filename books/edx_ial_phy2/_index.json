@@ -1,0 +1,137 @@
+[
+ {
+  "file": "edx_ial_phy2_ch01_5a_further_momentum.md",
+  "chapter": 1,
+  "title": "5A Further momentum",
+  "page_from": 12,
+  "page_to": 23,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch02_5b_circular_motion.md",
+  "chapter": 2,
+  "title": "5B Circular motion",
+  "page_from": 24,
+  "page_to": 35,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch03_6a_electric_fields.md",
+  "chapter": 3,
+  "title": "6A Electric fields",
+  "page_from": 36,
+  "page_to": 51,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch04_6b_capacitors.md",
+  "chapter": 4,
+  "title": "6B Capacitors",
+  "page_from": 52,
+  "page_to": 65,
+  "pages_present": 14,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch05_6c_electromagnetic_effects.md",
+  "chapter": 5,
+  "title": "6C Electromagnetic effects",
+  "page_from": 66,
+  "page_to": 81,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch06_7a_probing_matter.md",
+  "chapter": 6,
+  "title": "7A Probing matter",
+  "page_from": 82,
+  "page_to": 93,
+  "pages_present": 12,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch07_7b_particle_accelerators_and_detectors.md",
+  "chapter": 7,
+  "title": "7B Particle accelerators and detectors",
+  "page_from": 94,
+  "page_to": 109,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch08_7c_the_particle_zoo.md",
+  "chapter": 8,
+  "title": "7C The particle zoo",
+  "page_from": 110,
+  "page_to": 125,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch09_8a_heat_and_temperature.md",
+  "chapter": 9,
+  "title": "8A Heat and temperature",
+  "page_from": 126,
+  "page_to": 141,
+  "pages_present": 16,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch10_9a_radioactivity.md",
+  "chapter": 10,
+  "title": "9A Radioactivity",
+  "page_from": 142,
+  "page_to": 159,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch11_10a_oscillations.md",
+  "chapter": 11,
+  "title": "10A Oscillations",
+  "page_from": 160,
+  "page_to": 177,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch12_11a_gravitational_fields.md",
+  "chapter": 12,
+  "title": "11A Gravitational fields",
+  "page_from": 178,
+  "page_to": 187,
+  "pages_present": 10,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch13_11b_space.md",
+  "chapter": 13,
+  "title": "11B Space",
+  "page_from": 188,
+  "page_to": 213,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch14_maths_skills.md",
+  "chapter": 14,
+  "title": "Maths skills",
+  "page_from": 214,
+  "page_to": 219,
+  "pages_present": 6,
+  "pages_missing": []
+ },
+ {
+  "file": "edx_ial_phy2_ch15_preparing_for_your_exams.md",
+  "chapter": 15,
+  "title": "Preparing for your exams",
+  "page_from": 220,
+  "page_to": 227,
+  "pages_present": 8,
+  "pages_missing": []
+ }
+]
