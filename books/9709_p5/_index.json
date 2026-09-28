@@ -1,0 +1,65 @@
+[
+ {
+  "file": "9709_p5_ch01_exploring_data.md",
+  "chapter": 1,
+  "title": "Exploring data",
+  "page_from": 15,
+  "page_to": 65,
+  "pages_present": 51,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p5_ch02_representing_and_interpreting_data.md",
+  "chapter": 2,
+  "title": "Representing and interpreting data",
+  "page_from": 66,
+  "page_to": 91,
+  "pages_present": 26,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p5_ch03_probability.md",
+  "chapter": 3,
+  "title": "Probability",
+  "page_from": 92,
+  "page_to": 121,
+  "pages_present": 30,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p5_ch04_discrete_random_variables.md",
+  "chapter": 4,
+  "title": "Discrete random variables",
+  "page_from": 122,
+  "page_to": 139,
+  "pages_present": 18,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p5_ch05_permutations_and_combinations.md",
+  "chapter": 5,
+  "title": "Permutations and combinations",
+  "page_from": 140,
+  "page_to": 158,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p5_ch06_discrete_probability_distributions.md",
+  "chapter": 6,
+  "title": "Discrete probability distributions",
+  "page_from": 159,
+  "page_to": 177,
+  "pages_present": 19,
+  "pages_missing": []
+ },
+ {
+  "file": "9709_p5_ch07_the_normal_distribution.md",
+  "chapter": 7,
+  "title": "The normal distribution",
+  "page_from": 178,
+  "page_to": 200,
+  "pages_present": 23,
+  "pages_missing": []
+ }
+]
