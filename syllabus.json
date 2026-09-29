@@ -1,0 +1,1983 @@
+{
+ "9231": {
+  "source": "697357-2026-2027-syllabus.pdf",
+  "topics": {
+   "1.1": {
+    "code": "1.1",
+    "name": "Roots of polynomial equations",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1 (for Paper 1)",
+    "outcomes": [
+     "recall and use the relations between the roots and coefficients of polynomial equations",
+     "use a substitution to obtain an equation whose roots are related in a simple way to those of the original equation"
+    ],
+    "notes": [
+     "e.g. to evaluate symmetric functions of the roots or to solve problems involving unknown coefficients in equations; restricted to equations of degree 2, 3 or 4 only.",
+     "Substitutions will not be given for the easiest cases, e.g. where the new roots are reciprocals or squares or a simple linear function of the old roots."
+    ]
+   },
+   "1.2": {
+    "code": "1.2",
+    "name": "Rational functions and graphs",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1 (for Paper 1)",
+    "outcomes": [
+     "sketch graphs of simple rational functions, including the determination of oblique asymptotes, in cases where the degree of the numerator and the denominator are at most 2",
+     "understand and use relationships between the graphs of y = f(x), y2 = f(x), y = ^ h, y 1 = ^ h f x = ^ h. f x and y f x"
+    ],
+    "notes": [
+     "Including determination of the set of values taken by the function, e.g. by the use of a discriminant. Detailed plotting of curves will not be required, but sketches will generally be expected to show significant features, such as turning points, asymptotes and intersections with the axes.",
+     "Including use of such sketch graphs in the course of solving equations or inequalities."
+    ]
+   },
+   "1.3": {
+    "code": "1.3",
+    "name": "Summation of series",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1 (for Paper 1)",
+    "outcomes": [
+     "use the standard results for / , r / r2 , / r3 to find related sums",
+     "use the method of differences to obtain the sum of a finite series",
+     "recognise, by direct consideration of a sum to n terms, when a series is convergent, and find the sum to infinity in such cases"
+    ],
+    "notes": [
+     "Use of partial fractions to express a general term in a suitable form may be required."
+    ]
+   },
+   "1.4": {
+    "code": "1.4",
+    "name": "Matrices",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1",
+    "outcomes": [
+     "carry out operations of matrix addition, subtraction and multiplication, and recognise the terms zero matrix and identity (or unit) matrix",
+     "recall the meaning of the terms ‘singular’ and ‘non-singular’ as applied to square matrices and, for 2 # 2 and 3 # matrices, evaluate 3 determinants and find inverses of non-singular matrices",
+     "understand and use the result, for non-singular matrices, (AB)–1 = B–1A–1",
+     "understand the use of 2 # 2 matrices to represent certain geometric transformations in the x-y plane, in particular – understand the relationship between the transformations represented by A and A–1 – recognise that the matrix product AB represents the transformation that results from the transformation represented by B followed by the transformation represented by A – recall how the area scale factor of a transformation is related to the determinant of the corresponding matrix – find the matrix that represents a given transformation or sequence of transformations",
+     "understand the meaning of ‘invariant’ as applied to points and lines in the context of transformations represented by matrices, and solve simple problems involving invariant points and invariant lines."
+    ],
+    "notes": [
+     "Including non-square matrices. Matrices will have at most 3 rows and columns.",
+     "The notations det M for the determinant of a matrix M, and I for the identity matrix, will be used.",
+     "Extension to the product of more than two matrices may be required.",
+     "Understanding of the terms ‘rotation’, ‘reflection’, ‘enlargement’, ‘stretch’ and ‘shear’ for 2D transformations will be required. Other 2D transformations may be included, but no particular knowledge of them is expected.",
+     "e.g. to locate the invariant points of the transformation represented by 6 e 5 o, or to find 2 3 the invariant lines through the origin for 4 e - 1 o, 2 1 or to show that any line with gradient 1 is invariant for 2 e 0 o. 1 1"
+    ]
+   },
+   "1.5": {
+    "code": "1.5",
+    "name": "Polar coordinates",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1",
+    "outcomes": [
+     "understand the relations between Cartesian and polar coordinates, and convert equations of curves from Cartesian to polar form and vice versa",
+     "sketch simple polar curves, for 0 G θ < 2 π or −π 1 θ G π or a subset of either of these intervals",
+     "recall the formula 1 2 y r d 2 θ for the area of a sector, and use this formula in simple cases."
+    ],
+    "notes": [
+     "The convention r H 0 will be used.",
+     "Detailed plotting of curves will not be required, but sketches will generally be expected to show significant features, such as symmetry, coordinates of intersections with the initial line, the form of the curve at the pole and least/greatest values of r."
+    ]
+   },
+   "1.6": {
+    "code": "1.6",
+    "name": "Vectors",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1",
+    "outcomes": [
+     "use the equation of a plane in any of the forms ax + by + cz = d or r.n = p or r = a + λb + μc and convert equations of planes from one form to another as necessary in solving problems",
+     "recall that the vector product a # b of two vectors can be expressed either as a b sin θt , n where nt is a unit vector, or in component form as ` a b 2 3 − a b 3 2 j i + ` a b 3 1 − a b 1 3 j j +` a b 1 2 − a b k 2 1 j",
+     "use equations of lines and planes, together with scalar and vector products where appropriate, to solve problems concerning distances, angles and intersections, including – determining whether a line lies in a plane, is parallel to a plane or intersects a plane, and finding the point of intersection of a line and a plane when it exists – finding the foot of the perpendicular from a point to a plane – finding the angle between a line and a plane, and the angle between two planes – finding an equation for the line of intersection of two planes – calculating the shortest distance between two skew lines – finding an equation for the common perpendicular to two skew lines."
+    ],
+    "notes": []
+   },
+   "1.7": {
+    "code": "1.7",
+    "name": "Proof by induction",
+    "component": "1",
+    "component_name": "Further Pure Mathematics 1",
+    "outcomes": [
+     "use the method of mathematical induction to establish a given result",
+     "recognise situations where conjecture based on a limited trial followed by inductive proof is a useful strategy, and carry this out in simple cases."
+    ],
+    "notes": [
+     "e.g. u n = r / = n 1 1 2 1 _ r 3 + = 3 1 4 n n n - 2 1 i for the sequence given by ^ + 1 h 2 , u n + 1 = 3 u n − 1 and u 1 = 1 , f 6 4 − − 1 1 p n = f 3 3 # # 2 2 n + n 1 − − 2 6 3 1 − − 2 2 n n + 1 p,",
+     "3 2 n + 2 # 5 n − 3 is divisible by 8.",
+     "e.g. find the nth derivative of x ex, find r / = n 1 r # r ! ."
+    ]
+   },
+   "2.1": {
+    "code": "2.1",
+    "name": "Hyperbolic functions",
+    "component": "2",
+    "component_name": "Further Pure Mathematics 2 (for Paper 2)",
+    "outcomes": [
+     "understand the definitions of the hyperbolic functions sinh x, cosh x, tanh x, sech x, cosech x, coth x in terms of the exponential function",
+     "sketch the graphs of hyperbolic functions",
+     "prove and use identities involving hyperbolic functions",
+     "understand and use the definitions of the inverse hyperbolic functions and derive and use the logarithmic forms"
+    ],
+    "notes": [
+     "e.g. cosh2 x – sinh2 x ≡ 1, sinh2x ≡ 2 sinh x cosh x, and similar results corresponding to the standard trigonometric identities."
+    ]
+   },
+   "2.2": {
+    "code": "2.2",
+    "name": "Matrices",
+    "component": "2",
+    "component_name": "Further Pure Mathematics 2 (for Paper 2)",
+    "outcomes": [
+     "formulate a problem involving the solution of 3 linear simultaneous equations in 3 unknowns as a problem involving the solution of a matrix equation, or vice versa",
+     "understand the cases that may arise concerning the consistency or inconsistency of 3 linear simultaneous equations, relate them to the singularity or otherwise of the corresponding matrix, solve consistent systems, and interpret geometrically in terms of lines and planes",
+     "understand the terms ‘characteristic equation’, ‘eigenvalue’ and ‘eigenvector’, as applied to square matrices",
+     "find eigenvalues and eigenvectors of 2 × 2 and 3 × 3 matrices",
+     "express a square matrix in the form QDQ–1, where D is a diagonal matrix of eigenvalues and Q is a matrix whose columns are eigenvectors, and use this expression",
+     "use the fact that a square matrix satisfies its own characteristic equation."
+    ],
+    "notes": [
+     "e.g. three planes meeting in a common point, or in a common line, or having no common points.",
+     "Including use of the definition Ae = λe to prove simple properties, e.g. that λn is an eigenvalue of An.",
+     "Restricted to cases where the eigenvalues are real and distinct. e.g. in calculating powers of 2 × 2 or 3 × 3 matrices.",
+     "e.g. in finding successive powers of a matrix or finding an inverse matrix; restricted to 2 × 2 or 3 × 3 matrices only."
+    ]
+   },
+   "2.3": {
+    "code": "2.3",
+    "name": "Differentiation",
+    "component": "2",
+    "component_name": "Further Pure Mathematics 2",
+    "outcomes": [
+     "differentiate hyperbolic functions and differentiate sin–1x, cos–1x, sinh–1x, cosh–1x and tanh–1x d 2 y",
+     "obtain an expression for x d 2 in cases where",
+     "\u0007the relation between x and y is defined implicitly or parametrically",
+     "derive and use the first few terms of a Maclaurin’s series for a function."
+    ],
+    "notes": [
+     "Derivation of a general term is not included, but successive ‘implicit’ differentiation steps may be required, e.g. for y = tan x following an initial differentiation rearranged as y′= 1 + y2."
+    ]
+   },
+   "2.4": {
+    "code": "2.4",
+    "name": "Integration",
+    "component": "2",
+    "component_name": "Further Pure Mathematics 2",
+    "outcomes": [
+     "integrate hyperbolic functions and recognise integrals of functions of the form a 2 1 − x 2 ,",
+     "1 1 and , and integrate x 2 + a 2 x 2 − a 2 associated functions using trigonometric or hyperbolic substitutions as appropriate",
+     "derive and use reduction formulae for the evaluation of definite integrals",
+     "understand how the area under a curve may be approximated by areas of rectangles, and use rectangles to estimate or set bounds for the area under a curve or to derive inequalities or limits concerning sums",
+     "use integration to find – arc lengths for curves with equations in Cartesian coordinates, including the use of a parameter, or in polar coordinates – surface areas of revolution about one of the axes for curves with equations in Cartesian coordinates, including the use of a parameter."
+    ],
+    "notes": [
+     "Including use of completing the square where necessary, e.g. to integrate x 1 2 + x .",
+     "e.g. y 0 1π 2 sin x x n d , y 0 1 e −^ x 1 − x h n d x .",
+     "In harder cases hints may be given, e.g. y 0 1π 4 sec x x n d by considering d d x ^ tan sec x n x h.",
+     "Questions may involve either rectangles of unit width or rectangles whose width can tend to zero, e.g. 1 + ln n 2 r / = n 1 1 r 2 l n ^ n + 1 h , r = / n 1 n 1 1 c + n r m − 1 . y 0 1 ^ 1 + x h − 1 d x . continued Any questions involving integration may require techniques from Cambridge International A Level Mathematics (9709) applied to more difficult cases, e.g. integration by parts for y e x sinx x d , or use of the substitution t = tan 1 2 x .",
+     "Surface areas of revolution for curves with equations in polar coordinates will not be required."
+    ]
+   },
+   "2.5": {
+    "code": "2.5",
+    "name": "Complex numbers",
+    "component": "2",
+    "component_name": "Further Pure Mathematics 2",
+    "outcomes": [
+     "understand de Moivre’s theorem, for a positive or negative integer exponent, in terms of the geometrical effect of multiplication and division of complex numbers",
+     "prove de Moivre’s theorem for a positive integer exponent",
+     "use de Moivre’s theorem for a positive or negative rational exponent – to express trigonometrical ratios of multiple angles in terms of powers of trigonometrical ratios of the fundamental angle – to express powers of sinθ and cos θ in terms of multiple angles – – in the summation of series in finding and using the nth roots of unity."
+    ],
+    "notes": [
+     "e.g. by induction.",
+     "e.g. expressing cos5θ in terms of cos θ or tan5θ in terms of tanθ. e.g. expressing sin6θ in terms of cos2θ, cos4θ and cos6θ.",
+     "e.g. using the ‘C + iS ’ method to sum series such as r = e o / n 1 n r sin r θ ."
+    ]
+   },
+   "2.6": {
+    "code": "2.6",
+    "name": "Differential equations",
+    "component": "2",
+    "component_name": "Further Pure Mathematics 2",
+    "outcomes": [
+     "find an integrating factor for a first order linear differential equation, and use an integrating factor to find the general solution",
+     "recall the meaning of the terms ‘complementary function’ and ‘particular integral’ in the context of linear differential equations, and recall that the general solution is the sum of the complementary function and a particular integral",
+     "find the complementary function for a first or second order linear differential equation with constant coefficients",
+     "recall the form of, and find, a particular integral for a first or second order linear differential equation in the cases where a polynomial or a ebx or a cos px + b sin px is a suitable form, and in other simple cases find the appropriate coefficient(s) given a suitable form of particular integral",
+     "use a given substitution to reduce a differential equation to a first or second order linear equation with constant coefficients or to a first order equation with separable variables",
+     "use initial conditions to find a particular solution to a differential equation, and interpret a solution in terms of a problem modelled by a differential equation."
+    ],
+    "notes": [
+     "d y d y e.g. x d − 2 y = x 2 , x x d − y = x 4 , d + y d x y coth x = cosh x .",
+     "continued For second order equations, including the cases where the auxiliary equation has distinct real roots, a repeated real root or conjugate complex roots.",
+     "e.g. evaluate k given that kx cos 2x is a particular d 2 y integral of d x 2 + 4 y = sin 2 x .",
+     "e.g. the substitution x = et to reduce to linear form a differential equation with terms of the form d 2 y d y ax 2 d x 2 + bx x d + cy , or the substitution y = ux to d y x + y reduce x d = x − y to separable form."
+    ]
+   },
+   "3.1": {
+    "code": "3.1",
+    "name": "Motion of a projectile",
+    "component": "3",
+    "component_name": "Further Mechanics (for Paper 3)",
+    "outcomes": [
+     "model the motion of a projectile as a particle moving with constant acceleration and understand any limitations of the model",
+     "use horizontal and vertical equations of motion to solve problems on the motion of projectiles, including finding the magnitude and direction of the velocity at a given time or position, the range on a horizontal plane and the greatest height reached",
+     "derive and use the Cartesian equation of the trajectory of a projectile, including problems in which the initial speed and/or angle of projection may be unknown."
+    ],
+    "notes": [
+     "Vector methods are not required",
+     "Knowledge of the 'bounding parabola' for accessible points is not included."
+    ]
+   },
+   "3.2": {
+    "code": "3.2",
+    "name": "Equilibrium of a rigid body",
+    "component": "3",
+    "component_name": "Further Mechanics (for Paper 3)",
+    "outcomes": [
+     "calculate the moment of a force about a point",
+     "use the result that the effect of gravity on a rigid body is equivalent to a single force acting at the centre of mass of the body, and identify the position of the centre of mass of a uniform body using considerations of symmetry",
+     "use given information about the position of the centre of mass of a triangular lamina and other simple shapes",
+     "determine the position of the centre of mass of a composite body by considering an equivalent system of particles",
+     "use the principle that if a rigid body is in equilibrium under the action of coplanar forces then the vector sum of the forces is zero and the sum of the moments of the forces about any point is zero, and the converse of this",
+     "solve problems involving the equilibrium of a single rigid body under the action of coplanar forces, including those involving toppling or sliding."
+    ],
+    "notes": [
+     "For questions involving coplanar forces only; understanding of the vector nature of moments is not required.",
+     "Proofs of results given in the MF19 List of formulae are not required.",
+     "Simple cases only, e.g. a uniform L-shaped lamina, or a uniform cone joined at its base to a uniform hemisphere of the same radius."
+    ]
+   },
+   "3.3": {
+    "code": "3.3",
+    "name": "Circular motion",
+    "component": "3",
+    "component_name": "Further Mechanics",
+    "outcomes": [
+     "understand the concept of angular speed for a particle moving in a circle, and use the relation v = r~",
+     "\u0007understand that the acceleration of a particle moving in a circle with constant speed is directed towards the centre of the circle, and v2 use the formulae r ~ and r 2 .",
+     "solve problems which can be modelled by the motion of a particle moving in a horizontal circle with constant speed",
+     "solve problems which can be modelled by the motion of a particle in a vertical circle without loss of energy."
+    ],
+    "notes": [
+     "Proof of the acceleration formulae is not required.",
+     "Including finding a normal contact force or the tension in a string, locating points at which these are zero, and conditions for complete circular motion."
+    ]
+   },
+   "3.4": {
+    "code": "3.4",
+    "name": "Hooke's law",
+    "component": "3",
+    "component_name": "Further Mechanics",
+    "outcomes": [
+     "use Hooke’s law as a model relating the force in an elastic string or spring to the extension or compression, and understand the term modulus of elasticity",
+     "use the formula for the elastic potential energy stored in a string or spring",
+     "solve problems involving forces due to elastic strings or springs, including those where considerations of work and energy are needed."
+    ],
+    "notes": [
+     "Proof of the formula is not required.",
+     "e.g. a particle moving horizontally or vertically or on an inclined plane while attached to one or more strings or springs, or a particle attached to an elastic string acting as a 'conical pendulum'."
+    ]
+   },
+   "3.5": {
+    "code": "3.5",
+    "name": "Linear motion under a variable force",
+    "component": "3",
+    "component_name": "Further Mechanics",
+    "outcomes": [
+     "solve problems which can be modelled as the linear motion of a particle under the action of a variable force, by setting up and solving an appropriate differential equation."
+    ],
+    "notes": [
+     "d for acceleration, where v Including use of v x d appropriate.",
+     "Calculus required is restricted to content from Pure Mathematics 3 in Cambridge International A Level Mathematics (9709). Only differential equations in which the variables are separable are included."
+    ]
+   },
+   "3.6": {
+    "code": "3.6",
+    "name": "Momentum",
+    "component": "3",
+    "component_name": "Further Mechanics",
+    "outcomes": [
+     "recall Newton’s experimental law and the definition of the coefficient of restitution, the property 0 G e G 1 , and the meaning of the terms ‘perfectly elastic’ (e = 1) and ‘inelastic’ (e = 0)",
+     "use conservation of linear momentum and/or Newton’s experimental law to solve problems that may be modelled as the direct or oblique impact of two smooth spheres, or the direct or oblique impact of a smooth sphere with a fixed surface."
+    ],
+    "notes": []
+   },
+   "4.1": {
+    "code": "4.1",
+    "name": "Continuous random variables",
+    "component": "4",
+    "component_name": "Further Probability & Statistics (for Paper 4)",
+    "outcomes": [
+     "use a probability density function which may be defined piecewise",
+     "use the general result E g _ ^ X hi = y f ^ x h g ^ x h d x where f(x) is the probability density function of the continuous random variable X and g(X) is a function of X",
+     "understand and use the relationship between the probability density function (PDF) and the cumulative distribution function (CDF), and use either to evaluate probabilities or percentiles",
+     "use cumulative distribution functions (CDFs) of related variables in simple cases."
+    ],
+    "notes": [
+     "e.g. given the CDF of a variable X, find the CDF of a related variable Y, and hence its PDF, e.g. where Y = X 3."
+    ]
+   },
+   "4.2": {
+    "code": "4.2",
+    "name": "Inference using normal and t-distributions",
+    "component": "4",
+    "component_name": "Further Probability & Statistics (for Paper 4)",
+    "outcomes": [
+     "formulate hypotheses and apply a hypothesis test concerning the population mean using a small sample drawn from a normal population of unknown variance, using a t-test",
+     "calculate a pooled estimate of a population variance from two samples",
+     "formulate hypotheses concerning the difference of population means, and apply, as appropriate – a 2-sample t-test – a paired sample t-test – a test using a normal distribution",
+     "determine a confidence interval for a population mean, based on a small sample from a normal population with unknown variance, using a t-distribution",
+     "determine a confidence interval for a difference of population means, using a t-distribution or a normal distribution, as appropriate."
+    ],
+    "notes": [
+     "Calculations based on either raw or summarised data may be required.",
+     "The ability to select the test appropriate to the circumstances of a problem is expected."
+    ]
+   },
+   "4.3": {
+    "code": "4.3",
+    "name": "χ -tests",
+    "component": "4",
+    "component_name": "Further Probability & Statistics",
+    "outcomes": [
+     "fit a theoretical distribution, as prescribed by a given hypothesis, to given data",
+     "use a χ2-test, with the appropriate number of degrees of freedom, to carry out the corresponding goodness of fit analysis",
+     "use a χ2-test, with the appropriate number of degrees of freedom, for independence in a contingency table."
+    ],
+    "notes": [
+     "Questions will not involve lengthy calculations.",
+     "Classes should be combined so that each expected frequency is at least 5.",
+     "Yates’ correction is not required. Where appropriate, either rows or columns should be combined so that the expected frequency in each cell is at least 5."
+    ]
+   },
+   "4.4": {
+    "code": "4.4",
+    "name": "Non-parametric tests",
+    "component": "4",
+    "component_name": "Further Probability & Statistics",
+    "outcomes": [
+     "understand the idea of a non-parametric test and appreciate situations in which such a test might be useful",
+     "understand the basis of the sign test, the Wilcoxon signed-rank test and the Wilcoxon rank-sum test",
+     "use a single-sample sign test and a single- sample Wilcoxon signed-rank test to test a hypothesis concerning a population median",
+     "use a paired-sample sign test, a Wilcoxon matched-pairs signed-rank test and a Wilcoxon rank-sum test, as appropriate, to test for identity of populations."
+    ],
+    "notes": [
+     "e.g. when sampling from a population which cannot be assumed to be normally distributed.",
+     "Including knowledge that Wilcoxon tests are valid only for symmetrical distributions.",
+     "Including the use of normal approximations where appropriate. Questions will not involve tied ranks or observations equal to the population median value being tested.",
+     "Including the use of normal approximations where appropriate. Questions will not involve tied ranks or zero‑difference pairs."
+    ]
+   },
+   "4.5": {
+    "code": "4.5",
+    "name": "Probability generating functions",
+    "component": "4",
+    "component_name": "Further Probability & Statistics",
+    "outcomes": [
+     "understand the concept of a probability generating function (PGF) and construct and use the PGF for given distributions",
+     "use formulae for the mean and variance of a discrete random variable in terms of its PGF, and use these formulae to calculate the mean and variance of a given probability distribution",
+     "use the result that the PGF of the sum of independent random variables is the product of the PGFs of those random variables."
+    ],
+    "notes": [
+     "Including the discrete uniform, binomial, geometric and Poisson distributions."
+    ]
+   }
+  },
+  "prerequisites": [
+   {
+    "component": null,
+    "text": "find appropriate. However, please note the prior knowledge requirements below, and the information about"
+   },
+   {
+    "component": null,
+    "text": "Prior knowledge"
+   },
+   {
+    "component": null,
+    "text": "The prior knowledge required for each Further Mathematics component is shown in the following table."
+   },
+   {
+    "component": null,
+    "text": "Prior knowledge required from"
+   },
+   {
+    "component": "2",
+    "text": "Knowledge of Paper 1: Further Pure Mathematics 1 subject content from this syllabus is assumed for this"
+   },
+   {
+    "component": "3",
+    "text": "content is assumed for this component."
+   },
+   {
+    "component": "4",
+    "text": "Statistics subject content is assumed for this component."
+   },
+   {
+    "component": "4",
+    "text": "Cambridge website for recommended prior knowledge for this paper."
+   }
+  ],
+  "prior_knowledge": "Cambridge International AS & A Level Further Mathematics 9231 syllabus for 2026 and 2027.\n15\nwww.cambridgeinternational.org/alevel\nBack to contents page\n3  Subject content \nThis syllabus gives you the flexibility to design a course that will interest, challenge and engage your learners. \nWhere appropriate you are responsible for selecting resources and examples to support your learners’ \nstudy. These should be appropriate for the learners’ age, cultural background and learning context as well as \ncomplying with your school policies and local legal requirements.\nThe mathematical content for each component is detailed below. You can teach the topics in any order you \nfind appropriate. However, please note the prior knowledge requirements below, and the information about \ncalculator use found in 4 Details of the assessment.\nNotes and examples are included to clarify the syllabus content. Please note that these are examples only and \nexamination questions may differ from the examples given.\nPrior knowledge\nIt is expected that learners will have studied the majority of the Cambridge International AS & A Level \nMathematics (9709) subject content before studying Cambridge International AS & A Level Further Mathematics \n(9231). \nThe prior knowledge required for each Further Mathematics component is shown in the following table.\nComponent in AS & A Level \nFurther Mathematics (9231)\nPrior knowledge required from \nAS & A Level Mathematics (9709)\n9231 Paper 1:\nFurther Pure Mathematics 1\n9709 Papers 1 and 3\n9231 Paper 2:\nFurther Pure Mathematics 2\n9709 Papers 1 and 3\n9231 Paper 3:\nFurther Mechanics\n9709 Papers 1, 3 and 4\n9231 Paper 4:\nFurther Probability & Statistics\n9709 Papers 1, 3, 5 and 6\nPlease see the School Support Hub at www.cambridgeinternational.org/support for more information \nabout parallel teaching of Cambridge International AS & A Level Mathematics (9709) and AS & A Level Further \nMathematics (9231).\nThe support document Guide to prior learning for Paper 4 Further Probability & Statistics can be found on the \nCambridge International website.\n",
+  "levels": []
+ },
+ "9618": {
+  "source": "697372-2026-syllabus.pdf",
+  "topics": {
+   "1.1": {
+    "code": "1.1",
+    "name": "Data Representation",
+    "component": "1",
+    "component_name": "Information representation",
+    "outcomes": [
+     "Show understanding of binary magnitudes and the difference between binary prefixes and decimal prefixes",
+     "Show understanding of different number systems",
+     "Perform binary addition and subtraction",
+     "Describe practical applications where Binary Coded Decimal (BCD) and Hexadecimal are used",
+     "Show understanding of and be able to represent character data in its internal binary form, depending on the character set used"
+    ],
+    "notes": [
+     "Understand the difference between and use:",
+     "kibi and kilo",
+     "mebi and mega",
+     "gibi and giga",
+     "tebi and tera",
+     "Use the binary, denary, hexadecimal number bases and Binary Coded Decimal (BCD) and one’s and two’s complement representation for binary numbers Convert an integer value from one number base/ representation to another",
+     "Using positive and negative binary integers Show understanding of how overflow can occur",
+     "Students are expected to be familiar with ASCII (American Standard Code for Information Interchange), extended ASCII and Unicode. Students will not be expected to memorise any particular character codes"
+    ]
+   },
+   "1.2": {
+    "code": "1.2",
+    "name": "Multimedia",
+    "component": "1",
+    "component_name": "Information representation",
+    "outcomes": [
+     "Graphics",
+     "Show understanding of how data for a bitmapped image are encoded",
+     "Perform calculations to estimate the file size for a bitmap image",
+     "Show understanding of the effects of changing elements of a bitmap image on the image quality and file size",
+     "Show understanding of how data for a vector graphic are encoded",
+     "Justify the use of a bitmap image or a vector graphic for a given task",
+     "Sound",
+     "Show understanding of how sound is represented and encoded",
+     "Show understanding of the impact of changing the sampling rate and resolution"
+    ],
+    "notes": [
+     "Use and understand the terms: pixel, file header, image resolution, screen resolution, colour depth/ bit depth",
+     "Use the terms: image resolution, colour depth / bit depth",
+     "Use the terms: drawing object, property, drawing list",
+     "Use the terms: sampling, sampling rate, sampling resolution, analogue and digital data",
+     "Including the impact on file size and accuracy"
+    ]
+   },
+   "1.3": {
+    "code": "1.3",
+    "name": "Compression",
+    "component": "1",
+    "component_name": "Information representation",
+    "outcomes": [
+     "Show understanding of the need for and examples of the use of compression",
+     "Show understanding of lossy and lossless compression and justify the use of a method in a given situation",
+     "Show understanding of how a text file, bitmap image, vector graphic and sound file can be compressed"
+    ],
+    "notes": [
+     "Including the use of run-length encoding (RLE)"
+    ]
+   },
+   "2.1": {
+    "code": "2.1",
+    "name": "Networks including the internet",
+    "component": "2",
+    "component_name": "Communication",
+    "outcomes": [
+     "Show understanding of the purpose and benefits of networking devices",
+     "Show understanding of the characteristics of a LAN (local area network) and a WAN (wide area network)",
+     "Explain the client-server and peer-to-peer models of networked computers",
+     "Show understanding of thin-client and thick-client and the differences between them",
+     "Show understanding of the bus, star, mesh and hybrid topologies",
+     "Show understanding of cloud computing",
+     "Show understanding of the differences between and implications of the use of wireless and wired networks",
+     "Describe the hardware that is used to support a LAN",
+     "Describe the role and function of a router in a network",
+     "Show understanding of Ethernet and how collisions are detected and avoided",
+     "Show understanding of bit streaming",
+     "Show understanding of the differences between the World Wide Web (WWW) and the internet",
+     "Describe the hardware that is used to support the internet Explain the use of IP addresses in the transmission of data over the internet",
+     "Explain how a Uniform Resource Locator (URL) is used to locate a resource on the World Wide Web (WWW) and the role of the Domain Name Service (DNS)"
+    ],
+    "notes": [
+     "Roles of the different computers within the network and subnetwork models Benefits and drawbacks of each model Justify the use of a model for a given situation",
+     "Understand how packets are transmitted between two hosts for a given topology Justify the use of a topology for a given situation",
+     "Including the use of public and private clouds Benefits and drawbacks of cloud computing",
+     "Describe the characteristics of copper cable, fibre-optic cable, radio waves (including WiFi), microwaves, satellites",
+     "Including switch, server, Network Interface Card (NIC), Wireless Network Interface Card (WNIC), Wireless Access Points (WAP), cables, bridge, repeater",
+     "Including Carrier Sense Multiple Access / Collision Detection (CSMA / CD)",
+     "Methods of bit streaming, i.e. real-time and on-demand Importance of bit rates broadband speed on bit streaming",
+     "Including modems, PSTN (Public Switched Telephone Network), dedicated lines, cell phone network Including:",
+     "format of an IP address including IPv4 and IPv6",
+     "use of subnetting in a network",
+     "how an IP address is associated with a device on a network",
+     "difference between a public IP address and a private IP address and the implications for security",
+     "difference between a static IP address and a dynamic IP address"
+    ]
+   },
+   "3.1": {
+    "code": "3.1",
+    "name": "Computers and their components",
+    "component": "3",
+    "component_name": "Hardware",
+    "outcomes": [
+     "Show understanding of the need for input, output, primary memory and secondary (including removable) storage",
+     "Show understanding of embedded systems",
+     "Describe the principal operations of hardware devices",
+     "Show understanding of the use of buffers",
+     "Explain the differences between Random Access Memory (RAM) and Read Only Memory (ROM)",
+     "Explain the differences between Static RAM (SRAM) and Dynamic RAM (DRAM)",
+     "Explain the difference between Programmable ROM (PROM), Erasable Programmable ROM (EPROM) and Electrically Erasable Programmable ROM (EEPROM)",
+     "Show an understanding of monitoring and control systems"
+    ],
+    "notes": [
+     "Including: benefits and drawbacks of embedded systems",
+     "Including: Laser printer, 3D printer, microphone, speakers, magnetic hard disk, solid state (flash) memory, optical disc reader/writer, touchscreen, virtual reality headset",
+     "Including their use in a range of devices and systems",
+     "Including the use of SRAM and DRAM in a range of devices and systems and the reasons for using one instead of the other depending on the device and its use",
+     "Including:",
+     "difference between monitoring and control",
+     "use of sensors (including temperature, pressure, infra-red, sound) and actuators",
+     "importance of feedback"
+    ]
+   },
+   "3.2": {
+    "code": "3.2",
+    "name": "Logic Gates and Logic Circuits",
+    "component": "3",
+    "component_name": "Hardware",
+    "outcomes": [
+     "Use the following logic gate symbols:",
+     "NOT AND OR NAND NOR XOR",
+     "Understand and define the functions of : NOT, AND, OR, NAND, NOR and XOR (EOR) gates",
+     "Construct the truth table for each of the logic gates above",
+     "Construct a logic circuit",
+     "Construct a truth table",
+     "Construct a logic expression"
+    ],
+    "notes": [
+     "All gates except the NOT gate will have two inputs only.",
+     "From:",
+     "a problem statement",
+     "a logic expression",
+     "a truth table",
+     "From:",
+     "a problem statement",
+     "a logic circuit",
+     "a logic expression",
+     "From:",
+     "a problem statement",
+     "a logic circuit",
+     "a truth table"
+    ]
+   },
+   "4.1": {
+    "code": "4.1",
+    "name": "Central Processing Unit (CPU) Architecture",
+    "component": "4",
+    "component_name": "Processor Fundamentals",
+    "outcomes": [
+     "Show understanding of the basic Von Neumann model for a computer system and the stored program concept",
+     "Show understanding of the purpose and role of registers, including the difference between general purpose and special purpose registers",
+     "Show understanding of the purpose and roles of the Arithmetic and Logic Unit (ALU), Control Unit (CU) and system clock, Immediate Access Store (IAS)",
+     "Show understanding of how data are transferred between various components of the computer system using the address bus, data bus and control bus",
+     "Show understanding of how factors contribute to the performance of the computer system",
+     "Understand how different ports provide connection to peripheral devices",
+     "Describe the stages of the Fetch-Execute (F-E) cycle",
+     "Show understanding of the purpose of interrupts"
+    ],
+    "notes": [
+     "Special purpose registers including:",
+     "Program Counter (PC)",
+     "Memory Data Register (MDR)",
+     "Memory Address Register (MAR)",
+     "The Accumulator (ACC)",
+     "Index Register (IX)",
+     "Current Instruction Register (CIR)",
+     "Status Register",
+     "Including:",
+     "processor type and number of cores",
+     "the bus width",
+     "clock speed",
+     "cache memory",
+     "Including connection to:",
+     "Universal Serial Bus (USB)",
+     "High Definition Multimedia Interface (HDMI)",
+     "Video Graphics Array (VGA)",
+     "Describe and use ‘register transfer’ notation to describe the F-E cycle",
+     "Including:",
+     "possible causes of interrupts",
+     "applications of interrupts",
+     "use of an Interrupt Service handling Routine (ISR)",
+     "when interrupts are detected during the fetch- execute cycle",
+     "how interrupts are handled"
+    ]
+   },
+   "4.2": {
+    "code": "4.2",
+    "name": "Assembly Language",
+    "component": "4",
+    "component_name": "Processor Fundamentals",
+    "outcomes": [
+     "Show understanding of the relationship between assembly language and machine code",
+     "Describe the different stages of the assembly process for a two-pass assembler",
+     "Trace a given simple assembly language program",
+     "Show understanding that a set of instructions are grouped",
+     "Show understanding of and be able to use different modes of addressing The following table is an example of an instruction set:",
+     "Instruction",
+     "Opcode Operand",
+     "LDM #n Immediate addressing. Load the number n to ACC",
+     "LDD <address> Direct addressing. Load the contents of the location at the given address to ACC LDI <address> Indirect addressing. The address to be used is at the given address. Load the contents of this second address to ACC LDX <address> Indexed addressing. Form the address from <address> + the contents of the index register. Copy the contents of this calculated address to ACC LDR #n Immediate addressing. Load the number n to IX",
+     "MOV <register> Move the contents of the accumulator to the given register (IX)",
+     "STO <address> Store the contents of ACC at the given address",
+     "ADD <address> Add the contents of the given address to the ACC",
+     "ADD #n/Bn/&n Add the number n to the ACC",
+     "SUB <address> Subtract the contents of the given address from the ACC",
+     "SUB #n/Bn/&n Subtract the number n from the ACC",
+     "INC <register> Add 1 to the contents of the register (ACC or IX)",
+     "DEC <register> Subtract 1 from the contents of the register (ACC or IX)",
+     "JMP <address> Jump to the given address",
+     "CMP <address> Compare the contents of ACC with the contents of <address>",
+     "CMP #n Compare the contents of ACC with number n",
+     "CMI <address> Indirect addressing. The address to be used is at the given address. Compare the contents of ACC with the contents of this second address JPE <address> Following a compare instruction, jump to <address> if the compare was True",
+     "JPN <address> Following a compare instruction, jump to <address> if the compare was False IN Key in a character and store its ASCII value in ACC",
+     "OUT Output to the screen the character whose ASCII value is stored in ACC",
+     "END Return control to the operating system",
+     "All questions will assume there is only one general purpose register available (Accumulator) ACC denotes Accumulator IX denotes Index Register <address> can be an absolute or symbolic address # denotes a denary number, e.g. #123 B denotes a binary number, e.g. B01001010 & denotes a hexadecimal number, e.g. &4A"
+    ],
+    "notes": [
+     "Apply the two-pass assembler process to a given simple assembly language program",
+     "Including the following groups:",
+     "Data movement",
+     "Input and output of data",
+     "Arithmetic operations",
+     "Unconditional and conditional instructions",
+     "Compare instructions",
+     "Including immediate, direct, indirect, indexed, relative Explanation"
+    ]
+   },
+   "4.3": {
+    "code": "4.3",
+    "name": "Bit manipulation",
+    "component": "4",
+    "component_name": "Processor Fundamentals",
+    "outcomes": [
+     "Show understanding of and perform binary shifts",
+     "Show understanding of how bit manipulation can be used to monitor/control a device",
+     "Instruction Label Opcode Operand AND #n / Bn / &n Bitwise AND operation of the contents of ACC with the operand AND <address> Bitwise AND operation of the contents of ACC with the contents of <address> XOR #n / Bn / &n Bitwise XOR operation of the contents of ACC with the operand XOR <address> Bitwise XOR operation of the contents of ACC with the contents of <address> OR #n / Bn / &n Bitwise OR operation of the contents of ACC with the operand OR <address> Bitwise OR operation of the contents of ACC with the contents of <address> LSL #n Bits in ACC are shifted logically n places to the left. Zeros are introduced on the right hand end LSR #n Bits in ACC are shifted logically n places to the right. Zeros are introduced on the left hand end <label>: <opcode> <operand> Labels an instruction <label>: <data> Gives a symbolic address <label> to the memory location with contents <data> All questions will assume there is only one general purpose register available (Accumulator) ACC denotes Accumulator IX denotes Index Register <address> can be an absolute or symbolic address # denotes a denary number, e.g. #123 B denotes a binary number, e.g. B01001010 & denotes a hexadecimal number, e.g. &4A"
+    ],
+    "notes": [
+     "Logical, arithmetic and cyclic Left shift, right shift",
+     "Carry out bit manipulation operations Test and set a bit (using bit masking)",
+     "Explanation"
+    ]
+   },
+   "5.1": {
+    "code": "5.1",
+    "name": "Operating Systems",
+    "component": "5",
+    "component_name": "System Software",
+    "outcomes": [
+     "Explain why a computer system requires an Operating System (OS)",
+     "Explain the key management tasks carried out by the Operating System",
+     "Show understanding of the need for typical utility software provided with an Operating System",
+     "Show understanding of program libraries"
+    ],
+    "notes": [
+     "Including memory management, file management, security management, hardware management (input / output / peripherals), process management",
+     "Including disk formatter, virus checker, defragmentation software, disk contents analysis/ disk repair software, file compression, back-up software",
+     "Including:",
+     "software under development is often constructed using existing code from program libraries",
+     "the benefits to the developer of software constructed using library files, including Dynamic Link Library (DLL) files"
+    ]
+   },
+   "5.2": {
+    "code": "5.2",
+    "name": "Language Translators",
+    "component": "5",
+    "component_name": "System Software",
+    "outcomes": [
+     "Show understanding of the need for:",
+     "assembler software for the translation of an assembly language program",
+     "a compiler for the translation of a high-level language program",
+     "an interpreter for translation and execution of a high-level language program",
+     "Explain the benefits and drawbacks of using either a compiler or interpreter and justify the use of each",
+     "Show awareness that high-level language programs may be partially compiled and partially interpreted, such as Java (console mode)",
+     "Describe features found in a typical Integrated Development Environment (IDE)"
+    ],
+    "notes": [
+     "Including:",
+     "for coding, including context-sensitive prompts",
+     "for initial error detection, including dynamic syntax checks",
+     "for presentation, including prettyprint, expand and collapse code blocks",
+     "for debugging, including single stepping, breakpoints, i.e. variables, expressions, report window"
+    ]
+   },
+   "6.1": {
+    "code": "6.1",
+    "name": "Data Security",
+    "component": "6",
+    "component_name": "Security, privacy and data integrity",
+    "outcomes": [
+     "Explain the difference between the terms security, privacy and integrity of data",
+     "Show appreciation of the need for both the security of data and the security of the computer system",
+     "Describe security measures designed to protect computer systems, ranging from the stand-alone PC to a network of computers",
+     "Show understanding of the threats to computer and data security posed by networks and the internet",
+     "Describe methods that can be used to restrict the risks posed by threats",
+     "Describe security methods designed to protect the security of data"
+    ],
+    "notes": [
+     "Including user accounts, passwords, authentication techniques such as digital signatures and biometrics, firewall, anti-virus software, anti- spyware, encryption",
+     "Including malware (virus, spyware), hackers, phishing, pharming",
+     "Including encryption, access rights"
+    ]
+   },
+   "6.2": {
+    "code": "6.2",
+    "name": "Data Integrity",
+    "component": "6",
+    "component_name": "Security, privacy and data integrity",
+    "outcomes": [
+     "Describe how data validation and data verification help protect the integrity of data",
+     "Describe and use methods of data validation",
+     "Describe and use methods of data verification during data entry and data transfer"
+    ],
+    "notes": [
+     "Including range check, format check, length check, presence check, existence check, limit check, check digit",
+     "During data entry including visual check, double entry During data transfer including parity check (byte and block), checksum"
+    ]
+   },
+   "7.1": {
+    "code": "7.1",
+    "name": "Ethics and Ownership",
+    "component": "7",
+    "component_name": "Ethics and Ownership",
+    "outcomes": [
+     "Show understanding of the need for and purpose of ethics as a computing professional",
+     "Show understanding of the need to act ethically and the impact of acting ethically or unethically for a given situation",
+     "Show understanding of the need for copyright legislation",
+     "Show understanding of the different types of software licencing and justify the use of a licence for a given situation",
+     "Show understanding of Artificial Intelligence (AI)"
+    ],
+    "notes": [
+     "Understand the importance of joining a professional ethical body including BCS (British Computer Society), IEEE (Institute of Electrical and Electronic Engineers)",
+     "Licences to include free Software Foundation, the Open Source Initiative, shareware and commercial software",
+     "Understand the impact of AI including social, economic and environmental issues Understand the applications of AI"
+    ]
+   },
+   "8.1": {
+    "code": "8.1",
+    "name": "Database Concepts",
+    "component": "8",
+    "component_name": "Databases",
+    "outcomes": [
+     "Show understanding of the limitations of using a file- based approach for the storage and retrieval of data",
+     "Describe the features of a relational database that address the limitations of a file-based approach",
+     "Show understanding of and use the terminology associated with a relational database model",
+     "Use an entity-relationship (E-R) diagram to document a database design",
+     "Show understanding of the normalisation process",
+     "Explain why a given set of database tables are, or are not, in 3NF",
+     "Produce a normalised database design for a description of a database, a given set of data, or a given set of tables"
+    ],
+    "notes": [
+     "Including entity, table, record, field, tuple, attribute, primary key, candidate key, secondary key, foreign key, relationship (one-to-many, one-to-one, many- to-many), referential integrity, indexing",
+     "First Normal Form (1NF), Second Normal Form (2NF) and Third Normal Form (3NF)"
+    ]
+   },
+   "8.2": {
+    "code": "8.2",
+    "name": "Database Management Systems (DBMS)",
+    "component": "8",
+    "component_name": "Databases",
+    "outcomes": [
+     "Show understanding of the features provided by a Database Management System (DBMS) that address the issues of a file based approach",
+     "Show understanding of how software tools found within a DBMS are used in practice"
+    ],
+    "notes": [
+     "Including:",
+     "data management, including maintaining a data dictionary",
+     "data modelling",
+     "logical schema",
+     "data integrity",
+     "data security, including backup procedures and the use of access rights to individuals / groups of users",
+     "Including the use and purpose of:",
+     "developer interface",
+     "query processor"
+    ]
+   },
+   "8.3": {
+    "code": "8.3",
+    "name": "Data Definition Language (DDL) and Data Manipulation Language (DML)",
+    "component": "8",
+    "component_name": "Databases",
+    "outcomes": [
+     "Show understanding that the DBMS carries out all creation / modification of the database structure using its Data Definition Language (DDL)",
+     "Show understanding that the DBMS carries out all queries and maintenance of data using its DML",
+     "Show understanding that the industry standard for both DDL and DML is Structured Query Language (SQL)",
+     "Understand given SQL (DDL) statements and be able to write simple SQL (DDL) statements using a sub-set of statements Write an SQL script to query or modify data (DML) which are stored in (at most two) database tables"
+    ],
+    "notes": [
+     "Understand a given SQL statement",
+     "Create a database (CREATE DATABASE) Create a table definition (CREATE TABLE), including the creation of attributes with appropriate data types:",
+     "CHARACTER",
+     "VARCHAR(n)",
+     "BOOLEAN",
+     "INTEGER",
+     "REAL",
+     "DATE",
+     "TIME change a table definition (ALTER TABLE) add a primary key to a table (PRIMARY KEY (field)) add a foreign key to a table (FOREIGN KEY (field) REFERENCES Table (Field)) Queries including SELECT... FROM, WHERE, ORDER BY, GROUP BY, INNER JOIN, SUM, COUNT, AVG",
+     "Data maintenance including. INSERT INTO, DELETE FROM, UPDATE"
+    ]
+   },
+   "9.1": {
+    "code": "9.1",
+    "name": "Computational Thinking Skills",
+    "component": "9",
+    "component_name": "Algorithm Design and Problem-solving",
+    "outcomes": [
+     "Show an understanding of abstraction",
+     "Describe and use decomposition"
+    ],
+    "notes": [
+     "Need for and benefits of using abstraction Describe the purpose of abstraction Produce an abstract model of a system by only including essential details",
+     "Break down problems into sub-problems leading to the concept of a program module (procedure / function)"
+    ]
+   },
+   "9.2": {
+    "code": "9.2",
+    "name": "Algorithms",
+    "component": "9",
+    "component_name": "Algorithm Design and Problem-solving",
+    "outcomes": [
+     "Show understanding that an algorithm is a solution to a problem expressed as a sequence of defined steps",
+     "Use suitable identifier names for the representation of data used by a problem and represent these using an identifier table",
+     "Write pseudocode that contains input, process and output",
+     "Write pseudocode using the three basic constructs of sequence, selection and iteration (repetition)",
+     "Document a simple algorithm using a structured English description, a flowchart or pseudocode",
+     "Write pseudocode from:",
+     "a structured English description",
+     "a flowchart",
+     "Draw a flowchart from:",
+     "a structured English description",
+     "pseudocode Describe and use the process of stepwise refinement to express an algorithm to a level of detail from which the task may be programmed",
+     "Use logic statements to define parts of an algorithm solution"
+    ],
+    "notes": []
+   },
+   "10.1": {
+    "code": "10.1",
+    "name": "Data Types and Records",
+    "component": "10",
+    "component_name": "Data Types and Structures",
+    "outcomes": [
+     "Select and use appropriate data types for a problem solution",
+     "Show understanding of the purpose of a record structure to hold a set of data of different data types under one identifier"
+    ],
+    "notes": [
+     "including integer, real, char, string, Boolean, date (pseudocode will use the following data types: INTEGER, REAL, CHAR, STRING, BOOLEAN, DATE, ARRAY, FILE)",
+     "Write pseudocode to define a record structure Write pseudocode to read data from a record structure and save data to a record structure"
+    ]
+   },
+   "10.2": {
+    "code": "10.2",
+    "name": "Arrays",
+    "component": "10",
+    "component_name": "Data Types and Structures",
+    "outcomes": [
+     "Use the technical terms associated with arrays",
+     "Select a suitable data structure (1D or 2D array) to use for a given task",
+     "Write pseudocode for 1D and 2D arrays",
+     "Write pseudocode to process array data"
+    ],
+    "notes": [
+     "Including index, upper and lower bound",
+     "Sort using a bubble sort Search using a linear search"
+    ]
+   },
+   "10.3": {
+    "code": "10.3",
+    "name": "Files",
+    "component": "10",
+    "component_name": "Data Types and Structures",
+    "outcomes": [
+     "Show understanding of why files are needed",
+     "Write pseudocode to handle text files that consist of one or more lines"
+    ],
+    "notes": []
+   },
+   "10.4": {
+    "code": "10.4",
+    "name": "Introduction to Abstract Data Types (ADT)",
+    "component": "10",
+    "component_name": "Data Types and Structures",
+    "outcomes": [
+     "Show understanding that an ADT is a collection of data and a set of operations on those data",
+     "Show understanding that a stack, queue and linked list are examples of ADTs",
+     "Use a stack, queue and linked list to store data",
+     "Describe how a queue, stack and linked list can be implemented using arrays"
+    ],
+    "notes": [
+     "Describe the key features of a stack, queue and linked list and justify their use for a given situation",
+     "Candidates will not be required to write pseudocode for these structures, but they should be able to add, edit and delete data from these structures"
+    ]
+   },
+   "11.1": {
+    "code": "11.1",
+    "name": "Programming Basics",
+    "component": "11",
+    "component_name": "Programming",
+    "outcomes": [
+     "Implement and write pseudocode from a given design presented as either a program flowchart or structured English",
+     "Write pseudocode statements for:",
+     "the declaration and initialisation of constants",
+     "the declaration of variables",
+     "the assignment of values to variables",
+     "expressions involving any of the arithmetic or logical operators input from the keyboard and output to the console",
+     "Use built-in functions and library routines"
+    ],
+    "notes": [
+     "Any functions not given in the pseudocode guide will be provided String manipulation functions will always be given"
+    ]
+   },
+   "11.2": {
+    "code": "11.2",
+    "name": "Constructs",
+    "component": "11",
+    "component_name": "Programming",
+    "outcomes": [
+     "Use pseudocode to write:",
+     "an ‘IF’ statement including the ‘ELSE’ clause and nested IF statements",
+     "a ‘CASE’ structure",
+     "a ‘count-controlled’ loop:",
+     "a ‘post-condition’ loop",
+     "a ‘pre-condition’ loop",
+     "Justify why one loop structure may be better suited to solve a problem than the others"
+    ],
+    "notes": []
+   },
+   "11.3": {
+    "code": "11.3",
+    "name": "Structured Programming",
+    "component": "11",
+    "component_name": "Programming",
+    "outcomes": [
+     "Define and use a procedure",
+     "Explain where in the construction of an algorithm it would be appropriate to use a procedure",
+     "Use parameters",
+     "Define and use a function",
+     "Explain where in the construction of an algorithm it is appropriate to use a function",
+     "Use the terminology associated with procedures and functions",
+     "Write efficient pseudocode"
+    ],
+    "notes": [
+     "A procedure may have none, one or more parameters A parameter can be passed by reference or by value",
+     "A function is used in an expression, e.g. the return value replaces the call including procedure / function header, procedure / function interface, parameter, argument, return value"
+    ]
+   },
+   "12.1": {
+    "code": "12.1",
+    "name": "Program Development Life cycle",
+    "component": "12",
+    "component_name": "Software Development",
+    "outcomes": [
+     "Show understanding of the purpose of a development life cycle",
+     "Show understanding of the need for different development life cycles depending on the program being developed",
+     "Describe the principles, benefits and drawbacks of each type of life cycle",
+     "Show understanding of the analysis, design, coding, testing and maintenance stages in the program development life cycle"
+    ],
+    "notes": [
+     "Including: waterfall, iterative, rapid application development (RAD)"
+    ]
+   },
+   "12.2": {
+    "code": "12.2",
+    "name": "Program Design",
+    "component": "12",
+    "component_name": "Software Development",
+    "outcomes": [
+     "Use a structure chart to decompose a problem into sub-tasks and express the parameters passed between the various modules / procedures / functions which are part of the algorithm design",
+     "Show understanding of the purpose of state-transition diagrams to document an algorithm"
+    ],
+    "notes": [
+     "Describe the purpose of a structure chart Construct a structure chart for a given problem Derive equivalent pseudocode from a structure chart"
+    ]
+   },
+   "12.3": {
+    "code": "12.3",
+    "name": "Program Testing and Maintenance",
+    "component": "12",
+    "component_name": "Software Development",
+    "outcomes": [
+     "Show understanding of ways of exposing and avoiding faults in programs",
+     "Locate and identify the different types of errors",
+     "Correct identified errors",
+     "Show understanding of the methods of testing available and select appropriate data for a given method",
+     "Show understanding of the need for a test strategy and test plan and their likely contents",
+     "Choose appropriate test data for a test plan",
+     "Show understanding of the need for continuing maintenance of a system and the differences between each type of maintenance",
+     "Analyse an existing program and make amendments to enhance functionality A Level content",
+     "Computational thinking is further developed at A Level to extend methods for searching, sorting, structuring and storage of data. This includes understanding of Artificial Intelligence (AI). Programming paradigms are considered together with an extension of programming skills to include recursion and exception handling.",
+     "Computational thinking is supported by developing an in-depth understanding of how computer architecture, hardware, systems software, security measures and communication systems can have different structures and protocols. These can be combined to provide an appropriate infrastructure for solutions of problems. The syllabus encourages opportunities for students to apply their skills in a practical context that are required in the digital industry."
+    ],
+    "notes": [
+     "syntax errors",
+     "logic errors",
+     "run-time errors",
+     "Including dry run, walkthrough, white-box, black- box, integration, alpha, beta, acceptance, stub",
+     "Including normal, abnormal and extreme/boundary",
+     "Including perfective, adaptive, corrective"
+    ]
+   },
+   "13.1": {
+    "code": "13.1",
+    "name": "User-defined data types",
+    "component": "13",
+    "component_name": "Data Representation",
+    "outcomes": [
+     "Show understanding of why user-defined types are necessary",
+     "Define and use non-composite types",
+     "Define and use composite data types",
+     "Choose and design an appropriate user-defined data type for a given problem"
+    ],
+    "notes": [
+     "Including enumerated, pointer",
+     "Including set, record and class/object"
+    ]
+   },
+   "13.2": {
+    "code": "13.2",
+    "name": "File organisation and access",
+    "component": "13",
+    "component_name": "Data Representation",
+    "outcomes": [
+     "Show understanding of the methods of file organisation and select an appropriate method of file organisation and file access for a given problem",
+     "Show understanding of methods of file access",
+     "Show understanding of hashing algorithms"
+    ],
+    "notes": [
+     "Including serial, sequential (using a key field), random (using a record key)",
+     "Including Sequential access for serial and sequential files Direct access for sequential and random files",
+     "Describe and use different hashing algorithms to read from and write data to a random / sequential file"
+    ]
+   },
+   "13.3": {
+    "code": "13.3",
+    "name": "Floating-point numbers, representation and manipulation",
+    "component": "13",
+    "component_name": "Data Representation",
+    "outcomes": [
+     "Describe the format of binary floating-point real numbers",
+     "Convert binary floating-point real numbers into denary and vice versa",
+     "Normalise floating-point numbers",
+     "Show understanding of the consequences of a binary representation only being an approximation to the real number it represents (in certain cases)",
+     "Show understanding that binary representations can give rise to rounding errors"
+    ],
+    "notes": [
+     "Use two’s complement form Understand of the effects of changing the allocation of bits to mantissa and exponent in a floating-point representation",
+     "Understand the reasons for normalisation",
+     "Understand how underflow and overflow can occur"
+    ]
+   },
+   "14.1": {
+    "code": "14.1",
+    "name": "Protocols",
+    "component": "14",
+    "component_name": "Communication and internet technologies",
+    "outcomes": [
+     "Show understanding of why a protocol is essential for communication between computers",
+     "Show understanding of how protocol implementation can be viewed as a stack, where each layer has its own functionality",
+     "Show understanding of the TCP / IP protocol suite",
+     "Show understanding of protocols (HTTP, FTP, POP3, IMAP, SMTP, BitTorrent) and their purposes"
+    ],
+    "notes": [
+     "Four Layers (Application, Transport, Internet, Link) Purpose and function of each layer Application when a message is sent from one host to another on the internet",
+     "BitTorrent protocol provides peer-to-peer file sharing"
+    ]
+   },
+   "14.2": {
+    "code": "14.2",
+    "name": "Circuit switching, packet switching",
+    "component": "14",
+    "component_name": "Communication and internet technologies",
+    "outcomes": [
+     "Show understanding of circuit switching",
+     "Show understanding of packet switching"
+    ],
+    "notes": [
+     "Benefits, drawbacks and where it is applicable",
+     "Benefits, drawbacks and where it is applicable Show understanding of the function of a router in packet switching Explain how packet switching is used to pass messages across a network, including the internet"
+    ]
+   },
+   "15.1": {
+    "code": "15.1",
+    "name": "Processors, Parallel Processing and Virtual Machines",
+    "component": "15",
+    "component_name": "Hardware and Virtual Machines",
+    "outcomes": [
+     "Show understanding of Reduced Instruction Set Computers (RISC) and Complex Instruction Set Computers (CISC) processors",
+     "Show understanding of the importance / use of pipelining and registers in RISC processors",
+     "Show understanding of the four basic computer architectures",
+     "Show understanding of the characteristics of massively parallel computers",
+     "Show understanding of the concept of a virtual machine"
+    ],
+    "notes": [
+     "Differences between RISC and CISC Understand interrupt handling on CISC and RISC processors",
+     "SISD, SIMD, MISD, MIMD",
+     "Give examples of the role of virtual machines Understand the benefits and limitations of virtual machines"
+    ]
+   },
+   "15.2": {
+    "code": "15.2",
+    "name": "Boolean Algebra and Logic Circuits",
+    "component": "15",
+    "component_name": "Hardware and Virtual Machines",
+    "outcomes": [
+     "Produce truth tables for logic circuits including half adders and full adders",
+     "Show understanding of a flip-flop (SR, JK)",
+     "Show understanding of Boolean algebra",
+     "Show understanding of Karnaugh maps (K-map)"
+    ],
+    "notes": [
+     "May include logic gates with more than two inputs",
+     "Draw a logic circuit and derive a truth table for a flip-flop Understand of the role of flip-flops as data storage elements",
+     "Understand De Morgan’s laws Perform Boolean algebra using De Morgan’s laws Simplify a logic circuit/expression using Boolean algebra",
+     "Understand of the benefits of using Karnaugh maps Solve logic problems using Karnaugh maps"
+    ]
+   },
+   "16.1": {
+    "code": "16.1",
+    "name": "Purposes of an Operating System (OS)",
+    "component": "16",
+    "component_name": "System Software",
+    "outcomes": [
+     "Show understanding of how an OS can maximise the use of resources",
+     "Describe the ways in which the user interface hides the complexities of the hardware from the user",
+     "Show understanding of process management",
+     "Show understanding of virtual memory, paging and segmentation for memory management"
+    ],
+    "notes": [
+     "The concept of multi-tasking and a process The process states: running, ready and blocked The need for scheduling and the function and benefits of different scheduling routines (including round robin, shortest job first, first come first served, shortest remaining time) How the kernel of the OS acts as an interrupt handler and how interrupt handling is used to manage low-level scheduling",
+     "The concepts of paging, virtual memory and segmentation The difference between paging and segmentation How pages can be replaced How disk thrashing can occur"
+    ]
+   },
+   "16.2": {
+    "code": "16.2",
+    "name": "Translation Software",
+    "component": "16",
+    "component_name": "System Software",
+    "outcomes": [
+     "Show understanding of how an interpreter can execute programs without producing a translated version",
+     "Show understanding of the various stages in the compilation of a program",
+     "Show understanding of how the grammar of a language can be expressed using syntax diagrams or Backus-Naur Form (BNF) notation",
+     "Show understanding of how Reverse Polish Notation (RPN) can be used to carry out the evaluation of expressions"
+    ],
+    "notes": [
+     "Including lexical analysis, syntax analysis, code generation and optimisation"
+    ]
+   },
+   "17.1": {
+    "code": "17.1",
+    "name": "Encryption, Encryption Protocols and Digital Certificates",
+    "component": "17",
+    "component_name": "Security",
+    "outcomes": [
+     "Show understanding of how encryption works",
+     "Show awareness of the Secure Socket Layer (SSL)/ Transport Layer Security (TLS)",
+     "Show understanding of digital certification"
+    ],
+    "notes": [
+     "Including the use of public key, private key, plain text, cipher text, encryption, symmetric key cryptography and asymmetric key cryptography How the keys can be used to send a private message from the public to an individual/ organisation How the keys can be used to send a verified message to the public How data is encrypted and decrypted, using symmetric and asymmetric cryptography Purpose, benefits and drawbacks of quantum cryptography",
+     "Purpose of SSL / TLS Use of SSL/TLS in client-server communication",
+     "Situations where the use of SSL/TLS would be appropriate",
+     "How a digital certificate is acquired How a digital certificate is used to produce digital signatures"
+    ]
+   },
+   "18.1": {
+    "code": "18.1",
+    "name": "Artificial Intelligence (AI)",
+    "component": "18",
+    "component_name": "Artificial Intelligence (AI)",
+    "outcomes": [
+     "Show understanding of how graphs can be used to aid Artificial Intelligence (AI)",
+     "Show understanding of how artificial neural networks have helped with machine learning",
+     "Show understanding of Deep Learning, Machine Learning and Reinforcement Learning and the reasons for using these methods.",
+     "Show understanding of back propagation of errors and regression methods in machine learning"
+    ],
+    "notes": [
+     "Purpose and structure of a graph Use A* and Dijkstra’s algorithms to perform searches on a graph Candidates will not be required to write algorithms to set up, access, or perform searches on graphs",
+     "Understand machine learning categories, including supervised learning, unsupervised learning"
+    ]
+   },
+   "19.1": {
+    "code": "19.1",
+    "name": "Algorithms",
+    "component": "19",
+    "component_name": "Computational thinking and Problem-solving",
+    "outcomes": [
+     "Show understanding of linear and binary searching methods",
+     "Show understanding of insertion sort and bubble sort methods",
+     "Show understanding of and use Abstract Data Types (ADT)",
+     "Show how it is possible for ADTs to be implemented from another ADT",
+     "Show understanding that different algorithms which perform the same task can be compared by using criteria (e.g. time taken to complete the task and memory used)"
+    ],
+    "notes": [
+     "Write an algorithm to implement a linear search Write an algorithm to implement a binary search",
+     "The conditions necessary for the use of a binary search How the performance of a binary search varies according to the number of data items",
+     "Write an algorithm to implement an insertion sort Write an algorithm to implement a bubble sort",
+     "Performance of a sorting routine may depend on the initial order of the data and the number of data items",
+     "Write algorithms to find an item in each of the following: linked list, binary tree Write algorithms to insert an item into each of the following: stack, queue, linked list, binary tree Write algorithms to delete an item from each of the following: stack, queue, linked list Show understanding that a graph is an example of an ADT. Describe the key features of a graph and justify its use for a given situation. Candidates will not be required to write code for a graph structure",
+     "Describe the following ADTs and demonstrate how they can be implemented from appropriate built- in types or other ADTs: stack, queue, linked list, dictionary, binary tree",
+     "Including use of Big O notation to specify time and space complexity"
+    ]
+   },
+   "19.2": {
+    "code": "19.2",
+    "name": "Recursion",
+    "component": "19",
+    "component_name": "Computational thinking and Problem-solving",
+    "outcomes": [
+     "Show understanding of recursion",
+     "Show awareness of what a compiler has to do to translate recursive programming code"
+    ],
+    "notes": [
+     "Essential features of recursion How recursion is expressed in a programming language Write and trace recursive algorithms When the use of recursion is beneficial",
+     "Use of stacks and unwinding"
+    ]
+   },
+   "20.1": {
+    "code": "20.1",
+    "name": "Programming Paradigms",
+    "component": "20",
+    "component_name": "Further Programming",
+    "outcomes": [
+     "Understanding what is meant by a programming paradigm",
+     "Show understanding of the characteristics of a number of programming paradigms:",
+     "Low-level",
+     "Imperative (Procedural)",
+     "Object Oriented",
+     "Declarative"
+    ],
+    "notes": [
+     "Low-level Programming:",
+     "understanding of and ability to write low-level code that uses various addressing modes: immediate, direct, indirect, indexed and relative",
+     "Imperative (Procedural) programming:",
+     "Assumed knowledge and understanding of Structural Programming (see details in AS content section 11.3)",
+     "understanding of and ability to write imperative (procedural) programming code that uses variables, constructs, procedures and functions. See details in AS content",
+     "Object-Oriented Programming (OOP):",
+     "understanding of the terminology associated with OOP (including objects, properties/ attributes, methods, classes, inheritance, polymorphism, containment (aggregation), encapsulation, getters, setters, instances)",
+     "understanding of how to solve a problem by designing appropriate classes",
+     "understanding of and ability to write code that demonstrates the use of OOP",
+     "Declarative programming:",
+     "understanding of and ability to solve a problem by writing appropriate facts and rules based on supplied information",
+     "understanding of and ability to write code that can satisfy a goal using facts and rules"
+    ]
+   },
+   "20.2": {
+    "code": "20.2",
+    "name": "File Processing and Exception Handling",
+    "component": "20",
+    "component_name": "Further Programming",
+    "outcomes": [
+     "Write code to perform file-processing operations",
+     "Show understanding of an exception and the importance of exception handling"
+    ],
+    "notes": [
+     "Open (in read, write, append mode) and close a file Read a record from a file and write a record to a file Perform file-processing operations on serial, sequential, random files",
+     "Know when it is appropriate to use exception handling Write program code to use exception handling"
+    ]
+   }
+  },
+  "prerequisites": [],
+  "prior_knowledge": "",
+  "levels": [
+   "A Level",
+   "AS"
+  ]
+ },
+ "9709": {
+  "source": "697427-2026-2027-syllabus.pdf",
+  "topics": {
+   "1.1": {
+    "code": "1.1",
+    "name": "Quadratics",
+    "component": "1",
+    "component_name": "Pure Mathematics 1 (for Paper 1)",
+    "outcomes": [
+     "carry out the process of completing the square for a quadratic polynomial ax2 + bx + c and use a completed square form",
+     "find the discriminant of a quadratic polynomial ax2 + bx + c and use the discriminant",
+     "solve quadratic equations, and quadratic inequalities, in one unknown",
+     "solve by substitution a pair of simultaneous equations of which one is linear and one is quadratic",
+     "recognise and solve equations in x which are quadratic in some function of x."
+    ],
+    "notes": [
+     "e.g. to locate the vertex of the graph of y = ax2 + bx + c or to sketch the graph e.g. to determine the number of real roots of the equation ax2 + bx + c = 0. Knowledge of the term ‘repeated root’ is included.",
+     "By factorising, completing the square and using the formula.",
+     "e.g. x + y + 1 = 0 and x2 + y2 = 25, 2x + 3y = 7 and 3x2 = 4 + 4xy.",
+     "e.g. x4 – 5x2 + 4 = 0, x 6 + x − 1 = 0 , tan2 x = 1 + tan x."
+    ]
+   },
+   "1.2": {
+    "code": "1.2",
+    "name": "Functions",
+    "component": "1",
+    "component_name": "Pure Mathematics 1 (for Paper 1)",
+    "outcomes": [
+     "understand the terms function, domain, range, one-one function, inverse function and composition of functions",
+     "identify the range of a given function in simple cases, and find the composition of two given functions",
+     "determine whether or not a given function is one-one, and find the inverse of a one-one function in simple cases",
+     "illustrate in graphical terms the relation between a one-one function and its inverse",
+     "understand and use the transformations of the graph of y = f(x) given by y = f(x) + a, y = f(x + a), y = af(x), y = f(ax) and simple combinations of these."
+    ],
+    "notes": [
+     "e.g. range of : x f 7 1 x for x H 1 and range of : x g 7 x 2 + 1 for x ! R . Including the condition that a composite function gf can only be formed when the range of f is within the domain of g.",
+     "e.g. finding the inverse of h : x 7 ^ 2 x + 3 h 2 − 4 for x 1 − 3 2 .",
+     "Sketches should include an indication of the mirror line y = x.",
+     "Including use of the terms ‘translation’, ‘reflection’ and ‘stretch’ in describing transformations. Questions may involve algebraic or trigonometric functions, or other graphs with given features."
+    ]
+   },
+   "1.3": {
+    "code": "1.3",
+    "name": "Coordinate geometry",
+    "component": "1",
+    "component_name": "Pure Mathematics 1",
+    "outcomes": [
+     "find the equation of a straight line given sufficient information",
+     "interpret and use any of the forms y = mx + c, y – y1 = m(x – x1), ax + by + c = 0 in solving problems",
+     "understand that the equation (x – a)2 + (y – b)2 = r 2 represents the circle with centre (a, b) and radius r",
+     "use algebraic methods to solve problems involving lines and circles",
+     "understand the relationship between a graph and its associated algebraic equation, and use the relationship between points of intersection of graphs and solutions of equations."
+    ],
+    "notes": [
+     "e.g. given two points, or one point and the gradient.",
+     "Including calculations of distances, gradients, midpoints, points of intersection and use of the relationship between the gradients of parallel and perpendicular lines.",
+     "Including use of the expanded form x 2 + y 2 + 2gx + 2fy + c = 0.",
+     "Including use of elementary geometrical properties of circles, e.g. tangent perpendicular to radius, angle in a semicircle, symmetry. Implicit differentiation is not included.",
+     "e.g. to determine the set of values of k for which the line y = x + k intersects, touches or does not meet a quadratic curve."
+    ]
+   },
+   "1.4": {
+    "code": "1.4",
+    "name": "Circular measure",
+    "component": "1",
+    "component_name": "Pure Mathematics 1",
+    "outcomes": [
+     "understand the definition of a radian, and use the relationship between radians and degrees",
+     "use the formulae s = r θ and A = 1 2 r 2 θ in solving problems concerning the arc length and sector area of a circle."
+    ],
+    "notes": [
+     "Including calculation of lengths and angles in triangles and areas of triangles."
+    ]
+   },
+   "1.5": {
+    "code": "1.5",
+    "name": "Trigonometry",
+    "component": "1",
+    "component_name": "Pure Mathematics 1",
+    "outcomes": [
+     "sketch and use graphs of the sine, cosine and tangent functions (for angles of any size, and using either degrees or radians)",
+     "use the exact values of the sine, cosine and tangent of 30°, 45°, 60°, and related angles",
+     "use the notations sin–1x, cos­–1x, tan–1x to denote the principal values of the inverse trigonometric relations",
+     "use the identities cos sin θ / tan θ and θ sin 2 θ + cos 2 θ / 1",
+     "find all the solutions of simple trigonometrical equations lying in a specified interval (general forms of solution are not included)."
+    ],
+    "notes": [
+     "Including e.g. y = 3 sin x, y = 1 – cos 2x, y = tan c x + 1 π 4 m .",
+     "e.g. cos 150 c = − 1 2 3 , sin 3 4 π = 1 2 .",
+     "No specialised knowledge of these functions is required, but understanding of them as examples of inverse functions is expected.",
+     "e.g. in proving identities, simplifying expressions and solving equations.",
+     "e.g. solve sin x 3 2 + 1 = 0 for −π 1 x 1 π , 3 sin 2 θ − 5 cos θ − 1 = 0 for 0 c G θ G 360 c ."
+    ]
+   },
+   "1.6": {
+    "code": "1.6",
+    "name": "Series",
+    "component": "1",
+    "component_name": "Pure Mathematics 1",
+    "outcomes": [
+     "use the expansion of (a + b)n, where n is a positive integer",
+     "recognise arithmetic and geometric progressions",
+     "use the formulae for the nth term and for the sum of the first n terms to solve problems involving arithmetic or geometric progressions",
+     "use the condition for the convergence of a geometric progression, and the formula for the sum to infinity of a convergent geometric progression."
+    ],
+    "notes": [
+     "Including the notations n rf p and n!",
+     "Knowledge of the greatest term and properties of the coefficients are not required.",
+     "Including knowledge that numbers a, b, c are ‘in arithmetic progression’ if 2b = a + c (or equivalent) and are ‘in geometric progression’ if b2 = ac (or equivalent). Questions may involve more than one progression."
+    ]
+   },
+   "1.7": {
+    "code": "1.7",
+    "name": "Differentiation",
+    "component": "1",
+    "component_name": "Pure Mathematics 1",
+    "outcomes": [
+     "understand the gradient of a curve at a point as the limit of the gradients of a suitable sequence of chords, and use the notations d y d 2 y f ′(x), f ″(x), x d , and x d 2 for first and second derivatives",
+     "use the derivative of xn (for any rational n), together with constant multiples, sums and differences of functions, and of composite functions using the chain rule",
+     "apply differentiation to gradients, tangents and normals, increasing and decreasing functions and rates of change",
+     "locate stationary points and determine their nature, and use information about stationary points in sketching graphs."
+    ],
+    "notes": [
+     "Only an informal understanding of the idea of a limit is expected. e.g. includes consideration of the gradient of the chord joining the points with x coordinates 2 and (2 + h) on the curve y = x3. Formal use of the general method of differentiation from first principles is not required.",
+     "d y e.g. find x d , given y = 2 x 3 + 5 .",
+     "Including connected rates of change, e.g. given the rate of increase of the radius of a circle, find the rate of increase of the area for a specific value of one of the variables.",
+     "Including use of the second derivative for identifying maxima and minima; alternatives may be used in questions where no method is specified. Knowledge of points of inflexion is not included."
+    ]
+   },
+   "1.8": {
+    "code": "1.8",
+    "name": "Integration",
+    "component": "1",
+    "component_name": "Pure Mathematics 1",
+    "outcomes": [
+     "understand integration as the reverse process of differentiation, and integrate (ax + b)n (for any rational n except –1), together with constant multiples, sums and differences",
+     "solve problems involving the evaluation of a constant of integration",
+     "evaluate definite integrals",
+     "use definite integration to find – the area of a region bounded by a curve and lines parallel to the axes, or between a curve and a line or between two curves – a volume of revolution about one of the axes."
+    ],
+    "notes": [
+     "e.g. ;^ 2 x 3 − 5 x + 1 d h x , >^ 2 x 1 + 3 h 2 d x .",
+     "e.g. to find the equation of the curve through (1, –2) d = y for which d x 2 x + 1 .",
+     "Including simple cases of ‘improper’ integrals, such as ; 1 x - 1 2 d and x ; 3 x - 2 d x .",
+     "0 1 A volume of revolution may involve a region not bounded by the axis of rotation, e.g. the region between y = 9 – x2 and y = 5 rotated about the x-axis."
+    ]
+   },
+   "2.1": {
+    "code": "2.1",
+    "name": "Algebra",
+    "component": "2",
+    "component_name": "Pure Mathematics 2 (for Paper 2)",
+    "outcomes": [
+     "understand the meaning of |x|, sketch the graph of y = |ax + b| and use relations such as |a| = |b| ⇔ a2 = b2 and |x – a| < b ⇔ a – b < x < a + b when solving equations and inequalities",
+     "divide a polynomial, of degree not exceeding 4, by a linear or quadratic polynomial, and identify the quotient and remainder (which may be zero)",
+     "use the factor theorem and the remainder theorem."
+    ],
+    "notes": [
+     "Graphs of y = |f(x)| and y = f(|x|) for non-linear functions f are not included.",
+     "e.g. |3x – 2| = |2x + 7|, 2x + 5 < |x + 1| e.g. to find factors and remainders, solve polynomial equations or evaluate unknown coefficients. Including factors of the form (ax + b) in which the coefficient of x is not unity, and including calculation of remainders."
+    ]
+   },
+   "2.2": {
+    "code": "2.2",
+    "name": "Logarithmic and exponential functions",
+    "component": "2",
+    "component_name": "Pure Mathematics 2 (for Paper 2)",
+    "outcomes": [
+     "understand the relationship between logarithms and indices, and use the laws of logarithms (excluding change of base)",
+     "understand the definition and properties of ex and ln x, including their relationship as inverse functions and their graphs",
+     "use logarithms to solve equations and inequalities in which the unknown appears in indices",
+     "use logarithms to transform a given relationship to linear form, and hence determine unknown constants by considering the gradient and/or intercept."
+    ],
+    "notes": [
+     "Including knowledge of the graph of y = ekx for both positive and negative values of k.",
+     "e.g. 2 x 1 5 , 3 # 2 3 x − 1 1 5 , 3 x + 1 = 4 2 x − 1 .",
+     "e.g. y = kxn gives ln y = ln k + n ln x which is linear in ln x and ln y y = k (ax) gives ln y = ln k + x ln a which is linear in x and ln y."
+    ]
+   },
+   "2.3": {
+    "code": "2.3",
+    "name": "Trigonometry",
+    "component": "2",
+    "component_name": "Pure Mathematics 2",
+    "outcomes": [
+     "understand the relationship of the secant, cosecant and cotangent functions to cosine, sine and tangent, and use properties and graphs of all six trigonometric functions for angles of any magnitude",
+     "use trigonometrical identities for the simplification and exact evaluation of expressions, and in the course of solving equations, and select an identity or identities appropriate to the context, showing familiarity in particular with the use of – sec 2 θ / 1 + tan 2 θ and cosec 2 θ / 1 + cot 2 θ – the expansions of sin(A ± B), cos(A ± B) and tan(A ± B) – the formulae for sin 2A, cos 2A and tan 2A – the expression of sin forms R sin ^ θ ! α h and a θ R + cos b cos ^ θ θ ! in the α h."
+    ],
+    "notes": [
+     "^ h ^ h. e.g. simplifying cos x − 30 c − 3 sin x − 60 c e.g. solving tan θ + cot θ = 4 , sec 2 2θ - tan θ = 5 , 3 cos θ + 2 sin θ = 1 ."
+    ]
+   },
+   "2.4": {
+    "code": "2.4",
+    "name": "Differentiation",
+    "component": "2",
+    "component_name": "Pure Mathematics 2",
+    "outcomes": [
+     "use the derivatives of ex, ln x, sin x, cos x, tan x, together with constant multiples, sums, differences and composites",
+     "differentiate products and quotients",
+     "find and use the first derivative of a function which is defined parametrically or implicitly."
+    ],
+    "notes": [
+     "e.g. x 3 2 x + − 4 2 , x2 ln x, xel – x2 .",
+     "e.g. x = t – e2t, y = t + e2t. e.g. x2 + y2 = xy + 7.",
+     "Including use in problems involving tangents and normals."
+    ]
+   },
+   "2.5": {
+    "code": "2.5",
+    "name": "Integration",
+    "component": "2",
+    "component_name": "Pure Mathematics 2",
+    "outcomes": [
+     "extend the idea of ‘reverse differentiation’ to include the integration of eax + b, ax 1 + b , sin(ax + b), cos(ax + b) and sec2(ax + b)",
+     "use trigonometrical relationships in carrying out integration",
+     "understand and use the trapezium rule to estimate the value of a definite integral."
+    ],
+    "notes": [
+     "Knowledge of the general method of integration by substitution is not required.",
+     "e.g. use of double-angle formulae to integrate sin2 x or cos2(2x).",
+     "Including use of sketch graphs in simple cases to determine whether the trapezium rule gives an over-estimate or an under-estimate."
+    ]
+   },
+   "2.6": {
+    "code": "2.6",
+    "name": "Numerical solution of equations",
+    "component": "2",
+    "component_name": "Pure Mathematics 2",
+    "outcomes": [
+     "locate approximately a root of an equation, by means of graphical considerations and/or searching for a sign change",
+     "understand the idea of, and use the notation for, a sequence of approximations which converges to a root of an equation",
+     "understand how a given simple iterative formula of the form xn + 1 = F(xn) relates to the equation being solved, and use a given iteration, or an iteration based on a given rearrangement of an equation, to determine a root to a prescribed degree of accuracy."
+    ],
+    "notes": [
+     "e.g. finding a pair of consecutive integers between which a root lies.",
+     "Knowledge of the condition for convergence is not included, but an understanding that an iteration may fail to converge is expected."
+    ]
+   },
+   "3.1": {
+    "code": "3.1",
+    "name": "Algebra",
+    "component": "3",
+    "component_name": "Pure Mathematics 3 (for Paper 3)",
+    "outcomes": [
+     "understand the meaning of |x|, sketch the graph of y = |ax + b| and use relations such as |a| = |b| ⇔ a2 = b2 and |x – a| < b ⇔ a – b < x < a + b when solving equations and inequalities",
+     "divide a polynomial, of degree not exceeding 4, by a linear or quadratic polynomial, and identify the quotient and remainder (which may be zero)",
+     "use the factor theorem and the remainder theorem",
+     "recall an appropriate form for expressing rational functions in partial fractions, and carry out the decomposition, in cases where the denominator is no more complicated than – (ax + b)(cx + d)(ex + f ) – (ax + b)(cx + d)2 – (ax + b)(cx2 + d)",
+     "use the expansion of (1 + x)n, where n is a rational number and x 1 1 ."
+    ],
+    "notes": [
+     "Graphs of y = |f(x)| and y = f(|x|) for non-linear functions f are not included.",
+     "e.g. |3x – 2| = |2x + 7|, 2x + 5 < |x + 1|.",
+     "e.g. to find factors and remainders, solve polynomial equations or evaluate unknown coefficients. Including factors of the form (ax + b) in which the coefficient of x is not unity, and including calculation of remainders.",
+     "Excluding cases where the degree of the numerator exceeds that of the denominator",
+     "Finding the general term in an expansion is not included. Adapting the standard series to expand e.g. ` 2 − 1 2 x j − 1 is included, and determining the set of values of x for which the expansion is valid in such cases is also included."
+    ]
+   },
+   "3.2": {
+    "code": "3.2",
+    "name": "Logarithmic and exponential functions",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "understand the relationship between logarithms and indices, and use the laws of logarithms (excluding change of base)",
+     "understand the definition and properties of ex and ln x, including their relationship as inverse functions and their graphs",
+     "use logarithms to solve equations and inequalities in which the unknown appears in indices",
+     "use logarithms to transform a given relationship to linear form, and hence determine unknown constants by considering the gradient and/or intercept."
+    ],
+    "notes": [
+     "Including knowledge of the graph of y = ekx for both positive and negative values of k.",
+     "e.g. 2 x 1 5 , 3 # 2 3 x − 1 < 5 , 3 x + 1 = 4 2 x − 1 .",
+     "e.g. y = kxn gives ln y = ln k + n ln x which is linear in ln x and ln y. y = k (ax) gives ln y = ln k + x ln a which is linear in x and ln y."
+    ]
+   },
+   "3.3": {
+    "code": "3.3",
+    "name": "Trigonometry",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "understand the relationship of the secant, cosecant and cotangent functions to cosine, sine and tangent, and use properties and graphs of all six trigonometric functions for angles of any magnitude",
+     "use trigonometrical identities for the simplification and exact evaluation of expressions, and in the course of solving equations, and select an identity or identities appropriate to the context, showing familiarity in particular with the use of – sec 2 θ / 1 + tan 2 θ and cosec 2 θ / 1 + cot 2 θ – the expansions of sin(A ± B), cos(A ± B) and tan(A ± B) – the formulae for sin 2A, cos 2A and tan 2A – the expression of sin forms R sin ^ θ ! α h and a θ R + cos b cos ^ θ ! α θ in the h."
+    ],
+    "notes": [
+     "e.g. simplifying cos(x – 30˚) – 3 sin(x – 60˚).",
+     "e.g. solving tan 3 cos θ + 2 sin θ θ = + 1 cot . θ = 4 , sec 2 2 θ − tan θ = 5 ,"
+    ]
+   },
+   "3.4": {
+    "code": "3.4",
+    "name": "Differentiation",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "use the derivatives of ex, ln x, sin x, cos x, tan x, tan–1 x, together with constant multiples, sums, differences and composites",
+     "differentiate products and quotients",
+     "find and use the first derivative of a function which is defined parametrically or implicitly."
+    ],
+    "notes": [
+     "Derivatives of sin–1 x and cos–1 x are not required.",
+     "e.g. x 3 2 x + − 4 2 , x2 ln x, xe1 – x2 .",
+     "e.g. x = t – e2t, y = t + e2t. e.g. x2 + y2 = xy + 7.",
+     "Including use in problems involving tangents and normals."
+    ]
+   },
+   "3.5": {
+    "code": "3.5",
+    "name": "Integration",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "extend the idea of ‘reverse differentiation’ to include the integration of eax + b, ax 1 + b , sin(ax + b), cos(ax + b), sec2(ax + b) 1 and x 2 + a 2",
+     "use trigonometrical relationships in carrying out integration",
+     "integrate rational functions by means of decomposition into partial fractions k f l ^ x h",
+     "recognise an integrand of the form f ^ x h , and integrate such functions",
+     "recognise when an integrand can usefully be regarded as a product, and use integration by parts",
+     "use a given substitution to simplify and evaluate either a definite or an indefinite integral."
+    ],
+    "notes": [
+     "1 Including examples such as 2 + 3 x 2 .",
+     "e.g. use of double-angle formulae to integrate sin2 x or cos2(2x).",
+     "Restricted to types of partial fractions as specified in topic 3.1 above.",
+     "x e.g. integration of x 2 + 1 , tan x.",
+     "e.g. integration of x sin 2x, x2e–x, ln x, x tan–1 x.",
+     "e.g. to integrate sin2 2x cos x using the substitution u = sin x."
+    ]
+   },
+   "3.6": {
+    "code": "3.6",
+    "name": "Numerical solution of equations",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "locate approximately a root of an equation, by means of graphical considerations and/or searching for a sign change",
+     "understand the idea of, and use the notation for, a sequence of approximations which converges to a root of an equation",
+     "understand how a given simple iterative formula of the form xn + 1 = F(xn) relates to the equation being solved, and use a given iteration, or an iteration based on a given rearrangement of an equation, to determine a root to a prescribed degree of accuracy."
+    ],
+    "notes": [
+     "e.g. finding a pair of consecutive integers between which a root lies.",
+     "Knowledge of the condition for convergence is not included, but an understanding that an iteration may fail to converge is expected."
+    ]
+   },
+   "3.7": {
+    "code": "3.7",
+    "name": "Vectors",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "use standard notations for vectors, i.e. f p, xi + yj + zk, AB , a x f p, xi + yj, x y y z",
+     "carry out addition and subtraction of vectors and multiplication of a vector by a scalar, and interpret these operations in geometrical terms",
+     "calculate the magnitude of a vector, and use unit vectors, displacement vectors and position vectors",
+     "understand the significance of all the symbols used when the equation of a straight line is expressed in the form r = a + tb, and find the equation of a line, given sufficient information",
+     "determine whether two lines are parallel, intersect or are skew, and find the point of intersection of two lines when it exists",
+     "use formulae to calculate the scalar product of two vectors, and use scalar products in problems involving lines and points."
+    ],
+    "notes": [
+     "e.g. ‘OABC is a parallelogram’ is equivalent to OB = OA + OC .",
+     "The general form of the ratio theorem is not included, but understanding that the midpoint of AB has position vector 1 2 _ OA + OB i is expected.",
+     "In 2 or 3 dimensions.",
+     "e.g. finding the equation of a line given the position vector of a point on the line and a direction vector, or the position vectors of two points on the line.",
+     "Calculation of the shortest distance between two skew lines is not required. Finding the equation of the common perpendicular to two skew lines is also not required.",
+     "e.g. finding the angle between two lines, and finding the foot of the perpendicular from a point to a line; questions may involve 3D objects such as cuboids, tetrahedra (pyramids), etc. Knowledge of the vector product is not required."
+    ]
+   },
+   "3.8": {
+    "code": "3.8",
+    "name": "Differential equations",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "formulate a simple statement involving a rate of change as a differential equation",
+     "find by integration a general form of solution for a first order differential equation in which the variables are separable",
+     "use an initial condition to find a particular solution",
+     "interpret the solution of a differential equation in the context of a problem being modelled by the equation."
+    ],
+    "notes": [
+     "The introduction and evaluation of a constant of proportionality, where necessary, is included.",
+     "Including any of the integration techniques from topic 3.5 above.",
+     "Where a differential equation is used to model a ‘real-life’ situation, no specialised knowledge of the context will be required."
+    ]
+   },
+   "3.9": {
+    "code": "3.9",
+    "name": "Complex numbers",
+    "component": "3",
+    "component_name": "Pure Mathematics 3",
+    "outcomes": [
+     "understand the idea of a complex number, recall the meaning of the terms real part, imaginary part, modulus, argument, conjugate, and use the fact that two complex numbers are equal if and only if both real and imaginary parts are equal",
+     "carry out operations of addition, subtraction, multiplication and division of two complex numbers expressed in Cartesian form x + iy",
+     "use the result that, for a polynomial equation with real coefficients, any non-real roots occur in conjugate pairs",
+     "represent complex numbers geometrically by means of an Argand diagram",
+     "carry out operations of multiplication and division of two complex numbers expressed in polar form cos r ^ θ + i sin θ h / r ei θ",
+     "find the two square roots of a complex number",
+     "understand in simple terms the geometrical effects of conjugating a complex number and of adding, subtracting, multiplying and dividing two complex numbers",
+     "illustrate simple equations and inequalities involving complex numbers by means of loci in an Argand diagram"
+    ],
+    "notes": [
+     "Notations Re z, Im z, |z|, arg z, z* should be known. The argument of a complex number will usually refer to an angle θ such that −π 1 θ G π , but in some cases the interval 0 G θ 1 2 π may be more convenient. Answers may use either interval unless the question specifies otherwise.",
+     "For calculations involving multiplication or division, full details of the working should be shown.",
+     "e.g. in solving a cubic or quartic equation where one complex root is given.",
+     "Including the results |z1z2| = |z1||z2| and results for division. arg _ z z 1 2 i = arg _ z 1 i + arg _ z 2 i, and corresponding e.g. the square roots of 5 + 12i in exact Cartesian form. Full details of the working should be shown.",
+     "e.g. |z – a| < k, |z – a| = |z – b|, arg(z – a) = α."
+    ]
+   },
+   "4.1": {
+    "code": "4.1",
+    "name": "Forces and equilibrium",
+    "component": "4",
+    "component_name": "Mechanics (for Paper 4)",
+    "outcomes": [
+     "identify the forces acting in a given situation",
+     "understand the vector nature of force, and find and use components and resultants",
+     "use the principle that, when a particle is in equilibrium, the vector sum of the forces acting is zero, or equivalently, that the sum of the components in any direction is zero",
+     "understand that a contact force between two surfaces can be represented by two components, the normal component and the frictional component",
+     "use the model of a ‘smooth’ contact, and understand the limitations of this model",
+     "understand the concepts of limiting friction and limiting equilibrium, recall the definition of coefficient of friction, and use the relationship F = n R or F G n , as appropriate R",
+     "use Newton’s third law."
+    ],
+    "notes": [
+     "e.g. by drawing a force diagram.",
+     "Calculations are always required, not approximate solutions by scale drawing.",
+     "Solutions by resolving are usually expected, but equivalent methods (e.g. triangle of forces, Lami’s Theorem, where suitable) are also acceptable; these other methods are not required knowledge, and will not be referred to in questions.",
+     "Terminology such as ‘about to slip’ may be used to mean ‘in limiting equilibrium’ in questions.",
+     "e.g. the force exerted by a particle on the ground is equal and opposite to the force exerted by the ground on the particle."
+    ]
+   },
+   "4.2": {
+    "code": "4.2",
+    "name": "Kinematics of motion in a straight line",
+    "component": "4",
+    "component_name": "Mechanics",
+    "outcomes": [
+     "understand the concepts of distance and speed as scalar quantities, and of displacement, velocity and acceleration as vector quantities",
+     "sketch and interpret displacement–time graphs and velocity–time graphs, and in particular appreciate that – the area under a velocity–time graph represents displacement, – the gradient of a displacement–time graph represents velocity, – the gradient of a velocity–time graph represents acceleration",
+     "use differentiation and integration with respect to time to solve simple problems concerning displacement, velocity and acceleration",
+     "use appropriate formulae for motion with constant acceleration in a straight line."
+    ],
+    "notes": [
+     "Restricted to motion in one dimension only. The term ‘deceleration’ may sometimes be used in the context of decreasing speed.",
+     "Calculus required is restricted to techniques from the content for Paper 1: Pure Mathematics 1.",
+     "Questions may involve setting up more than one equation, using information about the motion of different particles."
+    ]
+   },
+   "4.3": {
+    "code": "4.3",
+    "name": "Momentum",
+    "component": "4",
+    "component_name": "Mechanics",
+    "outcomes": [
+     "use the definition of linear momentum and show understanding of its vector nature",
+     "use conservation of linear momentum to solve problems that may be modelled as the direct impact of two bodies."
+    ],
+    "notes": [
+     "For motion in one dimension only.",
+     "Including direct impact of two bodies where the bodies coalesce on impact. Knowledge of impulse and the coefficient of restitution is not required."
+    ]
+   },
+   "4.4": {
+    "code": "4.4",
+    "name": "Newton’s laws of motion",
+    "component": "4",
+    "component_name": "Mechanics",
+    "outcomes": [
+     "apply Newton’s laws of motion to the linear motion of a particle of constant mass moving under the action of constant forces, which may include friction, tension in an inextensible string and thrust in a connecting rod",
+     "use the relationship between mass and weight",
+     "solve simple problems which may be modelled as the motion of a particle moving vertically or on an inclined plane with constant acceleration",
+     "solve simple problems which may be modelled as the motion of connected particles."
+    ],
+    "notes": [
+     "If any other forces resisting motion are to be considered (e.g. air resistance) this will be indicated in the question.",
+     "W = mg. In this component, questions are mainly numerical, and use of the approximate numerical value 10 (m s–2) for g is expected.",
+     "Including, for example, motion of a particle on a rough plane where the acceleration while moving up the plane is different from the acceleration while moving down the plane.",
+     "e.g. particles connected by a light inextensible string passing over a smooth pulley, or a car towing a trailer by means of either a light rope or a light rigid tow-bar."
+    ]
+   },
+   "4.5": {
+    "code": "4.5",
+    "name": "Energy, work and power",
+    "component": "4",
+    "component_name": "Mechanics",
+    "outcomes": [
+     "understand the concept of the work done by a force, and calculate the work done by a constant force when its point of application undergoes a displacement not necessarily parallel to the force",
+     "understand the concepts of gravitational potential energy and kinetic energy, and use appropriate formulae",
+     "understand and use the relationship between the change in energy of a system and the work done by the external forces, and use in appropriate cases the principle of conservation of energy",
+     "use the definition of power as the rate at which a force does work, and use the relationship between power, force and velocity for a force acting in the direction of motion",
+     "solve problems involving, for example, the instantaneous acceleration of a car moving on a hill against a resistance."
+    ],
+    "notes": [
+     "W = Fd cos θ ; Use of the scalar product is not required.",
+     "Including cases where the motion may not be linear (e.g. a child on a smooth curved ‘slide’), where only overall energy changes need to be considered.",
+     "Including calculation of (average) power as Work done . Time taken P = Fv."
+    ]
+   },
+   "5.1": {
+    "code": "5.1",
+    "name": "Representation of data",
+    "component": "5",
+    "component_name": "Probability & Statistics 1 (for Paper 5)",
+    "outcomes": [
+     "select a suitable way of presenting raw statistical data, and discuss advantages and/ or disadvantages that particular representations may have",
+     "draw and interpret stem-and-leaf diagrams, box-and-whisker plots, histograms and cumulative frequency graphs",
+     "understand and use different measures of central tendency (mean, median, mode) and variation (range, interquartile range, standard deviation)",
+     "use a cumulative frequency graph",
+     "calculate and use the mean and standard deviation of a set of data (including grouped data) either from the data itself or from given totals and / / and ^ x x − a 2 h , and use such totals in solving / x2 , or coded totals / ^ x − a h problems which may involve up to two data sets."
+    ],
+    "notes": [
+     "Including back-to-back stem-and-leaf diagrams.",
+     "e.g. in comparing and contrasting sets of data.",
+     "e.g. to estimate medians, quartiles, percentiles, the proportion of a distribution above (or below) a given value, or between two values."
+    ]
+   },
+   "5.2": {
+    "code": "5.2",
+    "name": "Permutations and combinations",
+    "component": "5",
+    "component_name": "Probability & Statistics 1 (for Paper 5)",
+    "outcomes": [
+     "understand the terms permutation and combination, and solve simple problems involving selections",
+     "solve problems about arrangements of objects in a line, including those involving – repetition (e.g. the number of ways of arranging the letters of the word ‘NEEDLESS’) – restriction (e.g. the number of ways several people can stand in a line if two particular people must, or must not, stand next to each other)."
+    ],
+    "notes": [
+     "Questions may include cases such as people sitting in two (or more) rows. Questions about objects arranged in a circle will not be included."
+    ]
+   },
+   "5.3": {
+    "code": "5.3",
+    "name": "Probability",
+    "component": "5",
+    "component_name": "Probability & Statistics 1",
+    "outcomes": [
+     "evaluate probabilities in simple cases by means of enumeration of equiprobable elementary events, or by calculation using permutations or combinations",
+     "use addition and multiplication of probabilities, as appropriate, in simple cases",
+     "understand the meaning of exclusive and independent events, including determination of whether events A and B are independent by comparing the values of P ^ A h # P ^ B h P ^ A + B h and",
+     "calculate and use conditional probabilities in simple cases."
+    ],
+    "notes": [
+     "e.g. the total score when two fair dice are thrown. e.g. drawing balls at random from a bag containing balls of different colours.",
+     "Explicit use of the general formula P ^ A , B h = P ^ A h + P ^ B h − P ^ A + B h is not required.",
+     "e.g. situations that can be represented by a sample space of equiprobable elementary events, or a tree diagram. The use of P ^ A B h = P ^ P A ^ B + h B h may be required in simple cases."
+    ]
+   },
+   "5.4": {
+    "code": "5.4",
+    "name": "Discrete random variables",
+    "component": "5",
+    "component_name": "Probability & Statistics 1",
+    "outcomes": [
+     "draw up a probability distribution table relating to a given situation involving a discrete random variable X, and calculate E(X) and Var(X)",
+     "use formulae for probabilities for the binomial and geometric distributions, and recognise practical situations where these distributions are suitable models",
+     "use formulae for the expectation and variance of the binomial distribution and for the expectation of the geometric distribution."
+    ],
+    "notes": [
+     "Including the notations B(n, p) and Geo(p). Geo(p) denotes the distribution in which pr = p(1 – p)r – 1 for r = 1, 2, 3, … .",
+     "Proofs of formulae are not required."
+    ]
+   },
+   "5.5": {
+    "code": "5.5",
+    "name": "The normal distribution",
+    "component": "5",
+    "component_name": "Probability & Statistics 1",
+    "outcomes": [
+     "understand the use of a normal distribution to model a continuous random variable, and use normal distribution tables",
+     "solve problems concerning a variable X, where _ i, including – X + finding the value of P N n v , 2 _ X > x 1 i, or a related probability, given the values of x1, n, v. – finding a relationship between x1, n and v _ i or a related given the value of P X > x 1 probability",
+     "recall conditions under which the normal distribution can be used as an approximation to the binomial distribution, and use this approximation, with a continuity correction, in solving problems."
+    ],
+    "notes": [
+     "Sketches of normal curves to illustrate distributions or probabilities may be required.",
+     "For calculations involving standardisation, full details of the working should be shown. e.g. Z = _ X - n i n sufficiently large to ensure that both np > 5 and nq > 5."
+    ]
+   },
+   "6.1": {
+    "code": "6.1",
+    "name": "The Poisson distribution",
+    "component": "6",
+    "component_name": "Probability & Statistics 2 (for Paper 6)",
+    "outcomes": [
+     "use formulae to calculate probabilities for the ^ h distribution Po μ",
+     "use the fact that if X + Po ^ h then the mean μ and variance of X are each equal to μ",
+     "understand the relevance of the Poisson distribution to the distribution of random events, and use the Poisson distribution as a model",
+     "use the Poisson distribution as an approximation to the binomial distribution where appropriate",
+     "use the normal distribution, with continuity correction, as an approximation to the Poisson distribution where appropriate."
+    ],
+    "notes": [
+     "Proofs are not required.",
+     "The conditions that n is large and p is small should be known; n > 50 and np < 5, approximately.",
+     "The condition that μ is large should be known; μ 2 15 , approximately."
+    ]
+   },
+   "6.2": {
+    "code": "6.2",
+    "name": "Linear combinations of random variables",
+    "component": "6",
+    "component_name": "Probability & Statistics 2 (for Paper 6)",
+    "outcomes": [
+     "use, when solving problems, the results that – E(aX + b) = aE(X) + b and Var(aX + b) = a2 Var(X) – E(aX + bY) = aE(X) + bE(Y) – Var(aX + bY) = a2 Var(X) + b2 Var(Y) for independent X and Y – if X has a normal distribution then so does aX + b – if X and Y have independent normal distributions then aX + bY has a normal distribution – if X and Y have independent Poisson distributions then X + Y has a Poisson distribution."
+    ],
+    "notes": [
+     "Proofs of these results are not required."
+    ]
+   },
+   "6.3": {
+    "code": "6.3",
+    "name": "Continuous random variables",
+    "component": "6",
+    "component_name": "Probability & Statistics 2",
+    "outcomes": [
+     "understand the concept of a continuous random variable, and recall and use properties of a probability density function",
+     "use a probability density function to solve problems involving probabilities, and to calculate the mean and variance of a distribution."
+    ],
+    "notes": [
+     "For density functions defined over a single interval only; the domain may be infinite, e.g. x 3 4 for x H 1 .",
+     "Including location of the median or other percentiles of a distribution by direct consideration of an area using the density function. Explicit knowledge of the cumulative distribution function is not included."
+    ]
+   },
+   "6.4": {
+    "code": "6.4",
+    "name": "Sampling and estimation",
+    "component": "6",
+    "component_name": "Probability & Statistics 2",
+    "outcomes": [
+     "understand the distinction between a sample and a population, and appreciate the necessity for randomness in choosing samples",
+     "explain in simple terms why a given sampling method may be unsatisfactory",
+     "recognise that a sample mean can be regarded as a random variable, and use the facts that E X _ i = n and that Var X _ i = v n 2",
+     "_ i has a normal distribution",
+     "use the fact that X if X has a normal distribution",
+     "use the Central Limit Theorem where appropriate",
+     "calculate unbiased estimates of the population mean and variance from a sample, using either raw or summarised data",
+     "determine and interpret a confidence interval for a population mean in cases where the population is normally distributed with known variance or where a large sample is used",
+     "determine, from a large sample, an approximate confidence interval for a population proportion."
+    ],
+    "notes": [
+     "Including an elementary understanding of the use of random numbers in producing random samples. Knowledge of particular sampling methods, such as quota or stratified sampling, is not required.",
+     "Only an informal understanding of the Central Limit Theorem (CLT) is required; for large sample sizes, the distribution of a sample mean is approximately normal.",
+     "Only a simple understanding of the term ‘unbiased’ is required, e.g. that although individual estimates will vary the process gives an accurate result ‘on average’."
+    ]
+   },
+   "6.5": {
+    "code": "6.5",
+    "name": "Hypothesis tests",
+    "component": "6",
+    "component_name": "Probability & Statistics 2",
+    "outcomes": [
+     "understand the nature of a hypothesis test, the difference between one-tailed and two-tailed tests, and the terms null hypothesis, alternative hypothesis, significance level, rejection region (or critical region), acceptance region and test statistic",
+     "formulate hypotheses and carry out a hypothesis test in the context of a single observation from a population which has a binomial or Poisson distribution, using – direct evaluation of probabilities – a normal approximation to the binomial or the Poisson distribution, where appropriate",
+     "formulate hypotheses and carry out a hypothesis test concerning the population mean in cases where the population is normally distributed with known variance or where a large sample is used",
+     "understand the terms Type I error and Type II error in relation to hypothesis tests",
+     "calculate the probabilities of making Type I and Type II errors in specific situations involving tests based on a normal distribution or direct evaluation of binomial or Poisson probabilities."
+    ],
+    "notes": [
+     "Outcomes of hypothesis tests are expected to be interpreted in terms of the contexts in which questions are set."
+    ]
+   }
+  },
+  "prerequisites": [
+   {
+    "component": null,
+    "text": "Prior knowledge"
+   },
+   {
+    "component": "2",
+    "text": "Knowledge of the content for Paper 1: Pure Mathematics 1 is assumed, and candidates may be required to"
+   },
+   {
+    "component": "3",
+    "text": "Knowledge of the content of Paper 1: Pure Mathematics 1 is assumed, and candidates may be required to"
+   },
+   {
+    "component": "4",
+    "text": "Knowledge of algebraic methods from the content for Paper 1: Pure Mathematics 1 is assumed."
+   },
+   {
+    "component": "6",
+    "text": "Knowledge of the content of Paper 5: Probability & Statistics 1 is assumed, and candidates may be required"
+   }
+  ],
+  "prior_knowledge": "Cambridge International AS & A Level Mathematics 9709 syllabus for 2026 and 2027.\n18\nwww.cambridgeinternational.org/alevel\nBack to contents page\n3  Subject content \nThis syllabus gives you the flexibility to design a course that will interest, challenge and engage your learners. \nWhere appropriate you are responsible for selecting resources and examples to support your learners’ \nstudy. These should be appropriate for the learners’ age, cultural background and learning context as well as \ncomplying with your school policies and local legal requirements.\nThe mathematical content for each component is detailed below. You can teach the topics in any order you find \nappropriate. \nInformation about calculator use and information about the relationships between syllabus components can be \nfound in 4 Details of the assessment. \nNotes and examples are included to clarify the subject content. Please note that these are examples only and \nexamination questions may differ from the examples given.\nPrior knowledge\nKnowledge of the content of the Cambridge IGCSE™ Mathematics 0580 (Extended curriculum), or Cambridge \nInternational O Level (4024/4029), is assumed. Candidates should be familiar with scientific notation for \ncompound units, e.g. 5 m s–1 for 5 metres per second. \nIn addition, candidates should:\n\t•\nbe able to carry out simple manipulation of surds (e.g. expressing 12 as 2\n3  and \n2\n6 as 3\n2 ), \n\t•\nknow the shapes of graphs of the form y\nkxn\n=\n , where k is a constant and n is an integer (positive or \n\t\nnegative) or \n2\n1\n!\n. \n",
+  "levels": []
+ }
+}

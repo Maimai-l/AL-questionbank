@@ -1,0 +1,35 @@
+# data/ is a git worktree of the `data` branch (database, crops, books, site).
+# It has its own history; main never tracks it. See docs/data-sync.md.
+/data/
+
+# Pipeline inputs (PDFs, OCR output) and working folders. Not tracked on main.
+/raw/
+/exports/
+/export/
+/pdf/
+/bank/
+/bank_ocr/
+/pipeline/admissions_rebuild/bank
+/pipeline/admissions_rebuild/bank_ocr
+/pipeline/admissions_rebuild/review/
+/pipeline/admissions_rebuild/options_patch.json
+
+# Images in the older layout, in case a copy is unpacked here.
+/assets/img*/
+/assets/books/
+/assets/data.js
+/assets/textbooks.js
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db

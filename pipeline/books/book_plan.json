@@ -1,0 +1,3234 @@
+{
+ "books": [
+  {
+   "file": "Cambridge International AS  A Level Further Mathematics Coursebook (Lee Mckelvey Martin Crozier) .pdf",
+   "pages": 646,
+   "median_chars": 0.0,
+   "toc": [],
+   "toc_levels": 0,
+   "headings": {
+    "body_size": null,
+    "candidates": []
+   },
+   "example_marker_pages": 0,
+   "ocr_pages": 646,
+   "ocr_reasons": {
+    "无文本层": 646
+   },
+   "ocr_page_list": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223,
+    224,
+    225,
+    226,
+    227,
+    228,
+    229,
+    230,
+    231,
+    232,
+    233,
+    234,
+    235,
+    236,
+    237,
+    238,
+    239,
+    240,
+    241,
+    242,
+    243,
+    244,
+    245,
+    246,
+    247,
+    248,
+    249,
+    250,
+    251,
+    252,
+    253,
+    254,
+    255,
+    256,
+    257,
+    258,
+    259,
+    260,
+    261,
+    262,
+    263,
+    264,
+    265,
+    266,
+    267,
+    268,
+    269,
+    270,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    278,
+    279,
+    280,
+    281,
+    282,
+    283,
+    284,
+    285,
+    286,
+    287,
+    288,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    295,
+    296,
+    297,
+    298,
+    299,
+    300,
+    301,
+    302,
+    303,
+    304,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    313,
+    314,
+    315,
+    316,
+    317,
+    318,
+    319,
+    320,
+    321,
+    322,
+    323,
+    324,
+    325,
+    326,
+    327,
+    328,
+    329,
+    330,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    342,
+    343,
+    344,
+    345,
+    346,
+    347,
+    348,
+    349,
+    350,
+    351,
+    352,
+    353,
+    354,
+    355,
+    356,
+    357,
+    358,
+    359,
+    360,
+    361,
+    362,
+    363,
+    364,
+    365,
+    366,
+    367,
+    368,
+    369,
+    370,
+    371,
+    372,
+    373,
+    374,
+    375,
+    376,
+    377,
+    378,
+    379,
+    380,
+    381,
+    382,
+    383,
+    384,
+    385,
+    386,
+    387,
+    388,
+    389,
+    390,
+    391,
+    392,
+    393,
+    394,
+    395,
+    396,
+    397,
+    398,
+    399,
+    400,
+    401,
+    402,
+    403,
+    404,
+    405,
+    406,
+    407,
+    408,
+    409,
+    410,
+    411,
+    412,
+    413,
+    414,
+    415,
+    416,
+    417,
+    418,
+    419,
+    420,
+    421,
+    422,
+    423,
+    424,
+    425,
+    426,
+    427,
+    428,
+    429,
+    430,
+    431,
+    432,
+    433,
+    434,
+    435,
+    436,
+    437,
+    438,
+    439,
+    440,
+    441,
+    442,
+    443,
+    444,
+    445,
+    446,
+    447,
+    448,
+    449,
+    450,
+    451,
+    452,
+    453,
+    454,
+    455,
+    456,
+    457,
+    458,
+    459,
+    460,
+    461,
+    462,
+    463,
+    464,
+    465,
+    466,
+    467,
+    468,
+    469,
+    470,
+    471,
+    472,
+    473,
+    474,
+    475,
+    476,
+    477,
+    478,
+    479,
+    480,
+    481,
+    482,
+    483,
+    484,
+    485,
+    486,
+    487,
+    488,
+    489,
+    490,
+    491,
+    492,
+    493,
+    494,
+    495,
+    496,
+    497,
+    498,
+    499,
+    500,
+    501,
+    502,
+    503,
+    504,
+    505,
+    506,
+    507,
+    508,
+    509,
+    510,
+    511,
+    512,
+    513,
+    514,
+    515,
+    516,
+    517,
+    518,
+    519,
+    520,
+    521,
+    522,
+    523,
+    524,
+    525,
+    526,
+    527,
+    528,
+    529,
+    530,
+    531,
+    532,
+    533,
+    534,
+    535,
+    536,
+    537,
+    538,
+    539,
+    540,
+    541,
+    542,
+    543,
+    544,
+    545,
+    546,
+    547,
+    548,
+    549,
+    550,
+    551,
+    552,
+    553,
+    554,
+    555,
+    556,
+    557,
+    558,
+    559,
+    560,
+    561,
+    562,
+    563,
+    564,
+    565,
+    566,
+    567,
+    568,
+    569,
+    570,
+    571,
+    572,
+    573,
+    574,
+    575,
+    576,
+    577,
+    578,
+    579,
+    580,
+    581,
+    582,
+    583,
+    584,
+    585,
+    586,
+    587,
+    588,
+    589,
+    590,
+    591,
+    592,
+    593,
+    594,
+    595,
+    596,
+    597,
+    598,
+    599,
+    600,
+    601,
+    602,
+    603,
+    604,
+    605,
+    606,
+    607,
+    608,
+    609,
+    610,
+    611,
+    612,
+    613,
+    614,
+    615,
+    616,
+    617,
+    618,
+    619,
+    620,
+    621,
+    622,
+    623,
+    624,
+    625,
+    626,
+    627,
+    628,
+    629,
+    630,
+    631,
+    632,
+    633,
+    634,
+    635,
+    636,
+    637,
+    638,
+    639,
+    640,
+    641,
+    642,
+    643,
+    644,
+    645,
+    646
+   ],
+   "ocr_jobs": [
+    [
+     1,
+     100
+    ],
+    [
+     101,
+     200
+    ],
+    [
+     201,
+     300
+    ],
+    [
+     301,
+     400
+    ],
+    [
+     401,
+     500
+    ],
+    [
+     501,
+     600
+    ],
+    [
+     601,
+     646
+    ]
+   ],
+   "samples": []
+  },
+  {
+   "file": "Cambridge International AS  A Level Mathematics Mechanics (Sophie Goldie) .pdf",
+   "pages": 235,
+   "median_chars": 1538,
+   "toc": [
+    {
+     "level": 1,
+     "title": "Cover",
+     "page": 1
+    },
+    {
+     "level": 1,
+     "title": "Book title",
+     "page": 5
+    },
+    {
+     "level": 1,
+     "title": "Copyright",
+     "page": 6
+    },
+    {
+     "level": 1,
+     "title": "Contents",
+     "page": 7
+    },
+    {
+     "level": 1,
+     "title": "Introduction",
+     "page": 9
+    },
+    {
+     "level": 1,
+     "title": "How to use this book",
+     "page": 10
+    },
+    {
+     "level": 1,
+     "title": "The Cambridge International AS & A Level Mathematics 9709 syllabus",
+     "page": 13
+    },
+    {
+     "level": 1,
+     "title": "1 Motion in a straight line",
+     "page": 17
+    },
+    {
+     "level": 2,
+     "title": "1.1 The language of motion",
+     "page": 17
+    },
+    {
+     "level": 2,
+     "title": "1.2 Speed and velocity",
+     "page": 21
+    },
+    {
+     "level": 2,
+     "title": "1.3 Acceleration",
+     "page": 25
+    },
+    {
+     "level": 2,
+     "title": "1.4 Using areas to find distances and displacements",
+     "page": 28
+    },
+    {
+     "level": 1,
+     "title": "2 The constant acceleration formulae",
+     "page": 38
+    },
+    {
+     "level": 2,
+     "title": "2.1 Setting up a mathematical model",
+     "page": 38
+    },
+    {
+     "level": 2,
+     "title": "2.2 The constant acceleration formulae",
+     "page": 40
+    },
+    {
+     "level": 2,
+     "title": "2.3 Further examples",
+     "page": 46
+    },
+    {
+     "level": 1,
+     "title": "3 Forces and Newton’s laws of motion",
+     "page": 56
+    },
+    {
+     "level": 2,
+     "title": "3.1 Force diagrams",
+     "page": 56
+    },
+    {
+     "level": 2,
+     "title": "3.2 Force and motion",
+     "page": 63
+    },
+    {
+     "level": 2,
+     "title": "3.3 Pulleys",
+     "page": 72
+    },
+    {
+     "level": 2,
+     "title": "3.4 Reviewing a mathematical model: air resistance",
+     "page": 76
+    },
+    {
+     "level": 1,
+     "title": "4 Applying Newton’s second law along a line",
+     "page": 82
+    },
+    {
+     "level": 2,
+     "title": "4.1 Newton’s second law",
+     "page": 82
+    },
+    {
+     "level": 2,
+     "title": "4.2 Newton’s second law applied to connected objects",
+     "page": 89
+    },
+    {
+     "level": 1,
+     "title": "5 Vectors b",
+     "page": 102
+    },
+    {
+     "level": 2,
+     "title": "5.1 Adding vectors",
+     "page": 102
+    },
+    {
+     "level": 2,
+     "title": "5.2 Components of a vector",
+     "page": 104
+    },
+    {
+     "level": 2,
+     "title": "5.3 The magnitude and direction of vectors written in component form",
+     "page": 109
+    },
+    {
+     "level": 2,
+     "title": "5.4 Resolving vectors",
+     "page": 111
+    },
+    {
+     "level": 1,
+     "title": "6 Forces in equilibrium and resultant forces",
+     "page": 116
+    },
+    {
+     "level": 2,
+     "title": "6.1 Finding resultant forces",
+     "page": 116
+    },
+    {
+     "level": 2,
+     "title": "6.2 Forces in equilibrium",
+     "page": 120
+    },
+    {
+     "level": 2,
+     "title": "6.3 Newton’s second law in two dimensions",
+     "page": 131
+    },
+    {
+     "level": 1,
+     "title": "7 General motion in a straight line",
+     "page": 142
+    },
+    {
+     "level": 2,
+     "title": "7.1 Using differentiation",
+     "page": 143
+    },
+    {
+     "level": 2,
+     "title": "7.2 Finding displacement from velocity",
+     "page": 145
+    },
+    {
+     "level": 2,
+     "title": "7.3 The area under a velocity–time graph",
+     "page": 146
+    },
+    {
+     "level": 2,
+     "title": "7.4 Finding velocity from acceleration",
+     "page": 147
+    },
+    {
+     "level": 2,
+     "title": "7.5 The constant acceleration formulae revisited",
+     "page": 149
+    },
+    {
+     "level": 1,
+     "title": "8 A model for friction",
+     "page": 157
+    },
+    {
+     "level": 2,
+     "title": "8.1 A model for friction",
+     "page": 158
+    },
+    {
+     "level": 2,
+     "title": "8.2 Modelling with friction",
+     "page": 160
+    },
+    {
+     "level": 1,
+     "title": "9 Energy, work and power",
+     "page": 173
+    },
+    {
+     "level": 2,
+     "title": "9.1 Energy and momentum",
+     "page": 174
+    },
+    {
+     "level": 2,
+     "title": "9.2 Work and energy",
+     "page": 174
+    },
+    {
+     "level": 2,
+     "title": "9.3 Gravitational potential energy",
+     "page": 184
+    },
+    {
+     "level": 2,
+     "title": "9.4 Work and kinetic energy for two-dimensional motion",
+     "page": 188
+    },
+    {
+     "level": 2,
+     "title": "9.5 Power",
+     "page": 195
+    },
+    {
+     "level": 1,
+     "title": "10 Momentum",
+     "page": 205
+    },
+    {
+     "level": 2,
+     "title": "10.1 Linear momentum",
+     "page": 205
+    },
+    {
+     "level": 2,
+     "title": "10.2 Conservation of momentum",
+     "page": 206
+    },
+    {
+     "level": 1,
+     "title": "Answers",
+     "page": 216
+    },
+    {
+     "level": 1,
+     "title": "Index",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "A",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "B",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "C",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "D",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "E",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "F",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "G",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "I",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "J",
+     "page": 232
+    },
+    {
+     "level": 2,
+     "title": "K",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "L",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "M",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "N",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "O",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "P",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "R",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "S",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "T",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "U",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "V",
+     "page": 233
+    },
+    {
+     "level": 2,
+     "title": "W",
+     "page": 234
+    }
+   ],
+   "toc_levels": 2,
+   "headings": {
+    "body_size": 11.0,
+    "size_histogram": {
+     "11.0": 79008,
+     "10.0": 8330,
+     "9.0": 7389,
+     "8.0": 4016,
+     "9.5": 2019,
+     "10.9": 1256,
+     "12.0": 944,
+     "14.0": 710
+    },
+    "candidates": [
+     {
+      "size": 27.0,
+      "font": "DIN-Light",
+      "text": "Contents",
+      "page": 6
+     },
+     {
+      "size": 27.0,
+      "font": "DIN-Light",
+      "text": "How to use this book",
+      "page": 9
+     },
+     {
+      "size": 27.0,
+      "font": "DIN-Light",
+      "text": "The Cambridge International",
+      "page": 12
+     },
+     {
+      "size": 20.0,
+      "font": "DIN-Regular",
+      "text": "1.3 Acceleration",
+      "page": 24
+     },
+     {
+      "size": 20.0,
+      "font": "DIN-Regular",
+      "text": "1.4 \u0007Using areas to find distances and",
+      "page": 27
+     },
+     {
+      "size": 20.0,
+      "font": "DIN-Regular",
+      "text": "displacements",
+      "page": 27
+     },
+     {
+      "size": 17.6,
+      "font": "Symbol",
+      "text": "( )",
+      "page": 192
+     },
+     {
+      "size": 16.0,
+      "font": "DIN-Regular",
+      "text": "Motion in a straight line",
+      "page": 6
+     },
+     {
+      "size": 16.0,
+      "font": "DIN-Regular",
+      "text": "The constant acceleration formulae",
+      "page": 6
+     },
+     {
+      "size": 16.0,
+      "font": "DIN-Regular",
+      "text": "Forces and Newton’s laws of motion",
+      "page": 6
+     },
+     {
+      "size": 14.0,
+      "font": "DIN-Medium",
+      "text": "The structure of the book",
+      "page": 9
+     },
+     {
+      "size": 14.0,
+      "font": "DIN-Medium",
+      "text": "Note",
+      "page": 18
+     },
+     {
+      "size": 14.0,
+      "font": "DIN-Medium",
+      "text": "Notation and units",
+      "page": 18
+     }
+    ]
+   },
+   "example_marker_pages": 104,
+   "ocr_pages": 34,
+   "ocr_reasons": {
+    "无文本层": 5,
+    "数学页但一个等号都没有": 29
+   },
+   "ocr_page_list": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    7,
+    9,
+    12,
+    13,
+    15,
+    16,
+    17,
+    24,
+    26,
+    37,
+    57,
+    80,
+    82,
+    89,
+    91,
+    97,
+    102,
+    104,
+    113,
+    125,
+    141,
+    165,
+    166,
+    183,
+    215,
+    232,
+    233,
+    234,
+    235
+   ],
+   "ocr_jobs": [
+    [
+     1,
+     235
+    ]
+   ],
+   "samples": [
+    {
+     "page": 2,
+     "text": "Dynamic Learning is an online subscription solution that supports teachers and students with high \nquality content and unique tools. Dynamic Learning incorporates elements that all work together to give \nyou the ultimate classroom and homework resource. \nCambridge International AS & A Level Mathematics Mechanics is available as a Whiteboard \neTextbook which is an online interactive version of the printed textbook that enables teachers to: \n●\n●Display interactive pages to their class\n●\n●Add notes and highlight areas\n●\n●Add double-page spreads into lesson plans\nAdditionally the Student eTextbook of Cambridge International AS & A Level Mathematics \nMechanics is a downloadable version of the printed textbook that teachers can assign to students so \nthey can: \n●\n●Download and view on any device or browser\n●\n●Add, edit and synchronise notes across two devices \n●\n●Access their personal copy on "
+    },
+    {
+     "page": 6,
+     "text": "Unless otherwise acknowledged, the questions, example answers and comments that appear in this \nbook were written by the authors.\nQuestions from the Cambridge International AS & A Level Mathematics papers are reproduced by \npermission of Cambridge Assessment International Education.\nIGCSE® is a registered trademark\nThe publishers would like to thank the following who have given permission to reproduce photographs \nin this book:\np.1 © Tan Kian Khoon/Fotolia; p.5 © Radu Razvan – Fotolia; p.22 t © Shutterstock/pmphoto, b © \nEast Japan Railway Company, 2016 ; p.24 © photoclicks/Fotolia; p.40 © DOD Photo/Alamy; p.44 © \nDr Jeremy Burgess/Science Photo Library; p.45 © Jonathan Pope/http://commons.wikimedia.org/\nwiki/File:Olympic_Curling,_Vancouver_2010_crop_sweeping.jpg/http://creativecommons.org/licenses/\nby/2.0/deed.en/16thJan2011; p.47 © imagehit – Fotolia; p.54 NASA/Goddard Space Flight Cen"
+    }
+   ]
+  },
+  {
+   "file": "Cambridge International AS  A Level Mathematics Probability  Statistics 1 (Sophie Goldie) .pdf",
+   "pages": 223,
+   "median_chars": 0,
+   "toc": [],
+   "toc_levels": 0,
+   "headings": {
+    "body_size": null,
+    "candidates": []
+   },
+   "example_marker_pages": 0,
+   "ocr_pages": 223,
+   "ocr_reasons": {
+    "无文本层": 223
+   },
+   "ocr_page_list": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80,
+    81,
+    82,
+    83,
+    84,
+    85,
+    86,
+    87,
+    88,
+    89,
+    90,
+    91,
+    92,
+    93,
+    94,
+    95,
+    96,
+    97,
+    98,
+    99,
+    100,
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110,
+    111,
+    112,
+    113,
+    114,
+    115,
+    116,
+    117,
+    118,
+    119,
+    120,
+    121,
+    122,
+    123,
+    124,
+    125,
+    126,
+    127,
+    128,
+    129,
+    130,
+    131,
+    132,
+    133,
+    134,
+    135,
+    136,
+    137,
+    138,
+    139,
+    140,
+    141,
+    142,
+    143,
+    144,
+    145,
+    146,
+    147,
+    148,
+    149,
+    150,
+    151,
+    152,
+    153,
+    154,
+    155,
+    156,
+    157,
+    158,
+    159,
+    160,
+    161,
+    162,
+    163,
+    164,
+    165,
+    166,
+    167,
+    168,
+    169,
+    170,
+    171,
+    172,
+    173,
+    174,
+    175,
+    176,
+    177,
+    178,
+    179,
+    180,
+    181,
+    182,
+    183,
+    184,
+    185,
+    186,
+    187,
+    188,
+    189,
+    190,
+    191,
+    192,
+    193,
+    194,
+    195,
+    196,
+    197,
+    198,
+    199,
+    200,
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207,
+    208,
+    209,
+    210,
+    211,
+    212,
+    213,
+    214,
+    215,
+    216,
+    217,
+    218,
+    219,
+    220,
+    221,
+    222,
+    223
+   ],
+   "ocr_jobs": [
+    [
+     1,
+     100
+    ],
+    [
+     101,
+     200
+    ],
+    [
+     201,
+     223
+    ]
+   ],
+   "samples": []
+  },
+  {
+   "file": "Cambridge International AS A Level Mathematics Pure Mathematics 1.pdf",
+   "pages": 333,
+   "median_chars": 1329,
+   "toc": [
+    {
+     "level": 1,
+     "title": "Cover\r",
+     "page": 1
+    },
+    {
+     "level": 1,
+     "title": "Title page\r",
+     "page": 3
+    },
+    {
+     "level": 1,
+     "title": "Copyright\r",
+     "page": 4
+    },
+    {
+     "level": 1,
+     "title": "Contents",
+     "page": 5
+    },
+    {
+     "level": 1,
+     "title": "Series introduction",
+     "page": 8
+    },
+    {
+     "level": 1,
+     "title": "How to use this book",
+     "page": 10
+    },
+    {
+     "level": 1,
+     "title": "Acknowledgements",
+     "page": 12
+    },
+    {
+     "level": 1,
+     "title": "1 Quadratics",
+     "page": 13
+    },
+    {
+     "level": 1,
+     "title": "2 Functions\r",
+     "page": 45
+    },
+    {
+     "level": 1,
+     "title": "3 Coordinate geometry\r",
+     "page": 82
+    },
+    {
+     "level": 1,
+     "title": "4 Circular measure\r",
+     "page": 111
+    },
+    {
+     "level": 1,
+     "title": "5 Trigonometry\r",
+     "page": 128
+    },
+    {
+     "level": 1,
+     "title": "6 Series\r",
+     "page": 167
+    },
+    {
+     "level": 1,
+     "title": "7 Differentiation\r",
+     "page": 202
+    },
+    {
+     "level": 1,
+     "title": "8 Further differentiation\r",
+     "page": 223
+    },
+    {
+     "level": 1,
+     "title": "9 Integration\r",
+     "page": 250
+    },
+    {
+     "level": 1,
+     "title": "Practice exam-style paper\r",
+     "page": 296
+    },
+    {
+     "level": 1,
+     "title": "Answers\r",
+     "page": 298
+    },
+    {
+     "level": 1,
+     "title": "Glossary",
+     "page": 329
+    },
+    {
+     "level": 1,
+     "title": "Index",
+     "page": 331
+    }
+   ],
+   "toc_levels": 1,
+   "headings": {
+    "body_size": 10.0,
+    "size_histogram": {
+     "10.0": 49785,
+     "10.5": 6555,
+     "9.0": 3963,
+     "9.5": 3215,
+     "12.0": 2394,
+     "8.0": 1050,
+     "11.0": 805,
+     "7.0": 723
+    },
+    "candidates": [
+     {
+      "size": 48.0,
+      "font": "HelveticaNeueLTStd-Bd",
+      "text": "Pure Mathematics 1",
+      "page": 0
+     },
+     {
+      "size": 36.0,
+      "font": "HelveticaNeueLTStd-Roman",
+      "text": "Coursebook",
+      "page": 0
+     },
+     {
+      "size": 30.0,
+      "font": "HelveticaNeueLTStd-Roman",
+      "text": "Cambridge International",
+      "page": 0
+     },
+     {
+      "size": 30.0,
+      "font": "HelveticaNeueLTStd-Roman",
+      "text": "AS & A Level Mathematics:",
+      "page": 0
+     },
+     {
+      "size": 30.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "Index",
+      "page": 330
+     },
+     {
+      "size": 17.0,
+      "font": "SourceSansPro-Bold",
+      "text": "Checklist of learning and understanding",
+      "page": 245
+     },
+     {
+      "size": 17.0,
+      "font": "SourceSansPro-Bold",
+      "text": "2 Functions",
+      "page": 300
+     },
+     {
+      "size": 17.0,
+      "font": "SourceSansPro-Bold",
+      "text": "4 Circular measure",
+      "page": 310
+     },
+     {
+      "size": 14.0,
+      "font": "TimesNewRomanMTStd-Bold",
+      "text": "Cross-topic review exercise 1",
+      "page": 5
+     },
+     {
+      "size": 14.0,
+      "font": "TimesNewRomanMTStd-Bold",
+      "text": "4 Circular measure",
+      "page": 5
+     },
+     {
+      "size": 14.0,
+      "font": "TimesNewRomanMTStd-Bold",
+      "text": "5 Trigonometry",
+      "page": 5
+     },
+     {
+      "size": 13.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "1.8 The number of roots of a quadratic equation",
+      "page": 35
+     },
+     {
+      "size": 13.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "Why do we study functions?",
+      "page": 45
+     },
+     {
+      "size": 13.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "2.1 Definition of a function",
+      "page": 45
+     },
+     {
+      "size": 12.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "Cambridge International AS & A Level Mathematics: Pure Mathematics 1",
+      "page": 5
+     },
+     {
+      "size": 12.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "How to use this book",
+      "page": 10
+     },
+     {
+      "size": 12.0,
+      "font": "SourceSansPro-Semibold",
+      "text": "Cambridge International AS & A Level Mathematics: Pure Mathematics 1",
+      "page": 15
+     }
+    ]
+   },
+   "example_marker_pages": 187,
+   "ocr_pages": 30,
+   "ocr_reasons": {
+    "无文本层": 18,
+    "数学页但一个等号都没有": 12
+   },
+   "ocr_page_list": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    11,
+    13,
+    111,
+    116,
+    119,
+    127,
+    129,
+    130,
+    132,
+    133,
+    154,
+    155,
+    161,
+    162,
+    163,
+    166,
+    167,
+    195,
+    201,
+    202,
+    203,
+    291,
+    331,
+    332,
+    333
+   ],
+   "ocr_jobs": [
+    [
+     1,
+     333
+    ]
+   ],
+   "samples": [
+    {
+     "page": 4,
+     "text": "University Printing House, Cambridge CB2 8BS, United Kingdom\nOne Liberty Plaza, 20th Floor, New York, NY 10006, USA\n477 Williamstown Road, Port Melbourne, VIC 3207, Australia\n314–321, 3rd Floor, Plot 3, Splendor Forum, Jasola District Centre, New Delhi – 110025, India\n79 Anson Road, #06–04/06, Singapore 079906\nCambridge University Press is part of the University of Cambridge.\nIt furthers the University’s mission by disseminating knowledge in the pursuit of  \neducation, learning and research at the highest international levels of excellence.\nwww.cambridge.org\nInformation on this title: www.cambridge.org/9781108407144\n© Cambridge University Press 2018\nThis publication is in copyright. Subject to statutory exception  \nand to the provisions of relevant collective licensing agreements,  \nno reproduction of any part may take place without the written  \npermission of Cambridge University Press."
+    },
+    {
+     "page": 5,
+     "text": "Contents\nSeries introduction \nvi\nHow to use this book \nviii\nAcknowledgements \nx\n1  Quadratics \n1\n1.1 Solving quadratic equations by factorisation \n3\n1.2 Completing the square \n6\n1.3 The quadratic formula \n10\n1.4 Solving simultaneous equations (one linear and one quadratic) \n11\n1.5 Solving more complex quadratic equations \n15\n1.6 Maximum and minimum values of a quadratic function \n17\n1.7 Solving quadratic inequalities \n21\n1.8 The number of roots of a quadratic equation \n24\n1.9 Intersection of a line and a quadratic curve \n27\nEnd-of-chapter review exercise 1 \n31\n2  Functions \n33\n2.1 Definition of a function \n34\n2.2 Composite functions \n39\n2.3 Inverse functions \n43\n2.4 The graph of a function and its inverse \n48\n2.5 Transformations of functions \n51\n2.6 Reflections \n55\n2.7 Stretches \n57\n2.8 Combined transformations \n59\nEnd-of-chapter review exercise 2 \n67\n3  Coordinate geometry \n70\n3.1 Lengt"
+    }
+   ]
+  },
+  {
+   "file": "Cambridge International AS and a Level Computer Science (David Watson, Helen Williams).pdf",
+   "pages": 576,
+   "median_chars": 1817.5,
+   "toc": [
+    {
+     "level": 1,
+     "title": "Cover",
+     "page": 1
+    },
+    {
+     "level": 1,
+     "title": "Book title",
+     "page": 5
+    },
+    {
+     "level": 1,
+     "title": "Copyright",
+     "page": 6
+    },
+    {
+     "level": 1,
+     "title": "Contents",
+     "page": 7
+    },
+    {
+     "level": 1,
+     "title": "Introduction",
+     "page": 10
+    },
+    {
+     "level": 1,
+     "title": "AS LEVEL",
+     "page": 17
+    },
+    {
+     "level": 2,
+     "title": "1 Information representation and multimedia",
+     "page": 17
+    },
+    {
+     "level": 3,
+     "title": "1.1 Data representation",
+     "page": 18
+    },
+    {
+     "level": 3,
+     "title": "1.2 Multimedia",
+     "page": 31
+    },
+    {
+     "level": 3,
+     "title": "1.3 File compression",
+     "page": 37
+    },
+    {
+     "level": 2,
+     "title": "2 Communication",
+     "page": 43
+    },
+    {
+     "level": 3,
+     "title": "2.1 Networking",
+     "page": 44
+    },
+    {
+     "level": 3,
+     "title": "2.2 The internet",
+     "page": 70
+    },
+    {
+     "level": 2,
+     "title": "3 Hardware",
+     "page": 84
+    },
+    {
+     "level": 3,
+     "title": "3.1 Computers and their components",
+     "page": 84
+    },
+    {
+     "level": 3,
+     "title": "3.2 Logic gates and logic circuits",
+     "page": 105
+    },
+    {
+     "level": 2,
+     "title": "4 Processor fundamentals",
+     "page": 123
+    },
+    {
+     "level": 3,
+     "title": "4.1 Central processing unit (CPU) architecture",
+     "page": 123
+    },
+    {
+     "level": 3,
+     "title": "4.2 Assembly language",
+     "page": 137
+    },
+    {
+     "level": 3,
+     "title": "4.3 Bit manipulation",
+     "page": 146
+    },
+    {
+     "level": 2,
+     "title": "5 System software",
+     "page": 152
+    },
+    {
+     "level": 3,
+     "title": "5.1 Operating systems",
+     "page": 152
+    },
+    {
+     "level": 3,
+     "title": "5.2 Language translators",
+     "page": 165
+    },
+    {
+     "level": 2,
+     "title": "6 Security, privacy and data integrity",
+     "page": 175
+    },
+    {
+     "level": 3,
+     "title": "6.1 Data security",
+     "page": 175
+    },
+    {
+     "level": 3,
+     "title": "6.2 Data integrity",
+     "page": 185
+    },
+    {
+     "level": 2,
+     "title": "7 Ethics and ownership",
+     "page": 194
+    },
+    {
+     "level": 3,
+     "title": "7.1 Legal, moral, ethical and cultural implications",
+     "page": 195
+    },
+    {
+     "level": 3,
+     "title": "7.2 Copyright issues",
+     "page": 202
+    },
+    {
+     "level": 3,
+     "title": "7.3 Artificial intelligence (AI)",
+     "page": 205
+    },
+    {
+     "level": 2,
+     "title": "8 Databases",
+     "page": 212
+    },
+    {
+     "level": 3,
+     "title": "8.1 Database concepts",
+     "page": 212
+    },
+    {
+     "level": 3,
+     "title": "8.2 Database management systems (DBMSs)",
+     "page": 224
+    },
+    {
+     "level": 3,
+     "title": "8.3 Data definition language (DDL) and data manipulation language (DML)",
+     "page": 227
+    },
+    {
+     "level": 2,
+     "title": "9 Algorithm design and problem solving",
+     "page": 233
+    },
+    {
+     "level": 3,
+     "title": "9.1 Computational thinking skills",
+     "page": 233
+    },
+    {
+     "level": 3,
+     "title": "9.2 Algorithms",
+     "page": 235
+    },
+    {
+     "level": 2,
+     "title": "10 Data types and structures",
+     "page": 254
+    },
+    {
+     "level": 3,
+     "title": "10.1 Data types and records",
+     "page": 254
+    },
+    {
+     "level": 3,
+     "title": "10.2 Arrays",
+     "page": 257
+    },
+    {
+     "level": 3,
+     "title": "10.3 Files",
+     "page": 265
+    },
+    {
+     "level": 3,
+     "title": "10.4 Abstract data types (ADTs)",
+     "page": 266
+    },
+    {
+     "level": 2,
+     "title": "11 Programming",
+     "page": 280
+    },
+    {
+     "level": 3,
+     "title": "11.1 Programming basics",
+     "page": 280
+    },
+    {
+     "level": 3,
+     "title": "11.2 Programming constructs",
+     "page": 287
+    },
+    {
+     "level": 3,
+     "title": "11.3 Structured programming",
+     "page": 291
+    },
+    {
+     "level": 2,
+     "title": "12 Software development",
+     "page": 299
+    },
+    {
+     "level": 3,
+     "title": "12.1 Program development lifecycle",
+     "page": 299
+    },
+    {
+     "level": 3,
+     "title": "12.2 Program design",
+     "page": 303
+    },
+    {
+     "level": 3,
+     "title": "12.3 Program testing and maintenance",
+     "page": 309
+    },
+    {
+     "level": 1,
+     "title": "A LEVEL",
+     "page": 320
+    },
+    {
+     "level": 2,
+     "title": "13 Data representation",
+     "page": 320
+    },
+    {
+     "level": 3,
+     "title": "13.1 User-defined data types",
+     "page": 320
+    },
+    {
+     "level": 3,
+     "title": "13.2 File organisation and access",
+     "page": 324
+    },
+    {
+     "level": 3,
+     "title": "13.3 Floating-point numbers, representation and manipulation",
+     "page": 328
+    },
+    {
+     "level": 2,
+     "title": "14 Communication and internet technologies",
+     "page": 344
+    },
+    {
+     "level": 3,
+     "title": "14.1 Protocols",
+     "page": 344
+    },
+    {
+     "level": 3,
+     "title": "14.2 Circuit switching and packet switching",
+     "page": 353
+    },
+    {
+     "level": 2,
+     "title": "15 Hardware",
+     "page": 362
+    },
+    {
+     "level": 3,
+     "title": "15.1 Processors and parallel processing",
+     "page": 362
+    },
+    {
+     "level": 3,
+     "title": "15.2 Boolean algebra and logic circuits",
+     "page": 370
+    },
+    {
+     "level": 2,
+     "title": "16 System software and virtual machines",
+     "page": 388
+    },
+    {
+     "level": 3,
+     "title": "16.1 Purposes of an operating system (OS)",
+     "page": 388
+    },
+    {
+     "level": 3,
+     "title": "16.2 Virtual machines (VMs)",
+     "page": 408
+    },
+    {
+     "level": 3,
+     "title": "16.3 Translation software",
+     "page": 410
+    },
+    {
+     "level": 2,
+     "title": "17 Security",
+     "page": 426
+    },
+    {
+     "level": 3,
+     "title": "17.1 Encryption",
+     "page": 426
+    },
+    {
+     "level": 3,
+     "title": "17.2 Quantum cryptography",
+     "page": 430
+    },
+    {
+     "level": 3,
+     "title": "17.3 Protocols",
+     "page": 432
+    },
+    {
+     "level": 3,
+     "title": "17.4 Digital signatures and digital certificates",
+     "page": 434
+    },
+    {
+     "level": 2,
+     "title": "18 Artificial intelligence (AI)",
+     "page": 441
+    },
+    {
+     "level": 3,
+     "title": "18.1 Shortest path algorithms",
+     "page": 441
+    },
+    {
+     "level": 3,
+     "title": "18.2 Artificial intelligence, machine learning and deep learning",
+     "page": 450
+    },
+    {
+     "level": 2,
+     "title": "19 Computational thinking and problem solving",
+     "page": 466
+    },
+    {
+     "level": 3,
+     "title": "19.1 Algorithms",
+     "page": 466
+    },
+    {
+     "level": 3,
+     "title": "19.2 Recursion",
+     "page": 506
+    },
+    {
+     "level": 2,
+     "title": "20 Further programming",
+     "page": 514
+    },
+    {
+     "level": 3,
+     "title": "20.1 Programming paradigms",
+     "page": 514
+    },
+    {
+     "level": 3,
+     "title": "20.2 File processing and exception handling",
+     "page": 541
+    },
+    {
+     "level": 1,
+     "title": "Glossary",
+     "page": 557
+    },
+    {
+     "level": 2,
+     "title": "A",
+     "page": 557
+    },
+    {
+     "level": 2,
+     "title": "B",
+     "page": 557
+    },
+    {
+     "level": 2,
+     "title": "C",
+     "page": 558
+    },
+    {
+     "level": 2,
+     "title": "D",
+     "page": 559
+    },
+    {
+     "level": 2,
+     "title": "E",
+     "page": 560
+    },
+    {
+     "level": 2,
+     "title": "F",
+     "page": 560
+    },
+    {
+     "level": 2,
+     "title": "G",
+     "page": 561
+    },
+    {
+     "level": 2,
+     "title": "H",
+     "page": 561
+    },
+    {
+     "level": 2,
+     "title": "I",
+     "page": 561
+    },
+    {
+     "level": 2,
+     "title": "J",
+     "page": 562
+    },
+    {
+     "level": 2,
+     "title": "K",
+     "page": 562
+    },
+    {
+     "level": 2,
+     "title": "L",
+     "page": 562
+    },
+    {
+     "level": 2,
+     "title": "M",
+     "page": 563
+    },
+    {
+     "level": 2,
+     "title": "N",
+     "page": 563
+    },
+    {
+     "level": 2,
+     "title": "O",
+     "page": 563
+    },
+    {
+     "level": 2,
+     "title": "P",
+     "page": 564
+    },
+    {
+     "level": 2,
+     "title": "Q",
+     "page": 565
+    },
+    {
+     "level": 2,
+     "title": "R",
+     "page": 565
+    },
+    {
+     "level": 2,
+     "title": "S",
+     "page": 566
+    },
+    {
+     "level": 2,
+     "title": "T",
+     "page": 567
+    },
+    {
+     "level": 2,
+     "title": "U",
+     "page": 568
+    },
+    {
+     "level": 2,
+     "title": "V",
+     "page": 568
+    },
+    {
+     "level": 2,
+     "title": "W",
+     "page": 568
+    },
+    {
+     "level": 2,
+     "title": "Z",
+     "page": 568
+    },
+    {
+     "level": 1,
+     "title": "Index",
+     "page": 569
+    },
+    {
+     "level": 2,
+     "title": "A",
+     "page": 569
+    },
+    {
+     "level": 2,
+     "title": "B",
+     "page": 569
+    },
+    {
+     "level": 2,
+     "title": "C",
+     "page": 570
+    },
+    {
+     "level": 2,
+     "title": "D",
+     "page": 570
+    },
+    {
+     "level": 2,
+     "title": "E",
+     "page": 571
+    },
+    {
+     "level": 2,
+     "title": "F",
+     "page": 571
+    },
+    {
+     "level": 2,
+     "title": "G",
+     "page": 571
+    },
+    {
+     "level": 2,
+     "title": "H",
+     "page": 571
+    },
+    {
+     "level": 2,
+     "title": "I",
+     "page": 571
+    },
+    {
+     "level": 2,
+     "title": "J",
+     "page": 572
+    },
+    {
+     "level": 2,
+     "title": "K",
+     "page": 572
+    },
+    {
+     "level": 2,
+     "title": "L",
+     "page": 572
+    },
+    {
+     "level": 2,
+     "title": "M",
+     "page": 572
+    },
+    {
+     "level": 2,
+     "title": "N",
+     "page": 573
+    },
+    {
+     "level": 2,
+     "title": "O",
+     "page": 573
+    },
+    {
+     "level": 2,
+     "title": "P",
+     "page": 573
+    },
+    {
+     "level": 2,
+     "title": "Q",
+     "page": 574
+    },
+    {
+     "level": 2,
+     "title": "R",
+     "page": 574
+    },
+    {
+     "level": 2,
+     "title": "S",
+     "page": 574
+    },
+    {
+     "level": 2,
+     "title": "T",
+     "page": 575
+    },
+    {
+     "level": 2,
+     "title": "U",
+     "page": 575
+    },
+    {
+     "level": 2,
+     "title": "V",
+     "page": 575
+    },
+    {
+     "level": 2,
+     "title": "W",
+     "page": 576
+    },
+    {
+     "level": 2,
+     "title": "X",
+     "page": 576
+    },
+    {
+     "level": 2,
+     "title": "Z",
+     "page": 576
+    }
+   ],
+   "toc_levels": 3,
+   "headings": {
+    "body_size": 11.5,
+    "size_histogram": {
+     "11.5": 54385,
+     "11.0": 14084,
+     "10.0": 12523,
+     "9.0": 12188,
+     "10.5": 9213,
+     "9.5": 6121,
+     "14.0": 1088,
+     "8.0": 915
+    },
+    "candidates": [
+     {
+      "size": 27.0,
+      "font": "DIN-Light",
+      "text": "Introduction",
+      "page": 9
+     },
+     {
+      "size": 27.0,
+      "font": "DIN-Light",
+      "text": "Programming",
+      "page": 279
+     },
+     {
+      "size": 27.0,
+      "font": "DIN-Light",
+      "text": "System software and virtual",
+      "page": 387
+     },
+     {
+      "size": 20.0,
+      "font": "DIN-Regular",
+      "text": "How to use this book",
+      "page": 9
+     },
+     {
+      "size": 20.0,
+      "font": "DIN-Bold",
+      "text": "1.3",
+      "page": 36
+     },
+     {
+      "size": 20.0,
+      "font": "DIN-Regular",
+      "text": "File compression",
+      "page": 36
+     },
+     {
+      "size": 14.0,
+      "font": "DIN-Medium",
+      "text": "Organisation",
+      "page": 9
+     },
+     {
+      "size": 14.0,
+      "font": "DIN-Medium",
+      "text": "Features to help you learn",
+      "page": 9
+     },
+     {
+      "size": 14.0,
+      "font": "DIN-Bold",
+      "text": "ACTIVITY 1A",
+      "page": 18
+     }
+    ]
+   },
+   "example_marker_pages": 38,
+   "ocr_pages": 33,
+   "ocr_reasons": {
+    "无文本层": 5,
+    "数学页但一个等号都没有": 28
+   },
+   "ocr_page_list": [
+    1,
+    3,
+    4,
+    5,
+    10,
+    14,
+    16,
+    17,
+    34,
+    35,
+    38,
+    41,
+    75,
+    88,
+    98,
+    100,
+    176,
+    310,
+    315,
+    349,
+    369,
+    389,
+    436,
+    446,
+    460,
+    464,
+    557,
+    560,
+    562,
+    568,
+    569,
+    574,
+    576
+   ],
+   "ocr_jobs": [
+    [
+     1,
+     576
+    ]
+   ],
+   "samples": [
+    {
+     "page": 2,
+     "text": "Dynamic Learning is an online subscription solution that supports teachers and students with high \nquality content and unique tools. Dynamic Learning incorporates elements that all work together to give \nyou the ultimate classroom and homework resource. \nTeaching and Learning titles include interactive resources, lesson planning tools, self-marking tests \nand assessment. Teachers can: \n●\n●Use the Lesson Builder to plan and deliver lessons\n●\n●Share lessons and resources with students and colleagues \n●\n●Track student’s progress\nTeachers can also combine their own trusted resources alongside those from Cambridge International \nAS & A Level Computer Science Online Teacher’s Guide which has a whole host of informative and \ninteractive resources including:\n●\n●Teaching notes and guidance\n●\n●Schemes of work\n●\n●Extra activities and exam-style questions\n●\n●Answers to questions in the Student’s Boo"
+    },
+    {
+     "page": 6,
+     "text": "Unless otherwise acknowledged, the questions, example answers and comments that appear in this book were \nwritten by the authors. In examinations, the way marks are awarded may be different. Questions from the \nCambridge International AS & A Level Computer Science papers are reproduced by permission of Cambridge \nAssessment International Education. Cambridge Assessment International Education bears no responsibility for \nthe example answers to questions taken from its past question papers which are contained in this publication.\nThe publishers would like to thank the following who have given permission to reproduce the following material \nin this book:\nPage 181 Extract from IEEE Code of Ethics. Reprinted with permission of IEEE with the copyright notice © Copyright \n2018 IEEE; Pages 181–3 Copyright © 1999 by the Institute for Electrical and Electronics Engineers, Inc. and the \nAssociatio"
+    }
+   ]
+  },
+  {
+   "file": "Pure Mathematics 2 and 3 Cambridge International AS and A Level Mathematics (Sophie Goldie, Roger Porkess) .pdf",
+   "pages": 353,
+   "median_chars": 1353,
+   "toc": [
+    {
+     "level": 1,
+     "title": "Cover",
+     "page": 1
+    },
+    {
+     "level": 1,
+     "title": "Book title",
+     "page": 2
+    },
+    {
+     "level": 1,
+     "title": "Contents",
+     "page": 4
+    },
+    {
+     "level": 1,
+     "title": "Key to symbols in this book",
+     "page": 7
+    },
+    {
+     "level": 1,
+     "title": "Introduction",
+     "page": 8
+    },
+    {
+     "level": 1,
+     "title": "The Cambridge International AS and A Level Mathematics syllabus",
+     "page": 9
+    },
+    {
+     "level": 1,
+     "title": "P2 Pure Mathematics 2",
+     "page": 10
+    },
+    {
+     "level": 2,
+     "title": "Chapter 1 Algebra",
+     "page": 11
+    },
+    {
+     "level": 3,
+     "title": "Operations with polynomials",
+     "page": 12
+    },
+    {
+     "level": 3,
+     "title": "Solution of polynomial equations",
+     "page": 17
+    },
+    {
+     "level": 3,
+     "title": "The modulus function",
+     "page": 26
+    },
+    {
+     "level": 2,
+     "title": "Chapter 2 Logarithms and exponentials",
+     "page": 32
+    },
+    {
+     "level": 3,
+     "title": "Logarithms",
+     "page": 32
+    },
+    {
+     "level": 3,
+     "title": "Exponential functions",
+     "page": 37
+    },
+    {
+     "level": 3,
+     "title": "Modelling curves",
+     "page": 39
+    },
+    {
+     "level": 3,
+     "title": "The natural logarithm function",
+     "page": 48
+    },
+    {
+     "level": 3,
+     "title": "The exponential function",
+     "page": 52
+    },
+    {
+     "level": 2,
+     "title": "Chapter 3 Trigonometry",
+     "page": 60
+    },
+    {
+     "level": 3,
+     "title": "Reciprocal trigonometrical functions",
+     "page": 61
+    },
+    {
+     "level": 3,
+     "title": "Compound-angle formulae",
+     "page": 64
+    },
+    {
+     "level": 3,
+     "title": "Double-angle formulae",
+     "page": 70
+    },
+    {
+     "level": 3,
+     "title": "The forms r cos(&#952; &#177; &#945;), r sin(&#952; &#177; &#945;)",
+     "page": 75
+    },
+    {
+     "level": 3,
+     "title": "The general solutions of trigonometrical equations",
+     "page": 84
+    },
+    {
+     "level": 2,
+     "title": "Chapter 4 Differentiation",
+     "page": 87
+    },
+    {
+     "level": 3,
+     "title": "The product rule",
+     "page": 87
+    },
+    {
+     "level": 3,
+     "title": "The quotient rule",
+     "page": 89
+    },
+    {
+     "level": 3,
+     "title": "Differentiating natural logarithms and exponentials",
+     "page": 94
+    },
+    {
+     "level": 3,
+     "title": "Differentiating trigonometrical functions",
+     "page": 101
+    },
+    {
+     "level": 3,
+     "title": "Differentiating functions defined implicitly",
+     "page": 106
+    },
+    {
+     "level": 3,
+     "title": "Parametric equations",
+     "page": 113
+    },
+    {
+     "level": 3,
+     "title": "Parametric differentiation",
+     "page": 117
+    },
+    {
+     "level": 2,
+     "title": "Chapter 5 Integration",
+     "page": 126
+    },
+    {
+     "level": 3,
+     "title": "Integrals involving the exponential function",
+     "page": 126
+    },
+    {
+     "level": 3,
+     "title": "Integrals involving the natural logarithm function",
+     "page": 126
+    },
+    {
+     "level": 3,
+     "title": "Integrals involving trigonometrical functions",
+     "page": 133
+    },
+    {
+     "level": 3,
+     "title": "Numerical integration",
+     "page": 137
+    },
+    {
+     "level": 2,
+     "title": "Chapter 6 Numerical solution of equations",
+     "page": 145
+    },
+    {
+     "level": 3,
+     "title": "Interval estimation – change-of-sign methods",
+     "page": 146
+    },
+    {
+     "level": 3,
+     "title": "Fixed-point iteration",
+     "page": 151
+    },
+    {
+     "level": 1,
+     "title": "P3 Pure Mathematics 3",
+     "page": 162
+    },
+    {
+     "level": 2,
+     "title": "Chapter 7 Further algebra",
+     "page": 163
+    },
+    {
+     "level": 3,
+     "title": "The general binomial expansion",
+     "page": 164
+    },
+    {
+     "level": 3,
+     "title": "Review of algebraic fractions",
+     "page": 173
+    },
+    {
+     "level": 3,
+     "title": "Partial fractions",
+     "page": 175
+    },
+    {
+     "level": 3,
+     "title": "Using partial fractions with the binomial expansion",
+     "page": 182
+    },
+    {
+     "level": 2,
+     "title": "Chapter 8 Further integration",
+     "page": 186
+    },
+    {
+     "level": 3,
+     "title": "Integration by substitution",
+     "page": 187
+    },
+    {
+     "level": 3,
+     "title": "Integrals involving exponentials and natural logarithms",
+     "page": 192
+    },
+    {
+     "level": 3,
+     "title": "Integrals involving trigonometrical functions",
+     "page": 196
+    },
+    {
+     "level": 3,
+     "title": "The use of partial fractions in integration",
+     "page": 199
+    },
+    {
+     "level": 3,
+     "title": "Integration by parts",
+     "page": 203
+    },
+    {
+     "level": 3,
+     "title": "General integration",
+     "page": 213
+    },
+    {
+     "level": 2,
+     "title": "Chapter 9 Differential equations",
+     "page": 217
+    },
+    {
+     "level": 3,
+     "title": "Forming differential equations from rates of change",
+     "page": 218
+    },
+    {
+     "level": 3,
+     "title": "Solving differential equations",
+     "page": 223
+    },
+    {
+     "level": 2,
+     "title": "Chapter 10 Vectors",
+     "page": 236
+    },
+    {
+     "level": 3,
+     "title": "The vector equation of a line",
+     "page": 236
+    },
+    {
+     "level": 3,
+     "title": "The intersection of two lines",
+     "page": 243
+    },
+    {
+     "level": 3,
+     "title": "The angle between two lines",
+     "page": 249
+    },
+    {
+     "level": 3,
+     "title": "The perpendicular distance from a point to a line",
+     "page": 253
+    },
+    {
+     "level": 3,
+     "title": "The vector equation of a plane",
+     "page": 256
+    },
+    {
+     "level": 3,
+     "title": "The intersection of a line and a plane",
+     "page": 261
+    },
+    {
+     "level": 3,
+     "title": "The distance of a point from a plane",
+     "page": 263
+    },
+    {
+     "level": 3,
+     "title": "The angle between a line and a plane",
+     "page": 265
+    },
+    {
+     "level": 3,
+     "title": "The intersection of two planes",
+     "page": 271
+    },
+    {
+     "level": 2,
+     "title": "Chapter 11 Complex numbers",
+     "page": 280
+    },
+    {
+     "level": 3,
+     "title": "The growth of the number system",
+     "page": 280
+    },
+    {
+     "level": 3,
+     "title": "Working with complex numbers",
+     "page": 282
+    },
+    {
+     "level": 3,
+     "title": "Representing complex numbers geometrically",
+     "page": 290
+    },
+    {
+     "level": 3,
+     "title": "Sets of points in an Argand diagram",
+     "page": 293
+    },
+    {
+     "level": 3,
+     "title": "The modulus–argument form of complex numbers",
+     "page": 296
+    },
+    {
+     "level": 3,
+     "title": "Sets of points using the polar form",
+     "page": 302
+    },
+    {
+     "level": 3,
+     "title": "Working with complex numbers in polar form",
+     "page": 305
+    },
+    {
+     "level": 3,
+     "title": "Complex exponents",
+     "page": 308
+    },
+    {
+     "level": 3,
+     "title": "Complex numbers and equations",
+     "page": 311
+    },
+    {
+     "level": 1,
+     "title": "Answers",
+     "page": 318
+    },
+    {
+     "level": 1,
+     "title": "Index",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "A",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "B",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "C",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "D",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "E",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "F",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "G",
+     "page": 350
+    },
+    {
+     "level": 2,
+     "title": "H",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "I",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "L",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "M",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "N",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "O",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "P",
+     "page": 351
+    },
+    {
+     "level": 2,
+     "title": "Q",
+     "page": 352
+    },
+    {
+     "level": 2,
+     "title": "R",
+     "page": 352
+    },
+    {
+     "level": 2,
+     "title": "S",
+     "page": 352
+    },
+    {
+     "level": 2,
+     "title": "T",
+     "page": 352
+    },
+    {
+     "level": 2,
+     "title": "V",
+     "page": 352
+    },
+    {
+     "level": 2,
+     "title": "W",
+     "page": 352
+    }
+   ],
+   "toc_levels": 3,
+   "headings": {
+    "body_size": 10.5,
+    "size_histogram": {
+     "10.5": 55975,
+     "9.0": 9792,
+     "8.0": 6331,
+     "10.4": 2007,
+     "7.5": 1443,
+     "10.0": 1409,
+     "7.0": 1342,
+     "10.6": 917
+    },
+    "candidates": [
+     {
+      "size": 23.0,
+      "font": "Univers-Black",
+      "text": "Algebra",
+      "page": 10
+     },
+     {
+      "size": 23.0,
+      "font": "Univers-Black",
+      "text": "Integration",
+      "page": 125
+     },
+     {
+      "size": 23.0,
+      "font": "Univers-Black",
+      "text": "Further integration",
+      "page": 185
+     },
+     {
+      "size": 13.0,
+      "font": "Univers-Black",
+      "text": "The modulus function",
+      "page": 25
+     },
+     {
+      "size": 13.0,
+      "font": "Univers-Black",
+      "text": "Reciprocal trigonometrical functions",
+      "page": 60
+     },
+     {
+      "size": 13.0,
+      "font": "Univers-Black",
+      "text": "Differentiating trigonometrical functions",
+      "page": 100
+     }
+    ]
+   },
+   "example_marker_pages": 212,
+   "ocr_pages": 115,
+   "ocr_reasons": {
+    "无文本层": 8,
+    "数学页但一个等号都没有": 107
+   },
+   "ocr_page_list": [
+    1,
+    2,
+    4,
+    5,
+    9,
+    10,
+    18,
+    19,
+    21,
+    22,
+    23,
+    24,
+    25,
+    30,
+    31,
+    32,
+    33,
+    34,
+    36,
+    37,
+    39,
+    40,
+    42,
+    44,
+    45,
+    49,
+    51,
+    52,
+    57,
+    59,
+    65,
+    66,
+    69,
+    72,
+    73,
+    81,
+    82,
+    83,
+    84,
+    85,
+    102,
+    107,
+    111,
+    114,
+    116,
+    121,
+    123,
+    126,
+    128,
+    129,
+    132,
+    141,
+    142,
+    143,
+    146,
+    148,
+    149,
+    150,
+    155,
+    157,
+    158,
+    159,
+    161,
+    162,
+    170,
+    184,
+    189,
+    190,
+    192,
+    193,
+    194,
+    195,
+    197,
+    202,
+    204,
+    206,
+    208,
+    209,
+    217,
+    218,
+    221,
+    222,
+    223,
+    236,
+    239,
+    242,
+    252,
+    255,
+    256,
+    259,
+    261,
+    263,
+    266,
+    268,
+    269,
+    270,
+    271,
+    274,
+    275,
+    281,
+    282,
+    283,
+    289,
+    290,
+    292,
+    294,
+    295,
+    312,
+    313,
+    314,
+    315,
+    317,
+    325,
+    332,
+    349
+   ],
+   "ocr_jobs": [
+    [
+     1,
+     281
+    ],
+    [
+     282,
+     349
+    ]
+   ],
+   "samples": [
+    {
+     "page": 3,
+     "text": "Questions from the Cambridge International AS and A Level Mathematics papers  \nare reproduced by permission of University of Cambridge International Examinations.\nQuestions from the MEI AS and A Level Mathematics papers are reproduced by permission of OCR. \nWe are grateful to the following companies, institutions and individuals who have given permission  \nto reproduce photographs in this book.\nPhoto credits: page 2 © Tony Waltham / Robert Harding  / Rex Features; page 51 left © Mariusz Blach – Fotolia; \npage 51 right © viappy – Fotolia; page 62 © Phil Cole/ALLSPORT/Getty Images; page 74 © Imagestate Media  \n(John Foxx); page 104 © Ray Woodbridge / Alamy; page 154 © VIJAY MATHUR/X01849/Reuters/Corbis;  \npage 208 © Krzysztof Szpil – Fotolia; page 247 © erikdegraaf – Fotolia\nAll designated trademarks and brands are protected by their respective trademarks.\nEvery effort has been made to tra"
+    },
+    {
+     "page": 4,
+     "text": "iii\nContents\nKey to symbols in this book \nvi\nIntroduction \nvii\nThe Cambridge International AS and A Level Mathematics syllabus \nviii\nP2 Pure Mathematics 2 \n1\nAlgebra \n2\nOperations with polynomials \n3\nSolution of polynomial equations \n8\nThe modulus function \n17\nLogarithms and exponentials \n23\nLogarithms \n23\nExponential functions \n28\nModelling curves \n30\nThe natural logarithm function \n39\nThe exponential function \n43\nTrigonometry \n51\nReciprocal trigonometrical functions \n52\nCompound-angle formulae \n55\nDouble-angle formulae \n61\nThe forms r cos(θ ± α), r sin(θ ± α) \n66\nThe general solutions of trigonometrical equations \n75\nDifferentiation \n78\nThe product rule \n78\nThe quotient rule \n80\nDifferentiating natural logarithms and exponentials \n85\nDifferentiating trigonometrical functions \n92\nDifferentiating functions defined implicitly \n97\nParametric equations \n104\nParametric differentiation \n108\nC"
+    }
+   ]
+  }
+ ]
+}

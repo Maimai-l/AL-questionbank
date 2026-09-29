@@ -1,0 +1,17 @@
+{
+ "_": "TSA 每卷官方结构 25 PS + 25 CT;逐题人工复核后的改判。键=exam-year-q。data/graph/table 推断题按 TSA 惯例归 PS。",
+ "TSA-2009-38": "PS",
+ "TSA-2015-14": "PS",
+ "TSA-2019-36": "PS",
+ "TSA-2010-4": "CT-draw",
+ "TSA-2011-32": "PS",
+ "TSA-2011-11": "CT-main",
+ "TSA-2011-46": "CT-draw",
+ "TSA-2012-22": "CT-match",
+ "TSA-2013-32": "PS",
+ "TSA-2013-28": "CT-match",
+ "TSA-2013-33": "CT-evid",
+ "TSA-2014-1": "CT-main",
+ "TSA-2017-46": "CT-match",
+ "TSA-2018-4": "CT-draw"
+}
