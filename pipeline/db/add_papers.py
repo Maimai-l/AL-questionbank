@@ -71,23 +71,44 @@ def tag(models, q, ms_text):
              topic_source="syllabus", subtopic=sub)
 
 
+_models = None
+
+
+def one_paper(f, write):
+    """Split one paper, parse its scheme, tag it and (write) crop its images;
+    runs in a worker process."""
+    global _models
+    if _models is None:
+        _models = topic_model.load()
+    pdfdir, msdir = os.path.join(paths.RAW, "pdf"), os.path.join(paths.RAW, "ms")
+    qs = split_qp.split_paper(os.path.join(pdfdir, f))
+    ms_file = f.replace("_qp_", "_ms_")
+    ms = split_ms.parse(os.path.join(msdir, ms_file)) \
+        if os.path.exists(os.path.join(msdir, ms_file)) else []
+    mk = {m["q"]: m for m in ms}
+    imgdir = os.path.join(paths.DATA, f"img{f[:4]}")
+    for q in qs:
+        tag(_models, q, (mk.get(q["q"]) or {}).get("ms_text"))
+        if write:
+            os.makedirs(imgdir, exist_ok=True)
+            try:
+                q["image"] = crop.render(q, pdfdir, imgdir)
+            except Exception:
+                q["image"] = None
+    return f, qs, ms
+
+
 def add(a):
     con = db.connect()
     files = new_papers(con)
     print(f"库中没有的试卷 {len(files)} 份")
-    models = topic_model.load()
-    pdfdir, msdir = os.path.join(paths.RAW, "pdf"), os.path.join(paths.RAW, "ms")
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=a.workers) as ex:
+        done = list(ex.map(one_paper, files, [a.write] * len(files)))
     by_subject, ms_by_subject, short = {}, {}, []
-    for f in files:
-        qs = split_qp.split_paper(os.path.join(pdfdir, f))
+    for f, qs, ms in done:
         if len(qs) < 4:
             short.append(f"{f}: {len(qs)} 题")
-        ms_file = f.replace("_qp_", "_ms_")
-        ms = split_ms.parse(os.path.join(msdir, ms_file)) \
-            if os.path.exists(os.path.join(msdir, ms_file)) else []
-        mk = {m["q"]: m for m in ms}
-        for q in qs:
-            tag(models, q, (mk.get(q["q"]) or {}).get("ms_text"))
         by_subject.setdefault(f[:4], []).extend(qs)
         ms_by_subject.setdefault(f[:4], []).extend(ms)
     n = sum(len(v) for v in by_subject.values())
@@ -102,13 +123,6 @@ def add(a):
     os.makedirs(OUT, exist_ok=True)
     allq, ids = [], []
     for subject, qs in sorted(by_subject.items()):
-        imgdir = os.path.join(paths.DATA, f"img{subject}")
-        os.makedirs(imgdir, exist_ok=True)
-        for q in qs:
-            try:
-                q["image"] = crop.render(q, pdfdir, imgdir)
-            except Exception:
-                q["image"] = None
         with tempfile.TemporaryDirectory() as tmp:
             qj, mj = os.path.join(tmp, "q.json"), os.path.join(tmp, "m.json")
             json.dump(qs, open(qj, "w"))
@@ -170,6 +184,7 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("mode", choices=["add", "finish"])
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--workers", type=int, default=os.cpu_count() or 4)
     a = ap.parse_args()
     {"add": add, "finish": finish}[a.mode](a)
 

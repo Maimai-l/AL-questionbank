@@ -59,11 +59,40 @@ def score(path, name):
     return (int(total == want), -abs(total - want), len(qs)), len(qs), total
 
 
+def choose(name, write):
+    """(name, source, matches the printed total, report line), or None when
+    the copy on disk already splits to the printed total."""
+    here = os.path.join(paths.RAW, "pdf", name)
+    best = (score(here, name), "现有")
+    if best[0][0][0] == 1:
+        return None
+    with tempfile.TemporaryDirectory() as tmp:
+        for src, tpl in SOURCES.items():
+            data = fetch(tpl.format(name=name))
+            if not data:
+                continue
+            d = os.path.join(tmp, src)
+            os.makedirs(d, exist_ok=True)
+            p = os.path.join(d, name)              # split_qp reads the ids from the name
+            open(p, "wb").write(data)
+            s = score(p, name)
+            if s[0] > best[0][0]:
+                best = (s, src)
+                if write:
+                    shutil.copy(p, here + ".best")
+        (key, n, total), src = best
+        if write and src != "现有":
+            os.replace(here + ".best", here)
+    line = f"{name}: 用 {src},{n} 题 {total} 分" + ("" if key[0] else "(与满分不符)")
+    return name, src, bool(key[0]), line
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--write", action="store_true")
     ap.add_argument("--only", help="只处理这些文件名(逗号分隔)")
+    ap.add_argument("--workers", type=int, default=os.cpu_count() or 4)
     a = ap.parse_args()
     have = {r[0] for r in db.connect().execute(
         "SELECT DISTINCT substr(id, 1, 11) FROM questions")}
@@ -72,32 +101,14 @@ def main():
              if "_qp_" in f and f[:4] in TOTAL and f.replace("_qp_", "_")[:-4] not in have]
     if a.only:
         names = [n for n in names if n in a.only.split(",")]
-    changed, bad = 0, []
-    with tempfile.TemporaryDirectory() as tmp:
-        for name in names:
-            here = os.path.join(pdfdir, name)
-            best = (score(here, name), "现有")
-            if best[0][0][0] == 1:
-                continue                         # already splits to the printed total
-            for src, tpl in SOURCES.items():
-                data = fetch(tpl.format(name=name))
-                if not data:
-                    continue
-                d = os.path.join(tmp, src)
-                os.makedirs(d, exist_ok=True)
-                p = os.path.join(d, name)
-                open(p, "wb").write(data)
-                s = score(p, name)
-                if s[0] > best[0][0]:
-                    best = (s, src)
-            (key, n, total), src = best
-            print(f"{name}: 用 {src},{n} 题 {total} 分" + ("" if key[0] else "(与满分不符)"))
-            if not key[0]:
-                bad.append(name)
-            if src != "现有":
-                changed += 1
-                if a.write:
-                    shutil.copy(os.path.join(tmp, src, name), here)
+    from concurrent.futures import ProcessPoolExecutor
+    with ProcessPoolExecutor(max_workers=a.workers) as ex:
+        results = list(ex.map(choose, names, [a.write] * len(names)))
+    changed = sum(1 for r in results if r and r[1] != "现有")
+    bad = [r[0] for r in results if r and not r[2]]
+    for r in results:
+        if r:
+            print(r[3])
     print(f"新卷 {len(names)} 份;换用其他来源 {changed} 份;仍与满分不符 {len(bad)} 份")
     if not a.write:
         print("(dry run;加 --write 替换)")
