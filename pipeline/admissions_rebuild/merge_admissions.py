@@ -6,6 +6,10 @@
 Re-runnable: existing TMUA/TSA/BMAT rows are deleted and re-inserted, then
 the FTS index rows for them are rebuilt. CAIE rows are never touched.
 
+The re-inserted rows carry the keyword tags of questions_adm.json; the model
+tags in pipeline/tags/retag_model.json (topic, topic_parts, topic_source =
+'model', ...) are applied again straight after, through tag_batches.write().
+
 Schema: two new columns are added if missing —
     answer  TEXT   the key's letter (or free text for early BMAT)
     qtype   TEXT   'mcq' | 'short'  (NULL for CAIE rows)
@@ -19,12 +23,13 @@ Images: every question gets both.
     qb/img_adm/    一题一张原页图(render_adm_imgs.py 裁的),文件名就是题号 ID
     qb/img_tara/   题干里引用的插图裁片
 """
-import html
+import argparse, html
 import json, os, re, shutil, sqlite3, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/
 from lib import paths
+from pipeline.tags import tag_batches
 
 QB = paths.DATA                            # 题图写进 data/;CAIE_DATA 可覆盖
 DB = paths.DB
@@ -184,6 +189,10 @@ def main():
                    WHERE syllabus IN ('TMUA','TSA','BMAT')""")
     con.commit()
 
+    # the model tags went with the deleted rows; put them back
+    tag_batches.write(argparse.Namespace(retag=tag_batches.RETAG_DEFAULT, dry_run=False),
+                      syllabi=("TMUA", "TSA", "BMAT"))
+
     # ---- verification --------------------------------------------------
     errs = []
     for syl, n in con.execute("SELECT syllabus, COUNT(*) FROM questions "
@@ -202,6 +211,12 @@ def main():
     missing_fig = [f for f in copied if not os.path.exists(os.path.join(QB, f))]
     if missing_fig:
         errs.append(f"缺内嵌图 {missing_fig[:3]}")
+    model = {k for k, v in json.load(open(tag_batches.RETAG_DEFAULT)).items()
+             if k != "_" and k.split("-")[0] in ("TMUA", "TSA", "BMAT")}
+    got = {r[0] for r in con.execute("SELECT id FROM questions WHERE syllabus IN "
+                                     "('TMUA','TSA','BMAT') AND topic_source='model'")}
+    if model - got:
+        errs.append(f"retag_model.json 中 {len(model - got)} 题未写上模型标签")
     nf = con.execute("SELECT COUNT(*) FROM q_fts WHERE id LIKE 'TMUA%' OR id LIKE "
                      "'TSA%' OR id LIKE 'BMAT%'").fetchone()[0]
     if nf != len(rows):

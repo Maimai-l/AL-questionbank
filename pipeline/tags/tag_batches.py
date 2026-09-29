@@ -572,9 +572,10 @@ def names_for(con):
     return out
 
 
-def write(a):
-    """retag_model.json -> questions. Rerun after combine.py or
-    merge_admissions.py, both of which rebuild the rows."""
+def write(a, syllabi=None):
+    """retag_model.json -> questions. Rerun after combine.py, which rebuilds
+    the rows; merge_admissions.py calls this itself with syllabi set to the
+    exams it has just re-inserted."""
     res = {k: v for k, v in json.load(open(a.retag)).items() if k != "_"}
     con = db.connect()
     db.add_column(con, "questions", "topic_parts")
@@ -585,6 +586,8 @@ def write(a):
     missing = [i for i in res if i not in rows]
     if missing:
         sys.exit(f"retag_model.json 中有库里没有的题号:{missing[:5]}")
+    if syllabi:
+        res = {i: v for i, v in res.items() if rows[i]["syllabus"] in syllabi}
 
     upd, moved = [], Counter()
     for i, rec in res.items():

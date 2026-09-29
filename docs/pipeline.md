@@ -49,6 +49,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/text/flag_quality.py      写 q_quality / ms_quality
             pipeline/text/mark_partial.py      标出被截断保留的题干
             pipeline/split/rebuild_text.py     切分规则改动后,就地重建题干、分值与 LaTeX 末尾(不重建整表)
+            pipeline/split/rebuild_ms.py       评分细则解析改动后,就地重建 ms_text 与总分(读 raw/ms/,需 pdftotext)
+            pipeline/text/fix_ms_prefix.py     把 parse_ms_ocr.py 错放到下一题开头的 ms_latex 移回原题
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
             pipeline/tags/eval_tags.py         新旧标签器对比(只报告)
@@ -66,8 +68,10 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 - 第 8 步的三个脚本顺序为字形 → 换行 → 表格,顺序颠倒会互相破坏。
 - `retag.py` 需要 `syllabus.json` 已存在。
 - `tag_batches.py write` 把 `pipeline/tags/retag_model.json` 写进库,须在 `retag.py`
-  之后运行;`combine.py` 或 `merge_admissions.py` 重建题目后也要重跑一次,否则模型
-  标签会被覆盖。`retag.py` 不改 `topic_source='model'` 的题。
+  之后运行;`combine.py` 重建题目后也要重跑一次,否则模型标签会被覆盖。
+  `merge_admissions.py` 在重建入学考行后自行调用它。`retag.py` 不改
+  `topic_source='model'` 的题。
+- `rebuild_text.py` 在 `rebuild_ms.py` 之前:后者按题面分值判定 `totals_agree`。
 - `build_site.py` 必须最后运行,否则页面读到的是旧数据。
 
 ## 入学考选择题线(TMUA / TSA / BMAT)
@@ -87,8 +91,7 @@ python3 $A/attach_ms.py                     # 4. 挂接 TMUA 官方详解
 python3 $A/tag_admissions.py                # 5. 主题标注与 PS/CT 配比校验
 python3 $A/render_adm_imgs.py               # 6. 逐题原页图
 python3 $A/audit_adm_imgs.py                #    裁图审计,全部通过后再推送
-python3 $A/merge_admissions.py              # 7. 合并进 data/caie.db(会重建入学考行)
-python3 pipeline/tags/tag_batches.py write  #    重写模型标签,否则被第 7 步覆盖
+python3 $A/merge_admissions.py              # 7. 合并进 data/caie.db(重建入学考行,再写回模型标签)
 python3 pipeline/export/build_site.py       # 8. 出页面
 ```
 
@@ -173,21 +176,37 @@ python3 pipeline/split/audit_crops.py raw/pdf
 1. **入学考脚本已改为经 `lib/paths.py` 解析路径(2026-09-29)。** 在其他目录下运行验证过:
    `manifest.py` 下载到 `raw/bank`;`render_adm_imgs.py` 重出的 1888 张图与现有图逐像素相同,
    `audit_adm_imgs.py` 全部通过;`tag_admissions.py` 重跑后 `questions_adm.json` 无变化;
-   `merge_admissions.py` 在库副本上重跑,除 291 道带插图的题(插图取自 `raw/bank_ocr`)外
-   与现库一致。`ocr_bank.py`、`parse_keys.py`、`split_admissions.py`、`attach_ms.py`、
-   `reocr_*.py` 依赖 `raw/bank_ocr`,云端没有这份 OCR 结果,只做了编译检查。
+   `merge_admissions.py` 在库副本上重跑,标签各列与现库完全一致(它现在自行写回模型标签),
+   除 291 道带插图的题(插图取自 `raw/bank_ocr`)外其余各列也一致。
+   **未完成:**`ocr_bank.py`、`parse_keys.py`、`split_admissions.py`、`attach_ms.py`、
+   `reocr_*.py` 依赖 `raw/bank_ocr`,云端没有这份 OCR 结果。重做需要 PaddleOCR,
+   而 OCR 结果从 `*.bcebos.com` 下载,该域名被云端网络策略拦截(见 network.md)。
 2. **题图与题干已按新切分重建(2026-09-29)。** 重建时又修了三处切分问题:9231 2021 年 6 月
    卷 3、卷 4 的页脚在距页底 81pt 处,原先未被识别,留在题图和题干里(32 题);条形码判别把
    "……"、"●●●" 和 Symbol 字体字符当成乱码,丢掉了 9618 伪代码填空行(40 行);题目首行带
    分式或列向量时,该行高出题号,原先被划给上一题(约 90 对题)。共重出 220 张题图,
    `rebuild_text.py` 改写 428 题:题干 263、LaTeX 末尾的附加页与版权文字 207、分值 5
    (`9618_s24_13_q07` 19→22,`9709_s22_33_q02/q03`、`9709_s23_33_q05/q06`)。
-   `question_latex` 仍是旧题图的 OCR,只截掉了末尾;若要与新题图完全一致,需重新 OCR。
-3. **14 个 `img_tara` 插图缺失。** 题干中引用了 958 个 `img_tara/` 文件,其中 14 个在
+   **未完成:**`question_latex` 仍是旧题图的 OCR,只截掉了末尾;这 220 题需要重新 OCR,
+   受阻于同一个 `*.bcebos.com`。题号清单在 `pipeline/ocr/reocr_pending.txt`。
+3. **评分细则与分值已重建(2026-09-29)。** 评分细则 PDF 全部下载到 `raw/ms/`(9709 2025 年
+   6 月的 12 份来自 papacambridge,此前库中这 106 题没有评分细则)。`split_ms.py` 修了:
+   标签只缩进一格或顶格("10(a)"、"10(c)(i)")、标签独占一行、标签印成 ".4"、缺括号
+   ("5(b(iii)")、罗马数字到 (vi) 以上;小计后跟 Guidance 文字;另一种解法各带小计时误加;
+   含 "mark scheme" 字样的行被当页眉丢掉;表头为 "Partial / Marks" 两行(9231_s23_ms_23,
+   此前整卷无评分细则)。小计与题面分值不符而评分代码之和相符时取后者(18 题);仍读不出的
+   8 题人工对照 PDF 核定,记在 `pipeline/split/ms_totals_checked.json`。题面一侧修了 3 题分值:
+   分值后同一行跟着上标或分式下半("[6] 1"、"[1] c"),以及数组表头 "[9] [10]" 被当成分值。
+   `totals_agree` 从 2568/2956 升到 2955/2956,378 份卷子的分值合计全部等于官方总分。唯一
+   不符的 `9709_s24_33_q11` 是评分细则本身缺第 11 题(两个来源的 PDF 都只到第 10 题,
+   共 66 分)。`fix_ms_prefix.py` 另把 16 题 `ms_latex` 开头错放的内容移回原题或删去
+   (评分通则、上一题的秩检验等)。9709 2025 年 6 月的评分细则只有文本层,没有 `ms_latex`,
+   OCR 同样受阻于 `*.bcebos.com`。
+4. **14 个 `img_tara` 插图缺失。** 题干中引用了 958 个 `img_tara/` 文件,其中 14 个在
    旧仓库中就不存在。
-4. **`export_project.py` 缺失。** 旧文档描述的"将题库导出为 CSV"脚本不在仓库中。
-5. **`export_textbooks.py` 是简化版。** 旧文档说它会把目录名 `9709_p1` 还原为
+5. **`export_project.py` 缺失。** 旧文档描述的"将题库导出为 CSV"脚本不在仓库中。
+6. **`export_textbooks.py` 是简化版。** 旧文档说它会把目录名 `9709_p1` 还原为
    `Paper 1 · Pure Mathematics 1`,仓库中的版本没有这一步。
-6. **`export_admissions_banks.py` 需要原始数据。** TMUA 包引用了 166 张官方详解插图,
+7. **`export_admissions_banks.py` 需要原始数据。** TMUA 包引用了 166 张官方详解插图,
    位于 `raw/admissions_ocr_source/TMUA/worked_answers/`,该目录目前不在云端。
-7. **`export_9709_p1.py` 需要 `cwebp`。** 云端运行前需先安装 webp 工具。
+8. **`export_9709_p1.py` 需要 `cwebp`。** 云端运行前需先安装 webp 工具。

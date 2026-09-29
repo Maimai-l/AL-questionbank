@@ -23,7 +23,11 @@ LEFT_MARGIN = 62          # question numbers start left of this
 # the last line off every page of the 865pt-tall 2024+ layout.
 QNUM_RE = re.compile(r"^(\d{1,2})(?:\s|$)")
 MARKS_RE = re.compile(r"\[(\d{1,2})\]")
-MARKS_END_RE = re.compile(r"(?:^|[\s.])\[(\d{1,2})\]\s*$")
+# a superscript or the foot of a fraction can share the tariff's visual line:
+# "... A^n = PDP^-1  [6]" reads "[6] 1" in 9231_s24_23 q8(d), and "x/(x-3) ...
+# no solution. [1]" reads "[1] c" in 9231_w21_12 q6(d)(ii)
+MARKS_END_RE = re.compile(r"(?:^|[\s.])\[(\d{1,2})\](?:\s+-?[0-9A-Za-z])?\s*$")
+INDEX_RE = re.compile(r"\[\d{1,2}\]\s*$")
 TARIFF_X1 = 530           # tariffs are right-aligned; every real one lands at x1 ~ 545
 # Case-sensitive on purpose: the cover page says "Any blank pages are
 # indicated", which must not be mistaken for a blank page.
@@ -274,6 +278,9 @@ def split_paper(path):
         marks = []
         for t, x1 in parts:
             m = MARKS_END_RE.search(t)
+            # the last index of an array header ("[9] [10]", 9618_s25_33 q13)
+            if m and INDEX_RE.search(t[:m.start(1) - 1]):
+                m = None
             if m and x1 >= TARIFF_X1:
                 marks.append(int(m.group(1)))
         if not marks:

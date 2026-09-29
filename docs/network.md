@@ -8,7 +8,8 @@
 | `dynamicpapers.com` | CAIE 9709/9618 试卷与评分细则 PDF | `pipeline/fetch/fetch_any.py`、`fetch.py` | 可访问 |
 | `uat-wp.s3.eu-west-2.amazonaws.com` | TMUA/TSA/BMAT 试卷、答案键、官方详解 PDF | `pipeline/admissions_rebuild/manifest.py` | 可访问 |
 | `paddleocr.aistudio-app.com` | PaddleOCR-VL 接口,全部 OCR 依赖它 | `pipeline/ocr/paddle.py`、`pipeline/ocr/ocr_books.py` | 可访问 |
-| `pastpapers.papacambridge.com` | 9231 试卷与评分细则 PDF(dynamicpapers 没有 9231) | `fetch_any.py --url-template` | 可访问 |
+| `*.bj.bcebos.com`(如 `paddleocr-store-3.bj.bcebos.com`) | PaddleOCR 结果与插图的下载地址:任务提交到 aistudio,结果 JSON 与图片由这里下发 | `pipeline/ocr/*.py`、`ocr_bank.py` | **被拦截**(2026-09-29 实测:提交成功,取结果时代理返回 403) |
+| `pastpapers.papacambridge.com` | 9231 试卷与评分细则 PDF(dynamicpapers 没有 9231);9709 2025 年 6 月的评分细则(dynamicpapers 返回 404) | `fetch_any.py --url-template` | 可访问 |
 | `bestexamhelp.com` | 9231 的旧来源,已由 papacambridge 取代 | — | 被拦截 |
 | `esat-tmua.ac.uk` | TMUA 官方站点,查找新卷子链接时使用 | — | 可访问 |
 | `www.uat-uk.org` | 入学考官方站点,查找新卷子链接时使用 | — | 被拦截 |
@@ -22,6 +23,7 @@
 dynamicpapers.com
 uat-wp.s3.eu-west-2.amazonaws.com
 paddleocr.aistudio-app.com
+*.bcebos.com
 pastpapers.papacambridge.com
 www.uat-uk.org
 esat-tmua.ac.uk
@@ -33,6 +35,15 @@ esat-tmua.ac.uk
 python3 pipeline/fetch/fetch_any.py 9231 raw/pdf --years 21 22 23 24 25 --papers 1 2 3 4 --series s w \
   --url-template "https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/{name}"
 ```
+
+9709 2025 年 6 月的评分细则(dynamicpapers 上没有):
+
+```bash
+python3 pipeline/fetch/fetch_any.py 9709 raw/ms --years 25 --papers 1 3 4 5 --series s \
+  --url-template "https://pastpapers.papacambridge.com/directories/CAIE/CAIE-pastpapers/upload/{name}"
+```
+
+`rebuild_ms.py` 读 `raw/ms/` 中全部评分细则,其余卷子的评分细则用默认来源下载到同一目录。
 
 ## 环境变量
 
