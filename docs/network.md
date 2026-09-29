@@ -8,6 +8,7 @@
 | `dynamicpapers.com` | CAIE 9709/9618 试卷与评分细则 PDF | `pipeline/fetch/fetch_any.py`、`fetch.py` | 可访问 |
 | `uat-wp.s3.eu-west-2.amazonaws.com` | TMUA/TSA/BMAT 试卷、答案键、官方详解 PDF | `pipeline/admissions_rebuild/manifest.py` | 可访问 |
 | `paddleocr.aistudio-app.com` | PaddleOCR-VL 接口,全部 OCR 依赖它 | `pipeline/ocr/paddle.py`、`pipeline/ocr/ocr_books.py` | 可访问 |
+| `cie.fraft.cn` | CAIE 试卷与评分细则的检索与下载(接口 `obj/Combo/subject`、`obj/Fetch/renum`、`obj/Fetch/redir`,参考 github.com/iewnfod/get_paper_rs);`redir` 跳转后的文件域名待实测 | 待接入 | 待放行(2026-09-29 加入白名单) |
 | `*.bj.bcebos.com`(如 `paddleocr-store-3.bj.bcebos.com`) | PaddleOCR 结果与插图的下载地址:任务提交到 aistudio,结果 JSON 与图片由这里下发 | `pipeline/ocr/*.py`、`ocr_bank.py` | 可访问(2026-09-29 加入白名单后) |
 | `pastpapers.papacambridge.com` | 9231 试卷与评分细则 PDF(dynamicpapers 没有 9231);9709 2025 年 6 月的评分细则(dynamicpapers 返回 404) | `fetch_any.py --url-template` | 可访问 |
 | `bestexamhelp.com` | 9231 的旧来源,已由 papacambridge 取代 | — | 被拦截 |
