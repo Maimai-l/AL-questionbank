@@ -81,6 +81,13 @@ def rows_to_questions(pages):
                     continue
                 first = cells[0]
                 m = LABEL_RE.match(first)
+                # Questions come in order and none is skipped, so a label more
+                # than two ahead (or behind) is a number in the first cell of
+                # a content row: the stem "9" of a stem-and-leaf diagram in
+                # 9709_s25_ms_51 q3 used to open a question 9.
+                if m and current is not None and not \
+                        current <= int(m.group(1)) <= current + 2:
+                    m = None
                 if m:
                     current = int(m.group(1))
                     label = first.strip()

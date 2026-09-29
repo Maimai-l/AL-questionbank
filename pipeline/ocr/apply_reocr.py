@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Replace question_latex with a fresh OCR of the current crops.
 
-    python3 pipeline/ocr/apply_reocr.py <cache.jsonl> [--write]
+    python3 pipeline/ocr/apply_reocr.py <cache.jsonl> [--strip-bank] [--write]
 
 For crops re-rendered after the bank was built (pipeline/ocr/reocr_pending.txt
 lists the 220 of the 2026-09 split fixes), run each PNG through
@@ -11,12 +11,15 @@ precedes step 8, it runs the step-8 chain on each result itself (glyphs ->
 line breaks -> tables), then cuts the end matter as rebuild_text.py does, so
 nothing else has to be re-run over the whole table.
 
-A new result replaces the old one only if audit_text grades it 'ok'; q_quality
+The ruled answer lines, which the model transcribes as long arrays of
+numbered underlines, are dropped. A new result replaces the old one only if
+audit_text grades it 'ok' and it is not much shorter than the old text; q_quality
 becomes 'ok' (a salvaged 'partial' prefix is superseded by the full question).
 Anything else keeps the old text and is listed. Dry run by default; q_fts is
-rebuilt on --write.
+rebuilt on --write. --strip-bank also drops the answer lines from every other
+row's question_latex (29 rows in 2026-09; 9709_w23_13_q02 alone 11 000 chars).
 """
-import argparse, json, os, sys
+import argparse, json, os, re, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
@@ -28,11 +31,47 @@ from pipeline.text.fix_newlines import unescape  # noqa: E402
 from pipeline.text.html_tables import convert  # noqa: E402
 
 
+# The ruled answer lines under a question come back as an array of numbered
+# or empty underlines, often hundreds long ("\underline{\text{1}} ...
+# \underline{\text{524}}", 9709_s22_11_q04) and sometimes cut off mid-token.
+# A long run made only of such pieces is dropped.
+LINE_TOKEN = (r"\\underline\{\\text\{[\s\d]*\}\}|\\text\{[\s\d]*\}|\\underline\{?|"
+              r"\\begin\{array\}(?:\{l\})?|\\end\{array\}|\\left\[|\\right\]|"
+              r"\\\\|\\ |\\\(|\\\)|\$|\{|\}|\d+\.?|\s")
+ANSWER_LINES = re.compile(r"(?>%s){40,}+" % LINE_TOKEN)
+
+
+# what is left of a run cut short: "\text{", "\(\begin{array}{l}\underline{\", "\"
+# (a line that is only a number is a question number or a datum, and stays);
+# a line of underscores ("___") is a ruled answer line too
+ONLY_LINE_TOKENS = re.compile(r"(?>%s|\\text\{|\\)*+" % LINE_TOKEN)
+
+
+def is_answer_lines(run):
+    """Underlines, or line numbers counting from 1 ("1 2 3 ... 1040", 9618 CS
+    papers) - not a list of data, which a statistics question may well print,
+    nor the days 1 to 28 along the axis of a plan (TSA-2008-S1-q25)."""
+    if len(run.strip()) < 60:
+        return False
+    if "\\underline" in run:
+        return True
+    nums = [int(x) for x in re.findall(r"\d+", run)]
+    return len(nums) >= 60 and nums[:60] == list(range(1, 61))
+
+
+def strip_answer_lines(t):
+    t = ANSWER_LINES.sub(lambda m: "\n\n" if is_answer_lines(m.group(0)) else m.group(0), t)
+    t = "\n".join(l for l in t.split("\n")
+                  if not ("\\" in l and ONLY_LINE_TOKENS.fullmatch(l))
+                  and not re.fullmatch(r"\s*_{3,}\s*", l))
+    return re.sub(r"\n{3,}", "\n\n", t).strip()
+
+
 def normalise(latex):
     t = clean(latex)[0]
     t = unescape(t)[0]
     t = convert(t)[0]
-    return cut_end_matter(t)
+    return strip_answer_lines(cut_end_matter(t))
 
 
 def main():
@@ -40,6 +79,8 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("cache")
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--strip-bank", action="store_true",
+                    help="也清掉库中其余题 question_latex 里的答题线")
     a = ap.parse_args()
 
     got = {}
@@ -61,6 +102,10 @@ def main():
             kept.append(f"{qid}: 新结果评为 {grade},保留旧文本({r['q_quality']})")
             continue
         old = r["question_latex"] or ""
+        if len(new) < 0.6 * len(strip_answer_lines(old)):
+            kept.append(f"{qid}: 新结果 {len(new)} 字,旧文本去掉答题线后 "
+                        f"{len(strip_answer_lines(old))} 字,保留旧文本")
+            continue
         upd.append((new, int(bool(d.get("has_diagram"))), "ok", qid,
                     len(old), len(new), r["q_quality"]))
 
@@ -75,11 +120,21 @@ def main():
             print(f"  长度变化大 {u[3]}: {u[4]} -> {u[5]}")
     for k in kept:
         print("  " + k)
+    stripped = []
+    if a.strip_bank:
+        done = {u[3] for u in upd}
+        for qid, t in con.execute("SELECT id, question_latex FROM questions "
+                                  "WHERE question_latex IS NOT NULL").fetchall():
+            if qid not in done and strip_answer_lines(t) != t.strip():
+                stripped.append((strip_answer_lines(t), qid))
+        print(f"其余题中去掉答题线:{len(stripped)} 题,"
+              f"{sum(len(t) for t, _ in stripped)} 字留下")
     if not a.write:
         print("(dry run;加 --write 写入)")
         return
     con.executemany("UPDATE questions SET question_latex=?, has_diagram=?, q_quality=? "
                     "WHERE id=?", [u[:4] for u in upd])
+    con.executemany("UPDATE questions SET question_latex=? WHERE id=?", stripped)
     con.execute("DELETE FROM q_fts")
     con.execute("INSERT INTO q_fts(id,question_text,ms_text,topic_name) SELECT id, "
                 "COALESCE(question_latex,question_text), COALESCE(ms_latex,ms_text), "

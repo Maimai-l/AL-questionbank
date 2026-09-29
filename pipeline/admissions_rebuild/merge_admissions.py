@@ -86,10 +86,12 @@ def clean_text(q, copied):
         sub = f"{q['exam']}-{q['year']}" + (f"-P{q['paper']}" if q["exam"] == "TMUA" else "")
         dst_rel = f"img_tara/{sub}/{base}"
         dst = os.path.join(QB, dst_rel)
-        if os.path.exists(frm):
+        # the figure may already be in data/ from an earlier run, and raw/bank_ocr
+        # (a local OCR cache) need not be there at all
+        if os.path.exists(frm) and not os.path.exists(dst):
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            if not os.path.exists(dst):
-                shutil.copy(frm, dst)
+            shutil.copy(frm, dst)
+        if os.path.exists(dst):
             copied.add(dst_rel)
             return f"\n![]({dst_rel})\n"
         return ""
