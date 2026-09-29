@@ -3,7 +3,10 @@
 
 The selection deliberately excludes questions that only ask students to trace,
 explain, or identify code. It includes direct requests to write/complete
-pseudocode, write SQL/assembly, and every Paper 4 practical code task.
+pseudocode, write SQL/assembly, and every Paper 4 practical code task. Besides
+the rules on the whole text, a part whose task (part_data, from its command
+words) is write_code, complete_code, sql or assembly counts; those parts are
+named in the listing and the manifest.
 """
 from __future__ import annotations
 
@@ -22,6 +25,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from lib import paths  # noqa: E402
+from pipeline.export import question_md  # noqa: E402
 
 DATA = Path(paths.DATA)
 ASSETS = DATA  # images and books/ live in data/
@@ -38,8 +42,24 @@ RULES = (
 )
 
 
+# part tasks (part_data, pipeline/text/split_parts.py) that produce code
+PART_TASKS = {"write_code": "Pseudocode: write", "complete_code": "Pseudocode: complete",
+              "sql": "SQL", "assembly": "Assembly / machine code"}
+
+
+def code_parts(row: sqlite3.Row) -> list[str]:
+    """Labels of the parts whose command words ask for code."""
+    parts = (question_md.parts_of(row) or {}).get("parts", [])
+    return [p["label"] for p in parts if p.get("task") in PART_TASKS and p["label"]]
+
+
 def categories(row: sqlite3.Row) -> list[str]:
-    found = [label for label, pattern in RULES if pattern.search(row["question_text"] or "")]
+    text = row["question_text"] or ""
+    found = [label for label, pattern in RULES if pattern.search(text)]
+    for p in (question_md.parts_of(row) or {}).get("parts", []):
+        label = PART_TASKS.get(p.get("task"))
+        if label and label not in found:
+            found.append(label)
     if row["component"] == "4":
         found.append("Paper 4: practical program code")
     return found
@@ -141,7 +161,8 @@ def main(slim: bool = False) -> None:
             con.row_factory = sqlite3.Row
             rows = [row for row in con.execute("""
                 SELECT id, component, component_name, paper, session, year, month, q, marks,
-                       topic_name, question_text, question_latex, ms_text, ms_latex, image
+                       topic_name, question_text, question_latex, ms_text, ms_latex, image,
+                       q_quality, part_data
                 FROM questions
                 WHERE syllabus = '9618'
                 ORDER BY component, year, month, paper, q, id
@@ -169,7 +190,11 @@ def main(slim: bool = False) -> None:
                     f"## {row['paper']} {row['session']} Q{row['q']}", "",
                     f"- ID: `{row['id']}`", f"- Component: {row['component']} — {row['component_name']}",
                     f"- Topic: {row['topic_name']}", f"- Type: {', '.join(cats)}",
-                    f"- Marks: {row['marks'] if row['marks'] is not None else '—'}", ""]
+                    f"- Marks: {row['marks'] if row['marks'] is not None else '—'}"]
+                parts = code_parts(row)
+                if parts:
+                    question_lines.append(f"- Code parts: {', '.join(parts)}")
+                question_lines.append("")
                 if not slim and row["image"]:
                     source = ASSETS / row["image"]
                     arc = f"{package}/images/{row['image']}"
@@ -178,13 +203,14 @@ def main(slim: bool = False) -> None:
                         added_images.add(arc)
                     if source.is_file():
                         question_lines += [f"![Question image](images/{row['image']})", ""]
-                question = row["question_latex"] or row["question_text"] or "_Question text unavailable._"
-                markscheme = row["ms_latex"] or row["ms_text"] or "_Mark scheme text unavailable._"
+                question = question_md.question_text(row)
+                markscheme = question_md.scheme_text(row)
                 question_lines += ["### Question", "", question.strip(), "", "### Mark scheme", "", markscheme.strip(), ""]
                 manifest_rows.append({
                     "id": row["id"], "paper": row["paper"], "session": row["session"],
                     "question": row["q"], "component": row["component"], "topic": row["topic_name"],
-                    "categories": "; ".join(cats), "marks": row["marks"], "image": row["image"] or "",
+                    "categories": "; ".join(cats), "code_parts": "; ".join(code_parts(row)),
+                    "marks": row["marks"], "q_quality": row["q_quality"] or "", "image": row["image"] or "",
                 })
 
             questions_md = tmp / "code_questions.md"

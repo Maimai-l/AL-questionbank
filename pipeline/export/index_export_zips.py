@@ -17,6 +17,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from lib import paths  # noqa: E402
+from pipeline.export import question_md  # noqa: E402
 
 DATA = Path(paths.DATA)
 PROJECT = ROOT
@@ -53,10 +54,13 @@ def archive_rows(con: sqlite3.Connection, path: Path, zin: zipfile.ZipFile) -> t
         return rows_for_ids(con, ids), {"kind": "question-bank"}
     if json_name:
         chapter = json.loads(zin.read(json_name).decode("utf-8"))
-        rows = list(con.execute("""
-            SELECT * FROM questions WHERE syllabus=? AND topic=?
+        # as export_all_chapters.py: whole questions on the topic, and those
+        # with only some parts on it
+        rows = [r for r in con.execute("""
+            SELECT * FROM questions WHERE syllabus=? AND (topic=? OR topic_parts LIKE ?)
             ORDER BY year, month, paper, q, id
-        """, (chapter["syllabus"], chapter["topic"])))
+        """, (chapter["syllabus"], chapter["topic"], f'%"topic": "{chapter["topic"]}"%'))
+            if r["topic"] == chapter["topic"] or question_md.labels_on_topic(r, chapter["topic"])]
         if len(rows) != chapter["questions"]:
             raise ValueError(f"{path.name}: chapter says {chapter['questions']} questions, DB has {len(rows)}")
         return rows, {"kind": "chapter-package", "chapter": chapter}
@@ -73,10 +77,20 @@ def local_image(path: Path, row: sqlite3.Row, kind: str) -> str | None:
     return "images/" + row["image"]
 
 
-def entry(path: Path, row: sqlite3.Row, kind: str) -> dict:
+def entry(path: Path, row: sqlite3.Row, kind: str, topic: str | None = None) -> dict:
+    """One question of the index. text_usable false means question_text cannot
+    stand in for the image (q_quality missing, garbled or partial); parts are
+    the question's parts with their own marks, topic and task (part_data), and
+    parts_included, in a chapter package, the parts it gives when not all."""
     question = row["question_latex"] or row["question_text"] or ""
     scheme = row["ms_latex"] or row["ms_text"] or ""
     image = local_image(path, row, kind)
+    parts = [{"label": p["label"], "marks": p["marks"], "topic": p["topic"], "task": p.get("task"),
+              "has_mark_scheme": bool(p["ms"])}
+             for p in (question_md.parts_of(row) or {}).get("parts", [])]
+    included = None
+    if kind == "chapter-package" and topic and row["topic"] != topic:
+        included = question_md.labels_on_topic(row, topic)
     return {
         "id": row["id"], "syllabus": row["syllabus"], "component": row["component"],
         "component_name": row["component_name"], "paper": row["paper"],
@@ -84,6 +98,11 @@ def entry(path: Path, row: sqlite3.Row, kind: str) -> dict:
         "marks": row["marks"], "topic": row["topic"], "topic_name": row["topic_name"],
         "subtopic_name": row["subtopic_name"], "answer": row["answer"], "question_type": row["qtype"],
         "image": image, "question_text": question, "mark_scheme": scheme,
+        "q_quality": row["q_quality"], "ms_quality": row["ms_quality"],
+        "text_usable": question_md.text_usable(row) and bool(question),
+        "has_diagram": bool(row["has_diagram"]), "parts": parts,
+        "options": json.loads(row["option_texts"]) if row["option_texts"] else None,
+        "parts_included": included,
         "markdown_file": "questions.md",
     }
 
@@ -93,9 +112,15 @@ def index_markdown(index: dict) -> str:
     lines = ["# Question index", "", f"Schema: `{SCHEMA}`", "",
              "This ZIP is self-indexing. An LLM can select question IDs from `index.json` and return:", "",
              "```json", '{"schema":"alevel-question-set/v1","items":[{"archive_id":"' + meta["id"] + '","question_ids":["ID1","ID2"]}]}', "```", "",
-             "| id | paper | year | topic | marks | image |", "|---|---|---:|---|---:|---|"]
+             "`text_usable: false` means the question text is unreliable: read the image instead. "
+             "`parts` gives each part's marks, topic and task.", "",
+             "| id | paper | year | topic | marks | parts | text | image |",
+             "|---|---|---:|---|---:|---|---|---|"]
     for q in index["questions"]:
-        lines.append(f"| `{q['id']}` | {q['paper']} | {q['year']} | {q['topic_name'] or ''} | {q['marks'] or ''} | {q['image'] or ''} |")
+        parts = ", ".join(q["parts_included"] or [p["label"] for p in q["parts"] if p["label"]])
+        text = "ok" if q["text_usable"] else "image only"
+        lines.append(f"| `{q['id']}` | {q['paper']} | {q['year']} | {q['topic_name'] or ''} | "
+                     f"{q['marks'] or ''} | {parts} | {text} | {q['image'] or ''} |")
     return "\n".join(lines) + "\n"
 
 
@@ -108,7 +133,8 @@ def update_zip(path: Path, con: sqlite3.Connection, write: bool) -> tuple[int, s
         archive_id = roots[0]
         rows, extra = archive_rows(con, path, zin)
         index = {"schema": SCHEMA, "archive": {"id": archive_id, "file": path.name, **extra},
-                 "questions": [entry(path, row, extra["kind"]) for row in rows]}
+                 "questions": [entry(path, row, extra["kind"], extra.get("chapter", {}).get("topic"))
+                               for row in rows]}
         if not write:
             return len(rows), extra["kind"]
         data_json = json.dumps(index, ensure_ascii=False, indent=2).encode("utf-8")

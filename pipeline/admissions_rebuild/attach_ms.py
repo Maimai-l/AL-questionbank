@@ -15,6 +15,7 @@ import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
 from lib import paths  # noqa: E402
+from pipeline.admissions_rebuild.page_fixes import read_page  # noqa: E402  逐页人工修正
 
 ROOT = os.path.join(paths.BANK_OCR, "TMUA", "worked_answers")
 OUT = os.path.join(paths.ADM, "ms_tmua.json")
@@ -31,7 +32,7 @@ def main():
         text = ""
         for f in sorted(os.listdir(os.path.join(ROOT, d))):
             if re.match(r"page_\d+\.md$", f):
-                text += open(os.path.join(ROOT, d, f), encoding="utf-8").read() + "\n"
+                text += read_page(os.path.join(ROOT, d, f)) + "\n"
         marks = [(int(h.group(1)), h.start(), h.end()) for h in HEAD.finditer(text)]
         qs = {}
         for i, (n, s, e) in enumerate(marks):

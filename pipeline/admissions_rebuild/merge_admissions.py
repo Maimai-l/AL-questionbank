@@ -14,6 +14,8 @@ Schema: two new columns are added if missing —
     answer  TEXT   the key's letter (or free text for early BMAT)
     qtype   TEXT   'mcq' | 'short'  (NULL for CAIE rows)
     options TEXT   JSON list of the offered letters, e.g. ["A",..,"E"]
+    option_texts   JSON {"A": "3 and 4 only", .., "E": null}: each option's
+                   text (null when drawn as a figure), by option_texts.derive()
 
 Hand corrections checked against the papers (text_fixes.json: a question whose
 text went to its neighbour, option fragments of the previous question) replace
@@ -35,6 +37,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 from lib import paths
 from pipeline.tags import tag_batches
 from pipeline.text.answer_lines import strip as strip_answer_lines
+from pipeline.admissions_rebuild.option_texts import derive as derive_options
 
 QB = paths.DATA                            # 题图写进 data/;CAIE_DATA 可覆盖
 DB = paths.DB
@@ -140,7 +143,7 @@ def main():
 
     con = sqlite3.connect(DB)
     cols = [r[1] for r in con.execute("PRAGMA table_info(questions)")]
-    for col in ("answer", "qtype", "options"):
+    for col in ("answer", "qtype", "options", "option_texts"):
         if col not in cols:
             con.execute(f"ALTER TABLE questions ADD COLUMN {col} TEXT")
 
@@ -206,6 +209,8 @@ def main():
             "subtopic": q.get("subtopic"), "subtopic_name": q.get("subtopic_name"),
             "answer": ans, "qtype": qtype,
             "options": json.dumps(q.get("options") or []),
+            "option_texts": json.dumps(derive_options(text, q.get("options") or []),
+                                       ensure_ascii=False) if qtype == "mcq" else None,
         })
 
     keys = list(rows[0])

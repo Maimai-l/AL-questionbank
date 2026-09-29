@@ -32,6 +32,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 
 ```
 1  下载      pipeline/fetch/fetch_any.py        通用下载器(9231 用 --url-template 指向 papacambridge,见 network.md)
+            pipeline/fetch/fetch_fraft.py      按 cie.fraft.cn 的文件清单补下库中没有的试卷及其评分细则
 2  切分      pipeline/split/split_qp.py         试卷 → 一题一条记录
             pipeline/split/split_ms.py         评分细则 → 按题号切开(需 pdftotext)
 3  裁图      pipeline/split/crop.py             按 bbox 渲染 PNG
@@ -55,6 +56,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/split/rebuild_text.py     切分规则改动后,就地重建题干、分值与 LaTeX 末尾(不重建整表)
             pipeline/split/rebuild_ms.py       评分细则解析改动后,就地重建 ms_text 与总分(读 raw/ms/,需 pdftotext)
             pipeline/text/fix_ms_prefix.py     把 parse_ms_ocr.py 错放到下一题开头的 ms_latex 移回原题
+            pipeline/text/split_parts.py       题干与评分细则按小问切开,写 part_data(分值、主题、任务类型)
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
             pipeline/tags/eval_tags.py         新旧标签器对比(只报告)
@@ -76,6 +78,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
   `merge_admissions.py` 在重建入学考行后自行调用它。`retag.py` 不改
   `topic_source='model'` 的题。
 - `rebuild_text.py` 在 `rebuild_ms.py` 之前:后者按题面分值判定 `totals_agree`。
+- `split_parts.py` 读 `marks_parts` 与 `topic_parts`,须在第 10 步标签写回之后运行;
+  标签或题干改动后重跑一次,导出才会用到新的小问数据。
 - `build_site.py` 必须最后运行,否则页面读到的是旧数据。
 
 ## 入学考选择题线(TMUA / TSA / BMAT)
@@ -90,6 +94,8 @@ A=pipeline/admissions_rebuild
 python3 $A/manifest.py                      # 0. 下载 PDF 与考纲,支持续跑
 python3 $A/ocr_bank.py                      # 1. 按页 OCR(第三个参数为并发数,默认 4)
 python3 $A/parse_keys.py                    # 2. 答案键 → answers.json
+python3 $A/page_batches.py plan --out raw/page_batches/runN   # 2b. 切不好的页交给转录员
+python3 $A/page_batches.py apply --out raw/page_batches/runN  #     收回,写入 page_fixes.json
 python3 $A/split_admissions.py              # 3. 切题 → questions_adm.json,逐卷校验
 python3 $A/attach_ms.py                     # 4. 挂接 TMUA 官方详解
 python3 $A/tag_admissions.py                # 5. 主题标注与 PS/CT 配比校验
@@ -98,6 +104,14 @@ python3 $A/audit_adm_imgs.py                #    裁图审计,全部通过后再
 python3 $A/merge_admissions.py              # 7. 合并进 data/caie.db(重建入学考行,再写回模型标签)
 python3 pipeline/export/build_site.py       # 8. 出页面
 ```
+
+`page_fixes.json`(跟踪)是对照页面图像修正过的逐页识别文本,`split_admissions.py`
+与 `attach_ms.py` 读页时优先使用(`page_fixes.py`)。`page_batches.py plan` 先切到临时
+文件,与跟踪的 `questions_adm.json` 逐题比较(缺题、答案字母不在选项中、文本短一半以上、
+与原题用词重合不足一半即错位),把相关页面渲染成图片,连同识别文本和"重点核对"提示分批
+交给转录员子 agent;`apply` 只收下保留了全部 `<img>`、长度未缩短三分之一以上的页面。
+`option_texts.py` 从题干按规则取出每个选项的文字,写 `option_texts`(图形选项为 null),
+`merge_admissions.py` 插入时同样调用。
 
 `review_batches.py` 负责把需要读图判断的题目分批、生成给 agent 的提示词,并在回收时
 用不变量校验结果。改判结果写入 `retag_tmua.json` 与 `retag_tara.json`,不要直接改
@@ -126,12 +140,15 @@ python3 -m pipeline.books.chapters coverage
 | `build_site.py` | `data/` 下的 data.js、textbooks.js 与页面 |
 | `export_web.py` | `data/data.js`,可单独运行 |
 | `export_textbooks.py` | `data/textbooks.js`,可单独运行 |
-| `export_all_chapters.py` | 每章一个 ZIP,含章节正文、同主题真题、题图与评分细则 |
+| `export_all_chapters.py` | 每章一个 ZIP,含章节正文、同主题真题、题图与评分细则;只有部分小问属于本章的题,只给这些小问及其评分细则(`part_data`) |
 | `export_admissions_banks.py` | TMUA 包与 TARA(TSA 加 BMAT)包 |
 | `export_9709_p1.py` | 9709 P1 文本包与图片包 |
 | `export_curated_hard_papers.py` | 六套人工精选难卷 |
-| `export_cs_code_questions.py` | 9618 中要求实际编写代码的题目 |
-| `index_export_zips.py` | 为每个导出 ZIP 嵌入统一索引,先 dry run 再 `--write` |
+| `export_cs_code_questions.py` | 9618 中要求实际编写代码的题目(整题规则加小问任务类型),列出代码小问 |
+| `index_export_zips.py` | 为每个导出 ZIP 嵌入统一索引,先 dry run 再 `--write`;每题带 `q_quality`、`ms_quality`、`text_usable`、`has_diagram`、各小问的分值/主题/任务类型、入学考选项文字 |
+
+`question_md.py` 是各导出共用的题目 Markdown:题干识别质量为 missing、garbled 或
+partial 的题,不输出不可用的文本,而是提示以原题图为准。
 
 ## 题图裁切
 

@@ -30,6 +30,7 @@ import json, os, re, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
 from lib import paths  # noqa: E402
+from pipeline.admissions_rebuild.page_fixes import read_page  # noqa: E402  逐页人工修正
 
 ROOT = paths.BANK_OCR
 KEYS = json.load(open(os.path.join(paths.ADM, "answers.json")))
@@ -50,8 +51,7 @@ def pages_of(d):
     for f in sorted(os.listdir(d)):
         m = re.match(r"page_(\d+)\.md$", f)
         if m:
-            out.append((int(m.group(1)),
-                        open(os.path.join(d, f), encoding="utf-8").read()))
+            out.append((int(m.group(1)), read_page(os.path.join(d, f))))
     return out
 
 
