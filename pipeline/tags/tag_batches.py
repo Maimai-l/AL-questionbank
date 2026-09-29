@@ -351,14 +351,22 @@ def check_batch(name, spec, data, rows):
         if not isinstance(parts, list) or not parts:
             probs.append(f"{d['id']} 没有 parts")
             continue
+        # 9618 is tagged by section, but its table lists the sub-sections and
+        # the model sometimes answers "13.3": keep that as the part's `sub`
+        for p in parts:
+            t = p.get("topic") if isinstance(p, dict) else None
+            if (spec["syllabus"] == "9618" and isinstance(t, str)
+                    and t not in codes and t.split(".")[0] in codes):
+                p["sub"], p["topic"] = t, t.split(".")[0]
         bad = [p.get("topic") for p in parts
                if not isinstance(p, dict) or p.get("topic") not in codes]
         if bad:
             probs.append(f"{d['id']} 主题码不属于该卷考纲:{bad}")
             continue
-        parts = [{"part": str(p.get("part") or ""),
-                  "marks": p.get("marks") if isinstance(p.get("marks"), int) else None,
-                  "topic": p["topic"]} for p in parts]
+        parts = [dict({"part": str(p.get("part") or ""),
+                       "marks": p.get("marks") if isinstance(p.get("marks"), int) else None,
+                       "topic": p["topic"]}, **({"sub": p["sub"]} if p.get("sub") else {}))
+                 for p in parts]
         top = primary(parts)
         if d.get("topic") != top:
             warn.append(f"{d['id']} 模型主标签 {d.get('topic')},按分值应为 {top}")
@@ -399,6 +407,36 @@ def check_ps_ct(merged, rows):
     return out, bad
 
 
+def rebucket(got, owner, replies, warnings, fname):
+    """File each record under the batch its id belongs to.
+
+    A tagger working through several batches sometimes files a question under
+    the neighbouring batch, or answers it twice. The batch label is only
+    bookkeeping; what is checked is that every id comes back exactly once.
+    Two answers for one id are kept only if their parts agree."""
+    seen = {}
+    for name, data in got.items():
+        if not isinstance(data, list):
+            replies[name] = data        # check_batch reports it
+            continue
+        for d in data:
+            i = d.get("id") if isinstance(d, dict) else None
+            home = owner.get(i, name)
+            if home != name:
+                warnings.append(f"{fname}: {i} 放在 {name},已归入 {home}")
+            if i in seen:
+                prev = seen[i]
+                if prev.get("parts") != d.get("parts"):
+                    replies.setdefault(home, []).append(d)   # duplicate id -> rejected
+                    continue
+                if len(str(d.get("why") or "")) > len(str(prev.get("why") or "")):
+                    prev["why"] = d.get("why")
+                warnings.append(f"{fname}: {i} 回答了两次,内容一致,只保留一份")
+                continue
+            seen[i] = d
+            replies.setdefault(home, []).append(d)
+
+
 def apply_(a):
     con = db.connect()
     rows = {r["id"]: dict(r) for r in con.execute(
@@ -411,12 +449,14 @@ def apply_(a):
         sys.exit(f"{a.out} 下没有批次文件")
 
     replies, rejected, warnings = {}, {}, []
+    owner = {i: n for n, sp in specs.items() for i in sp["ids"]}
     for f in sorted(glob.glob(os.path.join(a.out, "*.result.json"))):
         try:
-            for name, data in parse_reply(f).items():
-                replies[name] = data
+            got = parse_reply(f)
         except Exception as e:
             rejected[os.path.basename(f)] = [f"JSON 读不了:{e}"]
+            continue
+        rebucket(got, owner, replies, warnings, os.path.basename(f))
     accepted = {}
     for name, spec in specs.items():
         if name not in replies:
