@@ -18,7 +18,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 | `pymupdf` | 解析 PDF 的脚本需要。`pip install pymupdf` |
 | `pdftotext` | `split_ms.py`、`rebuild_ms.py` 需要(`apt-get install poppler-utils`) |
 | `pillow` | `fix_garbled.py` 切横条需要。`pip install pillow` |
-| Python 3.11+ | `apply_reocr.py` 的正则用了占有量词 |
+| Python 3.11+ | `answer_lines.py` 的正则用了占有量词 |
+| `cwebp` | 仅 `export_9709_p1.py` 需要(`apt-get install webp`) |
 | `requests` | OCR 与入学考下载需要 |
 | `PADDLE_TOKEN` | OCR 需要,见 [network.md](network.md) |
 
@@ -215,10 +216,13 @@ python3 pipeline/split/audit_crops.py raw/pdf
 4. **14 个 `img_tara` 插图已补齐(2026-09-29)。** 均为 TSA/BMAT 各卷最后一题的图形选项,
    重新 OCR 的 `raw/bank_ocr` 中有同名文件,`merge_admissions.py` 已复制到 `data/img_tara/`,
    题干引用的 958 张插图现在全部存在。
-5. **`export_project.py` 缺失。** 旧文档描述的"将题库导出为 CSV"脚本不在仓库中。
-6. **`export_textbooks.py` 是简化版。** 旧文档说它会把目录名 `9709_p1` 还原为
-   `Paper 1 · Pure Mathematics 1`,仓库中的版本没有这一步。
+5. **`export_project.py` 已补写(2026-09-29)。** 技能与仓库中都没有这个脚本,按文档描述重写:
+   `exports/questions.csv` 一题一行,带题干与评分细则文本;`exports/image-only-questions.csv`
+   列出题干文本缺失、乱码或截断、只能看原题图的题(62 题)。
+6. **`export_textbooks.py` 已还原书名(2026-09-29)。** 教材下拉框原先显示目录名 `9709_p1`,
+   现在显示 `Paper 1 · Pure Mathematics 1`,目录名保存在 `book_id` 字段。
 7. **`export_admissions_banks.py` 已可运行(2026-09-29)。** TMUA 官方详解的 166 张插图改从
    `raw/bank_ocr/TMUA/worked_answers/`(`paths.BANK_OCR`)取,重新 OCR 后全部在;两个压缩包
    (TMUA 360 题 587 图,TARA 1528 题 2425 图)写到 `exports/`。
-8. **`export_9709_p1.py` 需要 `cwebp`。** 云端运行前需先安装 webp 工具。
+8. **`export_9709_p1.py` 需要 `cwebp`。** 云端先运行 `apt-get install -y webp`;已验证可导出
+   380 题与 380 张无损 WebP 图。
