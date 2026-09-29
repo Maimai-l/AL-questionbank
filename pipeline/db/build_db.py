@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS questions;
 CREATE TABLE questions (
   id            TEXT PRIMARY KEY,
   syllabus      TEXT NOT NULL,
-  component     TEXT NOT NULL,   -- 1 / 3 / 4 / 5
+  component     TEXT NOT NULL,   -- 1 / 2 / 3 / 4 / 5 / 6
   component_name TEXT NOT NULL,
   paper         TEXT NOT NULL,   -- e.g. 9709/12
   variant       TEXT NOT NULL,
@@ -57,8 +57,9 @@ CREATE VIRTUAL TABLE q_fts USING fts5(
   id UNINDEXED, question_text, ms_text, topic_name, tokenize='porter unicode61');
 """
 
-NAMES_9709 = {"1": "Pure Mathematics 1", "3": "Pure Mathematics 3",
-              "4": "Mechanics", "5": "Probability & Statistics 1"}
+NAMES_9709 = {"1": "Pure Mathematics 1", "2": "Pure Mathematics 2", "3": "Pure Mathematics 3",
+              "4": "Mechanics", "5": "Probability & Statistics 1",
+              "6": "Probability & Statistics 2"}
 
 
 def component_names(subject):

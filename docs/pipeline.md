@@ -49,6 +49,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/tags/export_weak.py、merge_retag.py   低置信组交给模型重标
 7  建库      pipeline/db/build_db.py            单科库(含 FTS5)
             pipeline/db/combine.py             合成 data/caie.db
+            pipeline/db/add_papers.py          库建成后补收新卷:就地切分、裁图、挂评分细则、按考纲打主题并插入(add),
+                                               OCR 之后给新题评质量(finish);不重建整表
 8  文本规整  pipeline/text/clean_encoding.py → fix_newlines.py → html_tables.py
 9  质量      pipeline/text/audit_text.py        可读性审计(只报告)
             pipeline/text/flag_quality.py      写 q_quality / ms_quality
