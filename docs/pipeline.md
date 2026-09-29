@@ -76,7 +76,8 @@ python3 parse_keys.py                       # 2. 答案键 → answers.json
 python3 split_admissions.py                 # 3. 切题 → questions_adm.json,逐卷校验
 python3 attach_ms.py                        # 4. 挂接 TMUA 官方详解
 python3 tag_admissions.py                   # 5. 主题标注与 PS/CT 配比校验
-python3 render_adm_imgs.py                  # 6. 逐题原页图
+python3 render_adm_imgs.py                  # 6. 逐题原页图(读 raw/bank,写 data/img_adm)
+python3 audit_adm_imgs.py                   #    裁图审计,全部通过后再推送
 python3 merge_admissions.py                 # 7. 合并进 data/caie.db
 python3 ../export/build_site.py             # 8. 出页面
 ```
@@ -140,9 +141,25 @@ python3 -m pipeline.books.chapters coverage
 python3 pipeline/split/audit_crops.py raw/pdf
 ```
 
+## 入学考题图(img_adm)
+
+`render_adm_imgs.py` 读 `raw/bank/` 下的原卷(`manifest.py raw/bank` 下载),写入
+`data/img_adm/`。与 CAIE 裁图的做法相同:
+
+- 页面固定元素:页码、各年份写法不同的页脚、页眉横线、页顶标志、BLANK PAGE
+- 题号在全卷范围内按 1、2、3… 依次认领,选项旁的数值不会被当成题号。文本层损坏
+  的三种情况都能还原:UCLES 老卷的 29 位偏移、TMUA 2016/2017 的 CambriaMath
+  数字(U+0372 起)、字形缺失的空白题号
+- 共享材料跨页时,续页顶部的材料段同样拼到每道相关题前面
+- 下一题题号在下一页顶端时,那一页不属于本题
+
+`audit_adm_imgs.py` 检查:题号序列是否完整且有序、裁图内是否有别题的题号、固定元素
+是否残留(逐像素)、题目页上的内容是否被遗漏、有没有按整页输出的题。当前 55 份试卷、
+1888 题全部通过。
+
 ## 已知问题
 
-1. **入学考脚本依赖当前目录。** 它们按相对路径读写 `bank/`、`bank_ocr/`、
+1. **入学考脚本依赖当前目录(`render_adm_imgs.py` 已改)。** 它们按相对路径读写 `bank/`、`bank_ocr/`、
    `questions_adm.json`、`answers.json`、`img_adm/`,必须在
    `pipeline/admissions_rebuild/` 下运行,且 `bank/`、`bank_ocr/` 不在仓库中。
    待原始数据放入 `raw/` 后统一改为经 `lib/paths.py` 解析,并用现有数据验证。

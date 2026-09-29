@@ -17,12 +17,25 @@ y 作下界,就能把一页两题的卷面切成两张。找不到题号(OCR 字
 """
 import json, os, re, sys
 
-import fitz
+HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
+import pymupdf as fitz  # noqa: E402
 
-OUT = "img_adm"
+from lib import paths  # noqa: E402
+from pipeline.split import furniture  # noqa: E402
+
+OUT = os.path.join(paths.DATA, "img_adm")
+BANK = os.path.join(paths.RAW, "bank")          # manifest.py raw/bank
+QUESTIONS = os.path.join(HERE, "questions_adm.json")
 DPI = 130
-PAD = 6          # 裁切上下留白(pt)
+PAD = 6          # 裁切下沿留白(pt)
+PAD_TOP = 12     # 题号之上留白:同一行的上标、根号会比题号高出几 pt
 MATCH_X = 0.15   # 题号必须落在左边距这个比例内
+ZOOM = DPI / 72.0
+
+# 页面固定元素。UCLES、UAT-UK 三十年的卷子页脚写法有十几种,老卷还要先 unshift
+FOOTER = re.compile(r"UCLES|Turn\s*over|^TSA(Oxford.*)?$|^BMAT\b.*Section|^Page\s*\d+\s*/\s*\d+$"
+                    r"|^\s*(BLANK PAGE|This page is intentionally left blank)", re.I)
 
 MATERIAL = re.compile(
     r"Questions?\s+(\d{1,2})\s*(?:-|–|—|to)\s*(\d{1,2})\s+refer", re.I)
@@ -30,9 +43,9 @@ MATERIAL = re.compile(
 
 def pdf_path(q):
     if q["exam"] == "TMUA":
-        return f"bank/TMUA/papers/TMUA-{q['year']}-paper-{q['paper']}.pdf"
+        return os.path.join(BANK, f"TMUA/papers/TMUA-{q['year']}-paper-{q['paper']}.pdf")
     sub = "TSA_section1" if q["exam"] == "TSA" else "BMAT_section1"
-    return f"bank/TARA/{sub}/papers/{q['exam']}-{q['year']}-S1.pdf"
+    return os.path.join(BANK, f"TARA/{sub}/papers/{q['exam']}-{q['year']}-S1.pdf")
 
 
 def qid(q):
@@ -50,34 +63,152 @@ def unshift(t):
     return "".join(chr(ord(c) + 29) if 0 < ord(c) < 0x7f else c for c in t)
 
 
-_HCACHE = {}
+def cambria(t):
+    """TMUA 2016、2017 用 CambriaMath 排版,数字 0–9 落在 U+0372–U+037B("ͳ" 是 1)。"""
+    t = "".join(chr(ord(c) - 0x342) if 0x372 <= ord(c) <= 0x37B else c for c in t)
+    return "".join(c if ord(c) >= 0x20 else " " for c in t).strip()   # "\x03" 是这套编码的空格
+
+
+def readable(t):
+    """文本层原样可读就原样返回,否则按 29 位偏移还原。"""
+    if any(0 < ord(c) < 0x20 for c in t):
+        return unshift(t)
+    return t
+
+
+_FCACHE = {}
+
+
+def page_furniture(page):
+    """[(kind, rect)] —— 页码、页脚、页眉横线、页顶标志,逐页缓存。"""
+    key = (page.parent.name, page.number)
+    if key in _FCACHE:
+        return _FCACHE[key]
+    W, H = page.rect.width, page.rect.height
+    items = []
+    for txt, r, _h in furniture.lines(page):
+        t = readable(txt).strip()
+        edge = r.y1 < 70 or r.y0 > H - 70
+        # 偏移常常只落在一行的一部分("©" 偏移、"UCLES 2012" 正常),原文和还原后各比一次
+        if edge and (FOOTER.search(t) or FOOTER.search(txt)):
+            items.append(("footer", r))
+        elif edge and re.fullmatch(r"\d{1,2}", t) and abs((r.x0 + r.x1) / 2 - W / 2) < 40:
+            items.append(("pageno", r))
+        elif re.fullmatch(r"\s*BLANK PAGE\s*", t):
+            items.append(("blank", r))
+    for d in page.get_drawings():
+        r = furniture.fat(d["rect"])
+        if r.y1 < 45 and r.width > 300:
+            items.append(("rule", r))          # 页眉横线
+    for img in page.get_image_info():
+        r = fitz.Rect(img["bbox"])
+        if r.y1 < 62:
+            items.append(("logo", r))
+    _FCACHE[key] = items
+    return items
+
+
+def band(page, items=None):
+    """(上界, 下界):页眉元素之下、页脚元素之上。"""
+    items = page_furniture(page) if items is None else items
+    H = page.rect.height
+    # 留 2pt:字形紧框之外还有抗锯齿的浅灰边,贴着切会在图边留一道灰痕
+    top = max([r.y1 for _k, r in items if r.y1 < 75] + [0.0]) + 2
+    bottom = min([r.y0 for _k, r in items if r.y0 > H - 75] + [H]) - 2
+    return top, bottom
+
+
+def whiteout(pix, clip, items):
+    """裁切范围内残留的固定元素涂白。pixmap 的原点是裁切区在整页上的像素位置。"""
+    for _k, r in items:
+        r = fitz.Rect(r) & clip
+        if r.is_empty:
+            continue
+        box = fitz.IRect(pix.x + int((r.x0 - clip.x0) * ZOOM) - 3, pix.y + int((r.y0 - clip.y0) * ZOOM) - 3,
+                         pix.x + int((r.x1 - clip.x0) * ZOOM) + 4, pix.y + int((r.y1 - clip.y0) * ZOOM) + 4)
+        box &= pix.irect
+        if not box.is_empty:
+            pix.set_rect(box, (255,) * pix.n)
+    return pix
+
+
+_DCACHE = {}
+
+
+def _candidates(doc):
+    """左边距上所有可能是题号的文字,按阅读顺序:(页, y, x, 数字或 None, 粗体)。
+
+    数字取原文或 unshift 后的形式。None 表示一个位于左边距、字形不在文本层
+    里的粗体空白(TSA 2013 Q9 的 "9" 就是这样),只在题号序列恰好缺它时启用。
+    """
+    out = []
+    for page in doc:
+        if page.number == 0:
+            continue            # 封面:考生须知的 "1." "2." 不是题号
+        W = page.rect.width
+        furn = [r for _k, r in page_furniture(page)]
+        for b in page.get_text("dict")["blocks"]:
+            for l in b.get("lines", []):
+                for sp in l["spans"]:
+                    x0, y0 = sp["bbox"][0], sp["bbox"][1]
+                    if x0 > W * MATCH_X or any(fitz.Rect(sp["bbox"]) in f for f in furn):
+                        continue
+                    bold = bool("bold" in sp["font"].lower() or re.search(r"BX|bd", sp["font"]))
+                    raw = sp["text"].strip().rstrip(".")
+                    n = None
+                    for t in (raw, unshift(sp["text"]).strip().rstrip(".")):
+                        if re.fullmatch(r"\d{1,2}", t):
+                            n = int(t)
+                            break
+                    # "7.   Find the…":编号与题干同在一个片段,带句点和空格
+                    m = re.match(r"(\d{1,2})\.\s", sp["text"].lstrip()) if n is None else None
+                    if m:
+                        n = int(m.group(1))
+                    # CambriaMath 的题号常和题干第一个符号挤在同一片段里:"2 f(x)…"
+                    m = re.match(r"(\d{1,2})(?:\s|$)", cambria(sp["text"])) if n is None else None
+                    if m and any(0x372 <= ord(c) <= 0x37B for c in sp["text"][:3]):
+                        n = int(m.group(1))
+                    if n is None and not (bold and not unshift(sp["text"]).strip()):
+                        continue
+                    out.append((page.number, y0, x0, n, bold))
+    return sorted(out)
+
+
+def doc_headers(doc):
+    """{题号: (页, y)} —— 按 1, 2, 3… 在全卷左边距上依次认领。
+
+    选项旁的数值、表格里的数字不会按顺序出现,自然被跳过;逐页找则会把它们
+    当成题号。粗体优先:同一个编号先认粗体。"""
+    key = doc.name
+    if key in _DCACHE:
+        return _DCACHE[key]
+    cands = _candidates(doc)
+    known = [c for c in cands if c[3] is not None]
+    xs = sorted(c[2] for c in known if c[4])
+    col = xs[len(xs) // 2] if xs else None        # 题号所在的那一列
+    out, expect = {}, 1
+    for k, (pg, y, x, n, bold) in enumerate(cands):
+        if n is None and (col is None or abs(x - col) > 6):
+            continue            # 空白只在题号列上才算;真数字靠顺序约束,不看列
+        if n == expect:
+            out[n] = (pg, y)
+            expect += 1
+        elif n is None:
+            # 空白粗体只填序列里恰好缺的那一个:后面紧接着出现的是 expect+1
+            nxt = next((c for c in cands[k + 1:] if c[3] is not None and abs(c[2] - col) <= 6), None)
+            if nxt and nxt[3] == expect + 1:
+                out[expect] = (pg, y)
+                expect += 1
+        elif n == expect + 1:
+            out[n] = (pg, y)
+            expect = n + 1
+    _DCACHE[key] = out
+    return out
 
 
 def headers(page):
-    """{题号: y} —— 左边距上的粗体数字,就是印刷体题号。逐页缓存。"""
-    key = (page.parent.name, page.number)
-    if key in _HCACHE:
-        return _HCACHE[key]
-    out = {}
-    W = page.rect.width
-    for b in page.get_text("dict")["blocks"]:
-        for l in b.get("lines", []):
-            for s in l["spans"]:
-                t = s["text"].strip()
-                if not re.fullmatch(r"\d{1,2}", t):
-                    t = unshift(t).strip()
-                    if not re.fullmatch(r"\d{1,2}", t):
-                        continue
-                if s["bbox"][0] > W * MATCH_X:
-                    continue
-                bold = "bold" in s["font"].lower() or re.search(r"BX|bd", s["font"])
-                if not bold:
-                    continue
-                n = int(t)
-                if n not in out or s["bbox"][1] < out[n]:
-                    out[n] = s["bbox"][1]
-    _HCACHE[key] = out
-    return out
+    """{题号: y} —— 本页上的题号,取自全卷序列。"""
+    return {n: y for n, (pg, y) in doc_headers(page.parent).items() if pg == page.number}
 
 
 def material_pages(doc):
@@ -103,29 +234,21 @@ def layout(doc, q):
     也算了进来。所以要在本题所有页里找题号,找到哪页就从哪页开始裁。
     """
     pages = [p - 1 for p in range(q["pages"][0], q["pages"][-1] + 1)]
-    # 题号也可能落在更靠前的页:切分记录的是段落文字的来源页,
-    # 题目本身可能从上一页就开始了。往前多看两页。
-    search = list(range(max(0, pages[0] - 2), pages[-1] + 1))
+    H = doc_headers(doc)
     start, y0 = pages[0], None
-    for i in search:                     # 找本题题号
-        h = headers(doc[i])
-        if q["q"] in h:
-            start, y0 = i, max(0, h[q["q"]] - PAD)
-            break
-    y1, endp = None, pages[-1]
-    for i in [p for p in range(start, pages[-1] + 1)]:   # 找下一题题号
-        h = headers(doc[i])
-        later = [y for n, y in h.items()
-                 if n > q["q"] and (i != start or y0 is None or y > y0)]
-        if later:
-            y1, endp = min(later) - PAD, i
-            break
-    # 裁得只剩页眉,说明上界找错了 —— 宁可整页给出
-    span = sum((y1 if i == endp and y1 is not None else doc[i].rect.y1)
-               - (y0 if i == start and y0 is not None else doc[i].rect.y0)
-               for i in range(start, endp + 1))
-    if span < 120:
-        start, y0, endp, y1 = pages[0], None, pages[-1], None
+    if q["q"] in H:
+        start, y = H[q["q"]]
+        y0 = max(0, y - PAD_TOP)
+    last = max(pages[-1], start)           # 题号可能落在记录页之后
+    y1, endp = None, last
+    # 下一题题号:只在本题范围内找。更远处的题号之前可能隔着别组的共享材料页
+    later = sorted(v for n, v in H.items() if n > q["q"] and start <= v[0] <= last
+                   and (v[0] != start or y0 is None or v[1] > y0))
+    if later:
+        endp, y1 = later[0][0], later[0][1] - PAD
+    if y0 is None:
+        # 题号定位不到:只好给出整页,审计会把它列在 whole-page 里
+        start, endp, y1 = pages[0], pages[-1], None
 
     out = []
     for i in range(start, endp + 1):
@@ -153,21 +276,54 @@ def trim(pix):
     return out
 
 
-def render(q, doc, mat, own=None):
-    own = own if own is not None else layout(doc, q)
-    mine = {i for i, _t, _b in own}
-    parts = [(i, None, None) for i in mat.get(q["q"], []) if i not in mine]
-    parts += own
-
-    pix = []
+def clips(doc, parts):
+    """[(页, 裁切矩形)]:题目范围限制在页眉页脚之间;空白页不出图。"""
+    out = []
     for i, top, bot in parts:
         page = doc[i]
+        items = page_furniture(page)
+        if any(k == "blank" for k, _r in items):
+            continue
         r = page.rect
-        clip = fitz.Rect(r.x0, top if top is not None else r.y0,
-                         r.x1, bot if bot is not None else r.y1)
-        if clip.height < 40:               # 裁过头了,退回整页
-            clip = r
-        p = page.get_pixmap(dpi=DPI, colorspace=fitz.csGRAY, clip=clip)
+        b0, b1 = band(page, items)
+        clip = fitz.Rect(r.x0, max(top if top is not None else b0, b0),
+                         r.x1, min(bot if bot is not None else b1, b1))
+        if clip.height < 8:
+            continue        # 下一题题号就在这页顶端:这页不属于本题。退回整页会把下一题整个带进来
+        out.append((i, clip))
+    return out
+
+
+def parts_of(q, doc, mat, own=None):
+    """材料页 + 材料续页 + 本题自己的范围。
+
+    共享材料常常跨页:末页只标出了 "Questions 24 to 27 refer to…" 所在的那页,
+    续到下一页顶部、排在第一个题号之上的那段同样是材料,四道题都要带上。"""
+    own = own if own is not None else layout(doc, q)
+    mine = {i for i, _t, _b in own}
+    mpages = mat.get(q["q"], [])
+    parts = [(i, None, None) for i in mpages if i not in mine]
+    if mpages:
+        nxt = max(mpages) + 1
+        if nxt < doc.page_count and nxt not in mpages:
+            h = headers(doc[nxt])
+            if h:
+                cut = min(h.values()) - PAD
+                own_top = next((t for i, t, _b in own if i == nxt), "absent")
+                # 本题从续页顶部起就整页在裁,续段已经包含在内
+                if own_top is not None and cut - band(doc[nxt])[0] > 20:
+                    parts.append((nxt, None, cut))
+    return parts + own
+
+
+def render(q, doc, mat, own=None):
+    parts = parts_of(q, doc, mat, own)
+
+    pix = []
+    for i, clip in clips(doc, parts):
+        page = doc[i]
+        p = page.get_pixmap(matrix=fitz.Matrix(ZOOM, ZOOM), colorspace=fitz.csGRAY, clip=clip)
+        whiteout(p, clip, page_furniture(page))
         p.set_origin(0, 0)   # 带页面坐标的 pixmap 拼起来会错位
         pix.append(p)
 
@@ -188,7 +344,7 @@ def render(q, doc, mat, own=None):
 
 def main(only=None):
     os.makedirs(OUT, exist_ok=True)
-    qs = json.load(open("questions_adm.json"))
+    qs = json.load(open(QUESTIONS))
     if only:
         qs = [q for q in qs if q["exam"] == only]
     docs, mats, n, whole = {}, {}, 0, 0
