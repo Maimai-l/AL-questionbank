@@ -13,12 +13,15 @@
 | `bestexamhelp.com` | 9231 的旧来源,已由 papacambridge 取代 | — | 被拦截 |
 | `esat-tmua.ac.uk` | TMUA 官方站点,查找新卷子链接时使用 | — | 可访问 |
 | `www.uat-uk.org` | 入学考官方站点,查找新卷子链接时使用 | — | 被拦截 |
+| `www.cambridgeinternational.org` | CAIE 大纲 PDF(9709/9231/9618 syllabus) | `pipeline/tags/syllabus.py` 的输入,手动下载 | **被拦截**(2026-09-29 实测) |
 | `pypi.org` `files.pythonhosted.org` | 安装 PyMuPDF、requests | `pip` | 默认放行 |
+| `archive.ubuntu.com` `security.ubuntu.com` | 安装 poppler-utils(`pdftotext`) | `apt-get` | 默认放行 |
 | `github.com` | 推送 `main` 与 `data` 分支 | `git` | 可访问 |
 | `cdn.jsdelivr.net` | KaTeX 的备用加载源,页面已内置离线副本 | `assets/*.html` | 可访问 |
 
-白名单在 [allowed-domains.txt](allowed-domains.txt),一行一个域名,可整份复制到环境设置的
-允许域名中。`github.com` 与 `pypi.org` 默认放行,不在其中。上表增删站点时同步修改该文件。
+白名单在 [allowed-domains.txt](allowed-domains.txt):一行一个域名(不是 URL),`*` 为通配,
+可整份复制到环境设置的允许域名中。上表增删站点时同步修改该文件。`bestexamhelp.com` 已由
+papacambridge 取代,不再列入。
 
 9231 的下载命令:
 
