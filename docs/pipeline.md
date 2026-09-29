@@ -214,8 +214,8 @@ python3 pipeline/split/audit_crops.py raw/pdf
    8 题人工对照 PDF 核定,记在 `pipeline/split/ms_totals_checked.json`。题面一侧修了 3 题分值:
    分值后同一行跟着上标或分式下半("[6] 1"、"[1] c"),以及数组表头 "[9] [10]" 被当成分值。
    `totals_agree` 从 2568/2956 升到 2955/2956,378 份卷子的分值合计全部等于官方总分。唯一
-   不符的 `9709_s24_33_q11` 是评分细则本身缺第 11 题(两个来源的 PDF 都只到第 10 题,
-   共 66 分)。`fix_ms_prefix.py` 另把 16 题 `ms_latex` 开头错放的内容移回原题或删去
+   不符的 `9709_s24_33_q11` 是评分细则本身缺第 11 题:dynamicpapers、papacambridge、
+   bestexamhelp、cie.fraft.cn 四个来源的 PDF 都是 19 页、只到第 10 题,共 66 分。`fix_ms_prefix.py` 另把 16 题 `ms_latex` 开头错放的内容移回原题或删去
    (评分通则、上一题的秩检验等)。9709 2025 年 6 月的 12 份评分细则已 OCR 并写入 `ms_latex`
    (106 题:98 ok、8 degraded);`parse_ms_ocr.py` 为此改为只接受比当前题号大 0 到 2 的
    标签,茎叶图的茎 "9" 原先会被当成第 9 题。
