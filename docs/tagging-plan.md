@@ -99,5 +99,9 @@ plan 现在对小问标号少于库中分值项数的题附图,并在题头给�
    约 2.2 万 token,8 批会使上下文接近 18 万,因此 CAIE 取每个 tagger 5–6 批;
    入学考每批约 1.2–1.6 万,可取 8 批。
 4. (已完成)约 200 题的测量见上节。重标范围待定。
-5. 写库:retag_model.json 中的结果尚未写入数据库。写库方式(小问标签存哪一列、
-   `topic_source` 取值)待重标范围确定后再定。
+5. 写库:`tag_batches.py write`,沿用 `merge_retag.py` 的做法。`topic_source='model'`,
+   `topic_note` 为模型理由,`topic_margin` 置空,`topic_confident=1`;`topic_all` 为主标签
+   加各小问主题(按分值)再补旧候选,取前三;小问结果存入新列 `topic_parts`(JSON);
+   旧 `subtopic` 不属于新主题时清空。写完重建 `q_fts`。
+6. 重标范围(2026-09-29 确定):9231 P2/P4、9618 P1/P3、9709 P1/P3/P5、BMAT、
+   TMUA P1/P2,共 2936 题(不含抽样已做的 208 题),249 批,38 个 tagger 并行。

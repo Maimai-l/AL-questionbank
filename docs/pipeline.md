@@ -52,7 +52,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/tags/topic_model.py       用大纲原文给主题打分
             pipeline/tags/eval_tags.py         新旧标签器对比(只报告)
             pipeline/tags/retag.py             合成标签并写回
-            pipeline/tags/tag_batches.py       tagger 子 agent 按小问复核(plan / apply),见 tagging-plan.md
+            pipeline/tags/tag_batches.py       tagger 子 agent 按小问复核(plan / apply / write),见 tagging-plan.md
             pipeline/tags/prereq.py            先修关系 → prereq.json
 11 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
 ```
@@ -64,6 +64,9 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 - `mark_partial.py` 必须在 `flag_quality.py` 之后,后者会覆盖 `q_quality`。
 - 第 8 步的三个脚本顺序为字形 → 换行 → 表格,顺序颠倒会互相破坏。
 - `retag.py` 需要 `syllabus.json` 已存在。
+- `tag_batches.py write` 把 `pipeline/tags/retag_model.json` 写进库,须在 `retag.py`
+  之后运行;`combine.py` 或 `merge_admissions.py` 重建题目后也要重跑一次,否则模型
+  标签会被覆盖。`retag.py` 不改 `topic_source='model'` 的题。
 - `build_site.py` 必须最后运行,否则页面读到的是旧数据。
 
 ## 入学考选择题线(TMUA / TSA / BMAT)

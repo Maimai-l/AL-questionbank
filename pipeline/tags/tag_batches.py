@@ -216,6 +216,12 @@ def select(con, a):
         rows = [r for r in rows if r["syllabus"] == a.syllabus]
     if a.component:
         rows = [r for r in rows if r["component"] == a.component]
+    if a.groups:
+        want = {tuple(g.split(":")) for g in a.groups.split(",")}
+        rows = [r for r in rows if (r["syllabus"], r["component"]) in want]
+    if a.skip_done and os.path.exists(a.retag):
+        done = set(json.load(open(a.retag))) - {"_"}
+        rows = [r for r in rows if r["id"] not in done]
     ids = None
     if a.ids:
         ids = a.ids.split(",")
@@ -502,15 +508,103 @@ def report(accepted, rows, out_dir):
     print(f"不一致明细 -> {path}")
 
 
+# ------------------------------------------------------------------- write
+
+def names_for(con):
+    """{(syllabus, code): topic_name} as the bank already spells them.
+
+    9618 names its sections, TSA/BMAT prefix the CT type; reusing the names
+    already in the table keeps the page's topic filter from splitting."""
+    out = {}
+    for syl, code, name in con.execute(
+            "SELECT syllabus, topic, topic_name FROM questions "
+            "WHERE topic IS NOT NULL GROUP BY 1, 2"):
+        out[(syl, code)] = name
+    for syl in ("9709", "9231", "9618"):
+        TOPICS, _ = tag_any.load(syl)
+        for code, v in TOPICS.items():
+            out.setdefault((syl, code), v[0])
+    for code, name in TMUA.items():
+        out.setdefault(("TMUA", code), name)
+    for syl in PS_CT:
+        for code, name in TARA.items():
+            out.setdefault((syl, code), "Problem Solving" if code == "PS" else name)
+    return out
+
+
+def write(a):
+    """retag_model.json -> questions. Rerun after combine.py or
+    merge_admissions.py, both of which rebuild the rows."""
+    res = {k: v for k, v in json.load(open(a.retag)).items() if k != "_"}
+    con = db.connect()
+    db.add_column(con, "questions", "topic_parts")
+    names = names_for(con)
+    rows = {r["id"]: dict(r) for r in con.execute(
+        "SELECT id, syllabus, topic, topic_all, subtopic, subtopic_name "
+        "FROM questions")}
+    missing = [i for i in res if i not in rows]
+    if missing:
+        sys.exit(f"retag_model.json 中有库里没有的题号:{missing[:5]}")
+
+    upd, moved = [], Counter()
+    for i, rec in res.items():
+        r = rows[i]
+        top = rec["topic"]
+        # shortlist: the parts' topics by marks, then the old shortlist
+        by = Counter()
+        for p in rec["parts"]:
+            by[p["topic"]] += p["marks"] or 0
+        seen = [top] + sorted((t for t in by if t != top), key=lambda t: -by[t])
+        try:
+            old = json.loads(r["topic_all"] or "[]")
+        except ValueError:
+            old = []
+        for t in old:
+            if t not in seen:
+                seen.append(t)
+        sub, sub_name = r["subtopic"], r["subtopic_name"]
+        if sub and not (sub == top or sub.startswith(top + ".")):
+            sub = sub_name = None   # a sub-topic of the old topic no longer applies
+        if top != r["topic"]:
+            moved[f"{r['syllabus']}: {r['topic']} -> {top}"] += 1
+        upd.append((top, names.get((r["syllabus"], top), top),
+                    json.dumps(seen[:3]), rec.get("note") or None,
+                    json.dumps(rec["parts"], ensure_ascii=False),
+                    sub, sub_name, i))
+
+    print(f"写入 {len(upd)} 题,主标签改变 {sum(moved.values())} 题")
+    for k, v in moved.most_common(15):
+        print(f"  {v:>4}  {k}")
+    if a.dry_run:
+        print("(--dry-run,未写入)")
+        return 0
+    con.executemany(
+        "UPDATE questions SET topic=?, topic_name=?, topic_all=?, topic_note=?, "
+        "topic_parts=?, topic_source='model', topic_confident=1, "
+        "topic_margin=NULL, subtopic=?, subtopic_name=? WHERE id=?", upd)
+    con.execute("DELETE FROM q_fts")
+    con.execute("INSERT INTO q_fts(id,question_text,ms_text,topic_name) SELECT id, "
+                "COALESCE(question_latex,question_text), COALESCE(ms_latex,ms_text), "
+                "topic_name FROM questions")
+    con.commit()
+    for r in con.execute("SELECT topic_source, COUNT(*) FROM questions GROUP BY 1"):
+        print(f"  {r[0]:<20}{r[1]}")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("mode", choices=["plan", "apply"])
+    ap.add_argument("mode", choices=["plan", "apply", "write"])
     ap.add_argument("--out", default=os.path.join(paths.RAW, "tag_batches"))
     ap.add_argument("--retag", default=RETAG_DEFAULT,
                     help="apply 写入的文件(默认 pipeline/tags/retag_model.json)")
     ap.add_argument("--syllabus")
     ap.add_argument("--component")
+    ap.add_argument("--groups", help="如 9231:2,9709:5,TMUA:1")
+    ap.add_argument("--skip-done", action="store_true",
+                    help="跳过 retag_model.json 中已有结果的题")
+    ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--ids")
     ap.add_argument("--ids-file")
     ap.add_argument("--sample", type=int)
@@ -518,7 +612,7 @@ def main():
     ap.add_argument("--size", type=int, default=12)
     ap.add_argument("--per-agent", type=int, default=8)
     a = ap.parse_args()
-    return plan(a) if a.mode == "plan" else apply_(a)
+    return {"plan": plan, "apply": apply_, "write": write}[a.mode](a)
 
 
 if __name__ == "__main__":
