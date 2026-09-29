@@ -258,3 +258,14 @@ python3 pipeline/split/audit_crops.py raw/pdf
    (TMUA 360 题 587 图,TARA 1528 题 2425 图)写到 `exports/`。
 8. **`export_9709_p1.py` 需要 `cwebp`。** 云端先运行 `apt-get install -y webp`;已验证可导出
    380 题与 380 张无损 WebP 图。
+9. **补收新卷(2026-09-29)。** `fetch_fraft.py` 从 cie.fraft.cn 补下库中没有的 148 份试卷及其
+   评分细则:2021–2025 年 9709 卷 2、卷 6,2025 年新卷别(9709 `_x5`、9231 `_x4`),以及 2026 年
+   3 月、6 月各科。fraft 有 79 份文件的字体没有 Unicode 映射(文本层是乱码),2 份被重排到
+   Letter 纸上,均改用 papacambridge;`best_copy.py` 再对每份试卷比较三个站点的版本,取切出
+   总分等于满分的一份(换了 8 份;`--ms` 对评分细则做同样的事,换了 29 份,2026 年 9709 的
+   papacambridge 评分细则 `split_ms.py` 读不出)。`add_papers.py` 就地切分、裁图、插入 1093 题,
+   其后 OCR(题干、评分细则)、tagger 子 agent 逐题标注(107 批),全部为模型标签。
+   `split_qp.py` 同时修了一处:续页顶端第一行的文字框略高于页码下沿时整行被丢,
+   `9709_m21_qp_22` q6(b)、`9709_s21_qp_21` q7(c) 连同分值一起丢失;修正后全库 237 题的题干
+   找回了文字。`9709_s26_ms_13` 三个站点的评分细则都解析不出,该卷只有 OCR 的 `ms_latex`。
+   9709 的关键词标注表(`tag.py`)没有卷 2、卷 6,`tag_batches.py` 对这两卷直接用考纲的主题。
