@@ -17,17 +17,8 @@
 | `github.com` | 推送 `main` 与 `data` 分支 | `git` | 可访问 |
 | `cdn.jsdelivr.net` | KaTeX 的备用加载源,页面已内置离线副本 | `assets/*.html` | 可访问 |
 
-白名单写法:
-
-```
-dynamicpapers.com
-uat-wp.s3.eu-west-2.amazonaws.com
-paddleocr.aistudio-app.com
-*.bcebos.com
-pastpapers.papacambridge.com
-www.uat-uk.org
-esat-tmua.ac.uk
-```
+白名单在 [allowed-domains.txt](allowed-domains.txt),一行一个域名,可整份复制到环境设置的
+允许域名中。`github.com` 与 `pypi.org` 默认放行,不在其中。上表增删站点时同步修改该文件。
 
 9231 的下载命令:
 

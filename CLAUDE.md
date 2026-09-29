@@ -25,4 +25,4 @@
 
 - `docs/pipeline.md`:执行顺序、脚本索引、已知问题
 - `docs/data-sync.md`:data 分支
-- `docs/network.md`:需要访问的站点。新增外部来源时必须更新此表
+- `docs/network.md`:需要访问的站点。新增外部来源时必须更新此表和 `docs/allowed-domains.txt`(白名单,一行一个域名)

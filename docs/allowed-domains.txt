@@ -1,0 +1,8 @@
+dynamicpapers.com
+pastpapers.papacambridge.com
+uat-wp.s3.eu-west-2.amazonaws.com
+esat-tmua.ac.uk
+www.uat-uk.org
+paddleocr.aistudio-app.com
+*.bcebos.com
+cdn.jsdelivr.net
