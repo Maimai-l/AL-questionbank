@@ -252,7 +252,12 @@ def split_paper(path):
             ts = tail_start(page)
             if ts is not None:
                 hi = min(hi, ts - 12)             # and the rule drawn just above it
-            blocks = [b for b in page_blocks(page) if lo - 2 <= b[1] < hi]
+            # on a continuation page page_blocks has already dropped the lines
+            # above the band; a line whose loose box starts a few points above
+            # the page number's foot ("(b) Hence find ... [5]" at y 48, band top
+            # 51.7, 9709_m21_qp_22) belongs to the question, tariff included
+            floor = lo - 2 if p == pno else -1
+            blocks = [b for b in page_blocks(page) if floor <= b[1] < hi]
             if not blocks:
                 # the last question's span runs to the end of the booklet; once
                 # a page has no real content left, everything after it is
