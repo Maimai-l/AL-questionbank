@@ -124,6 +124,7 @@ def split_tmua(year, paper):
         if no <= 2 and COVER.search(body):
             continue
         segs, leading = page_segments(text)
+        segs = split_at_heads(segs, len(qs) + 1)
         for k, (seg, opts) in enumerate(segs):
             if k == 0 and leading and qs and not qs[-1]["options"]:
                 # page opens with the previous question's options
@@ -139,7 +140,35 @@ def split_tmua(year, paper):
         q["text"] = re.sub(rf"^\s*(?:\*\*)?{i}(?:\*\*)?[.\s]", "",
                            q["text"], count=1).strip()
         q["answer"] = key.get(str(i))
+        m = STEM_RANGE.search(q["text"])
+        if not q["options"] and m:
+            # the options are named in the stem: "Which one of the five cards (A, B, C, D or E)"
+            q["options"] = [chr(c) for c in range(ord("A"), ord(m.group(1)) + 1)]
     return qs, len(key) or 20
+
+
+STEM_RANGE = re.compile(r"\(\s*A\s*(?:,\s*[B-G]\s*)*(?:,|\s+or|\s*[-–])\s*([B-H])\s*\)")
+TMUA_HEAD = re.compile(r"^\s*(?:\*\*|#+\s*)?(\d{1,2})(?:\*\*)?[.\s]+\S", re.M)
+
+
+def split_at_heads(segs, first):
+    """A question without an option run (its options are figures or named in
+    the stem) shares a segment with the next one; cut a segment where a line
+    opens with the number after the one it starts with."""
+    out, n = [], first
+    for seg, opts in segs:
+        h = TMUA_HEAD.match(seg)
+        start = int(h.group(1)) if h else n
+        cut = next((m for m in TMUA_HEAD.finditer(seg)
+                    if m.start() > 0 and int(m.group(1)) == start + 1), None)
+        if cut and h:
+            out.append((seg[:cut.start()].strip(), mathblock_options(seg[:cut.start()])))
+            out.append((seg[cut.start():].strip(), opts))
+            n = start + 2
+        else:
+            out.append((seg, opts))
+            n = start + 1
+    return out
 
 
 # ------------------------------------------------------------ TSA / BMAT
@@ -255,7 +284,12 @@ def line_stream(pages, skip_covers=True):
             continue
         if skip_covers and no <= 2 and COVER.search(body):
             continue
-        text = DIVLET.sub(r"\1 (图形选项)", tables_to_lines(text))
+        if re.search(r"(?m)^[A-H] \((?:图形选项|图中|见上方图)", text):
+            # the letters are already written out (page_fixes.json): the
+            # centred letters above the figures would make a second run
+            text = DIVLET.sub("", tables_to_lines(text))
+        else:
+            text = DIVLET.sub(r"\1 (图形选项)", tables_to_lines(text))
         for ln in text.split("\n"):
             out.append((no, ln))
     return repair_option_gaps(out)
@@ -490,6 +524,12 @@ def recover_short_answers(qs, want):
                                   and n >= 4):
                     pass
                 else:
+                    continue
+                prev = next((l.strip() for l in reversed(lines[:j]) if l.strip()), "")
+                pm = HEAD_NUM.match(prev)
+                if n != i + 2 and pm and int(pm.group(1)) == n - 1:
+                    # "3 ...", "4 ...": a numbered list of statements, not a
+                    # head that lost its leading digit
                     continue
                 if True:
                     first = {"pages": q["pages"], "options": [],

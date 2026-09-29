@@ -140,8 +140,18 @@ def worked_answer_pages():
     return want
 
 
+def reference():
+    """The tracked split with the hand corrections of text_fixes.json applied,
+    as merge_admissions.py applies them: what the bank holds now."""
+    from pipeline.admissions_rebuild import merge_admissions
+    fixes = {k: v for k, v in json.load(open(merge_admissions.FIXES)).items()
+             if not k.startswith("_")}
+    return [merge_admissions.apply_fix(q, fixes)
+            for q in json.load(open(os.path.join(paths.ADM, "questions_adm.json")))]
+
+
 def plan(a):
-    ref = json.load(open(os.path.join(paths.ADM, "questions_adm.json")))
+    ref = reference()
     new = {(q["exam"], str(q["year"]), str(q.get("paper")), q["q"]): q for q in split_now()}
     pages, hints, shifted = {}, {}, set()
     by = {(q["exam"], str(q["year"]), str(q.get("paper")), q["q"]): q for q in ref}
@@ -228,8 +238,8 @@ def apply(a):
         if key not in items:
             dropped.append(f"{key}: 不在计划中"); continue
         old = open(items[key]["text"], encoding="utf-8").read()
-        n0, n1 = (len(split_admissions.tables_to_lines(x)) for x in (old, text))
-        if not text or n1 < 0.67 * n0:              # option tables count as their lines
+        n0, n1 = (len(re.sub(r"<[^>]+>|\s+", "", x)) for x in (old, text))
+        if not text or n1 < 0.67 * n0:              # tables count by their cell text
             dropped.append(f"{key}: 变短 {n0} -> {n1}"); continue
         lost = [i for i in IMG.findall(old) if i not in text]
         if lost:
