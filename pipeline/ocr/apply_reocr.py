@@ -3,11 +3,12 @@
 
     python3 pipeline/ocr/apply_reocr.py <cache.jsonl> [--strip-bank] [--write]
 
-For crops re-rendered after the bank was built (pipeline/ocr/reocr_pending.txt
-lists the 220 of the 2026-09 split fixes), run each PNG through
-pipeline/ocr/ocr.py's ocr_one() into a JSONL cache ({"id", "latex",
-"has_diagram"}), then this folds the cache in. Unlike merge_ocr.py, which
-precedes step 8, it runs the step-8 chain on each result itself (glyphs ->
+For crops re-rendered after the bank was built (220 after the 2026-09 split
+fixes), run each PNG through pipeline/ocr/ocr.py's ocr_one() into a JSONL cache
+({"id", "latex", "has_diagram"}), then this folds the cache in. A text checked
+by hand against the crop goes in the same way (pipeline/ocr/latex_checked.jsonl).
+Unlike merge_ocr.py, which precedes step 8, it runs the step-8 chain on each
+result itself (glyphs ->
 line breaks -> tables), then cuts the end matter as rebuild_text.py does, so
 nothing else has to be re-run over the whole table.
 
