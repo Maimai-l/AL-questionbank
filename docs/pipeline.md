@@ -52,6 +52,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/tags/topic_model.py       用大纲原文给主题打分
             pipeline/tags/eval_tags.py         新旧标签器对比(只报告)
             pipeline/tags/retag.py             合成标签并写回
+            pipeline/tags/tag_batches.py       tagger 子 agent 按小问复核(plan / apply),见 tagging-plan.md
             pipeline/tags/prereq.py            先修关系 → prereq.json
 11 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
 ```
