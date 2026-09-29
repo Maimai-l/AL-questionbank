@@ -39,7 +39,9 @@ def rows_for_ids(con: sqlite3.Connection, ids: list[str]) -> list[sqlite3.Row]:
 
 def archive_rows(con: sqlite3.Connection, path: Path, zin: zipfile.ZipFile) -> tuple[list[sqlite3.Row], dict]:
     names = zin.namelist()
-    csv_name = next((n for n in names if n.endswith("manifest.csv")), None)
+    # question banks list their questions in manifest.csv, the curated papers in
+    # index.csv (export_curated_hard_papers.py); both carry an "id" column
+    csv_name = next((n for n in names if n.endswith(("manifest.csv", "/index.csv"))), None)
     json_name = next((n for n in names if n.endswith("manifest.json")), None)
     image_only = path.name == "9709_p1_images_webp.zip"
     if image_only:
