@@ -84,8 +84,13 @@ def topic_table(syl, comp):
     TOPICS, COMP = tag_any.load(syl)
     spec = json.load(open(paths.SYLLABUS))[syl]["topics"]
     out = {}
-    for code in COMP[str(comp)]:
-        name = TOPICS[code][0]
+    # 9709 P2 and P6 have no keyword table (tag.py): take the component's
+    # topics from the syllabus itself
+    codes = COMP.get(str(comp)) or sorted(
+        (k for k in spec if k.split(".")[0] == str(comp)),
+        key=lambda k: [int(x) for x in k.split(".")])
+    for code in codes:
+        name = TOPICS[code][0] if code in TOPICS else spec[code]["name"]
         if syl == "9618":       # 9618 按大节标注,列出其下各小节
             subs = [f"{k} {v['name']}" for k, v in spec.items()
                     if k.split(".")[0] == code]
