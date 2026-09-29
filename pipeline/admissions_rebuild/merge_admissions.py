@@ -30,6 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/
 from lib import paths
 from pipeline.tags import tag_batches
+from pipeline.text.answer_lines import strip as strip_answer_lines
 
 QB = paths.DATA                            # 题图写进 data/;CAIE_DATA 可覆盖
 DB = paths.DB
@@ -102,7 +103,7 @@ def clean_text(q, copied):
     t = MARKRE.sub("", t)
     t = html.unescape(t)
     t = re.sub(r"\n{3,}", "\n\n", t)
-    return t.strip()
+    return strip_answer_lines(t)
 
 
 def main():

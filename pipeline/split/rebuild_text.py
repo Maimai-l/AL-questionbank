@@ -13,6 +13,8 @@ the OCR, the tags and the quality flags). Per question:
   marks, marks_parts, totals_agree
                   from the tariffs the splitter reads (9618_s24_13_q07: 19 -> 22,
                   which is what the mark scheme totals).
+  answer space    dotted and ruled answer lines are dropped from both texts
+                  (pipeline/text/answer_lines.py).
   question_latex  cut at the first piece of end matter. The OCR was run on the
                   old crops, which ran on through "Additional page", "BLANK
                   PAGE" and the copyright block; everything after that point is
@@ -27,6 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
 from lib import db, paths  # noqa: E402
 from pipeline.split import crop, split_qp  # noqa: E402
 from pipeline.text.clean_encoding import clean  # noqa: E402
+from pipeline.text.answer_lines import strip as strip_answer_lines  # noqa: E402
 
 END_MATTER = re.compile(
     r"(?:^|\n)[#|\s]*(?:BLANK PAGE|Additional page|If you use the following|"
@@ -73,8 +76,8 @@ def main():
     upd, n_text, n_latex, marks_changed = [], 0, 0, []
     for r in rows:
         q = split[r["id"]]
-        text = clean(q["text"])[0]
-        latex = cut_end_matter(r["question_latex"])
+        text = strip_answer_lines(clean(q["text"])[0])
+        latex = strip_answer_lines(cut_end_matter(r["question_latex"]))
         marks, mp = q["marks"], json.dumps(q["marks_parts"])
         agree = (int(marks == r["ms_total"]) if marks is not None and r["ms_total"] is not None
                  else r["totals_agree"])

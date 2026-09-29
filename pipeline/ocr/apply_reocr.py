@@ -11,15 +11,15 @@ precedes step 8, it runs the step-8 chain on each result itself (glyphs ->
 line breaks -> tables), then cuts the end matter as rebuild_text.py does, so
 nothing else has to be re-run over the whole table.
 
-The ruled answer lines, which the model transcribes as long arrays of
-numbered underlines, are dropped. A new result replaces the old one only if
+The answer space (dotted and ruled lines, which the model transcribes as long
+arrays of numbered underlines) is dropped by pipeline/text/answer_lines.py. A new result replaces the old one only if
 audit_text grades it 'ok' and it is not much shorter than the old text; q_quality
 becomes 'ok' (a salvaged 'partial' prefix is superseded by the full question).
 Anything else keeps the old text and is listed. Dry run by default; q_fts is
 rebuilt on --write. --strip-bank also drops the answer lines from every other
 row's question_latex (29 rows in 2026-09; 9709_w23_13_q02 alone 11 000 chars).
 """
-import argparse, json, os, re, sys
+import argparse, json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
@@ -29,42 +29,7 @@ from pipeline.text.audit_text import classify_q  # noqa: E402
 from pipeline.text.clean_encoding import clean  # noqa: E402
 from pipeline.text.fix_newlines import unescape  # noqa: E402
 from pipeline.text.html_tables import convert  # noqa: E402
-
-
-# The ruled answer lines under a question come back as an array of numbered
-# or empty underlines, often hundreds long ("\underline{\text{1}} ...
-# \underline{\text{524}}", 9709_s22_11_q04) and sometimes cut off mid-token.
-# A long run made only of such pieces is dropped.
-LINE_TOKEN = (r"\\underline\{\\text\{[\s\d]*\}\}|\\text\{[\s\d]*\}|\\underline\{?|"
-              r"\\begin\{array\}(?:\{l\})?|\\end\{array\}|\\left\[|\\right\]|"
-              r"\\\\|\\ |\\\(|\\\)|\$|\{|\}|\d+\.?|\s")
-ANSWER_LINES = re.compile(r"(?>%s){40,}+" % LINE_TOKEN)
-
-
-# what is left of a run cut short: "\text{", "\(\begin{array}{l}\underline{\", "\"
-# (a line that is only a number is a question number or a datum, and stays);
-# a line of underscores ("___") is a ruled answer line too
-ONLY_LINE_TOKENS = re.compile(r"(?>%s|\\text\{|\\)*+" % LINE_TOKEN)
-
-
-def is_answer_lines(run):
-    """Underlines, or line numbers counting from 1 ("1 2 3 ... 1040", 9618 CS
-    papers) - not a list of data, which a statistics question may well print,
-    nor the days 1 to 28 along the axis of a plan (TSA-2008-S1-q25)."""
-    if len(run.strip()) < 60:
-        return False
-    if "\\underline" in run:
-        return True
-    nums = [int(x) for x in re.findall(r"\d+", run)]
-    return len(nums) >= 60 and nums[:60] == list(range(1, 61))
-
-
-def strip_answer_lines(t):
-    t = ANSWER_LINES.sub(lambda m: "\n\n" if is_answer_lines(m.group(0)) else m.group(0), t)
-    t = "\n".join(l for l in t.split("\n")
-                  if not ("\\" in l and ONLY_LINE_TOKENS.fullmatch(l))
-                  and not re.fullmatch(r"\s*_{3,}\s*", l))
-    return re.sub(r"\n{3,}", "\n\n", t).strip()
+from pipeline.text.answer_lines import strip as strip_answer_lines  # noqa: E402
 
 
 def normalise(latex):
