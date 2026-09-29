@@ -21,3 +21,5 @@ github.com
 *.github.com
 *.githubusercontent.com
 cdn.jsdelivr.net
+bestexamhelp.com
+*.bestexamhelp.com

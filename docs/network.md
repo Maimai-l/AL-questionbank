@@ -20,8 +20,8 @@
 | `cdn.jsdelivr.net` | KaTeX 的备用加载源,页面已内置离线副本 | `assets/*.html` | 可访问 |
 
 白名单在 [allowed-domains.txt](allowed-domains.txt):一行一个域名(不是 URL),`*` 为通配,
-可整份复制到环境设置的允许域名中。上表增删站点时同步修改该文件。`bestexamhelp.com` 已由
-papacambridge 取代,不再列入。
+可整份复制到环境设置的允许域名中。上表增删站点时同步修改该文件。`bestexamhelp.com` 虽已由
+papacambridge 取代,仍是技能文档记载的来源,核对缺卷时要用,故保留。
 
 9231 的下载命令:
 
