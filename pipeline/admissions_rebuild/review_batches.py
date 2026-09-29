@@ -17,6 +17,14 @@ apply 读取同目录下你保存的 batch_01.result.json(agent 回的那段 JSO
 """
 import argparse, json, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
+from lib import paths  # noqa: E402
+
+
+def adm(name):
+    return os.path.join(paths.ADM, name)
+
 MM = {"MM1": "代数与函数", "MM2": "数列", "MM3": "坐标几何", "MM4": "三角",
       "MM5": "指对数", "MM6": "微分", "MM7": "积分", "MM8": "函数图像",
       "M1": "单位", "M2": "数论", "M3": "比例", "M5": "几何",
@@ -32,9 +40,7 @@ def qid(q):
 
 
 def load():
-    if not os.path.exists("questions_adm.json"):
-        sys.exit("在 questions_adm.json 所在目录跑这个脚本")
-    return json.load(open("questions_adm.json"))
+    return json.load(open(adm("questions_adm.json")))
 
 
 def needs_options(q):
@@ -155,13 +161,13 @@ def apply_(args):
         for base, *_ in rejects:
             if base not in [b for b, _ in bad_batches]:
                 bad_batches.append((base, "有题没通过答案∈选项校验"))
-        json.dump(patch, open("options_patch.json", "w"),
+        json.dump(patch, open(adm("options_patch.json"), "w"),
                   ensure_ascii=False, indent=1)
         print(f"通过 {len(patch)} 题 -> options_patch.json")
         for base, i, letters, ans in rejects[:10]:
             print(f"  ✗ {i}: agent 报 {letters or '(空)'},官方答案 {ans}")
     else:
-        out = "retag_tmua.json"
+        out = adm("retag_tmua.json")
         cur = json.load(open(out)) if os.path.exists(out) else {"_": "模型复核改判"}
         n = 0
         for base, data in results.items():
@@ -194,8 +200,8 @@ def main():
     ap.add_argument("--what", choices=["options", "topic"], default="options")
     ap.add_argument("--exam", choices=["TMUA", "TSA", "BMAT"])
     ap.add_argument("--size", type=int, default=12)
-    ap.add_argument("--out", default="/tmp/review")
-    ap.add_argument("--img", default="img_adm")
+    ap.add_argument("--out", default=os.path.join(paths.RAW, "adm_review"))
+    ap.add_argument("--img", default=paths.IMG_ADM)
     a = ap.parse_args()
     return plan(a) if a.mode == "plan" else apply_(a)
 

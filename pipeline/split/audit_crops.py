@@ -2,6 +2,10 @@
 """Check every question crop against the page furniture, without looking at
 a single image.
 
+Checks: furniture inside a clip, slack below the last line, question material
+that no clip covers or that a clip boundary cuts, and clips of two questions
+overlapping on one page.
+
     python3 pipeline/split/audit_crops.py raw/pdf [--crop old|new] [--list KIND]
 
 For each question paper in the folder the splitter produces the spans, the
@@ -99,6 +103,24 @@ def audit(pdfdir, which, only=None):
                 hits[k].append(qid)
             if not [k for k in kinds if not k.startswith("whited:")]:
                 hits["clean"].append(qid)
+        # overlap: two questions' clips on one page must not share any area.
+        # A question whose first line is set higher than its number (a built-up
+        # fraction) used to leave that line in the previous question's crop;
+        # 90 pairs, invisible to every other check here.
+        # The 6pt pad above a question's first line may meet the previous
+        # clip; only shared area that holds question material counts.
+        for p, lst in page_clips.items():
+            mat = None
+            for i, (qa, ca) in enumerate(lst):
+                for qb, cb in lst[i + 1:]:
+                    both = fitz.Rect(ca) & cb
+                    if qa == qb or both.get_area() <= MIN_OVERLAP:
+                        continue
+                    if mat is None:
+                        items = cache.get(p) or furniture.furniture(doc[p])
+                        mat = [r for _, r in crop.material(doc[p], items)]
+                    if any((both & r).get_area() > MIN_OVERLAP for r in mat):
+                        hits["overlap"].append(f"{qa}  {qb}  p{p}")
         # content check: every piece of question material on a question page
         # must sit wholly inside one clip
         pages = sorted(page_clips)
@@ -141,7 +163,7 @@ def main():
           "(cut/uncovered: number of content items; per-subject: questions or papers)")
     for k in sorted(hits, key=lambda k: -len(hits[k])):
         by_subj = collections.Counter(q.split("_")[0] for q in hits[k])
-        if k in ("cut", "uncovered"):
+        if k in ("cut", "uncovered", "overlap"):
             by_subj = collections.Counter(q.split("_")[0] for q in set(h.split("  ")[0] for h in hits[k]))
         print(f"  {k:10} {len(hits[k]):5}   " +
               "  ".join(f"{s}={c}" for s, c in sorted(by_subj.items())))

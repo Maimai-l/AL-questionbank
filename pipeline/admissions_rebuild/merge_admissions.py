@@ -28,7 +28,7 @@ from lib import paths
 
 QB = paths.DATA                            # 题图写进 data/;CAIE_DATA 可覆盖
 DB = paths.DB
-ROOT = "bank_ocr"
+ROOT = paths.BANK_OCR
 
 COMPONENT_NAMES = {
     ("TMUA", "1"): "Paper 1 (Applications of Mathematical Knowledge)",
@@ -99,8 +99,8 @@ def clean_text(q, copied):
 
 
 def main():
-    qs = json.load(open("questions_adm.json"))
-    ms_tmua = json.load(open("ms_tmua.json"))
+    qs = json.load(open(os.path.join(paths.ADM, "questions_adm.json")))
+    ms_tmua = json.load(open(os.path.join(paths.ADM, "ms_tmua.json")))
 
     con = sqlite3.connect(DB)
     cols = [r[1] for r in con.execute("PRAGMA table_info(questions)")]

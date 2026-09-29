@@ -18,11 +18,12 @@ import json, os, re, sys, tempfile
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/ —— 直接跑脚本时也 import 得到包
+from lib import paths
 from pipeline.ocr import ocr_books as ob
 import fitz
 
-ROOT = "bank_ocr"
-BANK = "bank"
+ROOT = paths.BANK_OCR
+BANK = paths.BANK
 
 
 def pdf_for(q):
@@ -54,7 +55,7 @@ def main():
             pdf, out = pdf_for(q)
             jobs.setdefault((pdf, out), set()).update(pages)
     else:
-        qs = json.load(open("questions_adm.json"))
+        qs = json.load(open(os.path.join(paths.ADM, "questions_adm.json")))
         for q in qs:
             if not needs_fix(q):
                 continue

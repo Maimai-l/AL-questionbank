@@ -27,8 +27,13 @@ Failures are listed per paper; nothing is silently dropped.
 """
 import json, os, re, sys
 
-ROOT = "bank_ocr"
-KEYS = json.load(open("answers.json"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
+from lib import paths  # noqa: E402
+
+ROOT = paths.BANK_OCR
+KEYS = json.load(open(os.path.join(paths.ADM, "answers.json")))
+OUT = os.path.join(paths.ADM, "questions_adm.json")
 
 BLANK = re.compile(r"^#*\s*BLANK PAGE\s*$", re.M)
 COVER = re.compile(r"INSTRUCTIONS TO CANDIDATES|Time:\s*\d+|"
@@ -553,7 +558,7 @@ def main(only=None):
             report.append((f"{exam} {y}", len(qs), want, errs))
             all_qs += qs
 
-    json.dump(all_qs, open("questions_adm.json", "w"), ensure_ascii=False, indent=1)
+    json.dump(all_qs, open(OUT, "w"), ensure_ascii=False, indent=1)
     print(f"{'卷':<18}{'切出':>5}{'应有':>5}  问题")
     perfect = 0
     for label, n, want, errs in report:

@@ -24,9 +24,9 @@ import pymupdf as fitz  # noqa: E402
 from lib import paths  # noqa: E402
 from pipeline.split import furniture  # noqa: E402
 
-OUT = os.path.join(paths.DATA, "img_adm")
-BANK = os.path.join(paths.RAW, "bank")          # manifest.py raw/bank
-QUESTIONS = os.path.join(HERE, "questions_adm.json")
+OUT = paths.IMG_ADM
+BANK = paths.BANK                                # manifest.py 的下载目录
+QUESTIONS = os.path.join(paths.ADM, "questions_adm.json")
 DPI = 130
 PAD = 6          # 裁切下沿留白(pt)
 PAD_TOP = 12     # 题号之上留白:同一行的上标、根号会比题号高出几 pt

@@ -171,6 +171,30 @@ def drawing_boxes(page):
     return boxes
 
 
+def heading_top(blocks, y0, y1, min_overlap=3, touch=3.5):
+    """Top of the question's first line, not just of its number.
+
+    A first line carrying a built-up fraction is set taller than the number
+    beside it and sorts as a separate line starting a few points higher
+    (9709_s21_31_q02: "Find the real root of the equation 2e^x + e^-x ..."), and
+    the top row of a column vector or an integral's upper limit sits wholly
+    above it, touching (9709_m25_32_q08, 9709_s25_31_q09). Cut at the number's
+    own top, those went to the previous question. Consecutive questions are
+    separated by far more than `touch`, so the previous question's last line
+    is never pulled in."""
+    top = y0
+    for b in blocks:
+        if min(y1, b[3]) - max(y0, b[1]) >= min_overlap:
+            top = min(top, b[1])
+    grew = True
+    while grew:
+        grew = False
+        for b in blocks:
+            if b[0] >= LEFT_MARGIN and b[1] < top and 0 <= top - b[3] < touch:
+                top, grew = b[1], True
+    return top
+
+
 def split_paper(path):
     doc = fitz.open(path)
     stem = os.path.basename(path).replace(".pdf", "")
@@ -184,11 +208,12 @@ def split_paper(path):
         page = doc[pno]
         if BLANK_RE.search(page.get_text()[:400]):
             continue
-        for x0, y0, x1, y1, txt in page_blocks(page):
+        blocks = page_blocks(page)
+        for x0, y0, x1, y1, txt in blocks:
             if x0 < LEFT_MARGIN:
                 m = QNUM_RE.match(" ".join(txt.split()))
                 if m:
-                    cand.append((pno, y0, int(m.group(1))))
+                    cand.append((pno, heading_top(blocks, y0, y1), int(m.group(1))))
 
     # Walk expecting 1, 2, 3, ...  Tolerate one missing heading (a question
     # number that got merged into a formula block); the preceding record then

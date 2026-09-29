@@ -48,6 +48,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 9  质量      pipeline/text/audit_text.py        可读性审计(只报告)
             pipeline/text/flag_quality.py      写 q_quality / ms_quality
             pipeline/text/mark_partial.py      标出被截断保留的题干
+            pipeline/split/rebuild_text.py     切分规则改动后,就地重建题干、分值与 LaTeX 末尾(不重建整表)
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
             pipeline/tags/eval_tags.py         新旧标签器对比(只报告)
@@ -71,19 +72,24 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 
 ## 入学考选择题线(TMUA / TSA / BMAT)
 
-脚本位于 `pipeline/admissions_rebuild/`,需在该目录下运行(见下文"已知问题")。
+脚本位于 `pipeline/admissions_rebuild/`,路径经 `lib/paths.py` 解析,可在任意目录下运行:
+原卷在 `raw/bank/`(`paths.BANK`),逐页 OCR 在 `raw/bank_ocr/`(`paths.BANK_OCR`),
+跟踪的中间结果(`questions_adm.json`、`answers.json`、`ms_tmua.json`、`retag_*.json`)
+在脚本旁(`paths.ADM`),题图在 `data/img_adm/`(`paths.IMG_ADM`)。
 
 ```bash
-python3 manifest.py bank                    # 0. 下载 PDF,支持续跑
-python3 ocr_bank.py bank bank_ocr 4         # 1. 按页 OCR
-python3 parse_keys.py                       # 2. 答案键 → answers.json
-python3 split_admissions.py                 # 3. 切题 → questions_adm.json,逐卷校验
-python3 attach_ms.py                        # 4. 挂接 TMUA 官方详解
-python3 tag_admissions.py                   # 5. 主题标注与 PS/CT 配比校验
-python3 render_adm_imgs.py                  # 6. 逐题原页图(读 raw/bank,写 data/img_adm)
-python3 audit_adm_imgs.py                   #    裁图审计,全部通过后再推送
-python3 merge_admissions.py                 # 7. 合并进 data/caie.db
-python3 ../export/build_site.py             # 8. 出页面
+A=pipeline/admissions_rebuild
+python3 $A/manifest.py                      # 0. 下载 PDF 与考纲,支持续跑
+python3 $A/ocr_bank.py                      # 1. 按页 OCR(第三个参数为并发数,默认 4)
+python3 $A/parse_keys.py                    # 2. 答案键 → answers.json
+python3 $A/split_admissions.py              # 3. 切题 → questions_adm.json,逐卷校验
+python3 $A/attach_ms.py                     # 4. 挂接 TMUA 官方详解
+python3 $A/tag_admissions.py                # 5. 主题标注与 PS/CT 配比校验
+python3 $A/render_adm_imgs.py               # 6. 逐题原页图
+python3 $A/audit_adm_imgs.py                #    裁图审计,全部通过后再推送
+python3 $A/merge_admissions.py              # 7. 合并进 data/caie.db(会重建入学考行)
+python3 pipeline/tags/tag_batches.py write  #    重写模型标签,否则被第 7 步覆盖
+python3 pipeline/export/build_site.py       # 8. 出页面
 ```
 
 `review_batches.py` 负责把需要读图判断的题目分批、生成给 agent 的提示词,并在回收时
@@ -131,12 +137,13 @@ python3 -m pipeline.books.chapters coverage
 | `crop.py` | 裁切区域 = 题目范围 ∩ 固定元素之间的区域;跨边界的内容整体纳入;区域内残留的固定元素涂白 |
 | `audit_crops.py` | 不看图的审计,见下 |
 
-`audit_crops.py raw/pdf` 对每道题检查五项:
+`audit_crops.py raw/pdf` 对每道题检查六项:
 
 - 裁切区域是否与任何固定元素重叠(涂白的另计,并逐像素确认已涂白)
 - cut:真实内容是否被裁切边界切断
 - uncovered:题目页上的真实内容是否不属于任何一题
 - slack:最后一段裁图底部是否有超过 30pt 的无内容空白
+- overlap:同一页上两题的裁切区域是否共有含内容的部分(一题的裁图里出现下一题的开头)
 - `--crop old` 按原裁切规则计算,用于对比
 
 改动裁切规则后,先运行审计,全部通过后再重新生成题图:
@@ -163,14 +170,19 @@ python3 pipeline/split/audit_crops.py raw/pdf
 
 ## 已知问题
 
-1. **入学考脚本依赖当前目录(`render_adm_imgs.py` 已改)。** 它们按相对路径读写 `bank/`、`bank_ocr/`、
-   `questions_adm.json`、`answers.json`、`img_adm/`,必须在
-   `pipeline/admissions_rebuild/` 下运行,且 `bank/`、`bank_ocr/` 不在仓库中。
-   待原始数据放入 `raw/` 后统一改为经 `lib/paths.py` 解析,并用现有数据验证。
-2. **题图裁切已重写(2026-09)。** 见下文"题图裁切"一节。旧规则下 2956 题中只有 835 题
-   不含页码、条形码、页边文字或 BLANK PAGE;新规则下 2956 题全部通过审计。
-   数据库中的文字与分值尚未按新切分结果重建:新切分使 `9618_s24_13_q07` 的分值由 19
-   变为 22(与评分细则一致),并从 94 题题干中去掉了混入的 "BLANK PAGE" 等文字。
+1. **入学考脚本已改为经 `lib/paths.py` 解析路径(2026-09-29)。** 在其他目录下运行验证过:
+   `manifest.py` 下载到 `raw/bank`;`render_adm_imgs.py` 重出的 1888 张图与现有图逐像素相同,
+   `audit_adm_imgs.py` 全部通过;`tag_admissions.py` 重跑后 `questions_adm.json` 无变化;
+   `merge_admissions.py` 在库副本上重跑,除 291 道带插图的题(插图取自 `raw/bank_ocr`)外
+   与现库一致。`ocr_bank.py`、`parse_keys.py`、`split_admissions.py`、`attach_ms.py`、
+   `reocr_*.py` 依赖 `raw/bank_ocr`,云端没有这份 OCR 结果,只做了编译检查。
+2. **题图与题干已按新切分重建(2026-09-29)。** 重建时又修了三处切分问题:9231 2021 年 6 月
+   卷 3、卷 4 的页脚在距页底 81pt 处,原先未被识别,留在题图和题干里(32 题);条形码判别把
+   "……"、"●●●" 和 Symbol 字体字符当成乱码,丢掉了 9618 伪代码填空行(40 行);题目首行带
+   分式或列向量时,该行高出题号,原先被划给上一题(约 90 对题)。共重出 220 张题图,
+   `rebuild_text.py` 改写 428 题:题干 263、LaTeX 末尾的附加页与版权文字 207、分值 5
+   (`9618_s24_13_q07` 19→22,`9709_s22_33_q02/q03`、`9709_s23_33_q05/q06`)。
+   `question_latex` 仍是旧题图的 OCR,只截掉了末尾;若要与新题图完全一致,需重新 OCR。
 3. **14 个 `img_tara` 插图缺失。** 题干中引用了 958 个 `img_tara/` 文件,其中 14 个在
    旧仓库中就不存在。
 4. **`export_project.py` 缺失。** 旧文档描述的"将题库导出为 CSV"脚本不在仓库中。

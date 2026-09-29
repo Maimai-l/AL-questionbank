@@ -11,7 +11,12 @@ a 20-question paper stops the run rather than passing quietly.
 """
 import json, os, re, sys
 
-ROOT = "bank_ocr"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
+from lib import paths  # noqa: E402
+
+ROOT = paths.BANK_OCR
+OUT = os.path.join(paths.ADM, "answers.json")
 ROW = re.compile(r"<tr[^>]*>(.*?)</tr>", re.S)
 CELL = re.compile(r"<td[^>]*>\s*([^<]*?)\s*</td>")
 # BMAT S1 answers are usually a letter but sometimes a number ("37") or a
@@ -133,7 +138,7 @@ def main():
                                 f" N={run[-1][0] if run else 0}, 允许 {band}")
             answers[f"{exam}-{year}"] = {str(q): a for q, a in run}
 
-    json.dump(answers, open("answers.json", "w"), indent=1)
+    json.dump(answers, open(OUT, "w"), indent=1)
     total = sum(len(v) for v in answers.values())
     print(f"{len(answers)} 份答案键,共 {total} 个答案 -> answers.json")
     if problems:

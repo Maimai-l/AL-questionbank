@@ -24,6 +24,14 @@ ASSETS = os.path.join(ROOT, "assets")        # page sources: html + vendor/
 EXPORTS = os.path.join(ROOT, "exports")      # distribution ZIPs, not tracked
 RAW = os.environ.get("CAIE_RAW") or os.path.join(ROOT, "raw")  # pipeline inputs: PDFs, OCR
 SYLLABUS = os.path.join(ROOT, "syllabus.json")
+
+# Admissions pipeline (pipeline/admissions_rebuild/). Its tracked intermediates
+# (questions_adm.json, answers.json, ms_tmua.json, retag_*.json) sit next to the
+# scripts; the downloaded papers and their page OCR are inputs under raw/.
+ADM = os.path.join(ROOT, "pipeline", "admissions_rebuild")
+BANK = os.path.join(RAW, "bank")            # manifest.py: papers, keys, specs
+BANK_OCR = os.path.join(RAW, "bank_ocr")    # ocr_bank.py: one markdown per page
+IMG_ADM = os.path.join(DATA, "img_adm")     # render_adm_imgs.py: one PNG per question
 PREREQ = os.path.join(ROOT, "prereq.json")
 
 # Where the question crops may be. data/ is the normal place; the others keep
