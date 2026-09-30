@@ -59,13 +59,16 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/split/rebuild_ms.py       评分细则解析改动后,就地重建 ms_text 与总分(读 raw/ms/,需 pdftotext)
             pipeline/text/fix_ms_prefix.py     把 parse_ms_ocr.py 错放到下一题开头的 ms_latex 移回原题
             pipeline/text/split_parts.py       题干与评分细则按小问切开,写 part_data(分值、主题、任务类型)
+            pipeline/ocr/drop_partial_ms_ocr.py OCR 评分细则缺小问时改用文本层(111 题,多为 9618 卷 2 第 8 题)
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
             pipeline/tags/eval_tags.py         新旧标签器对比(只报告)
             pipeline/tags/retag.py             合成标签并写回
             pipeline/tags/tag_batches.py       tagger 子 agent 按小问复核(plan / apply / write),见 tagging-plan.md
             pipeline/tags/prereq.py            先修关系 → prereq.json
-11 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
+11 详解      pipeline/explain/explain_batches.py explainer 子 agent 按小问写详解(plan / apply / write),写 explanation
+            pipeline/explain/term_tree.py      详解中的关键术语按大纲小节统计词频 → exports/<科目>_terms.md / .json
+12 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
 ```
 
 执行顺序上的约束:
@@ -82,6 +85,11 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 - `rebuild_text.py` 在 `rebuild_ms.py` 之前:后者按题面分值判定 `totals_agree`。
 - `split_parts.py` 读 `marks_parts` 与 `topic_parts`,须在第 10 步标签写回之后运行;
   标签或题干改动后重跑一次,导出才会用到新的小问数据。
+- `drop_partial_ms_ocr.py` 在 OCR 评分细则合并(`merge_ms_ocr.py`)之后、`split_parts.py`
+  之前运行,否则小问拿到的是被截断的细则。
+- `explain_batches.py plan` 读 `part_data`,须在 `split_parts.py` 之后;小问标签变化后,
+  已写入的详解在 `apply` 时会因标签不符被拒收,需要重做。9618 卷 1–3 已完成
+  (2026-09,874 题,Sonnet);卷 4 未做。
 - `build_site.py` 必须最后运行,否则页面读到的是旧数据。
 
 ## 入学考选择题线(TMUA / TSA / BMAT)

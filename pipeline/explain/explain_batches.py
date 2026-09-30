@@ -17,7 +17,8 @@ part_data 一致;每个小问有 approach、points、pitfalls、answer、terms,
 terms 的 topic 属于大纲小节。不合格的批整批拒收(删除结果后重派),
 合格的汇总到 DIR/accepted.json。
 
-write 把 accepted.json 写进 questions.explanation(JSON,缺列时新建):
+write 把 accepted.json 写进 questions.explanation(JSON,缺列时新建);
+--override DIR 再读重做批次的 accepted.json,同一题以重做结果为准:
     {"parts": [{"label": "a(i)", "approach": "...",
                 "points": [{"mark": "1", "point": "...", "why": "..."}],
                 "pitfalls": ["..."], "answer": "...",
@@ -234,6 +235,8 @@ def apply_(a):
 
 def write(a):
     accepted = json.load(open(os.path.join(a.out, "accepted.json")))
+    for d in a.override or []:                 # later runs replace earlier answers
+        accepted.update(json.load(open(os.path.join(d, "accepted.json"))))
     con = db.connect()
     ensure_column(con)
     print(f"{len(accepted)} 题待写入 explanation")
@@ -256,6 +259,8 @@ def main():
     ap.add_argument("--ids-file")
     ap.add_argument("--marks-per-batch", type=int, default=60)
     ap.add_argument("--skip-done", action="store_true")
+    ap.add_argument("--override", action="append",
+                    help="write:再读这些目录的 accepted.json,同一题以后者为准")
     ap.add_argument("--write", action="store_true")
     a = ap.parse_args()
     {"plan": plan, "apply": apply_, "write": write}[a.mode](a)
