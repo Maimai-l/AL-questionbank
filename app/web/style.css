@@ -24,7 +24,8 @@ button:disabled { opacity: .4; }
 #side { width: 300px; flex: none; display: flex; flex-direction: column; border-right: 1px solid var(--line);
         background: var(--panel); }
 #side.hidden { display: none; }
-.filters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 10px; }
+.filters { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; padding: 10px; }
+.filters select { width: 100%; min-width: 0; }
 .filters input { grid-column: 1 / -1; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px;
                  background: var(--bg); }
 #count { padding: 0 12px 6px; }

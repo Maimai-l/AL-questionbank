@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>inksync 替身测试</title>
+<style>
+  body { margin: 0; font: 14px system-ui, sans-serif; background: #fafafa; color: #1b1b1f; }
+  .row { display: flex; flex-wrap: wrap; gap: 16px; padding: 16px; align-items: flex-start; }
+  .pad { border: 1px solid #ccc; box-sizing: content-box; }
+  #padA { width: 400px; height: 500px; }
+  #padB { width: 300px; height: 200px; }
+  #padC { width: 300px; height: 200px; }
+  .spacer { height: 2000px; padding: 16px; }
+</style>
+</head>
+<body>
+<div class="row">
+  <label>名字 <input id="name" autocomplete="off"></label>
+  <button id="btn" type="button">按钮</button>
+  <span>点击次数 <span id="clicks">0</span></span>
+</div>
+<div class="row">
+  <div id="padA" class="pad"></div>
+  <div id="padB" class="pad"></div>
+  <div id="padC" class="pad"></div>
+  <div id="spare"></div>
+</div>
+<div class="spacer" id="spacer">页面其余部分（用于测试页面滚动）</div>
+<script type="module">
+  // 测试页：A 为带题图的 column 画布，B 为 fixed 画布，C 为手指可书写的 infinite 画布。
+  // 地址带 ?reset 时先清掉本页用过的本地存储。
+  import { createInkPad } from "./inkpad.js";
+
+  const STORAGE = "stubtest:";
+  if (new URLSearchParams(location.search).has("reset")) {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(STORAGE)) localStorage.removeItem(key);
+    }
+  }
+
+  const IMG = "/data/img9618/9618_s21_11_q01.png"; // 1166 × 3348
+  const EVENTS = ["status", "history", "meta", "change", "op", "strokestart", "strokeend", "caps", "error"];
+  const log = [];
+  window.log = log;
+  window.createInkPad = createInkPad;
+
+  function watch(name, pad) {
+    for (const event of EVENTS) pad.on(event, (detail) => log.push({ pad: name, event, detail }));
+    return pad;
+  }
+
+  window.pads = {
+    a: watch("a", createInkPad(document.getElementById("padA"), {
+      board: "test-a",
+      storage: STORAGE,
+      create: {
+        name: "9618 s21 P11 Q1",
+        canvas: { mode: "column", width: 800 },
+        background: { pattern: "lines" },
+        layers: [{ src: IMG, x: 0, y: 0, width: 800 }],
+        data: { paper: "9618_s21_11", question: 1 },
+      },
+    })),
+    b: watch("b", createInkPad(document.getElementById("padB"), {
+      board: "test-b",
+      storage: STORAGE,
+      create: { name: "B", canvas: { mode: "fixed", width: 600, height: 400 }, background: { pattern: "grid" } },
+    })),
+    c: watch("c", createInkPad(document.getElementById("padC"), {
+      board: "test-c",
+      storage: STORAGE,
+      fingerDraw: true,
+      tool: { tool: "pen", color: "#ff0000", width: 12, eraserMode: "object" },
+      create: { name: "C", background: { pattern: "dots" } },
+    })),
+  };
+
+  let clicks = 0;
+  document.getElementById("btn").addEventListener("click", () => {
+    document.getElementById("clicks").textContent = String(++clicks);
+  });
+</script>
+</body>
+</html>
