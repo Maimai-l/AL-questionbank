@@ -12,7 +12,11 @@ back in three forms:
   * ruled lines the OCR reads as arrays of numbered or empty underlines, often
     hundreds long ("\\underline{\\text{1}} ... \\underline{\\text{524}}",
     9709_s22_11_q04), sometimes cut off mid-token;
-  * lines of underscores ("___").
+  * lines of underscores ("___");
+  * an array of empty rows ("\\(\\begin{array}{l}\\hline} \\\\ \\\\ ...", hundreds of them), or
+    lines of CJK characters or radicals the model reads the rules as
+    ("仝二", "⻴⻴⻴…", 9709_w25_15_q09, 9231_s25_34_q02). A line in brackets
+    is never taken for one: "A (图形选项)" is an admissions placeholder.
 
 Only runs of four or more full stops, or two or more ellipses, count as dots:
 "0, 2, 4, ... ." in 9231_s21_43_q04 is an ellipsis and stays. strip() is used
@@ -36,6 +40,16 @@ ANSWER_LINES = re.compile(r"(?>%s){40,}+" % LINE_TOKEN)
 # (a line that is only a number is a question number or a datum, and stays)
 ONLY_LINE_TOKENS = re.compile(r"(?>%s|\\text\{|\\)*+" % LINE_TOKEN)
 UNDERSCORES = re.compile(r"\s*_{3,}\s*")
+# the ruled lines read as CJK characters or radicals ("仝二", "⻴⻴⻴…"); a line
+# in brackets ("A (图形选项)", the admissions placeholders) is never one
+CJK = re.compile(r"[\u2e80-\u2fdf\u3400-\u9fff\uf900-\ufaff]")
+
+
+def is_cjk_noise(line):
+    s = re.sub(r"\s", "", line)
+    if not s or re.search(r"[()（）\[\]]", s):
+        return False
+    return len(CJK.findall(s)) >= 0.5 * len(s)
 
 
 def is_answer_lines(run):
@@ -44,8 +58,8 @@ def is_answer_lines(run):
     nor the days 1 to 28 along the axis of a plan (TSA-2008-S1-q25)."""
     if len(run.strip()) < 60:
         return False
-    if "\\underline" in run:
-        return True
+    if "\\underline" in run or run.count("\\\\") >= 20:
+        return True                     # underlines, or an array of empty rows
     nums = [int(x) for x in re.findall(r"\d+", run)]
     return len(nums) >= 60 and nums[:60] == list(range(1, 61))
 
@@ -59,7 +73,7 @@ def strip(t):
     for l in t.split("\n"):
         if "\\" in l and ONLY_LINE_TOKENS.fullmatch(l):
             continue
-        if UNDERSCORES.fullmatch(l):
+        if UNDERSCORES.fullmatch(l) or is_cjk_noise(l):
             continue
         keep.append(l)
     t = "\n".join(keep)
