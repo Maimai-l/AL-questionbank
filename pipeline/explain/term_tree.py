@@ -46,6 +46,19 @@ what it means are all taken from the bank itself:
                 static / dynamic). Each note links the other and quotes the
                 scheme rows of those parts as the difference.
 
+Rewriting: the counts decide what is kept and how it ranks; the wording is
+rewritten by the termwriter subagent (.claude/agents/termwriter.md) from the
+evidence rows the counts collected, never from its own idea of what matters:
+
+    term_tree.py --plan-rewrite DIR     batch files, one per 25 terms
+    (termwriter agents write DIR/batch_NN.result.json)
+    term_tree.py --rewrites DIR         the vault with the rewritten wording
+
+Each term gets an English definition in the scheme's wording (or, where the
+scheme never defines it, the standard one, marked as such), a line in
+Chinese and key words that must occur in its evidence rows; each confusable
+pair a sentence on the difference.
+
 Writes an Obsidian vault to exports/<syllabus>_terms/ (paths.EXPORTS):
     00 索引.md                    sections and subsections, terms by level
     <section code> <name>.md      one note per subsection, its terms
@@ -55,7 +68,7 @@ Writes an Obsidian vault to exports/<syllabus>_terms/ (paths.EXPORTS):
                                   difference, example question ids
 and terms.json with the same data.
 """
-import argparse, json, os, re, shutil, sys
+import argparse, glob, json, os, re, shutil, sys
 from collections import Counter, defaultdict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
@@ -283,7 +296,10 @@ def build(con, syllabus, spec):
                    "subsection": sub, "definition": definition,
                    "context": [] if definition else top_rows(defining(st.get("mention", []), k)),
                    "keywords": [w for w in keys if w not in k.split()],
-                   "examples": sorted({parts[i]["qid"] for i in st["explain"]})[:5]}
+                   "examples": sorted({parts[i]["qid"] for i in st["explain"]})[:5],
+                   "evidence": list(dict.fromkeys(
+                       defining(st.get("block_rows", []) + st["rows"] + st.get("asked_rows", []), k)[:8]
+                       + top_rows(defining(st.get("mention", []), k), 4)))[:10]}
     # an acronym and its expansion are one term: "sram" / "static ram",
     # "lan" / "local area network"; the expansion keeps the counts of both
     def acronyms(k):
@@ -301,6 +317,7 @@ def build(con, syllabus, spec):
                 t["explain_parts"] += a["explain_parts"]
                 t["examples"] = sorted(set(t["examples"]) | set(a["examples"]))[:5]
                 t["definition"] = t["definition"] or a["definition"]
+                t["evidence"] = list(dict.fromkeys(t["evidence"] + a["evidence"]))[:12]
                 t["term"] = f"{a['term'].upper()} ({t['term']})"
     # levels by the spread over papers: top fifth, next two fifths, the rest
     ranked = sorted(kept.values(), key=lambda t: -t["papers"])
@@ -356,6 +373,101 @@ def build(con, syllabus, spec):
     return kept, hubs, dropped
 
 
+REWRITE = """下面 {n} 个 {syllabus} 术语由题库统计选出,每个附有评分细则中与它有关的原文行。
+请为每个术语写学生背诵用的内容,并为列出的易混术语对写区别。
+
+每个术语:
+- definition:一句英文定义,不超过 30 个词,尽量沿用细则原文的措辞(这是拿分的说法)。
+  原文行足以支持时只用原文的信息;原文行不足以定义(只有用法)时,写 A Level 考纲
+  通行的标准定义,并把 source 设为 "general",否则设为 "scheme"。
+- zh:一句中文释义,术语保留英文,不超过 40 字。
+- keywords:1 至 4 个得分关键词或短语,必须原样出现在该术语的原文行里;
+  source 为 "general" 时可以为空数组。
+
+每对易混术语:
+- difference:一至两句中文(术语保留英文),说清两者的关键区别,优先依据给出的
+  "细则中的比较"原文。
+
+用 Write 把结果写到 {result},内容是一个 JSON 对象,不要任何其他文字:
+{{"terms": {{"<术语键>": {{"definition": "...", "zh": "...", "keywords": ["..."], "source": "scheme"}}}},
+  "pairs": {{"<键A>|<键B>": {{"difference": "..."}}}}}}
+术语键和术语对键原样照抄下文方括号里的键。写完后回复一行:"{name}: N 个术语,M 对已写入"。
+
+{items}"""
+
+
+def plan_rewrite(out, syllabus, spec, kept, per_batch):
+    """Batch files for the termwriter agents: terms of neighbouring subsections
+    together, each with its evidence rows; a confusable pair goes with the
+    batch of its first term."""
+    os.makedirs(out, exist_ok=True)
+    order = lambda k: ([int(x) for x in kept[k]["subsection"].split(".") if x.isdigit()], k)
+    keys = sorted(kept, key=order)
+    names = []
+    for b in range(0, len(keys), per_batch):
+        chunk = keys[b:b + per_batch]
+        name = f"batch_{b // per_batch + 1:03d}"
+        items, pairs = [], []
+        for k in chunk:
+            t = kept[k]
+            sub = t["subsection"]
+            items.append(f"### [{k}] {t['term']}"
+                         + (f"(别名:{', '.join(t['aliases'])})" if t.get("aliases") else "")
+                         + f"\n小节:{sub} {spec.get(sub, {}).get('name', '')}\n原文行:\n"
+                         + "\n".join(f"- {r}" for r in t["evidence"] or ["(无)"]))
+            for c in t.get("confusable", []):
+                if k < c["with"]:
+                    pairs.append(f"### [{k}|{c['with']}] {t['term']} / {kept[c['with']]['term']}\n"
+                                 + ("细则中的比较:\n" + "\n".join(f"- {d}" for d in c["difference"])
+                                    if c["difference"] else "细则中没有直接比较两者的题,依据两者的原文行。"))
+        body = "\n\n".join(items) + ("\n\n## 易混术语对\n\n" + "\n\n".join(pairs) if pairs else "")
+        open(os.path.join(out, name + ".prompt.txt"), "w").write(REWRITE.format(
+            n=len(chunk), syllabus=syllabus, name=name, items=body,
+            result=os.path.abspath(os.path.join(out, name + ".result.json"))))
+        json.dump({"terms": chunk, "pairs": [p.split("]")[0][5:] for p in pairs]},
+                  open(os.path.join(out, name + ".json"), "w"), ensure_ascii=False)
+        names.append(name)
+    print(f"{len(keys)} 个术语,{len(names)} 批 -> {out}")
+
+
+def apply_rewrites(d, kept):
+    """Merge the termwriter results into kept; a batch whose keys do not match,
+    or whose keywords are not in the evidence rows, is reported and left out."""
+    done = bad = 0
+    for spec_file in sorted(glob.glob(os.path.join(d, "batch_*.json"))):
+        if spec_file.endswith(".result.json"):
+            continue
+        want = json.load(open(spec_file))
+        res = spec_file[:-5] + ".result.json"
+        if not os.path.exists(res):
+            print("未完成:", os.path.basename(res)); bad += 1
+            continue
+        try:
+            got = json.load(open(res))
+        except ValueError as e:
+            print("无法解析:", os.path.basename(res), e); bad += 1
+            continue
+        errs = [k for k in want["terms"] if not (got.get("terms", {}).get(k) or {}).get("definition")]
+        errs += [p for p in want["pairs"] if not (got.get("pairs", {}).get(p) or {}).get("difference")]
+        if errs:
+            print("拒收:", os.path.basename(res), "缺", errs[:4]); bad += 1
+            continue
+        for k in want["terms"]:
+            r = got["terms"][k]
+            ev = " ".join(kept[k]["evidence"]).lower()
+            kept[k]["rewrite"] = {"definition": r["definition"].strip(), "zh": (r.get("zh") or "").strip(),
+                                  "source": r.get("source", "scheme"),
+                                  "keywords": [w for w in r.get("keywords", []) if w.lower() in ev]}
+        for p in want["pairs"]:
+            a, b = p.split("|")
+            for x, y in ((a, b), (b, a)):
+                for c in kept[x].get("confusable", []):
+                    if c["with"] == y:
+                        c["summary"] = got["pairs"][p]["difference"].strip()
+        done += 1
+    print(f"改写:合格 {done} 批,未用 {bad} 批")
+
+
 def fname(term):
     return re.sub(r'[\\/:*?"<>|#^\[\]]', "-", term)
 
@@ -384,19 +496,32 @@ def write_vault(out, syllabus, spec, kept, hubs):
             lines.append(f"上级:{link(t['parent'])}")
         if children.get(k):
             lines.append("下级:" + ",".join(link(c) for c in sorted(children[k])))
-        if t["definition"]:
+        rw = t.get("rewrite")
+        if rw:
+            lines += ["", "## 定义", "", f"**{rw['definition']}**", ""]
+            if rw["zh"]:
+                lines += [rw["zh"], ""]
+            if rw["source"] == "general":
+                lines += ["_细则中没有解释这个词的原文,以上为考纲通行定义。_", ""]
+            if rw["keywords"]:
+                lines += ["得分关键词:" + ", ".join(f"`{w}`" for w in rw["keywords"]), ""]
+            if t["evidence"]:
+                lines += ["> [!quote]- 评分细则原文"] + [f"> - {r}" for r in t["evidence"][:5]] + [""]
+        elif t["definition"]:
             lines += ["", "## 评分细则中的表述", "", f"> {t['definition']}", ""]
+            if t["keywords"]:
+                lines += ["得分关键词:" + ", ".join(f"`{w}`" for w in t["keywords"]), ""]
         else:
             lines += ["", "## 评分细则中的用法(细则没有单独解释这个词)", ""]
             lines += [f"> {r}" for r in t.get("context", [])] + [""]
-        if t["keywords"]:
-            lines += ["得分关键词:" + ", ".join(f"`{w}`" for w in t["keywords"]), ""]
         for c in t.get("confusable", []):
             lines += [f"## 易混:{link(c['with'])}", ""]
+            if c.get("summary"):
+                lines += [c["summary"], ""]
             if c["difference"]:
                 lines += ["评分细则中的区别:", ""] + [f"- {d}" for d in c["difference"]]
                 lines += ["", f"出处:{', '.join(c['from'])}", ""]
-            else:
+            elif not c.get("summary"):
                 other = kept[c["with"]]
                 lines += [f"- **{t['term']}**:{t['definition']}",
                           f"- **{other['term']}**:{other['definition']}", ""]
@@ -435,10 +560,17 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--syllabus", default="9618")
     ap.add_argument("--out")
+    ap.add_argument("--plan-rewrite", metavar="DIR", help="写 termwriter 的批次文件后退出")
+    ap.add_argument("--per-batch", type=int, default=25)
+    ap.add_argument("--rewrites", metavar="DIR", help="读入 termwriter 的结果再写仓库")
     a = ap.parse_args()
     spec = json.load(open(paths.SYLLABUS))[a.syllabus]["topics"]
     con = db.connect()
     kept, hubs, dropped = build(con, a.syllabus, spec)
+    if a.plan_rewrite:
+        return plan_rewrite(a.plan_rewrite, a.syllabus, spec, kept, a.per_batch)
+    if a.rewrites:
+        apply_rewrites(a.rewrites, kept)
     out = a.out or os.path.join(paths.EXPORTS, f"{a.syllabus}_terms")
     write_vault(out, a.syllabus, spec, kept, hubs)
     lv = Counter(t["level"] for t in kept.values())
