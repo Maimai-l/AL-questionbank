@@ -66,7 +66,8 @@ PROMPT = """你要为 {n} 道 {exam} 真题逐个小问写详解,供学生自学
 - 小问必须按每题给出的"小问"标签逐个写,标签原样照抄,不增不减;
   标签为 "" 表示整题只有一问。
 - 以评分细则为准,不自创与细则矛盾的答案;细则明显有 OCR 错字时按题意更正。
-- 列有"图片"的题,先用 Read 打开图片;题面文字可能缺表格或图,以图片为准。
+- 每题都附有题图路径。标"必看"的题先用 Read 打开图片;其他题在题面文字缺表格、
+  图、代码、数据或提到的内容找不到时,也必须先打开图片,以图片为准,不要从答案反推题面。
 - 用 Write 把结果写到 {result},内容是一个 JSON 数组,不要任何其他文字:
   [{{"id": "9618_s21_11_q01", "parts": [{{"label": "a(i)", "approach": "...",
      "points": [{{"mark": "1", "point": "...", "why": "..."}}],
@@ -96,10 +97,9 @@ def item_text(r):
     d = json.loads(r["part_data"]) if r["part_data"] else None
     head = f"### {r['id']}  ({r['marks']} 分)"
     lines = [head, "小问: " + ", ".join(f'"{l}"' for l in labels(r))]
-    if needs_image(r):
-        img = paths.resolve(r["image"])
-        if img:
-            lines.append(f"[图片] {img}")
+    img = paths.resolve(r["image"])
+    if img:
+        lines.append(f"[图片{'·必看' if needs_image(r) else ''}] {img}")
     if d and d.get("text_split") and d.get("parts"):
         if d.get("stem"):
             lines += ["[题干]", d["stem"]]
