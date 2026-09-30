@@ -16,8 +16,9 @@ what it means are all taken from the bank itself:
                 ("describe", "state", "explain") against code (write_code,
                 complete_code, trace, sql, assembly).
 - kept          it occurs in at least 2 explain parts, of at least 2 papers;
-                no more than half of its occurrences are in code parts
-                (those are programming vocabulary, not definitions); the
+                it is not programming vocabulary
+                (a term the code parts use more than twice as often, or
+                more often while fewer than 8 papers ask about it); the
                 other subjects' questions (TSA / BMAT passages, 9709 / 9231)
                 do not name it nearly as often (a word they use is general
                 English); and a single word is not spread over the syllabus
@@ -40,8 +41,9 @@ what it means are all taken from the bank itself:
                 key" -> "key"); a head word shared by 3 or more kept terms
                 becomes a hub note of its own.
 - confusable    two kept terms named together in the question text of at
-                least one part that asks for a difference ("difference",
-                "compare", "distinguish", "why ... rather than"), or with
+                least two parts that ask for a difference ("difference",
+                "compare", "distinguish", "rather than"), with a scheme row
+                naming both, or with
                 the same head and opposed modifiers (lossy / lossless,
                 static / dynamic). Each note links the other and quotes the
                 scheme rows of those parts as the difference.
@@ -276,7 +278,7 @@ def build(con, syllabus, spec):
         if n_exp < 2 or len(papers) < 2:
             dropped["少于 2 份卷的解释类小问"] += 1
             continue
-        if st["code"] > n_exp:
+        if st["code"] > 2 * n_exp or (st["code"] > n_exp and len(papers) < 8):
             dropped["多出现在写代码的小问(编程词汇)"] += 1
             continue
         if bg[k] >= 0.01 and rate < 3 * bg[k]:
@@ -366,6 +368,12 @@ def build(con, syllabus, spec):
         for i in idx:
             diff += [r for r in rows_of(parts[i]["ms"]) if rx[a].search(r) or rx[b].search(r)]
         diff = list(dict.fromkeys(diff))[:4]
+        # a pair met in a question is kept only if the scheme sets the two
+        # against each other in one row ("a stack is ... whereas a queue ...")
+        if (a, b) not in opposed and not any(
+                rx[a].search(r) and rx[b].search(r)
+                for i in idx for r in rows_of(parts[i]["ms"])):
+            continue
         src = sorted({f"{parts[i]['qid']} ({parts[i]['label']})" for i in idx})[:3]
         for x, y in ((a, b), (b, a)):
             kept[x].setdefault("confusable", []).append(
@@ -396,13 +404,13 @@ REWRITE = """下面 {n} 个 {syllabus} 术语由题库统计选出,每个附有�
 {items}"""
 
 
-def plan_rewrite(out, syllabus, spec, kept, per_batch):
+def plan_rewrite(out, syllabus, spec, kept, per_batch, skip=()):
     """Batch files for the termwriter agents: terms of neighbouring subsections
     together, each with its evidence rows; a confusable pair goes with the
     batch of its first term."""
     os.makedirs(out, exist_ok=True)
     order = lambda k: ([int(x) for x in kept[k]["subsection"].split(".") if x.isdigit()], k)
-    keys = sorted(kept, key=order)
+    keys = sorted((k for k in kept if k not in skip), key=order)
     names = []
     for b in range(0, len(keys), per_batch):
         chunk = keys[b:b + per_batch]
@@ -562,15 +570,18 @@ def main():
     ap.add_argument("--out")
     ap.add_argument("--plan-rewrite", metavar="DIR", help="写 termwriter 的批次文件后退出")
     ap.add_argument("--per-batch", type=int, default=25)
-    ap.add_argument("--rewrites", metavar="DIR", help="读入 termwriter 的结果再写仓库")
+    ap.add_argument("--rewrites", metavar="DIR", action="append",
+                    help="读入 termwriter 的结果再写仓库(可多次;与 --plan-rewrite 同用时只为未改写的术语出批次)")
     a = ap.parse_args()
     spec = json.load(open(paths.SYLLABUS))[a.syllabus]["topics"]
     con = db.connect()
     kept, hubs, dropped = build(con, a.syllabus, spec)
-    if a.plan_rewrite:
-        return plan_rewrite(a.plan_rewrite, a.syllabus, spec, kept, a.per_batch)
     if a.rewrites:
-        apply_rewrites(a.rewrites, kept)
+        for d in a.rewrites:
+            apply_rewrites(d, kept)
+    if a.plan_rewrite:                         # only the terms not rewritten yet
+        return plan_rewrite(a.plan_rewrite, a.syllabus, spec, kept, a.per_batch,
+                            {k for k, t in kept.items() if t.get("rewrite")})
     out = a.out or os.path.join(paths.EXPORTS, f"{a.syllabus}_terms")
     write_vault(out, a.syllabus, spec, kept, hubs)
     lv = Counter(t["level"] for t in kept.values())
