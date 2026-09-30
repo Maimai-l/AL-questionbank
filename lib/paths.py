@@ -10,6 +10,8 @@ Environment overrides, for running against a copy without moving anything:
     CAIE_DATA       data folder (default: <root>/data)
     CAIE_DB         database file (default: <data>/caie.db)
     CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img_adm/ img_tara/
+    QB_WORK         what practising produces: handwriting boards, attempts
+                    (default: qb-work/ next to the project folder)
 """
 import os
 
@@ -33,6 +35,12 @@ BANK = os.path.join(RAW, "bank")            # manifest.py: papers, keys, specs
 BANK_OCR = os.path.join(RAW, "bank_ocr")    # ocr_bank.py: one markdown per page
 IMG_ADM = os.path.join(DATA, "img_adm")     # render_adm_imgs.py: one PNG per question
 PREREQ = os.path.join(ROOT, "prereq.json")
+
+# The practice server's own records (app/): handwriting boards and attempts.
+# Not under data/, which `sync.py pull` resets and cleans; not in the repo.
+WORK = os.environ.get("QB_WORK") or os.path.join(os.path.dirname(ROOT), "qb-work")
+INK = os.path.join(WORK, "ink")                 # inksync storage
+ATTEMPTS = os.path.join(WORK, "attempts.db")    # app/store.py
 
 # Where the question crops may be. data/ is the normal place; the others keep
 # a copy unpacked in an older layout working.

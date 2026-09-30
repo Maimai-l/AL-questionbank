@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>刷题</title>
+  <link rel="stylesheet" href="/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/vendor/katex/katex.min.js"></script>
+  <script defer src="/vendor/katex/auto-render.min.js"></script>
+</head>
+<body>
+  <aside id="side">
+    <div class="filters">
+      <select id="f-syllabus"></select>
+      <select id="f-component"><option value="">全部卷别</option></select>
+      <select id="f-year"><option value="">全部年份</option></select>
+      <select id="f-topic"><option value="">全部主题</option></select>
+      <select id="f-status">
+        <option value="">全部</option>
+        <option value="new">未做</option>
+        <option value="done">做过</option>
+        <option value="wrong">未拿满分</option>
+      </select>
+      <input id="f-text" type="search" placeholder="搜索题干" autocomplete="off">
+    </div>
+    <div id="count" class="muted"></div>
+    <ol id="list"></ol>
+  </aside>
+
+  <main id="main">
+    <header id="head">
+      <button id="toggle-side" title="题目列表">☰</button>
+      <div id="title" class="title">选择一道题</div>
+      <span id="sync" class="muted"></span>
+      <button id="prev" title="上一题">‹</button>
+      <button id="next" title="下一题">›</button>
+    </header>
+
+    <div id="toolbar" class="bar">
+      <button data-tool="pen" aria-pressed="true">笔</button>
+      <button data-tool="highlighter" aria-pressed="false">荧光笔</button>
+      <button data-tool="eraser" aria-pressed="false">橡皮</button>
+      <span class="colors">
+        <button class="color" data-color="#1b1b1f" aria-pressed="true" style="--c:#1b1b1f"></button>
+        <button class="color" data-color="#2f5bd3" aria-pressed="false" style="--c:#2f5bd3"></button>
+        <button class="color" data-color="#d23a3a" aria-pressed="false" style="--c:#d23a3a"></button>
+      </span>
+      <button id="undo" disabled>撤销</button>
+      <button id="redo" disabled>重做</button>
+      <button id="fit">全览</button>
+      <span class="spacer"></span>
+      <select id="attempts" title="作答记录"></select>
+      <button id="restart" title="新开一块白板重做这道题">再做一遍</button>
+      <button id="copy" title="复制题干文本">复制文本</button>
+      <button id="toggle-mark" aria-pressed="false">判分</button>
+    </div>
+
+    <div id="work">
+      <div id="pad"></div>
+      <section id="panel" hidden>
+        <div id="marking"></div>
+        <div id="explain"></div>
+      </section>
+    </div>
+    <div id="banner" hidden></div>
+  </main>
+
+  <textarea id="clip" aria-hidden="true" tabindex="-1"></textarea>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>
