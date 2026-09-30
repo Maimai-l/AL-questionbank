@@ -31,6 +31,9 @@ write 把 accepted.json 写进 questions.explanation(JSON,缺列时新建);
     --ids-file f              指定题号
     --marks-per-batch 60      每批的总分上限(按分值分批,输出量与分值成正比)
     --skip-done               跳过 explanation 已有内容的题
+    --notes f.json            复核模式:{题号: 复核原因};批次文件附现有详解与评分细则
+                              PDF 路径,agent 对照原件给出更正后的完整详解,结果格式不变,
+                              用 write --override 覆盖
 """
 import argparse, glob, json, os, re, sys
 
@@ -84,6 +87,26 @@ PROMPT = """你要为 {n} 道 {exam} 真题逐个小问写详解,供学生自学
 {items}"""
 
 
+REVIEW = """以下 {n} 道 {exam} 真题已有详解,但题面或评分细则的识别文本有疑点(每题"复核原因"),
+需要对照原件复核并给出更正后的完整详解。
+
+对每一题:
+1. 用 Read 打开题图;再用 Read 打开评分细则 PDF(pages 参数,每次不超过 20 页),
+   找到该题所在页,以 PDF 原页为准,不以识别文本为准。
+2. 核对现有详解的每个小问:得分点是否与细则原页一致,参考答案是否正确,
+   题面被识别错或漏掉的内容(表格、图、上划线、连线)是否处理对。
+3. 输出更正后的完整详解,格式、字段与要求和现有详解相同(见下方写作要求)。
+   没有问题的小问原样保留。细则原页确实没有该小问的逐点给分时,在 approach
+   末尾注明"细则未逐点给分,得分点按题意归纳"。
+
+写作要求(与原批次相同):
+{rules}
+
+题目:
+
+{items}"""
+
+
 def syllabus_table(syl):
     spec = json.load(open(paths.SYLLABUS))[syl]["topics"]
     return {k: v["name"] for k, v in spec.items() if "." in k}
@@ -112,6 +135,11 @@ def item_text(r):
             lines += ["[整题评分细则]", r["ms"] or "(无)"]
     else:
         lines += ["[题干]", r["q"] or "(无,见图片)", "[评分细则]", r["ms"] or "(无)"]
+    if r.get("note"):
+        pdf = os.path.join(paths.RAW, "ms", re.sub(
+            r"^(\w+?)_(\w\d\d)_(\d\d)_q\d+$", r"\1_\2_ms_\3.pdf", r["id"]))
+        lines += ["[复核原因]", r["note"], f"[评分细则 PDF] {pdf}",
+                  "[现有详解]", r["explanation"] or "(无)"]
     return "\n".join(lines) + "\n"
 
 
@@ -129,6 +157,9 @@ def select(con, a):
         rows = [r for r in rows if r["id"] in want]
     if a.skip_done:
         rows = [r for r in rows if not r["explanation"]]
+    if a.notes:
+        notes = json.load(open(a.notes))
+        rows = [dict(r, note=notes[r["id"]]) for r in rows if r["id"] in notes]
     return rows
 
 
@@ -166,10 +197,14 @@ def plan(a):
         json.dump({r["id"]: labels(r) for r in b},
                   open(os.path.join(a.out, name + ".json"), "w"), ensure_ascii=False)
         exam = f"{a.syllabus} Paper {b[0]['component']} ({b[0]['component_name']})"
-        open(os.path.join(a.out, name + ".prompt.txt"), "w").write(PROMPT.format(
+        body = PROMPT.format(
             n=len(b), exam=exam, name=name, table=table,
             result=os.path.abspath(os.path.join(a.out, name + ".result.json")),
-            items="\n".join(item_text(r) for r in b)))
+            items="\n".join(item_text(r) for r in b))
+        if a.notes:                            # review: the same rules, the review task first
+            rules, items = body.split("\n\n题目:\n\n", 1)
+            body = REVIEW.format(n=len(b), exam=exam, rules=rules, items=items)
+        open(os.path.join(a.out, name + ".prompt.txt"), "w").write(body)
     json.dump({"args": vars(a), "batches": names},
               open(os.path.join(a.out, "plan.json"), "w"), ensure_ascii=False, indent=1)
     print(f"{len(rows)} 题,{sum(r['marks'] or 0 for r in rows)} 分,{len(batches)} 批 -> {a.out}")
@@ -259,6 +294,7 @@ def main():
     ap.add_argument("--ids-file")
     ap.add_argument("--marks-per-batch", type=int, default=60)
     ap.add_argument("--skip-done", action="store_true")
+    ap.add_argument("--notes", help="复核:JSON {题号: 复核原因},只取这些题,附现有详解与细则 PDF")
     ap.add_argument("--override", action="append",
                     help="write:再读这些目录的 accepted.json,同一题以后者为准")
     ap.add_argument("--write", action="store_true")
