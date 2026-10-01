@@ -3,8 +3,8 @@
 a single image.
 
 Checks: furniture inside a clip, slack below the last line, question material
-that no clip covers or that a clip boundary cuts, and clips of two questions
-overlapping on one page.
+that no clip covers or that a clip boundary cuts, answer rows (dot leaders)
+left out of every clip, and clips of two questions overlapping on one page.
 
     python3 pipeline/split/audit_crops.py raw/pdf [--crop old|new] [--list KIND]
 
@@ -147,6 +147,14 @@ def audit(pdfdir, which, only=None):
                 else:
                     stem = f[:-4]
                     hits["uncovered"].append(f"{stem}  p{p} {[round(v) for v in r]} {label!r}")
+            # answer rows: the candidate's writing space belongs in the crop too,
+            # the rows after the last part included
+            for r in split_qp.answer_lines(page):
+                if p == pages[0] and r.y1 <= first.y0:
+                    continue
+                if not any(fitz.Rect(r) in c + (-0.3, -0.3, 0.3, 0.3) for _, c in page_clips[p]):
+                    above = [q for q, c in page_clips[p] if c.y0 <= r.y0]
+                    hits["rows-out"].append(f"{above[-1] if above else f[:-4]}  p{p} {round(r.y0)}")
         doc.close()
     return n, hits
 

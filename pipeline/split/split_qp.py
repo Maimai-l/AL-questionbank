@@ -4,7 +4,8 @@
 Relies on the very regular layout of CAIE papers:
   * question-number blocks sit at the left margin (x0 < ~60)
   * question body sits indented (x0 ~ 73)
-  * answer space is rows of dot leaders
+  * answer space is rows of dot leaders; they are left out of the text and
+    kept in the crop
   * running header/footer live outside the text band
 Emits one record per question with text, mark tariff, and page/bbox span
 so the question can also be cropped to an image.
@@ -175,6 +176,25 @@ def drawing_boxes(page):
     return boxes
 
 
+def answer_lines(page):
+    """Boxes of the dot-leader rows the candidate writes on.
+
+    page_blocks drops them from the text; the crop keeps them, so the image
+    shows the answer space under every part, the last one included, and a
+    board can be written on where the paper is."""
+    top, bottom, furn = page_furniture(page)
+    out = []
+    for blk in page.get_text("dict")["blocks"]:
+        if blk.get("type") != 0:
+            continue
+        for ln in blk["lines"]:
+            txt = "".join(sp["text"] for sp in ln["spans"])
+            r = fitz.Rect(ln["bbox"])
+            if is_dots(txt) and r.y0 >= top and r.y1 <= bottom and not in_furniture(r, furn):
+                out.append(r)
+    return out
+
+
 def heading_top(blocks, y0, y1, min_overlap=3, touch=3.5):
     """Top of the question's first line, not just of its number.
 
@@ -258,7 +278,14 @@ def split_paper(path):
             # 51.7, 9709_m21_qp_22) belongs to the question, tariff included
             floor = lo - 2 if p == pno else -1
             blocks = [b for b in page_blocks(page) if floor <= b[1] < hi]
+            rows = [r for r in answer_lines(page) if floor <= r.y0 < hi]
             if not blocks:
+                # answer rows running on to a page of their own, before the
+                # next question starts: they belong to this question
+                if spans and rows and i + 1 < len(starts):
+                    spans.append({"page": p, "y0": max(lo - 6, 0),
+                                  "y1": min(max(r.y1 for r in rows) + 8, hi)})
+                    continue
                 # the last question's span runs to the end of the booklet; once
                 # a page has no real content left, everything after it is
                 # end matter, so stop rather than cropping blank pages in
@@ -266,9 +293,9 @@ def split_paper(path):
                     break
                 continue
             parts += [(clean(b[4]), b[2]) for b in blocks if clean(b[4])]
-            # crop extent: last text block or diagram inside the span
+            # crop extent: last text block, diagram or answer row inside the span
             bottom = max(b[3] for b in blocks)
-            for r in drawing_boxes(page):
+            for r in drawing_boxes(page) + rows:
                 if lo - 2 <= r.y0 < hi:
                     bottom = max(bottom, r.y1)
             spans.append({"page": p, "y0": max(lo - 6, 0), "y1": min(bottom + 8, hi)})
