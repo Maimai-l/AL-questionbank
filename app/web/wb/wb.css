@@ -1,0 +1,555 @@
+/* 取自 white-board whiteboard/web/static/css/app.css(提交 373432a),只摘录刷题页用到的部分,内容未改。
+   摘录的行:1-112 配色与基础,129-352 图标按钮、工具条、笔具盘,386-531 右上角、状态点、弹层、侧板,968-1011 提示,1119-1144 按钮。 */
+
+/* 界面风格：照着 macOS / iOS 的系统控件来——磨砂玻璃、系统色、细分隔线。
+   只用图标，不放文案。 */
+
+:root {
+  color-scheme: light dark;
+
+  /* 系统色 */
+  --primary: #007aff;
+  --on-primary: #ffffff;
+  --primary-container: rgba(0, 122, 255, .14);
+  --on-primary-container: #007aff;
+  --error: #ff3b30;
+
+  /* 左上角状态点：用 macOS 红绿灯那三个颜色 */
+  --light-red: #ff5f57;
+  --light-amber: #febc2e;
+  --light-green: #28c840;
+
+  /* 磨砂玻璃：控件是半透明的，底下的画布透上来一点 */
+  --glass: rgba(246, 246, 248, .92);
+  --glass-solid: #f6f6f8;
+  --glass-border: rgba(0, 0, 0, .08);
+  --glass-blur: saturate(180%) blur(30px);
+
+  --surface: #f2f2f7;
+  --surface-1: #ffffff;
+  --surface-2: var(--glass);
+  --surface-3: var(--glass);
+  --on-surface: #1c1c1e;
+  --on-surface-variant: rgba(60, 60, 67, .6);
+  --outline: rgba(60, 60, 67, .22);
+  --fill: rgba(120, 120, 128, .12);
+  --scrim: rgba(0, 0, 0, .28);
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, .10);
+  --shadow-2: 0 6px 20px rgba(0, 0, 0, .12), 0 1px 3px rgba(0, 0, 0, .08);
+  --shadow-3: 0 16px 44px rgba(0, 0, 0, .18), 0 2px 6px rgba(0, 0, 0, .10);
+  --radius-pill: 999px;
+  --radius-l: 14px;
+  --radius-m: 10px;
+  --motion: 200ms cubic-bezier(.32, .72, 0, 1);
+  --paper: #ffffff;
+  --paper-line: #d9dce6;
+  --secondary-container: rgba(0, 122, 255, .14);
+  --tool-body: #b6b3c4;
+  --tool-collar: #9996a8;
+  --nib-edge: rgba(0, 0, 0, .22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #0a84ff;
+    --on-primary: #ffffff;
+    --primary-container: rgba(10, 132, 255, .26);
+    --on-primary-container: #4da3ff;
+    --error: #ff453a;
+
+    --glass: rgba(38, 38, 40, .92);
+    --glass-solid: #262628;
+    --glass-border: rgba(255, 255, 255, .12);
+
+    --surface: #1c1c1e;
+    --surface-1: #1c1c1e;
+    --on-surface: #f2f2f7;
+    --on-surface-variant: rgba(235, 235, 245, .6);
+    --outline: rgba(235, 235, 245, .22);
+    --fill: rgba(120, 120, 128, .28);
+    --scrim: rgba(0, 0, 0, .5);
+    --secondary-container: rgba(10, 132, 255, .26);
+    --tool-body: #6f6c7d;
+    --tool-collar: #8d8a9b;
+    --nib-edge: rgba(255, 255, 255, .5);
+  }
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  /* iPadOS 的选择 / 放大镜手势只要有一个元素允许选中就可能被触发，这里一刀切。 */
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  /* 同样一刀切：iPadOS 上长按图标或者图片会把它「拎」起来，浮出一个预览，
+     手一松才落回去。下面白板卡片那一条再单独开回来。 */
+  -webkit-user-drag: none;
+}
+
+/* 输入框要开回来：iPadOS 的 Safari 里 -webkit-user-select: none 的输入框点得中、
+   键盘也弹得出来，就是打不进字（白板选择界面的搜索框、改名框都中过）。
+   长按的「粘贴」菜单也一并开回来。画布上没有输入框，挡手势那一刀不受影响。 */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+}
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+  background: var(--surface);
+  color: var(--on-surface);
+  font: 500 14px/1.4 -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  /* iPadOS：关掉长按弹出的「拷贝 / 查询」气泡和拖拽，否则写快了会被它抢走一笔 */
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+
+.icon-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border: 0;
+  padding: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  transition: background var(--motion), color var(--motion), transform var(--motion);
+}
+.icon-btn svg { width: 24px; height: 24px; }
+.icon-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity var(--motion);
+}
+/*
+ * 所有 :hover 都关在 `@media (hover: hover)` 里。
+ *
+ * iPadOS 上点一下之后，:hover 会赖在刚点过的那个元素上，直到点别的地方才消。
+ * 表现出来就是：关掉设置抽屉，抽屉底下那个导出按钮自己亮着，像是被按住了。
+ * 有鼠标的设备才需要 hover 这套反馈，触摸设备一概不给。
+ */
+@media (hover: hover) {
+  .icon-btn:hover::before { opacity: .07; }
+}
+.icon-btn:active::before { opacity: .14; }
+.icon-btn.active { background: var(--primary-container); color: var(--on-primary-container); }
+.icon-btn.danger { color: var(--error); }
+.icon-btn[disabled] { opacity: .38; pointer-events: none; }
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: .5px solid var(--glass-border);
+  box-shadow: var(--shadow-2);
+}
+
+/*
+ * 书写时先把磨砂关掉。模糊层底下就是每帧都在变的画布，iPad 上每一帧都要重新
+ * 合成一次，落笔期间这点开销很要命；抬笔再恢复，视觉上察觉不到。
+ */
+:root[data-drawing] .pill,
+:root[data-drawing] .popover,
+:root[data-drawing] .notice,
+:root[data-drawing] .toast {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--glass-solid);
+}
+/* 工具栏上的当前颜色：深浅背景下都要看得见，所以描一圈中性色。 */
+.color-dot {
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px rgba(128, 128, 128, .6);
+}
+
+.pill .sep { width: 1px; height: 26px; margin: 0 4px; background: var(--outline); opacity: .5; flex: 0 0 auto; }
+
+/* 主工具条（iPad 与 Mac 共用）：默认贴底，可以换边，笔具盘模式下还能拖 */
+#toolbar {
+  position: absolute;
+  left: 50%;
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
+  transition: none;
+}
+:root[data-toolbar="top"] #toolbar {
+  top: calc(12px + env(safe-area-inset-top));
+  bottom: auto;
+}
+/* 工具条上去了，提示条和 toast 就得让开 */
+:root[data-toolbar="top"] .notice { top: calc(84px + env(safe-area-inset-top)); }
+:root[data-toolbar="top"] .toast { bottom: calc(24px + env(safe-area-inset-bottom)); }
+
+/* ------------------------------------------------- 笔具盘（beta） */
+
+/* PencilKit 那条工具盘盖在画布上：自己不吃事件，只有工具栏和弹层吃 */
+#toolbar.hidden { display: none; }
+/* #ui 里面这几层的上下关系：笔具盘 1，盖满屏幕的界面 2，对话框和抽屉 3，
+   提示条 4。笔具盘自己带 z-index，不排的话它会浮在白板选择界面上面。 */
+#pk-host {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  /* .pk-root 自带一层白底，那是给它自己的画布用的，这里必须透出白板 */
+  background: transparent;
+}
+#pk-host .pk-picker,
+#pk-host .pk-pop { pointer-events: auto; }
+/* 白板选择界面或者设置抽屉开着：笔具盘整条收起来，见 ui.js 的 watchOverlays */
+#ui[data-overlay="1"] #pk-host { display: none; }
+/*
+ * 工具盘的底色跟着白板的配色走，但**始终是实的**，不磨砂。
+ *
+ * 原来这里给它加了背景模糊、底色换成半透明，落笔时再切回实色（模糊层底下是每帧
+ * 都在变的画布，iPad 上开销很大）。两个问题：一是工具盘就压在写字的地方，半透明
+ * 意味着刚写的字直接透出来；二是那个开关是按「一笔」切的，写一个字要落笔抬笔好
+ * 几次，工具盘就在磨砂和实色之间来回跳。
+ *
+ * 所以不切了，一直是实色：看不出磨砂的必要，顺带也没有每帧重新合成模糊层的开销。
+ * 弹层和提示条不在写字的地方，磨砂留着。
+ */
+#pk-host {
+  --pk-bar: var(--glass-solid);
+  --pk-bubble: var(--glass-solid);
+  --pk-pop: var(--glass);
+  --pk-cp: var(--glass);
+}
+#pk-host .pk-pop {
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+}
+
+/*
+ * 工具盘的动画由 js/pkpicker.js 在 .pk-picker 上设置 data-motion 切换。
+ * 时长和曲线写在 pkpicker.js 顶部的常量里，由它填进这几个 --pkm-* 变量，要调去那里调。
+ *   travel（默认）：圆的飞行，收成圆、飞到角落，不回弹
+ *   grow：「甩」之后的展开，带回弹
+ *   slide：「甩」时上下两边之间直接滑过去的长条，时长按距离计算、速度有上限
+ *   smooth：「慢放」之后的展开，以及在手底下已展开的长条贴到边上，不回弹
+ *   follow：拖动中跟手，位置和形状由 js 逐帧计算（以手指为中心伸缩），不用 css 过渡
+ */
+@media (prefers-reduced-motion: no-preference) {
+  #pk-host .pk-picker {
+    transition:
+      left var(--pkm-travel), top var(--pkm-travel),
+      width var(--pkm-travel), height var(--pkm-travel),
+      border-radius var(--pkm-travel),
+      box-shadow .3s ease, background-color .3s;
+  }
+  #pk-host .pk-picker[data-motion="grow"] {
+    transition:
+      left var(--pkm-grow), top var(--pkm-grow),
+      width var(--pkm-grow), height var(--pkm-grow),
+      border-radius var(--pkm-grow),
+      box-shadow .3s ease, background-color .3s;
+  }
+  #pk-host .pk-picker[data-motion="smooth"] {
+    transition:
+      left var(--pkm-smooth), top var(--pkm-smooth),
+      width var(--pkm-smooth), height var(--pkm-smooth),
+      border-radius var(--pkm-smooth),
+      box-shadow .3s ease, background-color .3s;
+  }
+  /* 甩：上下两边之间长条直接滑过去，时长由 js 按距离算好写进 --pkm-slide */
+  #pk-host .pk-picker[data-motion="slide"] {
+    transition:
+      left var(--pkm-slide), top var(--pkm-slide),
+      width var(--pkm-slide), height var(--pkm-slide),
+      border-radius var(--pkm-slide),
+      box-shadow .3s ease, background-color .3s;
+  }
+  /* 拖动中的位置和形状由 js 逐帧计算，这里不再加过渡 */
+  #pk-host .pk-picker[data-motion="follow"] {
+    transition: box-shadow .3s ease;
+  }
+  /* 圆里的笔转向 */
+  #pk-host .pk-bubble-art { transition: transform var(--pkm-turn); }
+}
+
+/* 顶部停靠：阴影朝上，面板往下开（原实现只有下 / 左 / 右） */
+#pk-host .pk-picker[data-dock="top"] { --pk-shy: -1; }
+#pk-host .pk-pop[data-side="bottom"]::after {
+  left: calc(var(--ax) - 12px);
+  bottom: 100%;
+  clip-path: polygon(0 100%, 100% 100%, 50% 0);
+}
+/* 笔迹格式里还没有不透明度，先把相关的控件藏起来，面板高度跟着收一收 */
+#pk-host .pk-tp { height: 58px; }
+#pk-host .pk-tp-line,
+#pk-host .pk-tp .pk-slider,
+#pk-host .pk-cp-op-label,
+#pk-host .pk-cp-op { display: none; }
+
+/* 二选一：橡皮的对象 / 像素，和笔具盘里那个长得一样 */
+.seg {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 9px;
+  background: var(--fill);
+}
+.seg button {
+  flex: 1;
+  border: 0;
+  padding: 5px 10px;
+  border-radius: 7px;
+  background: none;
+  font: inherit;
+  font-size: 12.5px;
+  color: var(--on-surface-variant);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--motion), color var(--motion);
+}
+.seg button.is-on {
+  background: var(--surface-1);
+  color: var(--on-surface);
+  box-shadow: var(--shadow-1);
+}
+
+/* iOS 那种绿色小开关 */
+.perm-row input[type="checkbox"],
+#topright {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top));
+  right: calc(12px + env(safe-area-inset-right));
+  flex-direction: row;
+  transition: opacity var(--motion), transform var(--motion);
+}
+/* 笔具盘挪到这一组底下了：让出去，挪开再回来（见 ui.js 的 watchPickerClash） */
+#topright.shy {
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+}
+/*
+ * 触摸设备上这一组照 iOS 的做法：图标用强调色，按钮之间留开一点。
+ * 开了笔具盘之后普通工具栏整条藏起来，管理白板、白板设置、导出就只剩这一个入口。
+ */
+.pill.tinted {
+  gap: 6px;
+  padding: 6px 10px;
+}
+.pill.tinted .icon-btn {
+  color: var(--primary);
+}
+.pill.tinted .icon-btn svg {
+  width: 25px;
+  height: 25px;
+}
+.pill.tinted .icon-btn[disabled] { color: var(--on-surface-variant); }
+#zoombar {
+  position: absolute;
+  right: calc(12px + env(safe-area-inset-right));
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  flex-direction: column;
+}
+
+/* 连接状态：一个小圆点，不用文字 */
+#status {
+  position: absolute;
+  top: calc(6px + env(safe-area-inset-top));
+  left: calc(6px + env(safe-area-inset-left));
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+#status::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(130, 130, 135, .55);
+  /* 和系统窗口按钮一样描一圈，浅色背景上也有边 */
+  box-shadow: inset 0 0 0 .5px rgba(0, 0, 0, .14), 0 1px 2px rgba(0, 0, 0, .12);
+  transition: background var(--motion);
+}
+#status.online::after { background: var(--light-green); }
+#status.offline::after { background: var(--light-red); }
+#status.syncing::after { background: var(--light-amber); }
+
+/* ----------------------------------------------------------------- 弹层 */
+
+.popover {
+  position: absolute;
+  padding: 10px;
+  border-radius: var(--radius-l);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: .5px solid var(--glass-border);
+  box-shadow: var(--shadow-3);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: pop var(--motion);
+}
+/*
+ * 弹窗进场。透明度只在开头那一小段里走完，剩下的时间只做位移和缩放：弹窗是
+ * 磨砂的，半透明的时候底下那层暗底会直接透过来，看着像弹窗自己也黑了一下。
+ */
+@keyframes pop {
+  from { opacity: 0; transform: translateY(6px) scale(.96); }
+  30% { opacity: 1; }
+}
+
+.swatches { display: grid; grid-template-columns: repeat(5, 36px); gap: 8px; }
+.swatch {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid transparent; cursor: pointer; padding: 0;
+  transition: transform var(--motion), border-color var(--motion);
+}
+@media (hover: hover) {
+  .swatch:hover { transform: scale(1.08); }
+}
+.swatch.active { border-color: var(--primary); transform: scale(1.1); }
+
+.widths { display: flex; align-items: center; gap: 6px; }
+.width-opt {
+  width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background var(--motion);
+}
+@media (hover: hover) {
+  .width-opt:hover { background: var(--fill); }
+}
+.width-opt.active { background: var(--primary-container); }
+.width-opt i { display: block; border-radius: 50%; background: var(--on-surface); }
+
+/* --------------------------------------------------------------- 侧板 */
+
+/*
+ * 压在全屏上的那层暗底。**只能淡入背景色，不能淡入 opacity**：opacity 小于 1 的
+ * 元素会成为子元素的 backdrop root，弹窗就变成两件事一起发生——它跟着这层一起
+ * 半透明（暗底直接透过来），而且它的磨砂只采样得到这层暗底、采样不到底下的画布。
+ * 结果就是弹窗自己先黑一下，动画结束才回到正常颜色。
+ */
+.scrim {
+  position: absolute; inset: 0; z-index: 3; background: var(--scrim);
+  animation: scrim-in var(--motion);
+}
+@keyframes scrim-in { from { background-color: transparent; } }
+@keyframes fade { from { opacity: 0; } }
+
+.sheet {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: min(420px, 92vw);
+  padding: 16px calc(16px + env(safe-area-inset-right)) 16px 16px;
+  background: var(--surface);
+  box-shadow: var(--shadow-3);
+  border-radius: 20px 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  overflow-y: auto;
+  animation: slide var(--motion);
+}
+@keyframes slide { from { transform: translateX(24px); opacity: 0; } }
+.sheet-head { display: flex; justify-content: flex-end; }
+.group { display: flex; flex-direction: column; gap: 10px; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* 设置面板：每段一个小标题，必要时下面跟一句说明 */
+.toast {
+  position: absolute;
+  z-index: 4;
+  left: 50%; bottom: calc(84px + env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: var(--radius-pill);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: .5px solid var(--glass-border);
+  color: var(--on-surface);
+  box-shadow: var(--shadow-2);
+  animation: pop var(--motion);
+}
+.toast svg { width: 20px; height: 20px; }
+
+/* 系统层面的干扰（随手写抢笔迹）只能提示用户去关，页面拦不住 */
+.notice {
+  position: absolute;
+  z-index: 4;
+  top: calc(12px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: min(520px, calc(100vw - 32px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-l);
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--glass-blur);
+  backdrop-filter: var(--glass-blur);
+  border: .5px solid var(--glass-border);
+  color: var(--on-surface);
+  box-shadow: var(--shadow-3);
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+  animation: pop var(--motion);
+}
+.notice svg { flex: 0 0 auto; color: var(--primary); }
+
+/* 问一句再动手：图标、一句话、两个按钮，竖着排 */
+.btn {
+  padding: 8px 16px;
+  border-radius: 10px;
+  border: 0;
+  background: var(--fill);
+  color: var(--primary);
+  font: 590 13px/1.2 inherit;
+  cursor: pointer;
+  transition: background var(--motion), transform var(--motion), opacity var(--motion);
+}
+@media (hover: hover) {
+  .btn:hover { background: color-mix(in srgb, var(--fill) 70%, var(--on-surface) 6%); }
+}
+.btn:active { transform: scale(.98); }
+.btn[disabled] { opacity: .5; pointer-events: none; }
+.btn.primary {
+  border-color: transparent;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+@media (hover: hover) {
+  .btn.primary:hover { filter: brightness(1.06); }
+}
+
+/* 录制输入：跟着诊断面板一起显示。放左下角——诊断面板占着左上，两条工具栏都在
+   下方居中，Mac 的白板列表在右上、缩放在右下，只有这个角是空的 */

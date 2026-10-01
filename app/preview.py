@@ -110,8 +110,10 @@ def main():
                 shutil.copy(src, dst)
     json.dump({"filters": filters, "list": listing, "details": details},
               open(os.path.join(out, "data.json"), "w"), ensure_ascii=False)
-    shutil.copy(os.path.join(WEB, "app.js"), out)
-    shutil.copy(os.path.join(WEB, "style.css"), out)
+    for f in ("app.js", "tools.js", "icons-qb.js", "style.css"):
+        shutil.copy(os.path.join(WEB, f), out)
+    shutil.copytree(os.path.join(WEB, "wb"), os.path.join(out, "wb"),
+                    ignore=shutil.ignore_patterns("*.md"))
     shutil.copytree(os.path.join(WEB, "inksync-stub"), os.path.join(out, "inksync"),
                     ignore=shutil.ignore_patterns("test*"))
     shutil.copytree(os.path.join(paths.ASSETS, "vendor", "katex"), os.path.join(out, "katex"))
@@ -120,7 +122,9 @@ def main():
     body = body.replace('<script type="module" src="/static/app.js"></script>',
                         SHIM + '<script type="module" src="app.js"></script>')
     page = ('<title>刷题页预览</title>\n'
+            '<meta name="color-scheme" content="light dark">\n'
             '<link rel="stylesheet" href="katex/katex.min.css">\n'
+            '<link rel="stylesheet" href="wb/wb.css">\n'
             '<link rel="stylesheet" href="style.css">\n'
             '<script defer src="katex/katex.min.js"></script>\n'
             '<script defer src="katex/auto-render.min.js"></script>\n' + body)

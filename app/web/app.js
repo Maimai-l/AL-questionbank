@@ -1,11 +1,15 @@
-// 刷题页:选题、手写作答、按评分细则判分、看详解。
-// 手写板按 inksync 2.0 的接口使用(docs/external/inksync-2.0-interface.zh-CN.md);
-// 服务端在 2.0 未安装时提供同接口的替身,本文件不需要区分。
+// 刷题页:白板铺满窗口,题图是白板底图;选题、作答记录、判分、详解浮在上面。
+// 界面照 white-board:只用图标,书写工具栏与 iPad 笔具盘就是白板那一套(tools.js、wb/)。
+// 手写板按 inksync 的接口使用;服务端没装 inksync 时提供同接口的替身,本文件不区分。
 // 静态预览(app/preview.py)在载入本文件之前设置 window.QB_API 和 window.QB_INKPAD,
 // 用打包的样题代替服务端;平时两者都不存在。
+import { icon } from "./icons-qb.js";
+import { Tools, iconButton } from "./tools.js";
+import { el } from "./wb/util.js";
+
 const { createInkPad } = await import(window.QB_INKPAD || "/inksync/inkpad.js");
 
-const $ = (s) => document.querySelector(s);
+const $ = (s, root = document) => root.querySelector(s);
 const api = window.QB_API || (async (url, body) => {
   const r = await fetch(url, body ? { method: "POST", headers: { "Content-Type": "application/json" },
                                       body: JSON.stringify(body) } : undefined);
@@ -13,7 +17,7 @@ const api = window.QB_API || (async (url, body) => {
   return r.json();
 });
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const tex = (el) => window.renderMathInElement?.(el, {
+const tex = (node) => window.renderMathInElement?.(node, {
   delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false },
                { left: "\\(", right: "\\)", display: false }, { left: "\\[", right: "\\]", display: true }],
   throwOnError: false,
@@ -24,53 +28,142 @@ const saved = (() => { try { return JSON.parse(localStorage.getItem("qb:ui") || 
 const remember = (patch) => { Object.assign(saved, patch); try { localStorage.setItem("qb:ui", JSON.stringify(saved)); } catch {} };
 
 let filters = {}, list = [], question = null, attempt = null, pad = null, readonly = false;
+const narrow = matchMedia("(max-width: 640px)");
+const touch = navigator.maxTouchPoints > 1;
 
-// ------------------------------------------------------------------ 筛选与列表
+// ------------------------------------------------------------------ 浮在白板上的控件
+
+const ui = $("#ui");
+const status = el("div", { id: "status", title: "同步状态" });
+const qname = el("span", { class: "qname" });
+const lockMark = el("span", { class: "icon-btn", title: "以前的作答,只能查看", html: icon("lock"), hidden: "" });
+const qbar = el("div", { id: "qbar", class: "pill" }, [
+  iconButton("back", "上一题", () => step(-1)), qname, lockMark, iconButton("forward", "下一题", () => step(1)),
+]);
+const buttons = {
+  list: iconButton("list", "题目", () => toggleSheet(sheets.list)),
+  history: iconButton("history", "作答记录", (e) => showAttempts(e.currentTarget)),
+  restart: iconButton("refresh", "再做一遍", () => restart()),
+  copy: iconButton("copy", "复制题干文本", () => copyQuestion()),
+  explain: iconButton("bulb", "详解", () => toggleSheet(sheets.explain)),
+  mark: iconButton("check", "判分", () => toggleSheet(sheets.mark)),
+};
+const corner = el("div", { id: "topright", class: touch ? "pill tinted" : "pill" }, Object.values(buttons));
+const zoombar = el("div", { id: "zoombar", class: "pill" }, [
+  iconButton("zoomIn", "放大", () => pad?.zoom(1.25)),
+  iconButton("fit", "全览", () => pad?.fit()),
+  iconButton("zoomOut", "缩小", () => pad?.zoom(0.8)),
+]);
+ui.append(status, qbar, corner, zoombar);
+
+const tools = new Tools(ui, {
+  onToolChange: (t) => pad?.setTool(t),
+  onUndo: () => pad?.undo(),
+  onRedo: () => pad?.redo(),
+});
+
+// 侧板:列表在左,判分与详解在右(同一时间只开一块);不加遮罩,白板照常能写
+function makeSheet(side, button) {
+  const node = el("div", { class: `sheet ${side}`, hidden: "" });
+  node.button = button;
+  ui.append(node);
+  return node;
+}
+const sheets = {
+  list: makeSheet("left", buttons.list),
+  mark: makeSheet("right", buttons.mark),
+  explain: makeSheet("right", buttons.explain),
+};
+
+function toggleSheet(sheet, open = sheet.hidden) {
+  tools.closePopover();
+  for (const s of Object.values(sheets)) {
+    const same = s === sheet;
+    const sameSide = s.classList.contains("left") === sheet.classList.contains("left");
+    // 窄屏上一次只开一块
+    if (!same && !(open && (sameSide || narrow.matches))) continue;
+    s.hidden = same ? !open : true;
+    s.button.classList.toggle("active", !s.hidden);
+  }
+}
+
+const closeButton = (sheet) => iconButton("close", "关闭", () => toggleSheet(sheet, false));
+
+function toast(name, text) {
+  const node = el("div", { class: "toast", html: icon(name) });
+  if (text) node.append(el("span", { text }));
+  ui.append(node);
+  setTimeout(() => node.remove(), 1600);
+}
+
+// 页面自己解决不了的事才用一句话
+function notice(text) {
+  const node = el("div", { class: "notice", html: icon("info") }, [el("span", { text })]);
+  node.addEventListener("click", () => node.remove());
+  ui.append(node);
+  setTimeout(() => node.remove(), 5000);
+}
+
+// ------------------------------------------------------------------ 题目列表
+
+const search = el("input", { class: "board-search", type: "search", autocomplete: "off", "aria-label": "搜索题干" });
+const sel = Object.fromEntries(["syllabus", "component", "year", "topic", "status"]
+  .map((k) => [k, el("select", { "aria-label": k })]));
+const qlist = el("ol", { class: "qlist" });
+sheets.list.append(
+  el("div", { class: "sheet-head" }, [
+    el("label", { class: "search-box" }, [el("span", { class: "search-icon", html: icon("search", 18) }), search]),
+    closeButton(sheets.list),
+  ]),
+  el("div", { class: "filters" }, Object.values(sel)),
+  qlist,
+);
 
 async function loadFilters() {
   filters = await api("/api/filters");
-  const sel = $("#f-syllabus");
-  sel.innerHTML = Object.entries(filters).map(([k, v]) => `<option value="${k}">${k} ${esc(v.name)}</option>`).join("");
-  sel.value = saved.syllabus && filters[saved.syllabus] ? saved.syllabus : "9709";
+  sel.syllabus.innerHTML = Object.entries(filters)
+    .map(([k, v]) => `<option value="${k}">${k} ${esc(v.name)}</option>`).join("");
+  sel.syllabus.value = saved.syllabus && filters[saved.syllabus] ? saved.syllabus : "9709";
+  sel.status.innerHTML = [["", "全部"], ["new", "未做"], ["done", "做过"], ["wrong", "未拿满分"]]
+    .map(([v, t]) => `<option value="${v}">${t}</option>`).join("");
   fillDependent();
-  for (const id of ["component", "year", "topic", "status"]) {
-    if (saved[id]) $(`#f-${id}`).value = saved[id];
-  }
+  for (const k of ["component", "year", "topic", "status"]) if (saved[k]) sel[k].value = saved[k];
+  search.value = saved.text || "";
 }
 
 function fillDependent() {
-  const f = filters[$("#f-syllabus").value];
+  const f = filters[sel.syllabus.value];
   const opts = (first, entries) => `<option value="">${first}</option>` +
     entries.map(([v, t]) => `<option value="${esc(v)}">${esc(t)}</option>`).join("");
-  $("#f-component").innerHTML = opts("全部卷别", Object.entries(f.components).sort().map(([k, n]) => [k, `卷 ${k} ${n || ""}`]));
-  $("#f-year").innerHTML = opts("全部年份", f.years.slice().reverse().map((y) => [y, y]));
-  $("#f-topic").innerHTML = opts("全部主题", Object.entries(f.topics)
+  sel.component.innerHTML = opts("全部卷别", Object.entries(f.components).sort().map(([k, n]) => [k, `${k} ${n || ""}`]));
+  sel.year.innerHTML = opts("全部年份", f.years.slice().reverse().map((y) => [y, y]));
+  sel.topic.innerHTML = opts("全部主题", Object.entries(f.topics)
     .sort((a, b) => a[0].localeCompare(b[0], undefined, { numeric: true })).map(([k, n]) => [k, `${k} ${n}`]));
 }
 
+const scoreClass = (a) => (a.score >= a.max ? "full" : a.score > 0 ? "part" : "zero");
+
 async function loadList() {
   const q = new URLSearchParams();
-  for (const id of ["syllabus", "component", "year", "topic", "status", "text"]) {
-    const v = $(`#f-${id}`).value.trim();
-    if (v) q.set(id, v);
-    remember({ [id]: $(`#f-${id}`).value });
+  for (const [k, node] of Object.entries(sel)) {
+    if (node.value) q.set(k, node.value);
+    remember({ [k]: node.value });
   }
+  if (search.value.trim()) q.set("text", search.value.trim());
+  remember({ text: search.value });
   list = await api(`/api/questions?${q}`);
-  $("#count").textContent = `${list.length} 题`;
-  $("#list").innerHTML = list.map((r, i) => {
-    const a = r.attempt, s = a && a.score != null
-      ? `<span class="score ${a.score >= a.max ? "full" : a.score > 0 ? "part" : "zero"}">${a.score}/${a.max}</span>`
-      : a ? `<span class="score">做过</span>` : "";
-    return `<li data-i="${i}"><span class="qname">${esc(r.paper)} Q${r.q}</span>${s}
-      <span class="topic">${esc(r.session || "")} · ${r.marks ?? "?"} 分 · ${esc(r.topic_name || "")}</span></li>`;
+  qlist.innerHTML = list.map((r, i) => {
+    const a = r.attempt;
+    const got = a && a.score != null ? `<span class="got ${scoreClass(a)}">${a.score}/${a.max}</span>`
+      : a ? `<span class="got">·</span>` : "";
+    return `<li data-i="${i}"><span class="name">${esc(r.paper)} · Q${r.q}</span>${got}
+      <span class="sub">${esc(r.session || "")} · [${r.marks ?? "?"}] · ${esc(r.topic_name || "")}</span></li>`;
   }).join("");
   markCurrent();
 }
 
 function markCurrent() {
-  for (const li of document.querySelectorAll("#list li")) {
-    li.classList.toggle("on", question && list[li.dataset.i]?.id === question.id);
-  }
+  for (const li of qlist.children) li.classList.toggle("on", !!question && list[li.dataset.i]?.id === question.id);
 }
 
 // ------------------------------------------------------------------ 题目与手写板
@@ -78,14 +171,13 @@ function markCurrent() {
 function boardSpec(q, n) {
   // 题图在上,带答题线的版本优先:每个小问下面保留原卷的答题区
   const img = q.board_image || q.image;
-  const create = {
-    name: `${q.paper} Q${q.q}` + (n > 1 ? ` 第 ${n} 次` : ""),
+  return {
+    name: `${q.paper} Q${q.q}` + (n > 1 ? ` #${n}` : ""),
     canvas: { mode: "column", width: q.board_width },       // 宽度固定,向下留出作答空间
     background: { pattern: "blank" },
     layers: img ? [{ src: img.src, x: 0, y: 0, width: q.board_width }] : [],
     data: { qid: q.id, attempt: n },
   };
-  return create;
 }
 
 async function openBoard(a, ro = false) {
@@ -93,52 +185,112 @@ async function openBoard(a, ro = false) {
   readonly = ro;
   const opts = { create: boardSpec(question, a.n), readonly: ro };
   if (!pad) {
-    pad = createInkPad($("#pad"), { board: a.board, ...opts, storage: "qb:" });
-    pad.on("status", (s) => ($("#sync").textContent = { online: "已同步", syncing: "同步中", offline: "未连接", local: "仅本机" }[s] || s));
-    pad.on("history", ({ undo, redo }) => { $("#undo").disabled = !undo; $("#redo").disabled = !redo; });
-    pad.on("outdated", () => banner("服务端已升级,请刷新页面"));
-    pad.on("error", ({ reason }) => banner(`手写板:${reason}`));
-    $("#sync").textContent = { local: "仅本机" }[pad.status] || pad.status || "";
+    pad = createInkPad($("#pad"), { board: a.board, ...opts, storage: "qb:", tool: tools.toolState() });
+    pad.on("status", (s) => (status.className = s));
+    pad.on("history", ({ undo, redo }) => tools.setHistory(undo, redo));
+    pad.on("outdated", () => notice("服务端已升级,请刷新页面"));
+    pad.on("error", ({ reason }) => notice(reason));
+    status.className = pad.status || "";
   } else {
     await pad.open(a.board, opts);
   }
-  $("#toolbar").classList.toggle("readonly", ro);
+  tools.setReadonly(ro);
+  lockMark.hidden = !ro;
 }
 
 async function show(qid) {
   question = await api(`/api/question/${encodeURIComponent(qid)}`);
   remember({ qid });
-  $("#title").textContent = `${question.paper} Q${question.q} · ${question.marks ?? "?"} 分 · ${question.topic_name || ""}`;
+  qname.textContent = `${question.paper} · Q${question.q}`;
+  qname.title = `${question.session || ""} · [${question.marks ?? "?"}] · ${question.topic_name || ""}`;
   markCurrent();
-  fillAttempts();
   await openBoard(question.current);
   renderMarking();
   renderExplain();
+  buttons.explain.disabled = !question.explanation;
+  buttons.copy.disabled = !question.text;
+  if (!question.explanation && !sheets.explain.hidden) toggleSheet(sheets.explain, false);
 }
 
-function fillAttempts() {
-  const as = question.attempts;
-  const cur = question.current;
-  const rows = as.length ? as : [cur];
-  $("#attempts").innerHTML = rows.map((a) =>
-    `<option value="${a.n}">第 ${a.n} 次${a.score != null ? ` · ${a.score}/${a.max}` : ""}</option>`).join("");
-  $("#attempts").value = cur.n;
+function step(d) {
+  const i = list.findIndex((r) => r.id === question?.id);
+  const next = list[i + d];
+  if (next) show(next.id);
+}
+
+// 作答记录:每次一块白板,以前的只读
+function showAttempts(anchor) {
+  if (!question) return;
+  const rows = question.attempts.length ? question.attempts : [question.current];
+  const box = el("div", { class: "attempts" });
+  for (const a of rows.slice().reverse()) {
+    const got = a.score != null ? el("span", { class: `got ${scoreClass(a)}`, text: `${a.score}/${a.max}` }) : null;
+    box.append(el("button", {
+      class: a.n === attempt?.n ? "on" : "",
+      onclick: async () => {
+        tools.closePopover();
+        await openBoard(a, a.n !== question.current.n);
+        renderMarking();
+      },
+    }, [el("span", { text: `#${a.n}` }), got]));
+  }
+  tools.showPopover(anchor, [box]);
+}
+
+async function restart() {
+  if (!question) return;
+  const a = await api("/api/attempt", { qid: question.id, new: true });
+  question.attempts = (await api(`/api/question/${encodeURIComponent(question.id)}`)).attempts;
+  question.current = a;
+  await openBoard(a);
+  renderMarking();
+  toast("refresh", `#${a.n}`);
+}
+
+async function copyQuestion() {
+  if (!question?.text) return;
+  if (await copyText(question.text)) toast("copy");
+  else notice("复制失败");
 }
 
 // ------------------------------------------------------------------ 判分
 
+const total = el("span", { class: "total" });
+const saveButton = el("button", { class: "btn primary", title: "保存判分", html: icon("check"),
+                                  onclick: () => saveMarks() });
+const markBody = el("div");
+sheets.mark.append(
+  el("div", { class: "sheet-head" }, [total, el("span", { class: "grow" }), saveButton, closeButton(sheets.mark)]),
+  markBody,
+);
+
+function schemeBlock(text) {
+  const pre = el("div", { class: "scheme", text, hidden: "" });
+  const toggle = iconButton("doc", "评分细则原文", () => {
+    pre.hidden = !pre.hidden;
+    toggle.classList.toggle("active", !pre.hidden);
+  }, "scheme-toggle");
+  return [toggle, pre];
+}
+
 function renderMarking() {
   const q = question, prior = attempt.marks || {};
-  const html = q.parts.map((p, pi) => {
+  markBody.innerHTML = "";
+  q.parts.forEach((p, pi) => {
     const got = prior[p.label] || {};
-    const head = `<h3><span>${p.label ? `(${esc(p.label)})` : "整题"}</span><span class="muted">${p.marks ?? "?"} 分</span></h3>`;
-    let body = "";
+    const [toggle, pre] = p.ms ? schemeBlock(p.ms) : [null, null];
+    const head = el("div", { class: "part-head" }, [
+      el("span", { text: p.label ? `(${p.label})` : `Q${q.q}` }), toggle,
+      el("span", { class: "tariff", text: `[${p.marks ?? "?"}]` }),
+    ]);
+    const body = el("div");
     if (p.kind === "choice") {
       const letters = p.options ? Object.keys(p.options) : ["A", "B", "C", "D", "E"];
-      body = `<div class="options">${letters.map((l) =>
-        `<button data-choice="${l}" data-p="${pi}">${l}${p.options ? ` ${esc(p.options[l])}` : ""}</button>`).join("")}</div>`;
+      body.className = "options";
+      body.innerHTML = letters.map((l) =>
+        `<button data-choice="${l}" data-p="${pi}">${l}${p.options ? ` ${esc(p.options[l])}` : ""}</button>`).join("");
     } else if (p.kind === "codes" || p.kind === "points") {
-      body = p.items.map((it, ii) => {
+      body.innerHTML = p.items.map((it, ii) => {
         const ticked = got.ticks?.[ii];
         const control = it.partial?.length
           ? `<select data-p="${pi}" data-i="${ii}">${[it.value, ...it.partial].map((v) =>
@@ -148,21 +300,26 @@ function renderMarking() {
           <span class="ans">${esc(it.answer)}</span>${it.guidance ? `<span class="guide">${esc(it.guidance)}</span>` : ""}</label>`;
       }).join("");
     } else {
-      body = `<label>得分 <input type="number" min="0" max="${p.marks ?? 99}" step="1" data-p="${pi}" data-score value="${got.score ?? ""}"></label>`;
+      body.className = "manual";
+      body.innerHTML = `<input type="number" min="0" max="${p.marks ?? 99}" step="1" inputmode="numeric"
+        data-p="${pi}" data-score value="${got.score ?? ""}"><span>/ ${p.marks ?? "?"}</span>`;
     }
-    const scheme = p.ms ? `<details><summary>评分细则原文</summary><div class="scheme">${esc(p.ms)}</div></details>` : "";
-    return `<div class="part">${head}${body}${scheme}</div>`;
-  }).join("");
-  const whole = q.scheme ? `<details><summary>整题评分细则</summary><div class="scheme">${esc(q.scheme)}</div></details>` : "";
-  $("#marking").innerHTML = html + whole +
-    `<div class="total"><span id="total"></span><button id="save">保存判分</button></div>`;
-  tex($("#marking"));
-  if (prior && Object.keys(prior).length) restoreChoice(prior);
+    markBody.append(el("div", { class: "part" }, [head, pre, body]));
+  });
+  if (q.scheme && !q.parts.some((p) => p.ms)) {
+    const [toggle, pre] = schemeBlock(q.scheme);
+    markBody.append(el("div", { class: "part" }, [el("div", { class: "part-head" }, [toggle]), pre]));
+  }
+  tex(markBody);
+  restoreChoice(prior);
+  q.parts.forEach((_, pi) => applyDependencies(pi));
   updateTotal();
+  saveButton.disabled = readonly;
 }
 
 function restoreChoice(prior) {
   question.parts.forEach((p, pi) => {
+    p._choice = null;
     const c = prior[p.label]?.choice;
     if (p.kind === "choice" && c) pickChoice(pi, c, false);
   });
@@ -170,7 +327,7 @@ function restoreChoice(prior) {
 
 function pickChoice(pi, letter, update = true) {
   const p = question.parts[pi];
-  for (const b of document.querySelectorAll(`[data-choice][data-p="${pi}"]`)) {
+  for (const b of markBody.querySelectorAll(`[data-choice][data-p="${pi}"]`)) {
     b.classList.remove("right", "wrong");
     b.setAttribute("aria-pressed", String(b.dataset.choice === letter));
     if (b.dataset.choice === p.answer) b.classList.add("right");
@@ -186,8 +343,8 @@ function applyDependencies(pi) {
   if (p.kind !== "codes") return;
   p.items.forEach((it, ii) => {
     if (it.depends == null) return;
-    const dep = document.querySelector(`input[data-p="${pi}"][data-i="${it.depends}"]`);
-    const me = document.querySelector(`[data-p="${pi}"][data-i="${ii}"]:is(input,select)`);
+    const dep = markBody.querySelector(`input[data-p="${pi}"][data-i="${it.depends}"]`);
+    const me = markBody.querySelector(`[data-p="${pi}"][data-i="${ii}"]:is(input,select)`);
     const ok = !dep || dep.checked;
     me.closest(".item").classList.toggle("locked", !ok);
     if (!ok) { if (me.type === "checkbox") me.checked = false; else me.value = ""; }
@@ -207,15 +364,15 @@ function collect() {
     } else if (p.kind === "codes" || p.kind === "points") {
       applyDependencies(pi);
       const ticks = p.items.map((it, ii) => {
-        const el = document.querySelector(`[data-p="${pi}"][data-i="${ii}"]:is(input,select)`);
-        if (el.type === "checkbox") return el.checked ? it.value : null;
-        return el.value === "" ? null : Number(el.value);
+        const node = markBody.querySelector(`[data-p="${pi}"][data-i="${ii}"]:is(input,select)`);
+        if (node.type === "checkbox") return node.checked ? it.value : null;
+        return node.value === "" ? null : Number(node.value);
       });
       const sum = Math.min(ticks.reduce((s, v) => s + (v || 0), 0), partMax || Infinity);
       marks[p.label] = { ticks, score: sum };
       score += sum;
     } else {
-      const v = document.querySelector(`[data-p="${pi}"][data-score]`).value;
+      const v = markBody.querySelector(`[data-p="${pi}"][data-score]`).value;
       const s = v === "" ? 0 : Math.min(Number(v), partMax || Infinity);
       marks[p.label] = { score: s };
       score += s;
@@ -226,24 +383,33 @@ function collect() {
 
 function updateTotal() {
   const { score, max } = collect();
-  $("#total").textContent = `合计 ${score} / ${max}`;
+  total.textContent = `${score} / ${max}`;
 }
 
 async function saveMarks() {
-  if (readonly) { banner("这是以前的作答,只能查看"); return; }
+  if (readonly) return;
   const { marks, score, max } = collect();
   const a = await api("/api/attempt", { id: attempt.id, qid: question.id, marks, score, max });
   attempt = a;
   const i = question.attempts.findIndex((x) => x.n === a.n);
   if (i >= 0) question.attempts[i] = a; else question.attempts.push(a);
   question.current = a;
-  fillAttempts();
-  banner(`已保存:${score}/${max}`);
-  renderExplain(true);
+  toast("check", `${score}/${max}`);
   loadList();
 }
 
+markBody.addEventListener("change", (e) => { if (e.target.matches("[data-p]")) updateTotal(); });
+markBody.addEventListener("input", (e) => { if (e.target.matches("[data-score]")) updateTotal(); });
+markBody.addEventListener("click", (e) => {
+  const c = e.target.closest("[data-choice]");
+  if (c && !readonly) pickChoice(Number(c.dataset.p), c.dataset.choice);
+});
+
 // ------------------------------------------------------------------ 详解
+
+const explainBody = el("div", { class: "explain" });
+sheets.explain.append(el("div", { class: "sheet-head" }, [el("span", { class: "grow" }), closeButton(sheets.explain)]),
+                      explainBody);
 
 // 详解里的 answer 是 Markdown:代码块、表格、加粗、行内代码、列表
 function md(src) {
@@ -271,29 +437,23 @@ function md(src) {
 }
 const inline = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`([^`]+)`/g, "<code>$1</code>");
 
-function renderExplain(open = false) {
+function renderExplain() {
   const ex = question.explanation;
-  if (!ex) { $("#explain").innerHTML = ""; return; }
-  $("#explain").innerHTML = `<details ${open ? "open" : ""}><summary>详解</summary>` + ex.parts.map((p) => `
-    <h4>${p.label ? `(${esc(p.label)})` : "整题"}</h4>
-    <p>${inline(p.approach)}</p>
-    <ul>${(p.points || []).map((x) => `<li><b>[${esc(x.mark)}]</b> ${inline(x.point)} <span class="muted">${inline(x.why)}</span></li>`).join("")}</ul>
-    ${(p.pitfalls || []).length ? `<p class="muted">常见失分</p><ul>${p.pitfalls.map((x) => `<li>${inline(x)}</li>`).join("")}</ul>` : ""}
-    <div class="answer">${md(p.answer)}</div>
-    ${(p.terms || []).map((t) => `<span class="term" title="${esc(t.wording)}">${esc(t.term)}</span>`).join("")}
-  `).join("") + "</details>";
-  tex($("#explain"));
+  explainBody.innerHTML = !ex ? "" : ex.parts.map((p) => `
+    <div class="part">
+      <div class="part-head"><span>${p.label ? `(${esc(p.label)})` : `Q${question.q}`}</span></div>
+      <p>${inline(p.approach)}</p>
+      <ul>${(p.points || []).map((x) => `<li><span class="mk">[${esc(x.mark)}]</span> ${inline(x.point)}
+        <span class="why">${inline(x.why)}</span></li>`).join("")}</ul>
+      ${(p.pitfalls || []).map((x) => `<div class="pit">${icon("alert")}<span>${inline(x)}</span></div>`).join("")}
+      <div class="answer">${md(p.answer)}</div>
+      ${(p.terms || []).length ? `<div class="terms">${p.terms.map((t) =>
+        `<span title="${esc(t.wording)}">${esc(t.term)}</span>`).join("")}</div>` : ""}
+    </div>`).join("");
+  tex(explainBody);
 }
 
 // ------------------------------------------------------------------ 其他
-
-function banner(text) {
-  const b = $("#banner");
-  b.textContent = text;
-  b.hidden = false;
-  clearTimeout(banner.t);
-  banner.t = setTimeout(() => (b.hidden = true), 2500);
-}
 
 // http 的局域网地址不是安全上下文,Safari 没有 navigator.clipboard;退回 execCommand
 async function copyText(text) {
@@ -307,79 +467,22 @@ async function copyText(text) {
   return ok;
 }
 
-function step(d) {
-  const i = list.findIndex((r) => r.id === question?.id);
-  const next = list[i + d];
-  if (next) show(next.id);
-}
-
 function bind() {
-  for (const id of ["syllabus", "component", "year", "topic", "status"]) {
-    $(`#f-${id}`).addEventListener("change", () => { if (id === "syllabus") fillDependent(); loadList(); });
+  for (const [k, node] of Object.entries(sel)) {
+    node.addEventListener("change", () => { if (k === "syllabus") fillDependent(); loadList(); });
   }
   let t;
-  $("#f-text").addEventListener("input", () => { clearTimeout(t); t = setTimeout(loadList, 300); });
-  const narrow = matchMedia("(max-width: 900px)");
-  if (narrow.matches) $("#side").classList.add("hidden");      // 窄屏:列表默认收起
-  $("#list").addEventListener("click", (e) => {
+  search.addEventListener("input", () => { clearTimeout(t); t = setTimeout(loadList, 300); });
+  qlist.addEventListener("click", (e) => {
     const li = e.target.closest("li");
     if (!li) return;
     show(list[li.dataset.i].id);
-    if (narrow.matches) $("#side").classList.add("hidden");
+    if (narrow.matches) toggleSheet(sheets.list, false);
   });
-  $("#toggle-side").addEventListener("click", () => $("#side").classList.toggle("hidden"));
-  $("#prev").addEventListener("click", () => step(-1));
-  $("#next").addEventListener("click", () => step(1));
-
-  for (const b of document.querySelectorAll("[data-tool]")) {
-    b.addEventListener("click", () => {
-      pad?.setTool({ ...pad.tool, tool: b.dataset.tool });
-      for (const o of document.querySelectorAll("[data-tool]")) o.setAttribute("aria-pressed", String(o === b));
-    });
-  }
-  for (const b of document.querySelectorAll("[data-color]")) {
-    b.addEventListener("click", () => {
-      pad?.setTool({ ...pad.tool, color: b.dataset.color });
-      for (const o of document.querySelectorAll("[data-color]")) o.setAttribute("aria-pressed", String(o === b));
-    });
-  }
-  $("#undo").addEventListener("click", () => pad?.undo());
-  $("#redo").addEventListener("click", () => pad?.redo());
-  $("#fit").addEventListener("click", () => pad?.fit());
-  $("#copy").addEventListener("click", async () => {
-    if (!question) return;
-    banner(question.text && (await copyText(question.text)) ? "已复制题干文本" : "这道题没有可用的题干文本");
-  });
-  $("#restart").addEventListener("click", async () => {
-    if (!question) return;
-    const a = await api("/api/attempt", { qid: question.id, new: true });
-    question.attempts = (await api(`/api/question/${encodeURIComponent(question.id)}`)).attempts;
-    question.current = a;
-    fillAttempts();
-    await openBoard(a);
-    renderMarking();
-  });
-  $("#attempts").addEventListener("change", async () => {
-    const n = Number($("#attempts").value);
-    const a = question.attempts.find((x) => x.n === n) || question.current;
-    await openBoard(a, n !== question.current.n);      // 以前的作答只读
-    renderMarking();
-  });
-  $("#toggle-mark").addEventListener("click", () => {
-    const p = $("#panel");
-    p.hidden = !p.hidden;
-    $("#toggle-mark").setAttribute("aria-pressed", String(!p.hidden));
-  });
-  $("#marking").addEventListener("change", (e) => {
-    if (e.target.matches("[data-p]")) updateTotal();
-  });
-  $("#marking").addEventListener("input", (e) => {
-    if (e.target.matches("[data-score]")) updateTotal();
-  });
-  $("#marking").addEventListener("click", (e) => {
-    const c = e.target.closest("[data-choice]");
-    if (c) pickChoice(Number(c.dataset.p), c.dataset.choice);
-    if (e.target.id === "save") saveMarks();
+  addEventListener("keydown", (e) => {
+    if (e.target.closest("input, select, textarea")) return;
+    if (e.key === "ArrowLeft") step(-1);
+    if (e.key === "ArrowRight") step(1);
   });
 }
 
@@ -389,4 +492,5 @@ function bind() {
   await loadList();
   const first = list.find((r) => r.id === saved.qid) || list[0];
   if (first) await show(first.id);
+  else toggleSheet(sheets.list, true);
 })();
