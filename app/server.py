@@ -101,30 +101,36 @@ async def questions(request):
     return web.json_response(out)
 
 
+def detail(r, attempts, current, image_prefix="/q/"):
+    """The page's view of one question row: text, image, parts and what to
+    tick, scheme, explanation and attempts (also used by app/preview.py)."""
+    img = paths.resolve(r["image"])
+    size = png_size(img) if img and img.endswith(".png") else None
+    rel = paths.relative_to_data(img) if img else None
+    return {
+        "id": r["id"], "syllabus": r["syllabus"], "paper": r["paper"], "session": r["session"],
+        "q": r["q"], "marks": r["marks"], "topic": r["topic"], "topic_name": r["topic_name"],
+        "text": r["question_latex"] or r["question_text"], "q_quality": r["q_quality"],
+        "image": {"src": image_prefix + rel, "width": size[0], "height": size[1]}
+        if size and rel else None,
+        "board_width": BOARD_WIDTH,
+        "parts": marking.parts(r),
+        "scheme": r["ms_latex"] or r["ms_text"],
+        "explanation": json.loads(r["explanation"]) if "explanation" in r.keys()
+        and r["explanation"] else None,
+        "attempts": attempts,
+        "current": current,
+    }
+
+
 async def question(request):
     qid = request.match_info["qid"]
     con = db.connect()
     r = con.execute("SELECT * FROM questions WHERE id = ?", (qid,)).fetchone()
     if not r:
         raise web.HTTPNotFound()
-    img = paths.resolve(r["image"])
-    size = png_size(img) if img and img.endswith(".png") else None
-    rel = paths.relative_to_data(img) if img else None
     st = store.connect()
-    d = {
-        "id": qid, "syllabus": r["syllabus"], "paper": r["paper"], "session": r["session"],
-        "q": r["q"], "marks": r["marks"], "topic": r["topic"], "topic_name": r["topic_name"],
-        "text": r["question_latex"] or r["question_text"], "q_quality": r["q_quality"],
-        "image": {"src": f"/q/{rel}", "width": size[0], "height": size[1]} if size and rel else None,
-        "board_width": BOARD_WIDTH,
-        "parts": marking.parts(r),
-        "scheme": r["ms_latex"] or r["ms_text"],
-        "explanation": json.loads(r["explanation"]) if "explanation" in r.keys()
-        and r["explanation"] else None,
-        "attempts": store.for_question(st, qid),
-        "current": store.current(st, qid),
-    }
-    return web.json_response(d)
+    return web.json_response(detail(r, store.for_question(st, qid), store.current(st, qid)))
 
 
 async def attempt(request):

@@ -1,15 +1,17 @@
 // 刷题页:选题、手写作答、按评分细则判分、看详解。
 // 手写板按 inksync 2.0 的接口使用(docs/external/inksync-2.0-interface.zh-CN.md);
 // 服务端在 2.0 未安装时提供同接口的替身,本文件不需要区分。
-import { createInkPad } from "/inksync/inkpad.js";
+// 静态预览(app/preview.py)在载入本文件之前设置 window.QB_API 和 window.QB_INKPAD,
+// 用打包的样题代替服务端;平时两者都不存在。
+const { createInkPad } = await import(window.QB_INKPAD || "/inksync/inkpad.js");
 
 const $ = (s) => document.querySelector(s);
-const api = async (url, body) => {
+const api = window.QB_API || (async (url, body) => {
   const r = await fetch(url, body ? { method: "POST", headers: { "Content-Type": "application/json" },
                                       body: JSON.stringify(body) } : undefined);
   if (!r.ok) throw new Error(`${url}: ${r.status}`);
   return r.json();
-};
+});
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const tex = (el) => window.renderMathInElement?.(el, {
   delimiters: [{ left: "$$", right: "$$", display: true }, { left: "$", right: "$", display: false },
@@ -315,9 +317,13 @@ function bind() {
   }
   let t;
   $("#f-text").addEventListener("input", () => { clearTimeout(t); t = setTimeout(loadList, 300); });
+  const narrow = matchMedia("(max-width: 900px)");
+  if (narrow.matches) $("#side").classList.add("hidden");      // 窄屏:列表默认收起
   $("#list").addEventListener("click", (e) => {
     const li = e.target.closest("li");
-    if (li) show(list[li.dataset.i].id);
+    if (!li) return;
+    show(list[li.dataset.i].id);
+    if (narrow.matches) $("#side").classList.add("hidden");
   });
   $("#toggle-side").addEventListener("click", () => $("#side").classList.toggle("hidden"));
   $("#prev").addEventListener("click", () => step(-1));
