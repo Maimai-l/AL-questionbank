@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(HERE)))
 import pymupdf as fitz  # noqa: E402
 
-from lib import paths  # noqa: E402
+from lib import paths, png16  # noqa: E402
 from pipeline.split import furniture  # noqa: E402
 
 OUT = paths.IMG_ADM
@@ -357,7 +357,7 @@ def main(only=None):
         lay = layout(doc, q)
         if all(t is None and b is None for _i, t, b in lay):
             whole += 1
-        render(q, doc, mats[p], lay).save(os.path.join(OUT, qid(q) + ".png"))
+        png16.save_pixmap(render(q, doc, mats[p], lay), os.path.join(OUT, qid(q) + ".png"))
         n += 1
     print(f"{n} 张 -> {OUT}/   其中 {whole} 张未能定位题号、按整页给出")
     sizes = sorted(os.path.getsize(os.path.join(OUT, f))

@@ -23,6 +23,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 import pymupdf as fitz  # noqa: E402
 
+from lib import png16  # noqa: E402
 from pipeline.split import furniture, split_qp  # noqa: E402
 
 DPI = 150
@@ -156,7 +157,7 @@ def render(q, pdfdir, outdir, rows=False):
         out.copy(g, g.irect)
         y += t.height
     name = qid(q) + ".png"
-    out.save(os.path.join(outdir, name))
+    png16.save_pixmap(out, os.path.join(outdir, name))      # 16 级灰度,见 lib/png16.py
     return name
 
 

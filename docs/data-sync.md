@@ -18,7 +18,7 @@
 | 路径 | 内容 | 由谁生成 |
 |---|---|---|
 | `caie.db` | 主库:questions、chapters、attempts、q_fts | `pipeline/db/combine.py`、`pipeline/admissions_rebuild/merge_admissions.py` 等 |
-| `img9709/` `img9231/` `img9618/` | CAIE 逐题裁图 | `pipeline/split/crop.py` |
+| `img9709/` `img9231/` `img9618/` | CAIE 逐题裁图,16 级灰度 PNG(`lib/png16.py`,下同) | `pipeline/split/crop.py` |
 | `img9709_ans/` `img9231_ans/` `img9618_ans/` | 带答题区的裁图,刷题页白板以此为底图;只收题图漏掉了点线答题行的题,文件名与题图相同 | `pipeline/split/recrop.py --rows` |
 | `img_adm/` | 入学考逐题原页图 | `pipeline/admissions_rebuild/render_adm_imgs.py` |
 | `img_tara/` | 入学考题干中引用的插图 | `pipeline/admissions_rebuild/merge_admissions.py` |

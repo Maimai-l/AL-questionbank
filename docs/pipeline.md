@@ -17,7 +17,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 | Python 3.8+ | 查询与页面只用标准库 |
 | `pymupdf` | 解析 PDF 的脚本需要。`pip install pymupdf` |
 | `pdftotext` | `split_ms.py`、`rebuild_ms.py` 需要(`apt-get install poppler-utils`) |
-| `pillow` | `fix_garbled.py` 切横条需要。`pip install pillow` |
+| `pillow` | 生成题图(`crop.py`、`render_adm_imgs.py` 经 `lib/png16.py` 存成 16 级灰度)与 `fix_garbled.py` 切横条需要。`pip install pillow` |
 | Python 3.11+ | `answer_lines.py` 的正则用了占有量词 |
 | `cwebp` | 仅 `export_9709_p1.py` 需要(`apt-get install webp`) |
 | `requests` | OCR 与入学考下载需要 |
@@ -172,6 +172,7 @@ partial 的题,不输出不可用的文本,而是提示以原题图为准。
 | `split_qp.py` | 按题号切分,每页的上下边界取自 `furniture.band`,不再使用固定的 50/790。点线答题行不进题干文本,也不进题图;每段范围另记 `y1_rows`(含答题行的下沿),只有答题行的续页(下一题开始之前)记为 `rows_only`,供带答题区的裁图使用 |
 | `crop.py` | 裁切区域 = 题目范围 ∩ 固定元素之间的区域;跨边界的内容整体纳入;区域内残留的固定元素涂白。`rows=True` 生成带答题区的裁图(`render_rows`,与题图相同时不保存) |
 | `audit_crops.py` | 不看图的审计,见下 |
+| `to_png16.py` | 把 `data/` 里的题图改存为 16 级灰度(4 位调色板 PNG),已是该格式的跳过 |
 | `recrop.py` | 按现行规则重新生成库中已有 CAIE 题目的题图,只改图不改库;`--rows` 生成 `img*_ans/` 下带答题区的裁图;`--out` 先输出到别处比对 |
 
 `audit_crops.py raw/pdf` 对每道题检查以下各项:
@@ -191,6 +192,10 @@ python3 pipeline/split/audit_crops.py raw/pdf
 python3 pipeline/split/audit_crops.py raw/pdf --crop rows
 python3 pipeline/split/recrop.py && python3 pipeline/split/recrop.py --rows
 ```
+
+题图一律存成 16 级灰度(`lib/png16.py`):灰度取 0、17、…、255,文字边缘、图中阴影
+(CAIE 填 204,恰为其中一级)与水印看不出变化,体积约为 8 位灰度 PNG 的 63%。黑白两级
+会丢掉阴影区域,不用。`img_tara/` 是彩色 JPEG 插图,不在此列。
 
 刷题页的白板以带答题区的裁图为底图(没有时用题图),每个小问下方保留原卷的答题区,
 底图以下的画布仍可继续书写。题图本身保持紧凑,供阅读、导出与 OCR 使用。
