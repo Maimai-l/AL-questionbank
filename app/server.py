@@ -168,7 +168,7 @@ def setup_ink(app, port):
         from inksync import DefaultPolicy, FileStorage, Hub, mount, serve_sdk
         os.makedirs(paths.INK, exist_ok=True)
         # one user: every device on the network may open and write the boards
-        hub = Hub(FileStorage(paths.INK, index_fields=("qid", "attempt")), policy=DefaultPolicy())
+        hub = Hub(FileStorage(paths.INK), policy=DefaultPolicy())
         mount(app, hub, path="/ws")
         serve_sdk(app, prefix="/inksync/")
         mode = f"inksync {inksync.__version__}(同步,存储 {paths.INK})"
