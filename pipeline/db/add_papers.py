@@ -10,7 +10,8 @@ flags), so papers downloaded later (fetch_fraft.py) are added in place.
 
 add     every question paper in raw/pdf whose paper id (9709_s26_21) has no
         row: split (split_qp.split_paper), crop to data/img<subject>/
-        (crop.render), attach the mark scheme parsed from raw/ms
+        (crop.render) and, where answer rows are left out, data/img<subject>_ans/
+        (crop.render_rows), attach the mark scheme parsed from raw/ms
         (split_ms.parse), tag with the syllabus model restricted to the
         component's topics (topic_source 'syllabus'; 9709 P2 and P6 have no
         keyword table, and every new row goes to the tagger agents after),
@@ -95,6 +96,14 @@ def one_paper(f, write):
                 q["image"] = crop.render(q, pdfdir, imgdir)
             except Exception:
                 q["image"] = None
+            if q["image"]:      # the writing board's copy with the answer rows
+                ans = os.path.dirname(os.path.join(
+                    paths.DATA, paths.answer_space_rel(f"img{f[:4]}/{q['image']}")))
+                os.makedirs(ans, exist_ok=True)
+                try:
+                    crop.render_rows(q, pdfdir, ans, os.path.join(imgdir, q["image"]))
+                except Exception:
+                    pass
     return f, qs, ms
 
 

@@ -169,10 +169,10 @@ partial 的题,不输出不可用的文本,而是提示以原题图为准。
 | 文件 | 职责 |
 |---|---|
 | `furniture.py` | 找出每页的固定元素:页码、页脚、水印、条形码、页边竖排文字与灰条、四角标记、BLANK PAGE、"is printed on the next page" |
-| `split_qp.py` | 按题号切分,每页的上下边界取自 `furniture.band`,不再使用固定的 50/790。点线答题行不进题干文本,但计入裁切范围:每个小问下的答题行都留在图里,最后一个小问的也一样;只有答题行的续页(下一题开始之前)也算本题 |
-| `crop.py` | 裁切区域 = 题目范围 ∩ 固定元素之间的区域;跨边界的内容整体纳入;区域内残留的固定元素涂白 |
+| `split_qp.py` | 按题号切分,每页的上下边界取自 `furniture.band`,不再使用固定的 50/790。点线答题行不进题干文本,也不进题图;每段范围另记 `y1_rows`(含答题行的下沿),只有答题行的续页(下一题开始之前)记为 `rows_only`,供带答题区的裁图使用 |
+| `crop.py` | 裁切区域 = 题目范围 ∩ 固定元素之间的区域;跨边界的内容整体纳入;区域内残留的固定元素涂白。`rows=True` 生成带答题区的裁图(`render_rows`,与题图相同时不保存) |
 | `audit_crops.py` | 不看图的审计,见下 |
-| `recrop.py` | 按现行规则重新生成库中已有 CAIE 题目的题图,只改图不改库;`--out` 先输出到别处比对 |
+| `recrop.py` | 按现行规则重新生成库中已有 CAIE 题目的题图,只改图不改库;`--rows` 生成 `img*_ans/` 下带答题区的裁图;`--out` 先输出到别处比对 |
 
 `audit_crops.py raw/pdf` 对每道题检查以下各项:
 
@@ -181,15 +181,19 @@ partial 的题,不输出不可用的文本,而是提示以原题图为准。
 - uncovered:题目页上的真实内容是否不属于任何一题
 - slack:最后一段裁图底部是否有超过 30pt 的无内容空白
 - overlap:同一页上两题的裁切区域是否共有含内容的部分(一题的裁图里出现下一题的开头)
-- rows-out:题目页上的点线答题行是否没有进入任何裁切区域
+- rows-out(`--crop rows`):题目页上的点线答题行是否没有进入任何带答题区的裁切区域
 - `--crop old` 按原裁切规则计算,用于对比
 
 改动裁切规则后,先运行审计,全部通过后再重新生成题图:
 
 ```bash
 python3 pipeline/split/audit_crops.py raw/pdf
-python3 pipeline/split/recrop.py
+python3 pipeline/split/audit_crops.py raw/pdf --crop rows
+python3 pipeline/split/recrop.py && python3 pipeline/split/recrop.py --rows
 ```
+
+刷题页的白板以带答题区的裁图为底图(没有时用题图),每个小问下方保留原卷的答题区,
+底图以下的画布仍可继续书写。题图本身保持紧凑,供阅读、导出与 OCR 使用。
 
 ## 入学考题图(img_adm)
 

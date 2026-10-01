@@ -79,6 +79,28 @@ def resolve(rel):
     return None
 
 
+# Answer-space crops (pipeline/split/recrop.py --rows): the question crop with
+# the dot-leader answer rows below every part kept, for the writing board.
+# img9709/<id>.png -> img9709_ans/<id>.png; only questions whose question crop
+# leaves answer rows out have one.
+ANS_SUFFIX = "_ans"
+
+
+def answer_space_rel(rel):
+    """data-relative path of the answer-space crop for a question crop path."""
+    if not rel or "/" not in rel:
+        return None
+    d, f = rel.split("/", 1)
+    return f"{'img9709' if d == 'img' else d}{ANS_SUFFIX}/{f}"
+
+
+def answer_space(rel):
+    """Absolute path of the answer-space crop for a question crop, or None."""
+    a = answer_space_rel(rel)
+    p = os.path.join(DATA, a) if a else None
+    return p if p and os.path.exists(p) else None
+
+
 def under_data(path):
     """Absolute path for something recorded relative to data/ (chapter files)."""
     return path if os.path.isabs(path) else os.path.join(DATA, path)

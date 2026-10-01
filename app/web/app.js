@@ -76,11 +76,13 @@ function markCurrent() {
 // ------------------------------------------------------------------ 题目与手写板
 
 function boardSpec(q, n) {
+  // 题图在上,带答题线的版本优先:每个小问下面保留原卷的答题区
+  const img = q.board_image || q.image;
   const create = {
     name: `${q.paper} Q${q.q}` + (n > 1 ? ` 第 ${n} 次` : ""),
     canvas: { mode: "column", width: q.board_width },       // 宽度固定,向下留出作答空间
     background: { pattern: "blank" },
-    layers: q.image ? [{ src: q.image.src, x: 0, y: 0, width: q.board_width }] : [],
+    layers: img ? [{ src: img.src, x: 0, y: 0, width: q.board_width }] : [],
     data: { qid: q.id, attempt: n },
   };
   return create;

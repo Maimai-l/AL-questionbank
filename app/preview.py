@@ -102,11 +102,12 @@ def main():
             f["years"].append(r["year"])
         if r["topic"]:
             f["topics"][r["topic"]] = r["topic_name"]
-        if d["image"]:
-            src = paths.resolve(r["image"])
-            dst = os.path.join(out, d["image"]["src"])
-            os.makedirs(os.path.dirname(dst), exist_ok=True)
-            shutil.copy(src, dst)
+        for key, src in (("image", paths.resolve(r["image"])),
+                         ("board_image", paths.answer_space(r["image"]))):
+            if d[key]:
+                dst = os.path.join(out, d[key]["src"])
+                os.makedirs(os.path.dirname(dst), exist_ok=True)
+                shutil.copy(src, dst)
     json.dump({"filters": filters, "list": listing, "details": details},
               open(os.path.join(out, "data.json"), "w"), ensure_ascii=False)
     shutil.copy(os.path.join(WEB, "app.js"), out)

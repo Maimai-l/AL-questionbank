@@ -5,7 +5,7 @@ Relies on the very regular layout of CAIE papers:
   * question-number blocks sit at the left margin (x0 < ~60)
   * question body sits indented (x0 ~ 73)
   * answer space is rows of dot leaders; they are left out of the text and
-    kept in the crop
+    the question crop, and kept in the answer-space crop (span y1_rows)
   * running header/footer live outside the text band
 Emits one record per question with text, mark tariff, and page/bbox span
 so the question can also be cropped to an image.
@@ -179,9 +179,9 @@ def drawing_boxes(page):
 def answer_lines(page):
     """Boxes of the dot-leader rows the candidate writes on.
 
-    page_blocks drops them from the text; the crop keeps them, so the image
-    shows the answer space under every part, the last one included, and a
-    board can be written on where the paper is."""
+    page_blocks drops them from the text and the question crop leaves them
+    out; the answer-space crop (crop.py --rows) keeps them, so a board shows
+    the answer space under every part, the last one included."""
     top, bottom, furn = page_furniture(page)
     out = []
     for blk in page.get_text("dict")["blocks"]:
@@ -281,10 +281,12 @@ def split_paper(path):
             rows = [r for r in answer_lines(page) if floor <= r.y0 < hi]
             if not blocks:
                 # answer rows running on to a page of their own, before the
-                # next question starts: they belong to this question
+                # next question starts: they belong to this question, in the
+                # answer-space crop only
                 if spans and rows and i + 1 < len(starts):
-                    spans.append({"page": p, "y0": max(lo - 6, 0),
-                                  "y1": min(max(r.y1 for r in rows) + 8, hi)})
+                    y1 = min(max(r.y1 for r in rows) + 8, hi)
+                    spans.append({"page": p, "y0": max(lo - 6, 0), "y1": y1,
+                                  "y1_rows": y1, "rows_only": True})
                     continue
                 # the last question's span runs to the end of the booklet; once
                 # a page has no real content left, everything after it is
@@ -293,12 +295,15 @@ def split_paper(path):
                     break
                 continue
             parts += [(clean(b[4]), b[2]) for b in blocks if clean(b[4])]
-            # crop extent: last text block, diagram or answer row inside the span
+            # crop extent: last text block or diagram inside the span; the
+            # answer-space crop (y1_rows) also takes the answer rows below it
             bottom = max(b[3] for b in blocks)
-            for r in drawing_boxes(page) + rows:
+            for r in drawing_boxes(page):
                 if lo - 2 <= r.y0 < hi:
                     bottom = max(bottom, r.y1)
-            spans.append({"page": p, "y0": max(lo - 6, 0), "y1": min(bottom + 8, hi)})
+            below = max([bottom] + [r.y1 for r in rows if lo - 2 <= r.y0 < hi])
+            spans.append({"page": p, "y0": max(lo - 6, 0), "y1": min(bottom + 8, hi),
+                          "y1_rows": min(below + 8, hi)})
 
         text = " ".join(t for t, _ in parts)
         # A mark tariff is right-aligned at the end of the part, so it ends a

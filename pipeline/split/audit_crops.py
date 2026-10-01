@@ -4,7 +4,7 @@ a single image.
 
 Checks: furniture inside a clip, slack below the last line, question material
 that no clip covers or that a clip boundary cuts, answer rows (dot leaders)
-left out of every clip, and clips of two questions overlapping on one page.
+left out of every answer-space clip (--crop rows), and clips of two questions overlapping on one page.
 
     python3 pipeline/split/audit_crops.py raw/pdf [--crop old|new] [--list KIND]
 
@@ -16,6 +16,7 @@ to the cropper can be judged by the numbers before any image is rendered.
 
 --crop old   the clip rule of the original crop.py (full width, span as given)
 --crop new   the clip rule of the rewritten crop.py
+--crop rows  the answer-space crop (crop.py rows=True); also checks rows-out
 """
 import argparse, collections, os, sys
 
@@ -56,8 +57,12 @@ def still_white(page, clip, r):
     return True
 
 
+def rows_clips(q, doc):
+    return crop.clips(q, doc, rows=True)
+
+
 def audit(pdfdir, which, only=None):
-    clips_of = old_clips if which == "old" else new_clips
+    clips_of = {"old": old_clips, "new": new_clips, "rows": rows_clips}[which]
     hits = collections.defaultdict(list)       # kind -> [question id]
     n = 0
     for f in sorted(os.listdir(pdfdir)):
@@ -147,9 +152,9 @@ def audit(pdfdir, which, only=None):
                 else:
                     stem = f[:-4]
                     hits["uncovered"].append(f"{stem}  p{p} {[round(v) for v in r]} {label!r}")
-            # answer rows: the candidate's writing space belongs in the crop too,
-            # the rows after the last part included
-            for r in split_qp.answer_lines(page):
+            # answer rows: the answer-space crop takes the candidate's writing
+            # space too, the rows after the last part included
+            for r in (split_qp.answer_lines(page) if which == "rows" else []):
                 if p == pages[0] and r.y1 <= first.y0:
                     continue
                 if not any(fitz.Rect(r) in c + (-0.3, -0.3, 0.3, 0.3) for _, c in page_clips[p]):
@@ -162,7 +167,7 @@ def audit(pdfdir, which, only=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("pdfdir")
-    ap.add_argument("--crop", choices=["old", "new"], default="new")
+    ap.add_argument("--crop", choices=["old", "new", "rows"], default="new")
     ap.add_argument("--only", help="filename prefix, e.g. 9709_s25")
     ap.add_argument("--list", help="print the question ids for this kind")
     a = ap.parse_args()

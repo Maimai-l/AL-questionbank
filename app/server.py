@@ -7,7 +7,8 @@ Everything the page needs comes from this one server, as inksync requires
 
   /                      the page (app/web/)
   /vendor/               KaTeX (assets/vendor/)
-  /q/<imgNNNN>/<file>    question crops, from data/ (paths.resolve)
+  /q/<imgNNNN>/<file>    question crops, from data/ (paths.resolve), and the
+                         answer-space crops in imgNNNN_ans/ the board is laid over
   /api/filters           subjects, papers, topics and years for the filters
   /api/questions         the question list, with each question's last attempt
   /api/question/<id>     one question: text, image, parts and what to tick,
@@ -32,7 +33,8 @@ from lib import db, paths
 from app import marking, store
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
-IMG_DIRS = ("img9709", "img9231", "img9618", "img_adm", "img_tara")
+IMG_DIRS = ("img9709", "img9231", "img9618", "img_adm", "img_tara",
+            "img9709" + paths.ANS_SUFFIX, "img9231" + paths.ANS_SUFFIX, "img9618" + paths.ANS_SUFFIX)
 BOARD_WIDTH = 800          # board units the question image spans
 EXAMS = {"9709": "Mathematics", "9231": "Further Mathematics", "9618": "Computer Science",
          "TMUA": "TMUA", "TSA": "TSA", "BMAT": "BMAT"}
@@ -101,18 +103,27 @@ async def questions(request):
     return web.json_response(out)
 
 
+def image_info(path, image_prefix):
+    size = png_size(path) if path and path.endswith(".png") else None
+    rel = paths.relative_to_data(path) if path else None
+    return {"src": image_prefix + rel, "width": size[0], "height": size[1]} if size and rel else None
+
+
 def detail(r, attempts, current, image_prefix="/q/"):
     """The page's view of one question row: text, image, parts and what to
-    tick, scheme, explanation and attempts (also used by app/preview.py)."""
+    tick, scheme, explanation and attempts (also used by app/preview.py).
+
+    image is the question crop; board_image the crop with the answer rows
+    below every part, when the question crop leaves them out. A new board is
+    laid over board_image, so each part has its answer space where the paper
+    has it."""
     img = paths.resolve(r["image"])
-    size = png_size(img) if img and img.endswith(".png") else None
-    rel = paths.relative_to_data(img) if img else None
     return {
         "id": r["id"], "syllabus": r["syllabus"], "paper": r["paper"], "session": r["session"],
         "q": r["q"], "marks": r["marks"], "topic": r["topic"], "topic_name": r["topic_name"],
         "text": r["question_latex"] or r["question_text"], "q_quality": r["q_quality"],
-        "image": {"src": image_prefix + rel, "width": size[0], "height": size[1]}
-        if size and rel else None,
+        "image": image_info(img, image_prefix),
+        "board_image": image_info(paths.answer_space(r["image"]), image_prefix),
         "board_width": BOARD_WIDTH,
         "parts": marking.parts(r),
         "scheme": r["ms_latex"] or r["ms_text"],

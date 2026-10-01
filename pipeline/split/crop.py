@@ -12,6 +12,10 @@ that carries questions: below the page number and top barcode, above the
 footer and bottom barcode, and inside the "DO NOT WRITE IN THIS MARGIN"
 columns. Blank pages contribute nothing. These limits come from furniture.py,
 which is also what audit_crops.py checks the result against.
+
+With rows=True (recrop.py --rows) the clip also takes the dot-leader answer
+rows below each part, and pages holding only answer rows: the answer-space
+crop a writing board is laid over. The question crop leaves them out.
 """
 import json, os, sys
 
@@ -76,15 +80,19 @@ def material(page, items=None):
 
 
 
-def clips(q, doc):
-    """(page number, clip rect) for each part of the question that gets rendered."""
+def clips(q, doc, rows=False):
+    """(page number, clip rect) for each part of the question that gets rendered;
+    rows=True for the answer-space crop."""
     for sp in q["spans"]:
+        if sp.get("rows_only") and not rows:
+            continue
         page = doc[sp["page"]]
         items = furniture.furniture(page)
         if furniture.is_blank(page, items):
             continue
         lim = page_limits(page, items)
-        clip = fitz.Rect(lim.x0, max(sp["y0"], lim.y0), lim.x1, min(sp["y1"], lim.y1))
+        y1 = sp.get("y1_rows", sp["y1"]) if rows else sp["y1"]
+        clip = fitz.Rect(lim.x0, max(sp["y0"], lim.y0), lim.x1, min(y1, lim.y1))
         # split_qp stops spans at fixed y limits; a line or diagram that straddles
         # the edge belongs to the question, so widen the clip to take all of it,
         # never past the furniture band
@@ -126,11 +134,11 @@ def whiteout(pix, page, clip, items=None):
     return pix
 
 
-def render(q, pdfdir, outdir):
+def render(q, pdfdir, outdir, rows=False):
     path = os.path.join(pdfdir, q["source"])
     doc = fitz.open(path)
     tiles = []
-    for p, clip in clips(q, doc):
+    for p, clip in clips(q, doc, rows):
         pix = doc[p].get_pixmap(matrix=fitz.Matrix(ZOOM, ZOOM), clip=clip, alpha=False)
         tiles.append(whiteout(pix, doc[p], clip))
     doc.close()
@@ -149,6 +157,24 @@ def render(q, pdfdir, outdir):
         y += t.height
     name = qid(q) + ".png"
     out.save(os.path.join(outdir, name))
+    return name
+
+
+def same_image(a, b):
+    try:
+        pa, pb = fitz.Pixmap(a), fitz.Pixmap(b)
+    except Exception:
+        return False
+    return (pa.width, pa.height) == (pb.width, pb.height) and pa.samples == pb.samples
+
+
+def render_rows(q, pdfdir, outdir, question_crop=None):
+    """The answer-space crop. When it comes out the same as question_crop
+    (nothing left out below any part) it is not kept: returns None."""
+    name = render(q, pdfdir, outdir, rows=True)
+    if name and question_crop and same_image(question_crop, os.path.join(outdir, name)):
+        os.remove(os.path.join(outdir, name))
+        return None
     return name
 
 
