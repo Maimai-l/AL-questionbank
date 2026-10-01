@@ -114,3 +114,32 @@ def parts(row):
         out.append({"label": p["label"], "marks": marks, "kind": kind,
                     "items": items, "ms": p.get("ms")})
     return out
+
+
+def lost(parts_, marks):
+    """The marks an attempt did not get, item by item: [{part, code, kind,
+    lost, answer, guidance}]. `marks` is what the page saved for the attempt
+    ({part label: {ticks | score | choice}})."""
+    out = []
+    for p in parts_:
+        got = (marks or {}).get(p["label"]) or {}
+        if p["kind"] in ("codes", "points"):
+            ticks = got.get("ticks") or []
+            for i, it in enumerate(p["items"]):
+                t = ticks[i] if i < len(ticks) else None
+                short = it["value"] - (t or 0)
+                if short > 0:
+                    out.append({"part": p["label"], "code": it["code"],
+                                "kind": it.get("kind") or "P", "lost": short,
+                                "answer": it["answer"], "guidance": it["guidance"]})
+        elif p["kind"] == "choice":
+            if got.get("choice") != p["answer"]:
+                out.append({"part": "", "code": p["answer"], "kind": "choice", "lost": 1,
+                            "answer": (p.get("options") or {}).get(p["answer"], ""),
+                            "guidance": got.get("choice") or ""})
+        else:
+            short = (p["marks"] or 0) - (got.get("score") or 0)
+            if short > 0:
+                out.append({"part": p["label"], "code": "", "kind": "score", "lost": short,
+                            "answer": "", "guidance": ""})
+    return out

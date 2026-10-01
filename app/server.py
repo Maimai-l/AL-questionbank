@@ -14,7 +14,8 @@ Everything the page needs comes from this one server, as inksync requires
   /api/question/<id>     one question: text, image, parts and what to tick,
                          scheme, worked explanation, attempts
   /api/attempt           POST {qid, new: true} starts an attempt on a new board;
-                         POST {id, marks, score, max} records its marking
+                         POST {id, marks, score, max, seconds} records its marking
+  /api/review            lost marks item by item, and the marked attempts
   /ws, /inksync/         inksync: the boards' sync and the pad's script
 
 inksync 2.0 is not released yet. Until it is installed the server serves a
@@ -38,6 +39,17 @@ IMG_DIRS = ("img9709", "img9231", "img9618", "img_adm", "img_tara",
 BOARD_WIDTH = 800          # board units the question image spans
 EXAMS = {"9709": "Mathematics", "9231": "Further Mathematics", "9618": "Computer Science",
          "TMUA": "TMUA", "TSA": "TSA", "BMAT": "BMAT"}
+# Minutes allowed for each paper, from the syllabuses (CAIE 2020-on; admissions
+# tests as last set). The page divides them by the paper's marks to give each
+# question a time budget.
+MINUTES = {
+    "9709": {"1": 110, "2": 75, "3": 110, "4": 75, "5": 75, "6": 75},
+    "9231": {"1": 120, "2": 120, "3": 90, "4": 90},
+    "9618": {"1": 90, "2": 120, "3": 90, "4": 150},
+    "TMUA": {"1": 75, "2": 75},
+    "TSA": {"1": 90},
+    "BMAT": {"1": 60},
+}
 
 
 def png_size(path):
@@ -58,7 +70,8 @@ async def filters(request):
     out = {}
     for r in rows:
         s = out.setdefault(r["syllabus"], {"name": EXAMS.get(r["syllabus"], r["syllabus"]),
-                                           "components": {}, "years": set(), "topics": {}})
+                                           "components": {}, "years": set(), "topics": {},
+                                           "minutes": MINUTES.get(r["syllabus"], {})})
         s["components"][r["component"]] = r["component_name"]
         s["years"].add(r["year"])
         if r["topic"]:
@@ -81,7 +94,8 @@ async def questions(request):
     con = db.connect()
     try:
         rows = con.execute(
-            "SELECT id, paper, session, year, q, marks, topic, topic_name, q_quality "
+            "SELECT id, paper, series, component, variant, session, year, q, marks, topic, "
+            "topic_name, q_quality "
             f"FROM questions WHERE {' AND '.join(where)} ORDER BY year DESC, series, paper, q",
             args).fetchall()
     except Exception:                          # a search the full-text index cannot parse
@@ -154,7 +168,36 @@ async def attempt(request):
     aid = body.get("id")
     return web.json_response(store.mark(st, int(aid) if aid else None, body.get("marks"),
                                         body.get("score"), body.get("max"), body.get("note"),
-                                        qid=body.get("qid")))
+                                        qid=body.get("qid"), seconds=body.get("seconds")))
+
+
+async def review(request):
+    """Lost marks of the latest marked attempt at each question of one exam,
+    item by item, and the marked attempts newest first."""
+    syl = request.query.get("syllabus", "9709")
+    st = store.connect()
+    con = db.connect()
+    rows = {}
+
+    def question_row(qid):
+        if qid not in rows:
+            rows[qid] = con.execute("SELECT * FROM questions WHERE id = ?", (qid,)).fetchone()
+        return rows[qid]
+
+    lost, history = [], []
+    for a in store.latest_marked(st):
+        r = question_row(a["qid"])
+        if not r or r["syllabus"] != syl:
+            continue
+        items = marking.lost(marking.parts(r), a["marks"])
+        if items:
+            lost.append({"qid": a["qid"], "n": a["n"], "marked": a["marked"],
+                         "score": a["score"], "max": a["max"], "items": items})
+    for a in store.history(st):
+        r = question_row(a["qid"])
+        if r and r["syllabus"] == syl:
+            history.append({k: a[k] for k in ("qid", "n", "marked", "score", "max", "seconds")})
+    return web.json_response({"lost": lost, "history": history})
 
 
 async def image(request):
@@ -210,6 +253,7 @@ def make_app(port=8900):
     app.router.add_get("/api/questions", questions)
     app.router.add_get(r"/api/question/{qid}", question)
     app.router.add_post("/api/attempt", attempt)
+    app.router.add_get("/api/review", review)
     app.router.add_get(r"/q/{path:.+}", image)
     app.router.add_static("/static/", WEB)
     app.router.add_static("/vendor/", os.path.join(paths.ASSETS, "vendor"))

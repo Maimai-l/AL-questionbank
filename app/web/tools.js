@@ -69,11 +69,13 @@ export function iconButton(name, title, onClick, extraClass = "") {
 
 export class Tools {
   /**
-   * @param root   放工具栏和弹层的容器
+   * @param root    放工具栏和笔具盘的容器
    * @param actions { onToolChange(tool), onUndo(), onRedo() }
+   * @param layer   放颜色弹层的容器(铺满窗口,弹层按窗口坐标定位);默认同 root
    */
-  constructor(root, actions) {
+  constructor(root, actions, layer = root) {
     this.root = root;
+    this.layer = layer;
     this.actions = actions;
     this.tool = loadTool();
     this.picker = isIPad();
@@ -225,7 +227,7 @@ export class Tools {
   showPopover(anchor, content) {
     this.closePopover();
     const pop = el("div", { class: "popover" }, content);
-    this.root.append(pop);
+    this.layer.append(pop);
     const r = anchor.getBoundingClientRect();
     const w = pop.offsetWidth, h = pop.offsetHeight;
     pop.style.left = `${clamp(r.left + r.width / 2 - w / 2, 12, innerWidth - w - 12)}px`;

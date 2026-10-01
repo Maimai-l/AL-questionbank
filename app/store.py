@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS attempts (
     max       REAL,
     marks     TEXT,                      -- JSON {part label: {ticks | score | choice}}
     note      TEXT,
+    seconds   REAL,                      -- time spent on the board before marking
     UNIQUE (qid, n)
 );
 CREATE INDEX IF NOT EXISTS attempts_qid ON attempts (qid);
@@ -34,6 +35,9 @@ def connect():
     con = sqlite3.connect(paths.ATTEMPTS)
     con.row_factory = sqlite3.Row
     con.executescript(SCHEMA)
+    cols = {r[1] for r in con.execute("PRAGMA table_info(attempts)")}
+    if "seconds" not in cols:                  # stores made before the column existed
+        con.execute("ALTER TABLE attempts ADD COLUMN seconds REAL")
     return con
 
 
@@ -59,7 +63,7 @@ def current(con, qid):
                     (qid,)).fetchone()
     return row(r) if r else {"id": None, "qid": qid, "n": 1, "board": board_id(qid, 1),
                              "started": None, "marked": None, "score": None, "max": None,
-                             "marks": None, "note": None}
+                             "marks": None, "note": None, "seconds": None}
 
 
 def start(con, qid):
@@ -71,14 +75,29 @@ def start(con, qid):
     return current(con, qid)
 
 
-def mark(con, attempt_id, marks, score, max_, note=None, qid=None):
+def mark(con, attempt_id, marks, score, max_, note=None, qid=None, seconds=None):
     if attempt_id is None:                     # the first attempt, never saved
         attempt_id = start(con, qid)["id"]
-    con.execute("UPDATE attempts SET marks=?, score=?, max=?, marked=?, note=? WHERE id=?",
+    con.execute("UPDATE attempts SET marks=?, score=?, max=?, marked=?, note=?, "
+                "seconds=COALESCE(?, seconds) WHERE id=?",
                 (json.dumps(marks, ensure_ascii=False), score, max_, time.time(), note,
-                 attempt_id))
+                 seconds, attempt_id))
     con.commit()
     return row(con.execute("SELECT * FROM attempts WHERE id=?", (attempt_id,)).fetchone())
+
+
+def latest_marked(con):
+    """The latest marked attempt of every question, newest first."""
+    return [row(r) for r in con.execute(
+        "SELECT a.* FROM attempts a JOIN (SELECT qid, MAX(n) AS n FROM attempts "
+        "WHERE marked IS NOT NULL GROUP BY qid) l ON a.qid = l.qid AND a.n = l.n "
+        "ORDER BY a.marked DESC")]
+
+
+def history(con, limit=200):
+    """Marked attempts, newest first."""
+    return [row(r) for r in con.execute(
+        "SELECT * FROM attempts WHERE marked IS NOT NULL ORDER BY marked DESC LIMIT ?", (limit,))]
 
 
 def summary(con):
