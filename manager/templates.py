@@ -16,6 +16,7 @@ BUILTIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "templates")
 USER = os.path.join(paths.WORK, "templates")
 
 DEFAULTS = {
+    "format": "zip",
     "per_question": ["image"],
     "documents": [],
     "answers": "none",
@@ -27,6 +28,7 @@ DEFAULTS = {
     "prompt_file": "README.md",
 }
 CHOICES = {
+    "format": {"pdf", "zip", "images"},     # one PDF; a ZIP; a ZIP with the PDFs as page images
     "per_question": {"image", "image_with_space", "text", "mark_scheme", "explanation"},
     "documents": {"mark_scheme", "explanation", "question_paper"},
     "answers": {"none", "written_pdf"},
@@ -48,7 +50,9 @@ def clean(settings):
                 out[k] = v
         elif isinstance(v, type(DEFAULTS[k])):
             out[k] = v.strip() if isinstance(v, str) else v
-    if not any(x in out["per_question"] for x in ("image", "image_with_space", "text")):
+    has_question = any(x in out["per_question"] for x in ("image", "image_with_space", "text")) \
+        or "question_paper" in out["documents"] or out["answers"] == "written_pdf"
+    if not has_question:
         out["per_question"] = ["image"] + out["per_question"]
     if not re.fullmatch(r"[^/\\]+", out["answer_filename"]):
         out["answer_filename"] = DEFAULTS["answer_filename"]

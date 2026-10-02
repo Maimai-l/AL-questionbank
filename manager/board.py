@@ -116,6 +116,32 @@ def boards_of(hub, sid):
     return out
 
 
+async def boards_with_ink(hub, sid):
+    """boards_of with the number of strokes on each, so the set page can tell written from blank."""
+    out = boards_of(hub, sid)
+    for b in out:
+        b["strokes"] = len(await hub.strokes(b["id"]) or [])
+    return out
+
+
+async def refresh_answers(hub, s):
+    """Write the set's annotated copy from its newest board that has ink, so an export
+    always carries the ink as it is now. Does nothing when no board has ink."""
+    out = os.path.join(export.ANSWERS, s["id"] + ".pdf")
+    for b in boards_of(hub, s["id"]):
+        strokes = await hub.strokes(b["id"])
+        if strokes:
+            meta = hub.board_meta(b["id"]) or {}
+            if os.path.isfile(out) and os.path.getmtime(out) >= meta.get("updated", 0):
+                return out                           # written after the last stroke: still current
+            os.makedirs(export.ANSWERS, exist_ok=True)
+            tmp = out + ".tmp.pdf"
+            await asyncio.get_running_loop().run_in_executor(None, docs.export_pdf, pdf_of(b["id"]), strokes, tmp)
+            os.replace(tmp, out)
+            return out
+    return None
+
+
 def page_png(bid, n, width):
     width = max(160, min(2400, int(width)))
     with pymupdf.open(pdf_of(bid)) as d:

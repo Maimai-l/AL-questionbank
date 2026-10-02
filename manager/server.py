@@ -24,8 +24,9 @@ sets and later outputs live in paths.WORK.
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
   /api/sets/<id>/zip/preview  POST {template} or {settings, body}: files, sizes, README (F7)
   /api/sets/<id>/zip          POST the same: the ZIP
+  /api/sets/<id>/output       POST the same: one PDF or a ZIP, by the template's format (the set page's 输出)
   /api/sets/<id>/board   POST: open (make) the writing board for the set's question paper (F5)
-  /api/sets/<id>/boards  GET the set's boards and its latest answer PDF
+  /api/sets/<id>/boards  GET the set's boards (with their stroke counts) and its latest answer PDF
   /api/sets/<id>/answers.pdf  the latest exported answer PDF
   /api/boards/<id>/page/<n>?w=   a page of a board's paper
   /api/boards/<id>/export     POST {name, scheme, explanation}: the paper with the ink (PDF, or ZIP)
@@ -243,8 +244,12 @@ async def _export_args(request):
             t = templates.get(b["template"])
         except KeyError:
             raise web.HTTPNotFound()
-        return s, t["settings"], t["body"]
-    return s, templates.clean(b.get("settings")), b.get("body", "")
+        args = s, t["settings"], t["body"]
+    else:
+        args = s, templates.clean(b.get("settings")), b.get("body", "")
+    if args[1]["answers"] == "written_pdf":       # the annotated copy as the ink is now
+        await board.refresh_answers(request.app[HUB], s)
+    return args
 
 
 async def zip_preview(request):
@@ -255,6 +260,20 @@ async def zip_preview(request):
 async def zip_download(request):
     args = await _export_args(request)
     data = await asyncio.get_running_loop().run_in_executor(None, export.zip_bytes, *args)
+    return web.Response(body=data, content_type="application/zip", headers={
+        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(export.zip_name(args[0]))})
+
+
+async def output(request):
+    """The set page's 输出: one PDF, or a ZIP, by the template's format."""
+    args = await _export_args(request)
+    loop = asyncio.get_running_loop()
+    if args[1]["format"] == "pdf":
+        path, name = await loop.run_in_executor(None, export.single_pdf, args[0], args[1])
+        return web.FileResponse(path, headers={
+            "Content-Type": "application/pdf",
+            "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(name)})
+    data = await loop.run_in_executor(None, export.zip_bytes, *args)
     return web.Response(body=data, content_type="application/zip", headers={
         "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(export.zip_name(args[0]))})
 
@@ -270,7 +289,7 @@ async def board_open(request):
 
 async def board_list(request):
     s = _get(request.match_info["sid"])
-    return web.json_response({"boards": board.boards_of(request.app[HUB], s["id"]), "answers": board.answers_info(s)})
+    return web.json_response({"boards": await board.boards_with_ink(request.app[HUB], s["id"]), "answers": board.answers_info(s)})
 
 
 async def answers_pdf(request):
@@ -438,6 +457,7 @@ def make_app():
     app.router.add_get(r"/doc/{sid}/{kind}", reading)
     app.router.add_post(r"/api/sets/{sid}/zip/preview", zip_preview)
     app.router.add_post(r"/api/sets/{sid}/zip", zip_download)
+    app.router.add_post(r"/api/sets/{sid}/output", output)
     app.router.add_post(r"/api/sets/{sid}/board", board_open)
     app.router.add_get(r"/api/sets/{sid}/boards", board_list)
     app.router.add_get(r"/api/sets/{sid}/answers.pdf", answers_pdf)

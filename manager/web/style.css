@@ -223,3 +223,32 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .board-frame { flex: 1 1 0; min-width: 0; border-radius: 16px; overflow: hidden; border: 1px solid var(--color-border-subtle); background: #ffffff; }
 .board-frame iframe { display: block; width: 100%; height: 100%; border: 0; }
 .board-at { margin-right: var(--el); white-space: nowrap; }
+
+/* set page: header with the name, progress and actions; the practice paper; the questions */
+.setlist-acts { display: flex; gap: var(--el); margin-bottom: var(--el); }
+.sd { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+.sd-head { flex: none; display: flex; align-items: center; gap: var(--sib); padding: var(--head) var(--pad); border-bottom: 1px solid var(--color-border-subtle); }
+.sd-head .page-head { flex: 1 1 auto; min-width: 0; }
+.sd-acts { flex: none; display: flex; align-items: center; gap: var(--el); }
+.sd-body { flex: 1 1 0; min-height: 0; display: flex; }
+.sd-paper { flex: 1 1 0; min-width: 0; overflow: auto; padding: var(--pad); background: var(--color-bg-muted); }
+.sd-sheets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sib); align-items: start; }
+.sd-sheets .sheet { width: 100%; }
+.sd-edit { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: var(--sib); padding: var(--pad); }
+.sd-empty { padding: var(--pad); }
+.sd-qs { width: 320px; flex: none; border-left: 1px solid var(--color-border-subtle); padding: var(--pad); box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: var(--sub); }
+.sd-qlist { list-style: none; margin: 0; padding: 0; }
+.sd-qlist li { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; align-items: center; gap: var(--el); min-height: 40px; border-bottom: 1px solid var(--color-border-subtle); font-size: 13px; }
+.sd-qlist .n { font-family: var(--font-tech); color: var(--color-text-secondary); }
+.sd-qlist .c { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sd-qlist .m { color: var(--color-text-secondary); white-space: nowrap; }
+
+/* the 输出 dialog */
+.op { display: flex; flex-direction: column; gap: var(--sib); }
+.op-tune { display: flex; flex-direction: column; gap: var(--sib); padding: var(--sib); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.op-checks { display: grid; grid-template-columns: 1fr 1fr; gap: 0 var(--sib); }
+.op-files { display: flex; flex-direction: column; padding: var(--sub) var(--sib); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); }
+.op-files h4 { margin: 0 0 var(--el); font: 13px var(--font-medium); }
+.op-file { display: flex; align-items: center; gap: var(--el); min-height: 32px; font-size: 13px; }
+.op-name { flex: 1 1 auto; min-width: 0; }
+.op-n { min-width: 56px; text-align: right; color: var(--color-text-secondary); white-space: nowrap; }

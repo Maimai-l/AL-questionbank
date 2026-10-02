@@ -1,21 +1,30 @@
 """Export a set as a ZIP (docs/data-manager.md, F7) by a template's settings (F8, section 7).
+The template's format may instead ask for one PDF, or for a ZIP whose PDFs (the practice
+paper, the annotated copy) are split into page images of at most 100 KB each.
 
 Every file is listed first as (path in the ZIP, bytes or a file on disk), so the
 preview and the ZIP come from the same list. Entries carry a fixed timestamp and
 come in a fixed order: the same set, settings and answer file give the same ZIP.
 """
+import functools
+import hashlib
 import io
 import json
 import os
 import re
+import tempfile
 import zipfile
+
+import pymupdf
 
 from lib import paths, scheme
 from manager import bank, docs, paper
 
 ANSWERS = os.path.join(paths.WORK, "answers")      # F5 writes <set id>.pdf here
 STAMP = (1980, 1, 1, 0, 0, 0)
-STORED = (".png", ".pdf")
+STORED = (".png", ".pdf", ".jpg")
+IMAGE_MAX = 100 * 1024                              # bytes per page image in the "images" format
+PAPER_NAME = "练习卷.pdf"
 
 
 def answer_pdf(s):
@@ -138,12 +147,15 @@ def plan(s, settings, body):
         elif d == "explanation":
             top.append(("explanation.html", docs.explanation(s).encode()))
         elif d == "question_paper":
-            top.append(("question_paper.pdf", paper.build(s)))
+            top.append((PAPER_NAME, paper.build(s)))
+    if settings.get("format") == "images":
+        top = [x for path, c in top for x in (page_images(path, c) if path.endswith(".pdf") else [(path, c)])]
 
     marks = sum(r["marks"] or 0 for r in rows)
     manifest = {"schema": "alevel-export/v1", "title": s["name"], "date": s["created"][:10],
                 "count": len(rows), "total_marks": marks, "papers": papers,
-                "answers": settings["answer_filename"] + ".pdf" if ans else None, "questions": entries}
+                "answers": (settings["answer_filename"] + ("/" if settings.get("format") == "images" else ".pdf")) if ans else None,
+                "questions": entries}
     meta = []
     if settings["manifest"]:
         meta.append(("manifest.json", (json.dumps(manifest, ensure_ascii=False, indent=1) + "\n").encode()))
@@ -165,11 +177,60 @@ def plan(s, settings, body):
     return files, readme, manifest
 
 
+@functools.lru_cache(maxsize=16)
+def _jpegs(src, stamp):
+    """Each page of a PDF as a grey JPEG of at most IMAGE_MAX bytes: 150 dpi, lower quality
+    first, then a smaller scale, and a page that still does not fit is cut in two."""
+    out = []
+    with pymupdf.open(src) as d:
+        for page in d:
+            out += _fit(page, page.rect)
+    return out
+
+
+def _fit(page, clip):
+    for dpi in (150, 120, 100):
+        pix = page.get_pixmap(dpi=dpi, colorspace=pymupdf.csGRAY, clip=clip)
+        for q in (75, 60, 45):
+            b = pix.tobytes("jpeg", jpg_quality=q)
+            if len(b) <= IMAGE_MAX:
+                return [b]
+    top, bottom = pymupdf.Rect(clip), pymupdf.Rect(clip)
+    top.y1 = bottom.y0 = (clip.y0 + clip.y1) / 2
+    return _fit(page, top) + _fit(page, bottom)
+
+
+def page_images(path, c):
+    """A PDF in the ZIP as a folder of page images: 批注版.pdf becomes 批注版/01.jpg, 02.jpg …"""
+    src = c if isinstance(c, str) else None
+    if src is None:                                  # bytes: written to a temporary file for the cache key
+        src = os.path.join(tempfile.gettempdir(), "qb-" + hashlib.sha1(c).hexdigest() + ".pdf")
+        if not os.path.exists(src):
+            with open(src, "wb") as f:
+                f.write(c)
+    stem = path[:-4]
+    return [(f"{stem}/{i:02d}.jpg", b) for i, b in enumerate(_jpegs(src, os.path.getmtime(src)), 1)]
+
+
+def single_pdf(s, settings):
+    """(file path, name) for the "pdf" format: the annotated copy when it is asked for and
+    exists, otherwise the practice paper."""
+    base = re.sub(r"[/\\:]", "-", s["name"])
+    ans = answer_pdf(s) if settings["answers"] == "written_pdf" else None
+    if ans:
+        return ans, f"{base} {settings['answer_filename']}.pdf"
+    return paper.build(s), base + ".pdf"
+
+
 def _size(c):
     return os.path.getsize(c) if isinstance(c, str) else len(c)
 
 
 def preview(s, settings, body):
+    if settings.get("format") == "pdf":
+        path, name = single_pdf(s, settings)
+        size = os.path.getsize(path)
+        return {"files": [{"path": name, "size": size}], "size": size, "readme": "", "manifest": ""}
     files, readme, manifest = plan(s, settings, body)
     return {"files": [{"path": p, "size": _size(c)} for p, c in files],
             "size": sum(_size(c) for _, c in files), "readme": readme,
