@@ -91,6 +91,131 @@
     return null;
   }
 
+  // A pencil, drawn like the design system's line icons (its sprite has none).
+  const sprite = document.getElementById('ef-sprite');
+  if (sprite && !document.getElementById('i-edit')) {
+    sprite.insertAdjacentHTML('beforeend', '<symbol id="i-edit" viewBox="0 0 16 16"><path d="M10.6 2.4l3 3L5.4 13.6H2.4v-3zM8.9 4.1l3 3"/></symbol>');
+  }
+
+  // ------------------------------------------------------------------ table
+
+  const SORT_MARK = h('svg', { viewBox: '0 0 12 12', 'aria-hidden': 'true' }, h('path', { d: 'M2 4 H10 L6 10 Z', fill: 'currentColor' }));
+
+  /** The design system's table (same markup and styles) with the usual selection:
+      click selects the row, Cmd/Ctrl-click adds or removes it, Shift-click selects the
+      range from the last clicked row, and dragging over rows selects them. On a touch
+      screen a tap adds or removes the row. Arrow keys move, Shift+arrow extends,
+      Space toggles, Cmd/Ctrl+A selects all, Escape clears. onActivate(key) gets the
+      row that was clicked last (the query page shows it in the detail panel). */
+  function SelTable({ columns, rows, rowKey = 'id', selected, onSelectedChange, onActivate, minWidth, ariaLabel }) {
+    const [sort, setSort] = useState(null);
+    const anchor = useRef(null);
+    const drag = useRef(null);
+    const body = useRef(null);
+    const key = (r) => String(r[rowKey]);
+    const value = (c, r) => (c.sortValue ? c.sortValue(r) : r[c.key]);
+    const view = useMemo(() => {
+      const c = sort && columns.find((x) => x.key === sort.key);
+      if (!c) return rows;
+      const d = sort.dir === 'ascending' ? 1 : -1;
+      return rows.slice().sort((a, b) => {
+        const x = value(c, a), y = value(c, b);
+        return (typeof x === 'number' && typeof y === 'number' ? x - y : String(x).localeCompare(String(y), 'zh-Hans-CN')) * d
+          || key(a).localeCompare(key(b));
+      });
+    }, [rows, sort, columns]);
+    const keys = useMemo(() => view.map(key), [view]);
+    const set = (ks) => onSelectedChange([...new Set(ks)]);
+    const range = (a, b) => {
+      const i = keys.indexOf(a), j = keys.indexOf(b);
+      return i < 0 || j < 0 ? [b] : keys.slice(Math.min(i, j), Math.max(i, j) + 1);
+    };
+    const all = keys.length > 0 && keys.every((k) => selected.includes(k));
+
+    useEffect(() => {
+      const up = () => { drag.current = null; };
+      addEventListener('pointerup', up);
+      addEventListener('pointercancel', up);
+      return () => { removeEventListener('pointerup', up); removeEventListener('pointercancel', up); };
+    }, []);
+
+    const down = (e, k) => {
+      if (e.button !== 0 || e.target.closest('button,a,input,label,select,textarea')) return;
+      const mods = e.metaKey || e.ctrlKey;
+      if (e.pointerType !== 'mouse') {                 // touch and pen: a tap toggles
+        set(selected.includes(k) ? selected.filter((x) => x !== k) : selected.concat(k));
+      } else if (e.shiftKey && anchor.current) {
+        e.preventDefault();                            // no text selection
+        set((mods ? selected : []).concat(range(anchor.current, k)));
+        onActivate && onActivate(k);
+        return;
+      } else if (mods) {
+        const on = !selected.includes(k);
+        const base = on ? selected.concat(k) : selected.filter((x) => x !== k);
+        set(base);
+        drag.current = { from: k, base: on ? selected : base, on };
+      } else {
+        set([k]);
+        drag.current = { from: k, base: [], on: true };
+      }
+      if (e.pointerType === 'mouse') { e.preventDefault(); e.currentTarget.focus(); }
+      anchor.current = k;
+      onActivate && onActivate(k);
+    };
+    const over = (k) => {
+      const d = drag.current;
+      if (!d) return;
+      const span = range(d.from, k);
+      set(d.on ? d.base.concat(span) : d.base.filter((x) => !span.includes(x)));
+    };
+    const keyDown = (e, k) => {
+      if (e.target !== e.currentTarget) return;
+      if (e.key === ' ') {
+        e.preventDefault();
+        set(selected.includes(k) ? selected.filter((x) => x !== k) : selected.concat(k));
+        anchor.current = k; onActivate && onActivate(k);
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const next = keys[keys.indexOf(k) + (e.key === 'ArrowDown' ? 1 : -1)];
+        if (!next) return;
+        if (e.shiftKey) set(range(anchor.current || k, next));
+        else { set([next]); anchor.current = next; }
+        onActivate && onActivate(next);
+        const tr = body.current.querySelector(`tr[data-k="${CSS.escape(next)}"]`);
+        tr && tr.focus();
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'a') {
+        e.preventDefault(); set(keys);
+      } else if (e.key === 'Escape') set([]);
+    };
+
+    const head = (c, i) => {
+      const num = c.kind === 'number', on = sort && sort.key === c.key;
+      const box = i === 0 ? h('button', { className: 'tbl-all', type: 'button', role: 'checkbox', 'aria-checked': all,
+        'aria-label': '全选', onClick: () => set(all ? [] : keys) }) : null;
+      if (c.sortable === false) return h('th', { key: c.key, scope: 'col', className: num ? 'num' : undefined }, box, c.label);
+      const next = () => setSort({ key: c.key, dir: on ? (sort.dir === 'descending' ? 'ascending' : 'descending') : num ? 'descending' : 'ascending' });
+      return h('th', { key: c.key, scope: 'col', className: num ? 'num' : undefined, 'aria-sort': on ? sort.dir : undefined }, box,
+        h('button', { type: 'button', onClick: next },
+          h('span', { className: 'in' }, num ? [SORT_MARK, h('span', { key: 'l' }, c.label)] : [h('span', { key: 'l' }, c.label), SORT_MARK])));
+    };
+    const cell = (c, r) => {
+      const v = r[c.key];
+      if (c.kind === 'number') return h('td', { key: c.key, className: 'num' }, h('b', null, typeof v === 'number' ? v.toLocaleString('en-US') : v), c.unit);
+      return h('td', { key: c.key, className: c.kind === 'id' ? 'c-id' : undefined }, v);
+    };
+    return h('div', { className: 'tbl-frame' }, h('i'), h('i'), h('i'), h('i'),
+      h('div', { className: 'tbl-scroll' },
+        h('table', { className: 'tbl sel-tbl', 'aria-multiselectable': true, 'aria-label': ariaLabel, style: minWidth ? { minWidth } : undefined },
+          h('colgroup', null, columns.map((c) => h('col', { key: c.key, style: c.width ? { width: c.width } : undefined }))),
+          h('thead', null, h('tr', null, columns.map(head))),
+          h('tbody', { ref: body }, view.map((r) => {
+            const k = key(r);
+            return h('tr', { key: k, 'data-k': k, tabIndex: 0, 'aria-selected': selected.includes(k),
+              onPointerDown: (e) => down(e, k), onPointerEnter: () => over(k), onKeyDown: (e) => keyDown(e, k) },
+            columns.map((c) => cell(c, r)));
+          })))));
+  }
+
   // ------------------------------------------------------------------ name rule (docs 7.5)
 
   function queryName(meta, f) {
@@ -142,7 +267,7 @@
     };
   }
 
-  function QueryPage({ metas, search, sets, reloadSets, toast }) {
+  function QueryPage({ metas, search, clearSearch, sets, reloadSets, toast }) {
     const [exam, setExam] = useState('9709');
     const meta = metas.find((m) => m.exam === exam);
     const [rowsByExam, setRowsByExam] = useState({});
@@ -160,7 +285,9 @@
       if (!search) { setHits(null); return; }
       const code = parseCode(search);
       if (code) { setHits({ code }); return; }
-      api(`/api/search?exam=${exam}&q=${encodeURIComponent(search)}`).then((ids) => setHits({ ids: new Set(ids) }));
+      let live = true;
+      api(`/api/search?exam=${exam}&q=${encodeURIComponent(search)}`).then((ids) => { if (live) setHits({ ids: new Set(ids) }); });
+      return () => { live = false; };
     }, [search, exam]);
 
     const changeExam = (v) => {
@@ -182,38 +309,51 @@
     }, [allRows, f.components, f.from, f.to]);
     const tasks = f.tasks || new Set(taskItems.map((t) => t.value));
 
+    // A paper code (s23 12 q5, 9709/12/M/J/23) finds that paper or question whatever the
+    // conditions on the left; words narrow the questions the conditions select.
+    const isHit = (r) => {
+      if (!hits) return true;
+      if (hits.ids) return hits.ids.has(r.id);
+      const c = hits.code;
+      return r.month === c.season && r.year % 100 === c.yy && r.paper === c.paper && (!c.q || r.q === c.q);
+    };
     const rows = useMemo(() => allRows.filter((r) => {
+      if (hits && hits.code) return isHit(r);
+      if (!isHit(r)) return false;
       if (!f.components.has(r.component) || r.year < f.from || r.year > f.to) return false;
       if (r.topic && !f.topics.has(r.topic)) return false;
       if (taskItems.length && r.tasks.length && !r.tasks.some((t) => tasks.has(t))) return false;
-      if (hits && hits.ids && !hits.ids.has(r.id)) return false;
-      if (hits && hits.code) {
-        const c = hits.code;
-        if (r.month !== c.season || r.year % 100 !== c.yy || r.paper !== c.paper) return false;
-        if (c.q && r.q !== c.q) return false;
-      }
       return true;
     }), [allRows, f, tasks, hits, taskItems]);
     const view = useMemo(() => rows
       .slice().sort((a, b) => b.year - a.year || a.month - b.month || a.paper.localeCompare(b.paper) || a.q - b.q)
       .map((r) => ({ ...r, season: MONTH[r.month] || r.month + ' 月', qn: 'Q' + r.q })), [rows]);
 
+    useEffect(() => { if (hits && hits.code && rows.length === 1) setFocus(rows[0].id); }, [hits, rows]);
+
+    // counts beside the conditions: questions in the year range that match the search
+    const counts = useMemo(() => {
+      const comp = {}, topic = {};
+      allRows.forEach((r) => {
+        if (r.year < f.from || r.year > f.to || (hits && hits.ids && !hits.ids.has(r.id))) return;
+        comp[r.component] = (comp[r.component] || 0) + 1;
+        if (f.components.has(r.component) && r.topic) topic[r.topic] = (topic[r.topic] || 0) + 1;
+      });
+      return { comp, topic };
+    }, [allRows, f.from, f.to, f.components, hits]);
+
     const picked = allRows.filter((r) => selected.includes(r.id));
-    const onSelected = (keys) => {
-      const added = keys.filter((k) => !selected.includes(k));
-      if (added.length === 1) setFocus(added[0]);
-      setSelected(keys);
-    };
     useEffect(() => { if (!focus && view.length) setFocus(null); }, [view]);
 
-    const topicItems = meta.topics.filter((t) => f.components.has(t.component));
+    const topicItems = meta.topics.filter((t) => f.components.has(t.component)).map((t) => ({ ...t, n: counts.topic[t.value] || 0 }));
+    const compItems = meta.components.map((c) => ({ ...c, n: counts.comp[c.value] || 0 }));
     const years = meta.years.map((y) => ({ value: String(y), label: String(y) }));
     const exams = metas.map((m) => ({ value: m.exam, label: m.label }));
 
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'dm-cond', 'aria-label': '查询条件' },
         h(E.Select, { label: '考试', options: exams, value: exam, onChange: changeExam }),
-        h(Facet, { title: '卷别', items: meta.components, picked: f.components, onChange: setComponents, grid: meta.components.length > 2 }),
+        h(Facet, { title: '卷别', items: compItems, picked: f.components, onChange: setComponents, grid: meta.components.length > 2 }),
         h('section', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('div', { className: 'fx-head' }, h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)' } }, '年份')),
           h('div', { className: 'years' },
@@ -224,14 +364,16 @@
         taskItems.length ? h(Facet, { title: '小问类型', items: taskItems, picked: tasks, onChange: (s) => setF({ ...f, tasks: s }) }) : null),
       h('main', { className: 'dm-results' },
         h('div', { className: 'headline' },
-          h('b', null, view.length), h('span', null, '题'), h('b', null, sum(rows)), h('span', null, '分')),
+          h('b', null, view.length), h('span', null, '题'), h('b', null, sum(rows)), h('span', null, '分'),
+          search ? h('button', { type: 'button', className: 'search-chip', onClick: clearSearch, 'aria-label': '清除搜索' },
+            h(E.Icon, { name: 'i-search', size: 'sm' }), h('span', null, search), h(E.Icon, { name: 'i-close', size: 'sm' })) : null),
         h('div', { className: 'selbar' },
           h('div', { className: 'dm-meta', style: { flexGrow: 1 } },
             h('span', null, '已选 ', h('b', null, picked.length), ' 题'), h('span', null, h('b', null, sum(picked)), ' 分')),
           h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => setAdding(true) }, '加入题组')),
         h('div', { className: 'dm-tablebox' },
-          allRows.length ? h(E.Table, {
-            ariaLabel: '题目', rows: view, selectable: true, selected, onSelectedChange: onSelected, minWidth: 460,
+          allRows.length ? h(SelTable, {
+            ariaLabel: '题目', rows: view, selected, onSelectedChange: setSelected, onActivate: setFocus, minWidth: 460,
             columns: [
               { key: 'year', label: '年份', kind: 'id', width: 88 },
               { key: 'season', label: '考季', kind: 'text', width: 72, sortValue: (r) => r.month },
@@ -328,6 +470,31 @@
 
   // ------------------------------------------------------------------ sets page
 
+  /** A heading edited in place: the pencil (or a double click) turns it into a field;
+      Enter or leaving the field saves, Escape restores the old name. */
+  function EditableTitle({ value, onSave, editing, setEditing, label }) {
+    const ref = useRef(null);
+    const [text, setText] = useState(value);
+    useEffect(() => {
+      if (!editing) return;
+      setText(value);
+      requestAnimationFrame(() => { if (ref.current) { ref.current.focus(); ref.current.select(); } });
+    }, [editing]);
+    const done = (keep) => {
+      setEditing(false);
+      const t = text.trim();
+      if (keep && t && t !== value) onSave(t);
+    };
+    if (editing) return h('input', { ref, className: 'title-edit', value: text, 'aria-label': label, maxLength: 120,
+      onChange: (e) => setText(e.target.value), onBlur: () => done(true),
+      onKeyDown: (e) => { if (e.key === 'Enter') e.target.blur(); else if (e.key === 'Escape') { setText(value); setEditing(false); } } });
+    return h('div', { className: 'title-row' },
+      h('h1', { onDoubleClick: () => setEditing(true) }, value),
+      h(E.IconButton, { icon: 'i-edit', label, variant: 'ghost', size: 'sm', onClick: () => setEditing(true) }));
+  }
+
+  let nameNext = null;   // a set just made: its page opens with the name being edited
+
   const SOURCE_ICON = { query: 'i-search', paper: 'i-doc', import: 'i-upload', manual: 'i-list' };
 
   function SetsPage({ sets, current, reloadSets, templates, toast }) {
@@ -345,8 +512,8 @@
         })
         .catch((err) => toast('error', err.message || '无法读取这个文件'));
     };
-    const create = () => send('POST', '/api/sets', { name: '题组', items: [] })
-      .then((n) => { reloadSets(); location.hash = '#/sets/' + n.id; });
+    const create = () => send('POST', '/api/sets', { name: '新题组', items: [] })
+      .then((n) => { nameNext = n.id; reloadSets(); location.hash = '#/sets/' + n.id; });
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'setlist' },
         h('div', { style: { display: 'flex', gap: 8 } },
@@ -364,9 +531,9 @@
   function SetDetail({ s, reloadSets, templates, toast }) {
     const [rows, setRows] = useState(null);
     const [selected, setSelected] = useState([]);
-    const [renaming, setRenaming] = useState(false);
+    const [renaming, setRenaming] = useState(() => nameNext === s.id);
     const [deleting, setDeleting] = useState(false);
-    const [name, setName] = useState(s.name);
+    useEffect(() => { if (nameNext === s.id) nameNext = null; }, []);
 
     useEffect(() => {
       const exams = [...new Set(s.items.map((q) => (/^\d{4}_/.test(q) ? q.slice(0, 4) : q.split('-')[0])))];
@@ -397,12 +564,11 @@
 
     return h(React.Fragment, null, h('main', { className: 'setmain' },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
-        h('h1', null, s.name),
+        h(EditableTitle, { value: s.name, editing: renaming, setEditing: setRenaming, label: '重命名题组', onSave: (name) => save({ name }) }),
         h('div', { className: 'dm-meta' },
           h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
           h('span', { className: 't' }, s.created))),
       h('div', { className: 'dm-toolbar' },
-        h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { setName(s.name); setRenaming(true); } }, '重命名题组'),
         h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => setDeleting(true) }, '删除题组'),
         h('span', { className: 'dm-grow' }),
         h(E.IconButton, { icon: 'k-up', label: '上移题目', variant: 'ghost', size: 'sm', tooltip: 'below', disabled: !selected.length, onClick: () => move(-1) }),
@@ -410,8 +576,8 @@
         h(E.IconButton, { icon: 'i-trash', label: '移出题组', variant: 'ghost', size: 'sm', tooltip: 'below', disabled: !selected.length, onClick: remove }),
         h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { location.href = `/api/sets/${s.id}/export`; } }, '导出 JSON')),
       h('div', { className: 'dm-tablebox' },
-        !rows ? h(E.Loading, null) : view.length ? h(E.Table, {
-          ariaLabel: '题组中的题目', rows: view, selectable: true, selected, onSelectedChange: setSelected, minWidth: 440,
+        !rows ? h(E.Loading, null) : view.length ? h(SelTable, {
+          ariaLabel: '题组中的题目', rows: view, selected, onSelectedChange: setSelected, minWidth: 440,
           columns: [
             { key: 'n', label: '序号', kind: 'id', width: 80 },
             { key: 'year', label: '年份', kind: 'id', width: 72, sortable: false },
@@ -421,9 +587,6 @@
             { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 80, sortable: false },
           ],
         }) : h(E.EmptyState, { icon: 'i-search', title: '题组中还没有题目', description: '在查询页选中题目后加入题组' })),
-      renaming ? h(E.Dialog, { open: true, title: '重命名题组', confirmLabel: '保存名称', onClose: () => setRenaming(false),
-        onConfirm: () => save({ name }) },
-      h(E.TextField, { label: '名称', value: name, onChange: (e) => setName(e.target.value) })) : null,
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除题组', confirmLabel: '删除题组', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/sets/' + s.id).then(() => { location.hash = '#/sets'; reloadSets(); }) },
       h('p', null, `删除后 ${s.name} 将无法恢复。题库中的题目不受影响。`)) : null),
@@ -1097,6 +1260,10 @@
     const [metas, setMetas] = useState(null);
     const [sets, setSets] = useState([]);
     const [search, setSearch] = useState('');
+    // The top bar's search field reports only Enter; it searches as one types (after a
+    // pause), and Escape or the chip beside the result count clears it.
+    const searchBox = () => document.querySelector('.dm-col > .topbar .search input');
+    const clearSearch = useCallback(() => { const el = searchBox(); if (el) el.value = ''; setSearch(''); }, []);
     const [templates, setTemplates] = useState([]);
     const [flowTitle, setFlowTitle] = useState('');
     useEffect(() => { if (metas && window.dmBoot) dmBoot.ready(); }, [metas]);   // index.html's loader
@@ -1105,6 +1272,17 @@
     useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); reloadTemplates(); api('/api/settings').then((o) => applyTheme(o.theme)); }, []);
 
     const page = hash.split('/')[1] || 'query';
+    useEffect(() => {
+      const el = searchBox();
+      if (!el) return;
+      el.value = search;
+      let t = 0;
+      const typed = () => { clearTimeout(t); t = setTimeout(() => setSearch(el.value.trim()), 250); };
+      const key = (e) => { if (e.key === 'Escape') { clearTimeout(t); clearSearch(); } };
+      el.addEventListener('input', typed);
+      el.addEventListener('keydown', key);
+      return () => { clearTimeout(t); el.removeEventListener('input', typed); el.removeEventListener('keydown', key); };
+    }, [page, !!metas]);
     const nav = [
       { value: 'query', label: '查询', icon: 'i-search', href: '#/query' },
       { value: 'sets', label: '题组', icon: 'i-list', href: '#/sets' },
@@ -1125,7 +1303,7 @@
     else if (page === 'templates') {
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast }) : h(E.Loading, null);
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
-    else if (page === 'query') body = h(QueryPage, { metas, search, sets, reloadSets, toast });
+    else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-inbox', title: '下一阶段实现' }));
     return h('div', { className: 'dm-shell' },
       h(E.Sidebar, { name: 'AL 题库', items: nav, value: page === 'flows' ? 'templates' : page, open: NO_HOVER ? false : undefined, tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] }),
