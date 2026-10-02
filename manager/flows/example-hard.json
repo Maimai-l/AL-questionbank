@@ -1,0 +1,112 @@
+{
+ "id": "example-hard",
+ "name": "Paper 3 高难度题",
+ "created": "2026-10-02 10:00",
+ "nodes": [
+  {
+   "id": "bank",
+   "type": "bank",
+   "x": 32,
+   "y": 200,
+   "params": {
+    "exam": "9709"
+   }
+  },
+  {
+   "id": "filter",
+   "type": "filter",
+   "x": 248,
+   "y": 200,
+   "params": {
+    "conds": [
+     {
+      "field": "component",
+      "op": "=",
+      "value": "3"
+     },
+     {
+      "field": "position",
+      "op": "≥",
+      "value": "0.67"
+     },
+     {
+      "field": "marks",
+      "op": "≥",
+      "value": "8"
+     }
+    ]
+   }
+  },
+  {
+   "id": "sort",
+   "type": "sort",
+   "x": 464,
+   "y": 200,
+   "params": {
+    "by": "field",
+    "field": "marks",
+    "desc": true
+   }
+  },
+  {
+   "id": "set",
+   "type": "newset",
+   "x": 680,
+   "y": 96,
+   "params": {
+    "name": "9709 Paper 3 高难度"
+   }
+  },
+  {
+   "id": "out",
+   "type": "export",
+   "x": 680,
+   "y": 304,
+   "params": {
+    "template": "default"
+   }
+  }
+ ],
+ "links": [
+  {
+   "from": [
+    "bank",
+    0
+   ],
+   "to": [
+    "filter",
+    0
+   ]
+  },
+  {
+   "from": [
+    "filter",
+    0
+   ],
+   "to": [
+    "sort",
+    0
+   ]
+  },
+  {
+   "from": [
+    "sort",
+    0
+   ],
+   "to": [
+    "set",
+    0
+   ]
+  },
+  {
+   "from": [
+    "sort",
+    0
+   ],
+   "to": [
+    "out",
+    0
+   ]
+  }
+ ]
+}

@@ -29,6 +29,11 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>/answers.pdf  the latest exported answer PDF
   /api/boards/<id>/page/<n>?w=   a page of a board's paper
   /api/boards/<id>/export     POST {name, scheme, explanation}: the paper with the ink (PDF, or ZIP)
+  /api/flows            GET list, POST save as new {graph}; /api/flows/catalog: node types and fields (F9)
+  /api/flows/<id>        GET, PUT save, DELETE (built-in graphs are read-only: saving makes a copy)
+  /api/flows/eval        POST {graph}: every port's count and the node details, no outputs
+  /api/flows/<id>/run    POST {graph}: the same, and the output nodes make their files and sets
+  /api/flows/<id>/out/<file>?name=   a file a run made
   /write/<board id>      the writing page (white-board's toolbar and pen tray, manager/web/board/)
   /ws, /inksync/         ink sync and its front end (manager/vendor/inksync, from white-board)
 """
@@ -41,7 +46,7 @@ from lib import paths
 import asyncio
 import urllib.parse
 
-from manager import bank, board, docs, export, paper, sets, settings, templates
+from manager import bank, board, docs, export, flow, paper, sets, settings, templates
 from manager.vendor.inksync import DefaultPolicy, FileStorage, Hub, mount, serve_sdk
 from manager.vendor.inksync.netinfo import advertise
 
@@ -308,6 +313,72 @@ async def write_page(request):
     return web.FileResponse(os.path.join(WEB, "board", "write.html"), headers={"Cache-Control": "no-cache"})
 
 
+async def flow_list(request):
+    return web.json_response([{k: g[k] for k in ("id", "name", "builtin")} for g in flow.all_flows()])
+
+
+async def flow_catalog(request):
+    return web.json_response(flow.catalog())
+
+
+async def flow_get(request):
+    try:
+        return web.json_response(flow.get(request.match_info["fid"]))
+    except KeyError:
+        raise web.HTTPNotFound()
+
+
+async def flow_create(request):
+    return web.json_response(flow.save(await request.json(), new=True))
+
+
+async def flow_put(request):
+    g = await request.json()
+    g["id"] = request.match_info["fid"]
+    try:
+        g["builtin"] = flow.get(g["id"])["builtin"]
+    except KeyError:
+        raise web.HTTPNotFound()
+    return web.json_response(flow.save(g))
+
+
+async def flow_delete(request):
+    try:
+        flow.delete(request.match_info["fid"])
+    except KeyError:
+        raise web.HTTPNotFound()
+    except PermissionError:
+        raise web.HTTPForbidden()
+    return web.json_response({"ok": True})
+
+
+async def _flow_view(g, make):
+    try:
+        return web.json_response(await asyncio.get_running_loop().run_in_executor(None, flow.view, g, make))
+    except flow.FlowError as e:
+        raise web.HTTPBadRequest(text=str(e))
+
+
+async def flow_eval(request):
+    g = await request.json()
+    g["id"] = g.get("id") or "draft"
+    return await _flow_view(g, False)
+
+
+async def flow_run(request):
+    g = await request.json()
+    g["id"] = request.match_info["fid"]
+    return await _flow_view(g, True)
+
+
+async def flow_out(request):
+    p = flow.output_file(request.match_info["fid"], request.match_info["name"])
+    if not p:
+        raise web.HTTPNotFound()
+    name = request.query.get("name") or os.path.basename(p)
+    return web.FileResponse(p, headers={"Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(name)})
+
+
 async def image(request):
     rel = request.match_info["path"]
     if rel.split("/")[0] not in IMG_DIRS or ".." in rel:
@@ -358,6 +429,15 @@ def make_app():
     app.router.add_get(r"/api/boards/{bid}/page/{n:\d+}", board_page)
     app.router.add_post(r"/api/boards/{bid}/export", board_export)
     app.router.add_get(r"/write/{bid}", write_page)
+    app.router.add_get("/api/flows", flow_list)
+    app.router.add_post("/api/flows", flow_create)
+    app.router.add_get("/api/flows/catalog", flow_catalog)
+    app.router.add_post("/api/flows/eval", flow_eval)
+    app.router.add_get(r"/api/flows/{fid}", flow_get)
+    app.router.add_put(r"/api/flows/{fid}", flow_put)
+    app.router.add_delete(r"/api/flows/{fid}", flow_delete)
+    app.router.add_post(r"/api/flows/{fid}/run", flow_run)
+    app.router.add_get(r"/api/flows/{fid}/out/{name}", flow_out)
     app.router.add_get("/api/templates", template_list)
     app.router.add_post("/api/templates", template_create)
     app.router.add_put(r"/api/templates/{tid}", template_put)
