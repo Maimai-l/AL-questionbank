@@ -73,7 +73,7 @@ def _pdf(name, sub):
     return None
 
 
-def scheme_pages(doc, q):
+def scheme_pages(doc, q, col=0.13):
     """Pages of a mark scheme holding question q: from the first page whose left
     column carries its label to the page where question q+1 starts. Pages before
     the table (headed "Question") are skipped."""
@@ -82,7 +82,8 @@ def scheme_pages(doc, q):
     nlab = re.compile(rf"^{q + 1}(?:\(|$)")
     table = False                        # the cover, notes and abbreviations come first
     for page in doc:
-        left = [w[4] for w in page.get_text("words") if w[0] < page.rect.width * 0.13]
+        m = page.rotation_matrix          # word boxes are unrotated; the column is on the page as shown
+        left = [w[4] for w in page.get_text("words") if (pymupdf.Rect(w[:4]) * m).x0 < page.rect.width * col]
         table = table or "Question" in left
         if not table:
             continue
@@ -91,8 +92,8 @@ def scheme_pages(doc, q):
             last = page.number
         if first is not None and nxt is None and any(nlab.match(t) for t in left):
             nxt = page.number
-    if first is None:
-        return []
+    if first is None:                    # some schemes set the question column further in
+        return scheme_pages(doc, q, 0.25) if col < 0.25 else []
     end = max(last, nxt if nxt is not None else last)
     return list(range(first, min(end, first + 3) + 1))
 

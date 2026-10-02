@@ -63,6 +63,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/text/check_latex.py       找出 KaTeX 无法渲染的公式(评分细则按单元格,需 node)
             pipeline/ocr/latex_fix_batches.py  子 agent 对照原页更正这些公式(plan / verify / apply),写入 ms_fixes.jsonl
             pipeline/ocr/apply_ms_fixes.py     重放按原页人工更正的评分细则与题干公式(ms_fixes.jsonl)
+            pipeline/text/review_batches.py    子 agent 对照题图与细则原页审查题干和评分细则(抽样或全量,只报告)
             pipeline/split/ms_total_from_ocr.py 只有 OCR 细则的题(35 题)从 ms_latex 读小计,写 ms_total / totals_agree
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
