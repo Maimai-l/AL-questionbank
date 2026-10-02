@@ -54,7 +54,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 /* sets */
 .setlist { width: 336px; flex: none; border-right: 1px solid var(--color-border-subtle); padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; overflow-y: auto; }
 .setmain { flex-grow: 1; min-width: 0; padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 16px; }
-.setmain h1 { margin: 0; font: 28px/1.25 var(--font-bold); }
+.setmain h1 { margin: 0; font: 28px/1.25 var(--font-bold); text-wrap: balance; overflow-wrap: anywhere; }
 .dm-toolbar { display: flex; align-items: center; gap: 8px; }
 .dm-toolbar .dm-grow { flex-grow: 1; }
 .dlg-stack { display: flex; flex-direction: column; gap: 16px; }
@@ -97,7 +97,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .md-view h3 { margin-top: 8px; }
 .md-code { margin: 0; font-family: var(--font-tech); font-size: 12px; line-height: 1.7; color: var(--color-text-secondary); white-space: pre-wrap; overflow-wrap: anywhere; }
 .md-table { border-collapse: collapse; font-size: 13px; width: 100%; }
-.md-table th { background: var(--color-bg-emphasis); color: var(--color-text-on-emphasis); font-weight: 400; text-align: left; padding: 6px 12px; }
+.md-table th { background: var(--color-bg-emphasis); color: var(--color-text-on-emphasis); font-weight: 400; text-align: left; padding: 6px 12px; white-space: nowrap; }
 .md-table td { padding: 6px 12px; border-bottom: 1px solid var(--color-border-subtle); }
 .tpl-list { width: 288px; flex: none; border-right: 1px solid var(--color-border-subtle); padding: 16px 24px 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 16px; }
 .tpl-src { flex: 1 1 0; min-height: 0; resize: none; border-radius: 16px; background: var(--color-bg-surface); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); padding: 16px 20px; font-family: var(--font-tech); font-size: 13px; line-height: 1.8; outline: none; }
@@ -106,3 +106,18 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .opts.locked { pointer-events: none; opacity: .6; }
 .panel-sub { display: flex; flex-direction: column; gap: 4px; padding-left: 16px; border-left: 2px solid var(--color-border-subtle); }
 .panel-sub-title { color: var(--color-text-secondary); margin-top: 4px; }
+
+/* iPad landscape and narrower: give the middle column the room */
+@media (max-width: 1366px) {
+  .setlist { width: 280px; padding: 20px 16px; }
+  .setmain { padding: 20px 24px 24px; }
+  .setmain h1 { font-size: 22px; }
+  .setpanel { width: 300px; padding: 20px; }
+  .dm-cond { width: 264px; padding: 20px 16px; }
+  .detail { width: 320px; }
+  .ex-side { width: 296px; padding: 20px; }
+  .ex-files { width: 300px; padding: 20px; }
+  .ex-doc, .tpl-edit { padding: 20px 24px; }
+  .tpl-list { width: 240px; padding: 16px; }
+  .tpl-opts { width: 288px; padding: 20px; }
+}
