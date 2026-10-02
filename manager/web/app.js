@@ -186,7 +186,10 @@
         set([k]);
         drag.current = { from: k, base: [], on: true };
       }
-      if (e.pointerType === 'mouse') { e.preventDefault(); e.currentTarget.focus(); }
+      if (e.pointerType === 'mouse') {
+        // focused for the arrow keys, but a click is not keyboard work: no focus ring until a key is pressed
+        e.preventDefault(); body.current.dataset.pointer = '1'; e.currentTarget.focus();
+      }
       anchor.current = k;
       onActivate && onActivate(k);
     };
@@ -198,6 +201,7 @@
     };
     const keyDown = (e, k) => {
       if (e.target !== e.currentTarget) return;
+      delete body.current.dataset.pointer;
       if (e.key === ' ') {
         e.preventDefault();
         set(selected.includes(k) ? selected.filter((x) => x !== k) : selected.concat(k));
@@ -421,7 +425,7 @@
             ],
           }) : h(E.Loading, { label: '读取题目' }),
           allRows.length && !view.length ? h(E.EmptyState, { icon: 'i-search', title: '没有符合条件的题目' }) : null)),
-      h(Detail, { qid: focus, onAdd: (id) => { setSelected((s) => (s.includes(id) ? s : s.concat(id))); setAdding(true); } }),
+      h(Detail, { qid: focus }),
       adding ? h(AddDialog, {
         sets, toast, ids: picked.length ? picked.map((r) => r.id) : (focus ? [focus] : []),
         name: wholePaper(picked, allRows) || queryName(meta, { ...f }),
@@ -449,7 +453,7 @@
 
   // ------------------------------------------------------------------ detail panel
 
-  function Detail({ qid, onAdd }) {
+  function Detail({ qid }) {
     const [d, setD] = useState(null);
     const [crop, setCrop] = useState('compact');
     const [tab, setTab] = useState('ms');
@@ -465,13 +469,12 @@
       h('div', { className: 'detail-head' },
         h('div', { className: 'detail-title' },
           h('h2', null, h('span', null, d.code), h('span', null, 'Q' + d.q)),
-          h(E.IconButton, { icon: 'i-plus', label: '加入题组', variant: 'ghost', size: 'sm', onClick: () => onAdd(d.id) }),
-          d.paper_pdf ? h(E.IconButton, { icon: 'i-doc', label: '打开原卷', variant: 'ghost', size: 'sm',
-            onClick: () => open(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`, '_blank') }) : null),
+          d.paper_pdf ? h(E.Button, { variant: 'secondary', size: 'sm',
+            onClick: () => open(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`, '_blank') }, '打开原卷') : null),
         h('div', { className: 'tags' },
           d.topic ? h(E.Tag, { size: 'sm' }, `${d.topic} ${d.topic_name}`) : null,
           h(E.Tag, { size: 'sm' }, `${d.marks} 分`),
-          d.diagram ? h(E.Tag, { size: 'sm' }, '有图形') : null)),
+          d.diagram ? h(E.Tag, { size: 'sm' }, '含图') : null)),
       h('div', { className: 'detail-media' },
         d.image_space ? h(E.SegmentedControl, { ariaLabel: '题图', value: crop, onChange: setCrop,
           options: [{ value: 'compact', label: '仅题目' }, { value: 'space', label: '含答题区' }] }) : null,
@@ -1485,7 +1488,7 @@
           crumbs: page === 'sets' && SUB[sub] && cur
             ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: SUB[sub] }]
             : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows' }] : undefined,
-          search: page === 'query' ? '搜索' : undefined, onSearch: setSearch,
+          search: page === 'query' ? '搜索题干、评分细则或试卷代码' : undefined, onSearch: setSearch,
           actions: h('div', { ref: setActs, className: 'dm-acts' }) }),
         body));
   }

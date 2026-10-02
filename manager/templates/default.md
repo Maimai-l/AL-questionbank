@@ -12,7 +12,7 @@ prompt_file: README.md
 ---
 # {title}
 
-{count} 道题，满分 {total_marks} 分，来自 {papers}。
+{count} 题，满分 {total_marks} 分，来自 {papers}。
 
 ## 题目
 

@@ -252,3 +252,5 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .op-file { display: flex; align-items: center; gap: var(--el); min-height: 32px; font-size: 13px; }
 .op-name { flex: 1 1 auto; min-width: 0; }
 .op-n { min-width: 56px; text-align: right; color: var(--color-text-secondary); white-space: nowrap; }
+/* a row clicked with the mouse is focused for the arrow keys but shows no focus ring (SelTable) */
+.sel-tbl tbody[data-pointer] tr:focus-visible td { box-shadow: none; }
