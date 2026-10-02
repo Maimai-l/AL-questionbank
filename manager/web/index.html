@@ -26,18 +26,18 @@
   </div></div>
 </div>
 <script>
-  // The page loader, drawn from the first paint. Progress follows a fixed curve (ease
-  // out over DURATION) and waits at HOLD until the page reports it is ready
-  // (dmBoot.ready()); it then finishes, plays the exit and uncovers the page.
+  // The page loader, drawn from the first paint. Before the page is ready the reading
+  // follows a fixed curve (ease out over DURATION) and stops at HOLD; once the page reports
+  // it is ready (dmBoot.ready()) it goes from wherever it is to 100 within FINISH, then
+  // plays the exit and uncovers the page.
   (function () {
-    var DURATION = 1500, HOLD = 92, FINISH = 400, EXIT = 1600;
+    var DURATION = 1500, HOLD = 92, FINISH = 200, EXIT = 1600;
     var box = document.getElementById('boot'), screen = box.querySelector('.ldr-screen'), num = box.querySelector('b');
-    var t0 = performance.now(), ready = false, held = 0, shown = -1;
+    var t0 = performance.now(), ready = 0, from = 0, shown = -1;
     function curve(x) { return 100 * (1 - Math.pow(1 - Math.min(1, Math.max(0, x)), 3)); }
     function frame(now) {
-      var p = curve((now - t0) / DURATION);
-      if (held) p = ready ? HOLD + (100 - HOLD) * curve((now - Math.max(held, ready)) / FINISH) / 100 : HOLD;
-      else if (!ready && p >= HOLD) { held = now; p = HOLD; }
+      var p = ready ? from + (100 - from) * curve((now - ready) / FINISH) / 100
+                    : Math.min(HOLD, curve((now - t0) / DURATION));
       p = Math.floor(p);
       if (p !== shown) { shown = p; screen.style.setProperty('--p', p); screen.setAttribute('aria-valuenow', p); num.textContent = p; }
       if (p < 100) return requestAnimationFrame(frame);
@@ -46,7 +46,7 @@
       setTimeout(function () { box.remove(); }, EXIT);
     }
     requestAnimationFrame(frame);
-    window.dmBoot = { ready: function () { ready = ready || performance.now(); } };
+    window.dmBoot = { ready: function () { if (!ready) { from = Math.max(shown, 0); ready = performance.now(); } } };
   })();
 </script>
 <div id="root"></div>

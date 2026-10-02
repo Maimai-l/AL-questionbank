@@ -1,7 +1,7 @@
 # manager/
 
 题库数据管理页(需求见 `docs/data-manager.md`,设计稿见该文件第 8 节):`python3 qb.py manage`(默认端口 8910,
-监听局域网,iPad 用 Mac 的地址访问)。对 `data/caie.db` 只读;题组等存放在 `paths.WORK`。
+监听局域网,iPad 只通过白板外壳访问 `/ipad`)。对 `data/caie.db` 只读;题组等存放在 `paths.WORK`。
 
 | 文件 | 内容 |
 |---|---|

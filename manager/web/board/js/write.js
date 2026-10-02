@@ -2,7 +2,9 @@
 //
 // 书写、橡皮擦、撤销、同步和视口都在 inksync 的 InkPad 里;工具栏、颜色与粗细、
 // iPad 上的笔具盘来自白板应用的 ui.js。白板应用里管白板列表、设置、更新的部分
-// 这里不用:一个页面只写一块白板,导出 PDF 在顶栏。
+// 这里不用:一个页面只写一块白板,导出 PDF 在 Mac 的顶栏。
+// iPad 只用来书写:没有顶栏与导出,只有画布与笔具盘;在原生外壳里保留「白板设置」,
+// 其中的「换一台 Mac」用来选择服务器。
 
 import { InkPad, deviceClientId } from "/inksync/pad.js";
 import { isTextField } from "/inksync/util.js";
@@ -11,6 +13,7 @@ import { icon } from "./icons.js";
 import { boardView, loadFingerDraw, saveFingerDraw } from "./boards.js";
 import { iconButton } from "./ui-common.js";
 import { el } from "/inksync/util.js";
+import { inShell } from "/inksync/shell.js";
 
 // /write/<id> opens that board; /ipad (the iPad shell's page) follows the board the Mac opened last
 const FOLLOW = location.pathname === "/ipad";
@@ -20,10 +23,23 @@ function role() {
   return navigator.maxTouchPoints > 1 || /iPad|iPhone/.test(navigator.userAgent) ? "ipad" : "mac";
 }
 
-/** 白板应用的界面,去掉右上角那一组(白板列表、设置、导出 PNG);Mac 上保留缩放。 */
+/**
+ * 白板应用的界面,去掉右上角那一组(白板列表、设置、导出 PNG);Mac 上保留缩放。
+ * iPad 外壳里只留「白板设置」,用于换一台 Mac。
+ */
 class WriteUI extends UI {
   buildCorner() {
-    if (this.role !== "mac") return;
+    if (this.role !== "mac") {
+      if (inShell()) {
+        this.info = { hostname: location.hostname, port: location.port };
+        this.root.append(
+          el("div", { id: "topright", class: "pill tinted" }, [
+            iconButton("settings", "白板设置", () => this.openSettings()),
+          ]),
+        );
+      }
+      return;
+    }
     this.root.append(
       el("div", { id: "zoombar", class: "pill" }, [
         iconButton("zoomIn", "放大", () => this.actions.onZoom(1.25)),
@@ -143,6 +159,10 @@ class Writer extends InkPad {
   // ------------------------------------------------------------ 顶栏
 
   bindHead() {
+    if (role() === "ipad") {
+      document.getElementById("wb-head").remove();
+      return;
+    }
     const back = document.getElementById("wb-back");
     back.innerHTML = icon("back");
     if (FOLLOW) back.hidden = true;               // the iPad only writes; the Mac runs the manager
@@ -153,8 +173,9 @@ class Writer extends InkPad {
   showMeta(meta) {
     this.meta = meta;
     const set = meta.data && meta.data.set;
-    document.getElementById("wb-name").textContent = meta.name || "";
     document.title = meta.name || "白板";
+    if (!document.getElementById("wb-head")) return;
+    document.getElementById("wb-name").textContent = meta.name || "";
     if (set) document.getElementById("wb-back").href = `/#/sets/${set}`;
     this.page = -1;
     this.showPage();

@@ -3,9 +3,11 @@
    below 1280), blocks 24, sibling components 16, inside an element 8, a text group 4. */
 :root { --pad: 24px; }
 @media (max-width: 1279px) { :root { --pad: 20px; } }
-html, body, #root { height: 100%; overflow: hidden; }
+html, body { height: 100%; overflow: hidden; }
+/* desktop only: below 1280 the page keeps its width and scrolls sideways */
+#root { height: 100%; overflow-x: auto; overflow-y: hidden; }
 body { margin: 0; background: var(--color-bg-page); color: var(--color-text-primary); font-family: var(--font-body); }
-.dm-shell { height: 100%; display: flex; overflow: hidden; }
+.dm-shell { height: 100%; min-width: 1280px; display: flex; overflow: hidden; }
 /* the page loader (index.html): the whole window until the page is ready */
 .dm-boot { position: fixed; inset: 0; z-index: 1000; background: #141414; }
 .dm-boot.is-leaving { background: transparent; pointer-events: none; }
@@ -206,8 +208,6 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
   .fl-pal { width: 144px; }
   .fl-insp { width: 264px; }
 }
-@media (hover: none) {
-  .pt::after { content: ""; position: absolute; inset: -14px; }   /* a finger-sized target around each port */
-  .fl-w path { stroke-width: 3; }
-  .fl-w path.g { stroke-width: 6; }
-}
+/* the sidebar: no entry is current on the settings page, whose entry is the bottom tool */
+.sn-list:not(:has(.sn-item[aria-current])) .sn-ind { visibility: hidden; }
+.dm-nav[data-tool="settings"] .sn-cbtn { color: var(--color-text-primary); background: var(--color-state-pressed); }

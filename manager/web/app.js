@@ -16,8 +16,6 @@
     method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   });
   const MONTH = { 3: '3 月', 6: '6 月', 11: '11 月' };
-  // The sidebar opens on hover; a touch screen never un-hovers it, so there it stays closed (icons only).
-  const NO_HOVER = matchMedia('(hover: none)').matches;
   const sum = (rows) => rows.reduce((a, r) => a + (r.marks || 0), 0);
 
   // Dropdown menus (the design system's .dd .menu) sit in the scrolling panels, which
@@ -328,15 +326,19 @@
       setF({ ...f, components: next, topics });
     };
 
+    // the task types on offer come from the papers and years picked; the count beside each
+    // follows the search and the topics too, like the counts beside the topics
     const taskItems = useMemo(() => {
-      const n = {};
+      const all = {}, n = {};
       allRows.forEach((r) => {
-        if (f.components.has(r.component) && r.year >= f.from && r.year <= f.to) r.tasks.forEach((t) => { n[t] = (n[t] || 0) + 1; });
+        if (!f.components.has(r.component) || r.year < f.from || r.year > f.to) return;
+        const counted = (!hits || !hits.ids || hits.ids.has(r.id)) && (!r.topic || f.topics.has(r.topic));
+        r.tasks.forEach((t) => { all[t] = (all[t] || 0) + 1; if (counted) n[t] = (n[t] || 0) + 1; });
       });
-      return Object.keys(n).sort((a, b) => n[b] - n[a]).map((t) => ({
-        value: t, label: t.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()), n: n[t],
+      return Object.keys(all).sort((a, b) => all[b] - all[a]).map((t) => ({
+        value: t, label: t.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()), n: n[t] || 0,
       }));
-    }, [allRows, f.components, f.from, f.to]);
+    }, [allRows, f.components, f.topics, f.from, f.to, hits]);
     const tasks = f.tasks || new Set(taskItems.map((t) => t.value));
 
     // A paper code (s23 12 q5, 9709/12/M/J/23) finds that paper or question whatever the
@@ -372,8 +374,13 @@
       return { comp, topic };
     }, [allRows, f.from, f.to, f.components, hits]);
 
-    const picked = allRows.filter((r) => selected.includes(r.id));
-    useEffect(() => { if (!focus && view.length) setFocus(null); }, [view]);
+    // the selection and the detail only hold questions the table shows
+    useEffect(() => {
+      const shown = new Set(view.map((r) => r.id));
+      setSelected((s) => (s.every((id) => shown.has(id)) ? s : s.filter((id) => shown.has(id))));
+      setFocus((q) => (q && !shown.has(q) ? null : q));
+    }, [view]);
+    const picked = view.filter((r) => selected.includes(r.id));
 
     const topicItems = meta.topics.filter((t) => f.components.has(t.component)).map((t) => ({ ...t, n: counts.topic[t.value] || 0 }));
     const compItems = meta.components.map((c) => ({ ...c, n: counts.comp[c.value] || 0 }));
@@ -412,7 +419,8 @@
               { key: 'parts', label: '小问数', kind: 'number', width: 88 },
               { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 88 },
             ],
-          }) : h(E.Loading, { label: '读取题目' }))),
+          }) : h(E.Loading, { label: '读取题目' }),
+          allRows.length && !view.length ? h(E.EmptyState, { icon: 'i-search', title: '没有符合条件的题目' }) : null)),
       h(Detail, { qid: focus, onAdd: (id) => { setSelected((s) => (s.includes(id) ? s : s.concat(id))); setAdding(true); } }),
       adding ? h(AddDialog, {
         sets, toast, ids: picked.length ? picked.map((r) => r.id) : (focus ? [focus] : []),
@@ -1311,20 +1319,22 @@
     const reloadTemplates = useCallback(() => api('/api/templates').then(setTemplates), []);
     useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); reloadTemplates(); api('/api/settings').then((o) => applyTheme(o.theme)); }, []);
 
+    const PAGES = ['query', 'sets', 'templates', 'flows', 'settings'];
     const page = hash.split('/')[1] || 'query';
+    // an address that names no page goes to the query page
+    useEffect(() => { if (!PAGES.includes(page)) location.replace('#/query'); }, [page]);
     // The sidebar opens when the pointer rests on it (not when it passes over), and
     // closes when the pointer leaves or an entry is clicked; keyboard focus opens it too.
-    // A touch screen never opens it: there it stays a rail of icons.
     const [navOpen, setNavOpen] = useState(false);
     const navTimer = useRef(0);
-    const navEnter = () => { if (!NO_HOVER) { clearTimeout(navTimer.current); navTimer.current = setTimeout(() => setNavOpen(true), 120); } };
+    const navEnter = () => { clearTimeout(navTimer.current); navTimer.current = setTimeout(() => setNavOpen(true), 120); };
     const navClose = () => { clearTimeout(navTimer.current); setNavOpen(false); };
     const navClick = (e) => {
       if (!e.target.closest('a, button')) return;
       navClose();
       if (document.activeElement) document.activeElement.blur();
     };
-    const navFocus = (e) => { if (!NO_HOVER && e.target.matches(':focus-visible')) setNavOpen(true); };
+    const navFocus = (e) => { if (e.target.matches(':focus-visible')) setNavOpen(true); };
     const navBlur = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) navClose(); };
     useEffect(() => {
       const el = searchBox();
@@ -1358,14 +1368,19 @@
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast, acts }) : h(E.Loading, null);
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
-    else body = h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-inbox', title: '下一阶段实现' }));
+    else body = null;
+    const title = sub === 'paper' ? '题目卷' : sub === 'export' ? '导出' : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');
+    // the browser tab names the page and, on a set's pages, the set
+    useEffect(() => {
+      document.title = page === 'sets' && cur ? (sub ? `${cur.name} ${title}` : cur.name) : title;
+    }, [page, sub, cur && cur.name, title]);
     return h('div', { className: 'dm-shell' },
-      h('div', { className: 'dm-nav', onMouseEnter: navEnter, onMouseLeave: navClose, onClickCapture: navClick, onFocus: navFocus, onBlur: navBlur },
+      h('div', { className: 'dm-nav', 'data-tool': page === 'settings' ? 'settings' : undefined, onMouseEnter: navEnter, onMouseLeave: navClose, onClickCapture: navClick, onFocus: navFocus, onBlur: navBlur },
         h(E.Sidebar, { name: 'AL 题库', items: nav, value: page === 'flows' ? 'templates' : page, open: navOpen,
           tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] })),
       h('div', { className: 'dm-col' },
         h(E.TopBar, {
-          title: sub === 'paper' ? '题目卷' : sub === 'export' ? '导出' : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询'),
+          title,
           crumbs: page === 'sets' && (sub === 'paper' || sub === 'export') && cur
             ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: sub === 'paper' ? '题目卷' : '导出' }]
             : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows' }] : undefined,
