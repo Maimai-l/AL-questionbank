@@ -409,9 +409,9 @@
         h('section', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('div', { className: 'fx-head' }, h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)' } }, '年份')),
           h('div', { className: 'years' },
-            h(E.Select, { ariaLabel: '起始年份', options: years, value: String(f.from), onChange: (v) => setF({ ...f, from: +v }) }),
+            h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: years, value: String(f.from), onChange: (v) => setF({ ...f, from: +v }) }),
             h('span', null, '至'),
-            h(E.Select, { ariaLabel: '结束年份', options: years, value: String(f.to), onChange: (v) => setF({ ...f, to: +v }) }))),
+            h(E.Select, { ariaLabel: '结束年份', size: 'sm', options: years, value: String(f.to), onChange: (v) => setF({ ...f, to: +v }) }))),
         topicItems.length ? h(Facet, { title: '主题', items: topicItems, picked: f.topics, onChange: (s) => setF({ ...f, topics: s }) }) : null,
         taskItems.length ? h(Facet, { title: '小问类型', items: taskItems, picked: tasks, onChange: (s) => setF({ ...f, tasks: s }) }) : null),
       h('main', { className: 'dm-results' },
@@ -480,8 +480,7 @@
       h('div', { className: 'detail-head' },
         h('div', { className: 'detail-title' },
           h('h2', null, h('span', null, d.code), h('span', null, 'Q' + d.q)),
-          d.paper_pdf ? h(E.Button, { variant: 'secondary', size: 'sm',
-            onClick: () => open(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`, '_blank') }, '打开原卷') : null),
+          d.paper_pdf ? act('i-doc', '打开原卷', () => open(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`, '_blank')) : null),
         h('div', { className: 'tags' },
           d.topic ? h(E.Tag, { size: 'sm' }, `${d.topic} ${d.topic_name}`) : null,
           h(E.Tag, { size: 'sm' }, `${d.marks} 分`),
@@ -656,8 +655,7 @@
             { label: '打开评分细则', onClick: () => open(`/doc/${s.id}/scheme`, '_blank') },
             s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null,
             { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${s.id}/export`; } }] }))),
-      !s.count ? h('div', { className: 'sd-empty' }, h(E.EmptyState, { icon: 'i-list', title: '题组中没有题目',
-        action: h(E.Button, { variant: 'secondary', size: 'md', onClick: () => { location.hash = '#/query'; } }, '打开查询') }))
+      !s.count ? h('div', { className: 'sd-empty' }, h(E.EmptyState, { icon: 'i-list', title: '题组中没有题目' }))
         : h('div', { className: 'sd-body' },
           editing
             ? h('main', { className: 'sd-edit' },
@@ -749,6 +747,7 @@
       ink: st.answers === 'written_pdf',
     };
     const pdf = st.format === 'pdf';
+    const images = st.format === 'images';
     const toggle = (k) => {
       const on = !has[k];
       const per = st.per_question.filter((x) => x !== { ms: 'mark_scheme', ex: 'explanation' }[k]);
@@ -763,16 +762,21 @@
       fetchFile(`/api/sets/${s.id}/output`, body, toast).then(() => { setBusy(false); onClose(); });
     };
     const groups = pv ? fileGroups(pv.files) : [];
-    return h(E.Dialog, { open: true, title: '输出', onClose, confirmLabel: pdf ? '下载 PDF' : '下载 ZIP', onConfirm: go },
+    // its own footer: the design system's confirm button closes the dialog at once, and the
+    // dialog has to stay open while the file is made
+    const footer = h(React.Fragment, null,
+      h(E.Button, { variant: 'secondary', size: 'sm', onClick: onClose }, '取消'),
+      h(E.Button, { variant: 'primary', size: 'sm', disabled: busy || !pv, loading: busy, onClick: go }, pdf ? '下载 PDF' : '下载 ZIP'));
+    return h(E.Dialog, { open: true, title: '输出', onClose: busy ? () => {} : onClose, footer },
       h('div', { className: 'op' },
         h(E.Select, { label: '模板', value: tid, onChange: setTid, options: templates.map((x) => ({ value: x.id, label: x.name })) }),
         tuning ? h('div', { className: 'op-tune' },
           h('fieldset', { className: 'opt-group ex' }, h('legend', null, '格式'),
-            h(E.SegmentedControl, { ariaLabel: '格式', value: st.format, onChange: (v) => setSt({ ...st, format: v }),
-              options: [{ value: 'pdf', label: 'PDF' }, { value: 'zip', label: 'ZIP' }, { value: 'images', label: '图片 ZIP' }] })),
+            h(E.SegmentedControl, { ariaLabel: '格式', value: pdf ? 'pdf' : 'zip', onChange: (v) => setSt({ ...st, format: v }), options: FORMATS })),
           h('fieldset', { className: 'opt-group ex' }, h('legend', null, pdf ? 'PDF 内容' : '压缩包包含'),
             h('div', { className: 'op-checks' },
-              box('q', '题目', pdf), box('ms', '评分细则', pdf), box('ex', '详解', pdf || !s.docs.explanation), box('ink', '批注版', !written))))
+              box('q', '题目', pdf), box('ms', '评分细则', pdf), box('ex', '详解', pdf || !s.docs.explanation), box('ink', '批注版', !written),
+              pdf ? null : h(E.Checkbox, { checked: images, onChange: () => setSt({ ...st, format: images ? 'zip' : 'images' }) }, 'PDF 按页拆成图片'))))
           : h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-sliders', onClick: () => setTuning(true) }, '调整格式与内容')),
         h('div', { className: 'op-files' },
           h('h4', null, pdf ? '文件' : '压缩包内容'),
@@ -780,7 +784,7 @@
             h(E.Icon, { name: 'i-doc', size: 'sm' }), h('span', { className: 'op-name' }, g.name),
             h('span', { className: 'op-n' }, g.n > 1 ? `${g.n} 个文件` : ''),
             h('span', { className: 'op-n' }, sizeText(g.size)))),
-          busy ? h(E.Loading, { label: pdf ? '正在生成 PDF' : '正在生成压缩包' }) : null)));
+          busy ? h(E.Progress, { label: pdf ? '正在生成 PDF' : '正在生成压缩包', valueText: pv ? `${pv.files.length} 个文件` : '', style: { width: '100%', marginTop: 'var(--sub)' } }) : null)));
   }
 
   /** The board inside the page: the whiteboard's writing page in a rounded frame, as it is.
@@ -823,15 +827,7 @@
   };
   const sizeText = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
 
-  const FORMAT = { pdf: 'PDF', zip: 'ZIP', images: '图片 ZIP' };
-
-  /** A template's format and what it carries, for the template list. */
-  function contents(settings) {
-    const o = optsOf(settings);
-    const parts = [o.paper && '练习卷', o.image && '题目截图', o.text && '题干文字',
-      o.ms && '评分细则', o.ex && '详解', o.answers && '批注版'].filter(Boolean);
-    return `${FORMAT[settings.format] || 'ZIP'}：${parts.join('、')}`;
-  }
+  const FORMATS = [{ value: 'pdf', label: 'PDF' }, { value: 'zip', label: 'ZIP' }];
 
   /** The export options (docs/ui-text.md 2.3): the format, then for a PDF which one, for a
       ZIP what each question and the ZIP hold and how the files are laid out. */
@@ -845,17 +841,21 @@
     const seg = (legend, value, options, onSeg) => h('fieldset', { className: 'opt-group ex' }, h('legend', null, legend),
       h(E.SegmentedControl, { ariaLabel: legend, value, onChange: onSeg, options }));
     const format = settings.format || 'zip';
+    const images = format === 'images';
     return h(React.Fragment, null,
-      seg('格式', format, Object.entries(FORMAT).map(([value, label]) => ({ value, label })), (v) => onChange({ ...settings, format: v })),
+      seg('格式', format === 'pdf' ? 'pdf' : 'zip', FORMATS, (v) => onChange({ ...settings, format: v })),
       format === 'pdf'
         ? seg('PDF 内容', o.answers ? 'answers' : 'paper', [{ value: 'paper', label: '练习卷' }, { value: 'answers', label: '批注版' }],
           (v) => onChange(settingsOf(settings, { ...o, answers: v === 'answers', paper: true })))
         : h(React.Fragment, null,
           h('fieldset', { className: 'opt-group ex' }, h('legend', null, '每道题包含'),
-            box('image', '题目截图'), box('space', '截图保留原卷答题区', !o.image), box('text', '题干文字'),
+            box('image', '题目截图'), h('div', { className: 'opt-sub' }, box('space', '截图保留原卷答题区', !o.image)), box('text', '题干文字'),
             box('ms', '评分细则'), box('ex', '详解')),
           h('fieldset', { className: 'opt-group ex' }, h('legend', null, '压缩包包含'),
-            box('paper', '练习卷'), box('answers', '批注版'), box('readme', 'README.md')),
+            box('paper', '练习卷'), box('answers', '批注版'),
+            h('div', { className: 'opt-sub' }, h(E.Checkbox, { checked: images, disabled: !o.paper && !o.answers,
+              onChange: () => onChange({ ...settings, format: images ? 'zip' : 'images' }) }, 'PDF 按页拆成图片')),
+            box('readme', 'README.md')),
           seg('文件结构', o.layout, [{ value: 'folder_per_question', label: '按题分文件夹' }, { value: 'flat', label: '不分文件夹' }],
             (v) => set('layout', v))));
   }
@@ -945,8 +945,8 @@
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'export' }),
         h('div', { className: 'setlist-acts' }, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建模板')),
-        h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
-          items: templates.map((x) => ({ value: x.id, icon: 'i-doc', title: x.name, subtitle: contents(x.settings),
+        h(E.List, { variant: 'compact', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
+          items: templates.map((x) => ({ value: x.id, title: x.name,
             trailing: h(MoreMenu, { label: '更多操作', tip: false, items: [
               x.builtin ? null : { label: '重命名', onClick: () => { setRenameId(x.id); go(x.id); } },
               { label: '复制模板', onClick: () => copy(x) },
@@ -982,7 +982,7 @@
   const nodeRows = (cat, n) => Math.max(cat.nodes[n.type].ins.length, cat.nodes[n.type].outs.length);
   const fieldLabel = (cat, t, k) => ((cat.fields[t] || []).find((f) => f[0] === k) || [k, k])[1];
 
-  function paramText(cat, n, inType, inShape, templates, sets) {
+  function paramText(cat, n, inType, inShape, templates, sets, flowName) {
     const p = n.params || {};
     const F = (k) => fieldLabel(cat, inType || 'q', k);
     switch (n.type) {
@@ -996,7 +996,7 @@
       case 'merge': return '';
       case 'join': return `${fieldLabel(cat, 'c', p.left || 'topic')} = ${F(p.right || 'topic')}`;
       case 'export': return `模板：${((templates.find((t) => t.id === (p.template || 'default')) || {}).name) || ''}`;
-      case 'newset': return '';
+      case 'newset': return `名称：${flowName || ''}`;
       case 'paper': return '';
       default: return '';
     }
@@ -1038,7 +1038,7 @@
     const nodes = g.nodes.filter((n) => cat.nodes[n.type]).map((n) => {
       const spec = cat.nodes[n.type];
       const inV = inOf(n.id, 0);
-      const ptxt = paramText(cat, n, inV && inV.type, inV && inV.shape, templates, sets);
+      const ptxt = paramText(cat, n, inV && inV.type, inV && inV.shape, templates, sets, g.name);
       const rows = [];
       for (let i = 0; i < nodeRows(cat, n); i++) {
         const ins = spec.ins[i]; const outs = spec.outs[i];
@@ -1293,7 +1293,9 @@
     const p = n.params || {};
     const t = (inV && inV.type) || 'q';
     const fields = (cat.fields[t] || []).map(([v, label]) => ({ value: v, label }));
-    const sel = (label, value, options, onChange) => h(E.Select, { label, size: 'sm', value, options, onChange });
+    // an error about the node's one parameter is shown on that field, others below the fields
+    const fieldErr = error && !/输入/.test(error) && ['bank', 'book', 'set', 'take', 'export'].includes(n.type) ? error : null;
+    const sel = (label, value, options, onChange) => h(E.Select, { label, size: 'sm', value, options, onChange, error: fieldErr || undefined });
     let body = null;
     if (n.type === 'bank') body = sel('考试', p.exam || '9709', cat.exams.map((e) => ({ value: e, label: e })), (v) => update(n.id, { exam: v }));
     if (n.type === 'book') body = sel('教材', p.book || '9709_p1', cat.books.map((b) => ({ value: b.value, label: b.label })), (v) => update(n.id, { book: v }));
@@ -1323,7 +1325,7 @@
             h(E.SegmentedControl, { ariaLabel: '顺序', value: p.desc ? 'desc' : 'asc', onChange: (v) => update(n.id, { desc: v === 'desc' }),
               options: [{ value: 'asc', label: '升序' }, { value: 'desc', label: '降序' }] })));
     }
-    if (n.type === 'take') body = h(E.TextField, { label: '条数', size: 'sm', value: String(p.n ?? 10), onChange: (e) => update(n.id, { n: e.target.value }) });
+    if (n.type === 'take') body = h(E.TextField, { label: '条数', size: 'sm', error: fieldErr || undefined, value: String(p.n ?? 10), onChange: (e) => update(n.id, { n: e.target.value }) });
     if (n.type === 'group') body = sel('字段', p.field || 'topic', fields, (v) => update(n.id, { field: v }));
     if (n.type === 'join') {
       const lt = (inV && inV.type) || 'c', rt = (in2 && in2.type) || 'q';
@@ -1340,7 +1342,7 @@
         locked ? null : act('i-trash', '删除节点', onDelete)),
       locked ? h('p', { className: 'lock-note' }, '内置流程不可修改，在流程列表中复制流程后可修改副本') : null,
       body ? h('div', { className: locked ? 'locked' : undefined, style: { display: 'flex', flexDirection: 'column', gap: 'var(--sub)' } }, body) : null,
-      error ? h('div', { className: 'fl-err fs-small' }, error) : null,
+      error && !fieldErr ? h('div', { className: 'fl-err fs-small' }, error) : null,
       shown ? h('div', { className: 'sum' },
         h('div', { className: 'dm-meta' }, shown.shape === 'group'
           ? [h('span', { key: 'a' }, h('b', null, shown.count), ' 组'), h('span', { key: 'b' }, h('b', null, shown.items), shown.type === 'q' ? ' 题' : ' 条')]
@@ -1550,7 +1552,7 @@
           crumbs: page === 'sets' && SUB[sub] && cur
             ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: SUB[sub] }]
             : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows/' + arg }] : undefined,
-          search: page === 'query' ? '搜索题干、评分细则或试卷代码' : undefined, onSearch: setSearch,
+          search: page === 'query' ? '搜索' : undefined, onSearch: setSearch,
           actions: h('div', { ref: setActs, className: 'dm-acts' }) }),
         body));
   }

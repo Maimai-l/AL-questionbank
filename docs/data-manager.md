@@ -311,7 +311,7 @@
 | `per_question` | 列表 | `image`、`image_with_space`、`text`、`mark_scheme`、`explanation` | `[image]` | 每道题放入压缩包的内容,按列出顺序排列。`image` 为紧凑题图;`image_with_space` 为带答题区题图,没有时用紧凑题图;`text` 为题干文本;`mark_scheme` 为该题评分细则(Markdown);`explanation` 为该题详解(Markdown) |
 | `documents` | 列表 | `mark_scheme`、`explanation`、`question_paper` | `[]` | 放入压缩包的整份文档:评分细则文档、详解文档(F6)、题目卷 PDF(F4) |
 | `answers` | 文本 | `none`、`written_pdf` | `none` | 是否放入批注版 |
-| `format` | 文本 | `pdf`、`zip`、`images` | `zip` | `pdf`:一个 PDF(有笔迹且选了批注版时为批注版,否则为练习卷);`zip`:压缩包;`images`:压缩包,其中的 PDF(练习卷、批注版)按页拆成灰度 JPEG,每张不超过 100 KB,文件夹名为原文件名 |
+| `format` | 文本 | `pdf`、`zip`、`images` | `zip` | `pdf`:一个 PDF(有笔迹且选了批注版时为批注版,否则为练习卷);`zip`:压缩包;`images`:压缩包,其中的 PDF(练习卷、批注版)按页拆成灰度 JPEG,每张不超过 100 KB,文件夹名为原文件名。界面上「格式」只有 PDF 与 ZIP 两项,`images` 是 ZIP 下勾选「PDF 按页拆成图片」 |
 | `layout` | 文本 | `folder_per_question`、`flat` | `folder_per_question` | 每道题一个文件夹,或全部文件放在同一层 |
 | `filename` | 文本 | 含占位符的文件名 | `{index:02}_{paper_code}_Q{q}` | 每道题的文件夹名(`folder_per_question`)或文件名前缀(`flat`) |
 | `answer_filename` | 文本 | 文件名 | `批注版` | 批注版在压缩包中的文件名 |
