@@ -59,7 +59,8 @@ def update(force=False):
     branch = git("rev-parse", "--abbrev-ref", "HEAD", capture=True)
     if git("status", "--porcelain", "--untracked-files=no", capture=True):
         sys.exit("代码目录有未提交的改动,先提交或撤销再 update。")
-    git("fetch", REMOTE, branch)
+    # an explicit refspec: a single-branch clone fetches nothing else by default
+    git("fetch", REMOTE, f"+refs/heads/{branch}:refs/remotes/{REMOTE}/{branch}")
     git("merge", "--ff-only", f"{REMOTE}/{branch}")
     print(f"代码: {branch} {git('log', '-1', '--format=%h %s', capture=True)}")
     pull(force=force)
