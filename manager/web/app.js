@@ -660,7 +660,7 @@
           editing
             ? h('main', { className: 'sd-edit' },
               h('div', { className: 'dm-toolbar' },
-                h('span', { className: 'dm-meta dm-grow' }, selected.length ? h('span', null, '已选 ', h('b', null, selected.length), ' 题') : h('span', null, '选中题目后调整顺序或移出')),
+                h('span', { className: 'dm-meta dm-grow' }, h('span', null, `已选 ${selected.length} 题`)),
                 act('k-up', '上移题目', () => move(-1), { disabled: !selected.length }),
                 act('k-down', '下移题目', () => move(1), { disabled: !selected.length }),
                 act('i-trash', '移出题组', remove, { disabled: !selected.length }),

@@ -48,7 +48,7 @@ from lib import paths
 import asyncio
 import urllib.parse
 
-from manager import bank, board, docs, export, flow, paper, sets, settings, templates
+from manager import __version__, bank, board, docs, export, flow, paper, sets, settings, templates
 from manager.vendor.inksync import DefaultPolicy, FileStorage, Hub, mount, serve_sdk
 from manager.vendor.inksync.netinfo import advertise
 
@@ -514,7 +514,7 @@ def make_app():
 
 
 def run(port=8910, host="0.0.0.0"):
-    print(f"数据管理页: http://localhost:{port}/(在电脑的浏览器中打开;iPad 只用白板外壳,来源填 @qb-manage)\n"
+    print(f"数据管理页 {__version__}: http://localhost:{port}/(在电脑的浏览器中打开;iPad 只用白板外壳,来源填 @qb-manage)\n"
           f"题组: {paths.SETS}\n按 Ctrl-C 停止")
     app = make_app()
     advertise(app, port=port, source="qb-manage", path="/ipad")   # the iPad shell opens /ipad (@qb-manage; app/ is @qb)
