@@ -64,6 +64,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/ocr/latex_fix_batches.py  子 agent 对照原页更正这些公式(plan / verify / apply),写入 ms_fixes.jsonl
             pipeline/ocr/apply_ms_fixes.py     重放按原页人工更正的评分细则与题干公式(ms_fixes.jsonl)
             pipeline/text/review_batches.py    子 agent 对照题图与细则原页审查题干和评分细则(抽样或全量,只报告)
+            pipeline/text/fix_batches.py       子 agent 对照原图重写题干与评分细则(图示写成文字),写入 text_fixes.jsonl 并重放
             pipeline/split/ms_total_from_ocr.py 只有 OCR 细则的题(35 题)从 ms_latex 读小计,写 ms_total / totals_agree
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
@@ -93,6 +94,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 - 评分细则每行为 `答案  |  评分代码  |  说明`,列之间是两侧各两个空格的竖线(`lib/scheme.py`);
   公式中的竖线不带这样的空格。单元格内换行存为 `<br>`,由 `fix_newlines.py` 写入,页面与导出负责显示。
 - `apply_ms_fixes.py` 之后重跑 `split_parts.py`,小问数据才会用到更正后的文本。
+- `fix_batches.py apply --write` 在 `apply_ms_fixes.py` 之后、`split_parts.py` 之前运行。9618 的评分细则每个小问一块:
+  首行以小问标签开头,块内逐行写评分点、表格与代码,最后一行末尾是 `  |  分值`(`manager/bank.scheme_rows` 按此解析)。
 - `drop_partial_ms_ocr.py` 在 OCR 评分细则合并(`merge_ms_ocr.py`)之后、`split_parts.py`
   之前运行,否则小问拿到的是被截断的细则。
 - `explain_batches.py plan` 读 `part_data`,须在 `split_parts.py` 之后;小问标签变化后,

@@ -120,18 +120,34 @@ def _breaks(text):
 
 def scheme_rows(ms):
     """Mark-scheme text (rows of `answer  |  marks  |  guidance`, lib/scheme.py) as a
-    list of rows. Lines that are not rows continue the guidance of the row above,
-    unless they open a part (`3(b)`); a bare number is the part total and is dropped."""
-    out, last = [], None
+    list of rows. A line that opens a part (`3(b)`) without marks starts a row whose
+    answer runs on, line by line, to the line that carries the marks (9618 writes each
+    part so); other lines that are not rows continue the guidance of the row above. A
+    bare number is the part total and is dropped."""
+    out, last, open_row = [], None, False
     for line in (ms or "").splitlines():
         if not line.strip():
             continue
+        if open_row and not LABEL.match(line):
+            # a part written over several lines (9618): the answer runs on until the
+            # line that carries the marks; code keeps its indentation
+            if scheme.is_row(line):
+                cells = [_breaks(c) for c in scheme.cells(line)]
+                out[-1]["answer"] = (out[-1]["answer"] + "\n" + cells[0]).strip("\n")
+                out[-1]["code"] = cells[1] if len(cells) > 1 else ""
+                out[-1]["guide"] = " | ".join(cells[2:]) if len(cells) > 2 else ""
+                open_row = False
+            else:
+                out[-1]["answer"] = (out[-1]["answer"] + "\n" + _breaks(line.rstrip())).strip("\n")
+            continue
+        open_row = False
         if not scheme.is_row(line) and not LABEL.match(line):
             if re.fullmatch(r"\s*\d+\s*", line) or not out:
                 continue
             out[-1]["guide"] = (out[-1]["guide"] + "\n" + _breaks(line.strip())).strip()
             continue
         cells = [_breaks(c) for c in scheme.cells(line)]
+        opens = not scheme.is_row(line)           # a label line without marks yet
         if len(cells) > 1 and CODES.fullmatch(cells[0]) and not CODES.fullmatch(cells[1]):
             cells.insert(0, "")              # the answer cell was empty
         answer, code = cells[0], cells[1] if len(cells) > 1 else ""
@@ -140,7 +156,7 @@ def scheme_rows(ms):
         part = m.group(1) if m and not re.fullmatch(r"\d+", answer.strip()) else ""
         if part:
             answer = answer[m.end():]
-        if re.fullmatch(r"\d+", answer.strip()) and not MARK.match(code):
+        if not part and re.fullmatch(r"\d+", answer.strip()) and not MARK.match(code):
             if out and code:                 # part total, then guidance that ran on
                 out[-1]["guide"] = (out[-1]["guide"] + "\n" + code).strip()
             continue
@@ -148,6 +164,7 @@ def scheme_rows(ms):
             part = ""
         last = part or last
         out.append({"part": part, "answer": answer, "code": code, "guide": guide})
+        open_row = opens
     return out
 
 
