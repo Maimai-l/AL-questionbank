@@ -64,6 +64,7 @@ TASK = """# 题干与评分细则更正批次 {n}
 3. 答题横线、空白答题框不写;需要填写的表格写成 Markdown 表格,空格留空;需要补全的代码或伪代码中的空位写成 `………`。
 4. 表格写成 Markdown 表格(`| A | B |`)。代码与伪代码放进 ``` 代码块,保留原图的缩进与换行。
 5. 公式用 LaTeX,放在 `$...$` 中;编程语言、伪代码、SQL 里的符号照原样写,不要改成 LaTeX。
+   金额等处的美元符号一律写成 `\$`(如 `\$1.75`),不要用 `\char36`、`\textdollar` 等写法。
 6. **图示要写成文字**(不要留 `[DIAGRAM]`)。在图的位置写一行 `Diagram:`,接着用以下方式之一写出图中全部信息:
    - 逻辑电路:每个门写成一行表达式,如 `P = A XOR B`,并写出输出 `X = …`;
    - 寄存器、比特位、方框中的数:按顺序写出,如 `ACC: 0 1 1 0 0 1 0 1`;
@@ -85,6 +86,7 @@ TASK = """# 题干与评分细则更正批次 {n}
 2. 每块的最后一行末尾写 `  |  分值`(两个空格、竖线、两个空格、原页 Marks 列的数字)。块内其他地方不要出现两侧都带两个空格的竖线;
    表格的空单元格写成 `| |`(中间一个空格)。块以表格或代码结束时,分值单独写一行 `|  3`。
    评分点的编号照原页写(`1 Check …`、`MP1 …`),只有小问标签后面跟两个空格。
+   数学评分细则的评分码(`M1`、`A1`、`B1`、`DM1`、`A1ft` 等)写在该行末尾,前面空两格,不加括号,如 `$x = 3$  A1`;Guidance 另起一行,以 `Guidance:` 开头。
 3. 答案中的表格(真值表、追踪表、指针表)写成 Markdown 表格行,放在块内;连线题写出每一条正确的连线(`1NF → There are no repeating groups …`);
    流程图答案按步骤写出。负号写成 `−` 或 `-`,不要写成乱码。
 4. 原页没有的内容不要写。
@@ -205,7 +207,9 @@ def check_question(text, r):
     if "[DIAGRAM]" in text:
         problems.append("还有 [DIAGRAM]")
     tariffs = json.loads(r["marks_parts"] or "[]")
-    labels = re.findall(r"(?m)^\s*(?:\d+\s+)?\(([a-h]|i{1,3}|iv|vi{0,3}|ix|x)\)", text)
+    label = r"\((?:[a-h]|i{1,3}|iv|vi{0,3}|ix|x)\)"
+    heads = re.findall(rf"(?m)^\s*(?:\d+\s+)?((?:{label}\s*)+)", text)   # "(a) (i)" on one line counts as two
+    labels = [x for h in heads for x in re.findall(r"\(([a-z]+)\)", h)]
     if len(tariffs) > 1:
         lowest = 0
         for i, x in enumerate(labels):            # a letter followed by a roman is not lowest-level
@@ -215,11 +219,15 @@ def check_question(text, r):
                 lowest += 1
         if lowest != len(tariffs):
             problems.append(f"最低一级小问 {lowest} 个,原卷分值 {len(tariffs)} 个({tariffs})")
-    layer = [w.lower() for w in WORD.findall(r["question_text"] or "")]
+    layer_text = re.sub(r"(?m)^.*(©|UCLES|Cambridge University Press).*$", "", r["question_text"] or "")   # page footer
+    layer = [w.lower() for w in WORD.findall(layer_text)]
     if layer:
         have = set(w.lower() for w in WORD.findall(text))
-        miss = sum(1 for w in layer if w not in have) / len(layer)
-        if miss > 0.08:
+        for m in re.findall(r"\$+([^$]+)\$+", text):              # the text layer runs math together: "lncosx"
+            have |= {w.lower() for w in WORD.findall(re.sub(r"\\[a-zA-Z]+|[\\\s{}^_]", lambda x: x.group(0)[1:] if x.group(0)[0] == "\\" and len(x.group(0)) > 1 else "", m))}
+        lost = sum(1 for w in layer if w not in have and not any(w in h for h in have))   # "erential": a lost ligature
+        miss = lost / len(layer)
+        if miss > 0.08 and lost > 1:                    # one word is the text layer running math together
             problems.append(f"文本层中 {miss:.0%} 的词不在新题干里")
     return problems
 
@@ -289,6 +297,7 @@ def apply(a):
         for line in open(FIXES, encoding="utf-8"):
             f = json.loads(line)
             have.add((f["id"], f["column"], f["base"]))
+            have.add((f["id"], f["column"], "=" + sha(f["text"])))
     added = 0
     with open(FIXES, "a", encoding="utf-8") as out:
         for path in sorted(glob.glob(os.path.join(WORK, "*", "out", "batch_*.json"))):
@@ -297,10 +306,12 @@ def apply(a):
             for line in report:
                 print(f"{rel(path)}: {line}")
             for f in ok:
-                if f["id"] in bad or (f["id"], f["column"], f["base"]) in have:
+                done = (f["id"], f["column"], "=" + sha(f["text"]))   # already recorded, base being the applied text
+                if f["id"] in bad or (f["id"], f["column"], f["base"]) in have or done in have:
                     continue
                 out.write(json.dumps(f, ensure_ascii=False) + "\n")
                 have.add((f["id"], f["column"], f["base"]))
+                have.add(done)
                 added += 1
     print(f"追加 {added} 条到 {rel(FIXES)}")
     replay(a.write)

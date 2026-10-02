@@ -24,7 +24,7 @@ const katex = require(process.argv[1]);
 const units = JSON.parse(require('fs').readFileSync(0, 'utf8'));
 const bad = [];
 for (const [id, column, text] of units) {
-  const re = /\$\$([\s\S]+?)\$\$|\$([^$]+?)\$/g; let m;
+  const re = /(?<!\\)\$\$([\s\S]+?)(?<!\\)\$\$|(?<!\\)\$((?:\\\$|[^$])+?)(?<!\\)\$/g; let m;   // \$ is a literal dollar
   while ((m = re.exec(text))) {
     const tex = m[1] || m[2];
     try { katex.renderToString(tex, { displayMode: !!m[1], throwOnError: true, strict: 'ignore' }); }
