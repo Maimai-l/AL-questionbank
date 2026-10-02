@@ -478,6 +478,26 @@ def _read(path, builtin):
     return g
 
 
+def summary(g):
+    """One line for the flow list: the conditions, joined by 、."""
+    labels = {k: label for f in FIELDS.values() for k, label, _ in f}
+    parts = []
+    for n in g.get("nodes", []):
+        p = n.get("params") or {}
+        if n["type"] == "book":
+            parts.append(BOOKS.get(p.get("book"), p.get("book", "")))
+        elif n["type"] == "filter":
+            parts += [f"{labels.get(c['field'], c['field'])} {c['op']} {c['value']}" for c in p.get("conds", [])
+                      if c.get("field") and str(c.get("value", "")).strip()]
+        elif n["type"] == "group":
+            parts.append(f"按{labels.get(p.get('field', 'topic'), '主题')}分组")
+        elif n["type"] == "take":
+            parts.append(f"限制数量 {p.get('n', 10)}")
+        elif n["type"] == "join":
+            parts.append(f"按{labels.get(p.get('right', 'topic'), '主题')}连接")
+    return "、".join(dict.fromkeys(x for x in parts if x))
+
+
 def all_flows():
     out = []
     if os.path.isdir(BUILTIN):

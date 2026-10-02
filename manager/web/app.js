@@ -394,9 +394,9 @@
         h('section', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('div', { className: 'fx-head' }, h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)' } }, '年份')),
           h('div', { className: 'years' },
-            h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: years, value: String(f.from), onChange: (v) => setF({ ...f, from: +v }) }),
+            h(E.Select, { ariaLabel: '起始年份', options: years, value: String(f.from), onChange: (v) => setF({ ...f, from: +v }) }),
             h('span', null, '至'),
-            h(E.Select, { ariaLabel: '结束年份', size: 'sm', options: years, value: String(f.to), onChange: (v) => setF({ ...f, to: +v }) }))),
+            h(E.Select, { ariaLabel: '结束年份', options: years, value: String(f.to), onChange: (v) => setF({ ...f, to: +v }) }))),
         topicItems.length ? h(Facet, { title: '主题', items: topicItems, picked: f.topics, onChange: (s) => setF({ ...f, topics: s }) }) : null,
         taskItems.length ? h(Facet, { title: '小问类型', items: taskItems, picked: tasks, onChange: (s) => setF({ ...f, tasks: s }) }) : null),
       h('main', { className: 'dm-results' },
@@ -413,10 +413,10 @@
             ariaLabel: '题目', rows: view, selected, onSelectedChange: setSelected, onActivate: setFocus, minWidth: 460,
             columns: [
               { key: 'year', label: '年份', kind: 'id', width: 88 },
-              { key: 'season', label: '考季', kind: 'text', width: 72, sortValue: (r) => r.month },
+              { key: 'season', label: '考季', kind: 'id', width: 72, sortValue: (r) => r.month },
               { key: 'paper', label: '卷号', kind: 'id', width: 64 },
-              { key: 'qn', label: '题号', kind: 'text', sortValue: (r) => r.q },
-              { key: 'parts', label: '小问数', kind: 'number', width: 88 },
+              { key: 'qn', label: '题号', kind: 'id', sortValue: (r) => r.q },
+              { key: 'parts', label: '小问数', kind: 'number', width: 104 },
               { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 88 },
             ],
           }) : h(E.Loading, { label: '读取题目' }),
@@ -472,11 +472,11 @@
           d.topic ? h(E.Tag, { size: 'sm' }, `${d.topic} ${d.topic_name}`) : null,
           h(E.Tag, { size: 'sm' }, `${d.marks} 分`),
           d.diagram ? h(E.Tag, { size: 'sm' }, '有图形') : null)),
-      h('div', { style: { padding: '0 24px', display: 'flex', flexDirection: 'column', gap: 12 } },
+      h('div', { className: 'detail-media' },
         d.image_space ? h(E.SegmentedControl, { ariaLabel: '题图', value: crop, onChange: setCrop,
           options: [{ value: 'compact', label: '仅题目' }, { value: 'space', label: '含答题区' }] }) : null,
         img ? h('div', { className: 'qimg' }, h('img', { src: img.src, alt: `${d.code} 第 ${d.q} 题题图` })) : null),
-      h('div', { style: { padding: '16px 24px 0' } },
+      h('div', { className: 'detail-tabs' },
         h(E.Tabs, { variant: 'line', items: tabs, value: tab, onChange: setTab, ariaLabel: '题目资料' })),
       h('div', { className: 'detail-body' },
         tab === 'ms' ? (d.scheme ? h(Scheme, { rows: d.scheme }) : h(Markdown, { text: d.solution })) : null,
@@ -617,12 +617,12 @@
           columns: [
             { key: 'n', label: '序号', kind: 'id', width: 80 },
             { key: 'year', label: '年份', kind: 'id', width: 72, sortable: false },
-            { key: 'season', label: '考季', kind: 'text', width: 72, sortable: false },
+            { key: 'season', label: '考季', kind: 'id', width: 72, sortable: false },
             { key: 'paper', label: '卷号', kind: 'id', width: 64, sortable: false },
-            { key: 'qn', label: '题号', kind: 'text', sortable: false },
+            { key: 'qn', label: '题号', kind: 'id', sortable: false },
             { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 80, sortable: false },
           ],
-        }) : h(E.EmptyState, { icon: 'i-search', title: '题组中还没有题目', description: '在查询页选中题目后加入题组' })),
+        }) : h(E.EmptyState, { icon: 'i-list', title: '题组中还没有题目', description: '在查询页选中题目后加入题组' })),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除题组', confirmLabel: '删除题组', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/sets/' + s.id).then(() => { location.hash = '#/sets'; reloadSets(); }) },
       h('p', null, `删除后 ${s.name} 将无法恢复。题库中的题目不受影响。`)) : null),
@@ -690,7 +690,7 @@
           h('h2', { className: 'fs-lead panel-title' }, '导出'),
           act('i-box', '下载 ZIP', () => downloadZip(s, { template: tid }, toast), { disabled: !s.count }),
           act('i-sliders', '打开导出页', () => { location.hash = `#/sets/${s.id}/export/${tid}`; })),
-        h(E.Select, { ariaLabel: '导出模板', size: 'sm', options: templates.map((t) => ({ value: t.id, label: t.name })), value: tid, onChange: setTid })));
+        h(E.Select, { ariaLabel: '导出模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: tid, onChange: setTid })));
   }
 
   function PaperPage({ s }) {
@@ -702,8 +702,8 @@
     const shown = info ? Array.from({ length: Math.min(per, info.pages - first) }, (_, i) => first + i) : [];
     return h('main', { className: 'paperpage' },
       h('div', { className: 'paper-head' },
-        h('div', { style: { flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 8 } },
-          h('h1', { className: 'fs-h3', style: { margin: 0 } }, s.name),
+        h('div', { className: 'page-head', style: { flexGrow: 1 } },
+          h('h1', { className: 'page-title' }, s.name),
           h('div', { className: 'dm-meta' }, h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
             info ? h('span', null, h('b', null, info.pages), ' 页') : null)),
         info && info.pages > per ? h(E.Pagination, { total: info.pages, pageSize: per, page, onChange: setPage, variant: 'simple' }) : null,
@@ -733,6 +733,12 @@
       prompt_file: o.readme ? (st.prompt_file || 'README.md') : '' };
   };
   const sizeText = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
+
+  /** What each question carries under a template, for the template list. */
+  function contents(settings) {
+    const o = optsOf(settings);
+    return [o.image && '题图', o.text && '题干文字', o.ms && '评分细则', o.ex && '详解', o.answers && '作答 PDF'].filter(Boolean).join('、');
+  }
 
   function ExportOptions({ settings, onChange }) {
     const o = optsOf(settings);
@@ -818,7 +824,7 @@
     return pv;
   }
 
-  function ExportPage({ s, tid, templates, reloadTemplates, toast }) {
+  function ExportPage({ s, tid, templates, reloadTemplates, toast, acts }) {
     const [pick, setPick] = useState(tid || 'default');
     const [st, setSt] = useState(null);
     const [body, setBody] = useState('');
@@ -835,17 +841,16 @@
       .then((t) => { toast('success', `已保存为 ${t.name}`); return reloadTemplates().then(() => setPick(t.id)); })
       .catch((e) => toast('error', e.message));
     return h('div', { className: 'dm-row exportpage' },
+      h(TopActs, { el: acts },
+        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count, onClick: () => downloadZip(s, { settings: st, body }, toast) }, '下载 ZIP')),
       h('aside', { className: 'ex-side' },
-        h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
-          h('h1', { className: 'fs-h3', style: { margin: 0 } }, s.name),
+        h('div', { className: 'page-head' },
+          h('h1', { className: 'page-title' }, s.name),
           h('div', { className: 'dm-meta' }, h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'))),
         h('div', { className: 'field-act' },
           h(E.Select, { label: '模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: pick, onChange: setPick }),
           act('i-plus', '另存为模板', () => { setName(''); setSaving(true); }, { disabled: !st })),
-        st ? h(ExportOptions, { settings: st, onChange: setSt }) : null,
-        h('div', { style: { flexGrow: 1 } }),
-        h('div', null,
-          h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count, onClick: () => downloadZip(s, { settings: st, body }, toast) }, '下载 ZIP'))),
+        st ? h(ExportOptions, { settings: st, onChange: setSt }) : null),
       h('section', { className: 'ex-files' },
         h('div', { className: 'panel-row' },
           h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '文件'),
@@ -906,17 +911,18 @@
       h(TopActs, { el: acts }, act('i-plus', '新建导出模板', create)),
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'export' }),
-        h(E.List, { variant: 'compact', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
-          items: templates.map((x) => ({ value: x.id, title: x.name })) })),
+        h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
+          items: templates.map((x) => ({ value: x.id, icon: 'i-doc', title: x.name, subtitle: contents(x.settings) })) })),
       h('section', { className: 'tpl-opts' },
         h('div', { className: 'title-line' },
           h(EditableTitle, { value: name, small: true, readOnly: t.builtin, editing: renaming, setEditing: setRenaming, label: '重命名模板', onSave: setName }),
           h(MoreMenu, { label: '更多操作', items: [
             { label: '复制模板', onClick: copy },
             t.builtin ? null : { label: '删除模板', danger: true, onClick: () => setDeleting(true) }] })),
+        t.builtin ? h('p', { className: 'lock-note' }, '内置模板不可修改，复制模板后可修改副本') : null,
         h('div', { className: t.builtin ? 'opts locked' : 'opts' }, h(ExportOptions, { settings: st, onChange: t.builtin ? () => {} : setSt }))),
       h('section', { className: 'tpl-edit' },
-        h('div', { className: 'panel-row', style: { gap: 24 } },
+        h('div', { className: 'panel-row', style: { gap: 'var(--head)' } },
           h(E.Tabs, { variant: 'line', value: tab, onChange: setTab, ariaLabel: '说明文件',
             items: [{ value: 'src', label: st.prompt_file || 'README.md' }, { value: 'preview', label: '预览' }] }),
           h('span', { className: 'dm-grow' }),
@@ -1186,6 +1192,7 @@
       h('div', { className: 'panel-row' },
         h('h2', { className: 'fs-lead panel-title' }, '流程'),
         g.builtin ? null : act('i-trash', '删除流程', () => setDeleting(true))),
+      g.builtin ? h('p', { className: 'lock-note' }, '内置流程不可修改，另存为流程后可修改副本') : null,
       h(E.TextField, { label: '名称', size: 'sm', value: g.name, disabled: g.builtin, onChange: (e) => setG({ ...g, name: e.target.value }) }),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/flows/' + g.id).then(onDeleted).catch((e) => toast('error', e.message)) },
@@ -1243,7 +1250,7 @@
       h('div', { className: 'panel-row' },
         h('h2', { className: 'fs-lead panel-title' }, spec.label),
         act('i-trash', '删除节点', onDelete)),
-      body ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } }, body) : null,
+      body ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: 'var(--sub)' } }, body) : null,
       error ? h('div', { className: 'fl-err fs-small' }, error) : null,
       shown ? h('div', { className: 'sum' },
         h('div', { className: 'dm-meta' }, shown.shape === 'group'
@@ -1262,8 +1269,9 @@
       h(TopActs, { el: acts }, act('i-plus', '新建流程', create)),
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'flow' }),
-        flows ? h(E.List, { variant: 'compact', selectable: true, ariaLabel: '批量生成流程', value: undefined,
-          onChange: (v) => { location.hash = '#/flows/' + v; }, items: flows.map((x) => ({ value: x.id, title: x.name })) }) : h(E.Loading, null)),
+        flows ? h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '批量生成流程', value: undefined,
+          onChange: (v) => { location.hash = '#/flows/' + v; },
+          items: flows.map((x) => ({ value: x.id, icon: 'i-grid', title: x.name, subtitle: x.summary })) }) : h(E.Loading, null)),
       h('main', { className: 'setmain empty-main' }, h(E.EmptyState, { icon: 'i-grid', title: '没有打开的流程' })));
   }
 
@@ -1360,7 +1368,7 @@
     else if (page === 'sets' && sub === 'paper') {
       body = cur ? h('div', { className: 'dm-row' }, h(PaperPage, { s: cur })) : h(E.Loading, null);
     } else if (page === 'sets' && sub === 'export') {
-      body = cur && templates.length ? h(ExportPage, { key: cur.id, s: cur, tid: subArg, templates, reloadTemplates, toast }) : h(E.Loading, null);
+      body = cur && templates.length ? h(ExportPage, { key: cur.id, s: cur, tid: subArg, templates, reloadTemplates, toast, acts }) : h(E.Loading, null);
     } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
     else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { toast, acts });
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);

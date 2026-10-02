@@ -14,10 +14,6 @@ prompt_file: README.md
 
 {count} 道题，满分 {total_marks} 分，来自 {papers}。
 
-## 文件
-
-{file_tree}
-
 ## 题目
 
 {question_table}

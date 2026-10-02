@@ -328,7 +328,8 @@ async def current_board(request):
 
 
 async def flow_list(request):
-    return web.json_response([{k: g[k] for k in ("id", "name", "builtin")} for g in flow.all_flows()])
+    return web.json_response([{**{k: g[k] for k in ("id", "name", "builtin")}, "summary": flow.summary(g)}
+                              for g in flow.all_flows()])
 
 
 async def flow_catalog(request):
@@ -474,7 +475,7 @@ def make_app():
 
 
 def run(port=8910, host="0.0.0.0"):
-    print(f"数据管理页: http://localhost:{port}/(局域网内的 iPad 用本机地址访问,白板 iPad 外壳的来源填 @qb-manage)\n"
+    print(f"数据管理页: http://localhost:{port}/(在电脑的浏览器中打开;iPad 只用白板外壳,来源填 @qb-manage)\n"
           f"题组: {paths.SETS}\n按 Ctrl-C 停止")
     app = make_app()
     advertise(app, port=port, source="qb-manage", path="/ipad")   # the iPad shell opens /ipad (@qb-manage; app/ is @qb)
