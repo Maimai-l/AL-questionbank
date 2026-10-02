@@ -8,11 +8,11 @@
 | `server.py` | aiohttp 服务:页面、题图、原卷、`/api/*` |
 | `bank.py` | 题库的只读视图:查询表格的行、条件栏的计数、单题详情(评分细则逐行拆分) |
 | `sets.py` | 题组:`paths.SETS` 下每组一个 JSON;与模型交换用 `alevel-question-set/v1` |
-| `paper.py` | 题目卷 PDF(F4),缓存在 `paths.WORK/papers/` |
+| `paper.py` | 练习卷 PDF(F4),缓存在 `paths.WORK/papers/` |
 | `docs.py` | 评分细则与详解的阅读文档(F6) |
-| `settings.py` | 设置页:题目卷版式与主题 |
-| `export.py`、`templates.py`、`templates/` | 导出 ZIP 与导出模板(F7、F8) |
-| `board.py`、`whiteboard/` | 题目卷白板与带笔迹的 PDF 导出(F5) |
+| `settings.py` | 设置页:练习卷页脚与配色 |
+| `export.py`、`templates.py`、`templates/` | 输出(PDF、ZIP、图片 ZIP)与导出模板(F7、F8) |
+| `board.py`、`whiteboard/` | 练习卷白板与批注版导出(F5) |
 | `flow.py`、`flows/` | 批量生成的运行器与内置示例(F9) |
 | `vendor/inksync/`、`web/board/` | 来自 white-board 的同步组件与书写界面,见 `vendor/README.md` |
 | `web/app.js` | 页面(React,不经构建,`h = React.createElement`) |
