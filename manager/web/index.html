@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>题库数据管理</title>
+<link rel="stylesheet" href="/static/ds/tokens.css">
+<link rel="stylesheet" href="/static/ds/bundle.css">
+<link rel="stylesheet" href="/static/ds/fixes.css">
+<link rel="stylesheet" href="/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="/static/style.css">
+<script src="/static/ds/react.production.min.js"></script>
+<script src="/static/ds/react-dom.production.min.js"></script>
+<script src="/static/ds/bundle.js"></script>
+<script defer src="/vendor/katex/katex.min.js"></script>
+<script defer src="/vendor/katex/auto-render.min.js"></script>
+<script>
+  // The theme from the settings page: system, light or dark.
+  try {
+    var t = localStorage.getItem('dm-theme');
+    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
+    else if (matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
+  } catch (e) {}
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script defer src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,4 @@
+/* bundle.css 的纹理图引用的是设计系统资源库中的图片,本地没有,先不显示纹理。 */
+.btn::before, .rbtn::before, .empty::before { background: none; }
+/* Sidebar 的线条图标缺少描边设置,会被填充成实心块;补上与 .ic 相同的设置。 */
+.sn-ic { fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: square; stroke-linejoin: miter; }

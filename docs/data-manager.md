@@ -336,18 +336,13 @@ prompt_file: README.md
 
 ## 8. 设计
 
-- 使用设计系统 ENDFIELD React(`https://claude.ai/artifact/Y7GzkWZhPQVDPaAWQf1Due`):
-  - 组件从 `window.Endfield` 取用,包括 Table、Tabs、TopBar、Sidebar、List、Dialog、TextField、TextArea、Select、Checkbox、Tag、Toast、EmptyState、Pagination;
-  - 样式来自它的 `bundle.css` 与 `tokens.css`;
-  - 本页面属于设计系统中的"工作页",间距按工作页的规定。
+- 设计稿:`https://claude.ai/artifact/HvHpPHh4SwvhhQJwoyuv78`(深色与浅色各一套)。页面:查询、题组、题目卷、设置、导出、模板、iPad 白板与导出对话框、批量生成。
+- 使用设计系统 ENDFIELD React(`https://claude.ai/artifact/Y7GzkWZhPQVDPaAWQf1Due`),组件从 `window.Endfield` 取用,样式来自它的 `bundle.css` 与 `tokens.css`。React、组件包与字体复制在 `manager/web/ds/`,页面不依赖外网。
+- 本页面属于设计系统中的"工作页",间距按工作页的规定。
+- 按钮文字一律动词在前、宾语在后,例如"下载 PDF""打开白板""加入题组"。
+- 界面上不出现说明性文字;名称按第 7.5 节书写。
 - F5 的书写界面使用 white-board 的界面与工具栏,与设计系统分开。
-- React、组件包与字体文件复制进项目,页面不依赖外网。
-- 页面结构:
-  - 顶栏:考试切换、搜索;
-  - 侧边导航:查询、题组、模板;
-  - 主区:表格,或题组内容;
-  - 右栏:当前题的详情。
-- 本文件确认后,单独给出设计稿。
+- 实现在 `manager/`,入口 `python3 qb.py manage`。
 
 ## 9. 已确认的决定
 

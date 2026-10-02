@@ -41,6 +41,7 @@ PREREQ = os.path.join(ROOT, "prereq.json")
 WORK = os.environ.get("QB_WORK") or os.path.join(os.path.dirname(ROOT), "qb-work")
 INK = os.path.join(WORK, "ink")                 # inksync storage
 ATTEMPTS = os.path.join(WORK, "attempts.db")    # app/store.py
+SETS = os.path.join(WORK, "sets")               # manager/sets.py: one JSON per question set
 
 # Where the question crops may be. data/ is the normal place; the others keep
 # a copy unpacked in an older layout working.
