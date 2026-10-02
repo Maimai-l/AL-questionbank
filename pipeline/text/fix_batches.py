@@ -205,7 +205,9 @@ def check_question(text, r):
     if "[DIAGRAM]" in text:
         problems.append("还有 [DIAGRAM]")
     tariffs = json.loads(r["marks_parts"] or "[]")
-    labels = re.findall(r"(?m)^\s*(?:\d+\s+)?\(([a-h]|i{1,3}|iv|vi{0,3}|ix|x)\)", text)
+    label = r"\((?:[a-h]|i{1,3}|iv|vi{0,3}|ix|x)\)"
+    heads = re.findall(rf"(?m)^\s*(?:\d+\s+)?((?:{label}\s*)+)", text)   # "(a) (i)" on one line counts as two
+    labels = [x for h in heads for x in re.findall(r"\(([a-z]+)\)", h)]
     if len(tariffs) > 1:
         lowest = 0
         for i, x in enumerate(labels):            # a letter followed by a roman is not lowest-level
@@ -215,7 +217,8 @@ def check_question(text, r):
                 lowest += 1
         if lowest != len(tariffs):
             problems.append(f"最低一级小问 {lowest} 个,原卷分值 {len(tariffs)} 个({tariffs})")
-    layer = [w.lower() for w in WORD.findall(r["question_text"] or "")]
+    layer_text = re.sub(r"(?m)^.*(©|UCLES|Cambridge University Press).*$", "", r["question_text"] or "")   # page footer
+    layer = [w.lower() for w in WORD.findall(layer_text)]
     if layer:
         have = set(w.lower() for w in WORD.findall(text))
         miss = sum(1 for w in layer if w not in have) / len(layer)
