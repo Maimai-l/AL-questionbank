@@ -24,7 +24,7 @@
   // clip them. An open menu is taken out of the flow (position: fixed), as wide as its
   // field, below it or above it when there is more room there, and kept on screen.
   function placeMenu(menu) {
-    const field = menu.parentElement.querySelector('.select') || menu.parentElement;
+    const field = menu.parentElement.querySelector('.select, .ibtn, button') || menu.parentElement;
     const r = field.getBoundingClientRect();
     if (!r.width) return;
     const s = menu.style;
@@ -34,7 +34,8 @@
     const up = menu.scrollHeight > below && above > below;
     s.maxHeight = Math.min(320, up ? above : below) + 'px';
     const m = menu.getBoundingClientRect();   // a transformed ancestor (a dialog) moves the origin
-    const left = Math.max(8, Math.min(r.left, innerWidth - m.width - 8));
+    const toRight = menu.parentElement.classList.contains('more-dd');   // a "more" menu opens toward the page, under its button
+    const left = Math.max(8, Math.min(toRight ? r.right - m.width : r.left, innerWidth - m.width - 8));
     const top = up ? r.top - 4 - m.height : r.bottom + 4;
     s.left = left - m.left + 'px';
     s.top = top - m.top + 'px';
@@ -96,6 +97,35 @@
   if (sprite && !document.getElementById('i-edit')) {
     sprite.insertAdjacentHTML('beforeend', '<symbol id="i-edit" viewBox="0 0 16 16"><path d="M10.6 2.4l3 3L5.4 13.6H2.4v-3zM8.9 4.1l3 3"/></symbol>');
   }
+
+  // ------------------------------------------------------------------ actions
+
+  /** A borderless icon button with its name as a tooltip: the page's actions. */
+  const act = (icon, label, onClick, more) => h(E.IconButton, { icon, label, variant: 'ghost', size: 'sm', tooltip: 'below', onClick, ...more });
+
+  /** Actions that are seldom used or destructive, behind a "more" button. Uses the
+      design system's dropdown menu (.dd .menu), placed by placeMenu. */
+  function MoreMenu({ label = '更多', items }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    useEffect(() => {
+      if (!open) return undefined;
+      const away = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+      const key = (e) => { if (e.key === 'Escape') setOpen(false); };
+      document.addEventListener('pointerdown', away);
+      document.addEventListener('keydown', key);
+      return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', key); };
+    }, [open]);
+    return h('div', { ref, className: 'dd more-dd' },
+      h(E.IconButton, { icon: 'i-more', label, variant: 'ghost', size: 'sm', tooltip: open ? undefined : 'below',
+        'aria-haspopup': 'menu', 'aria-expanded': open, onClick: () => setOpen(!open) }),
+      h('div', { className: 'menu', role: 'menu', hidden: !open },
+        items.filter(Boolean).map((it) => h('button', { key: it.label, type: 'button', role: 'menuitem',
+          className: 'menu-item' + (it.danger ? ' is-danger' : ''), onClick: () => { setOpen(false); it.onClick(); } }, it.label))));
+  }
+
+  /** Page actions rendered into the top bar's action slot (App's acts element). */
+  const TopActs = ({ el, children }) => (el ? ReactDOM.createPortal(children, el) : null);
 
   // ------------------------------------------------------------------ table
 
@@ -472,32 +502,29 @@
 
   /** A heading edited in place: the pencil (or a double click) turns it into a field;
       Enter or leaving the field saves, Escape restores the old name. */
-  function EditableTitle({ value, onSave, editing, setEditing, label }) {
+  function EditableTitle({ value, onSave, editing, setEditing, label, small, readOnly }) {
     const ref = useRef(null);
     const [text, setText] = useState(value);
-    useEffect(() => {
-      if (!editing) return;
-      setText(value);
-      requestAnimationFrame(() => { if (ref.current) { ref.current.focus(); ref.current.select(); } });
-    }, [editing]);
+    const start = () => { setText(value); setEditing(true); };   // the field opens holding the current name, selected
     const done = (keep) => {
       setEditing(false);
       const t = text.trim();
       if (keep && t && t !== value) onSave(t);
     };
-    if (editing) return h('input', { ref, className: 'title-edit', value: text, 'aria-label': label, maxLength: 120,
+    if (editing && !readOnly) return h('input', { ref, className: 'title-edit' + (small ? ' sm' : ''), value: text, 'aria-label': label, maxLength: 120,
+      autoFocus: true, onFocus: (e) => e.target.select(),
       onChange: (e) => setText(e.target.value), onBlur: () => done(true),
       onKeyDown: (e) => { if (e.key === 'Enter') e.target.blur(); else if (e.key === 'Escape') { setText(value); setEditing(false); } } });
-    return h('div', { className: 'title-row' },
-      h('h1', { onDoubleClick: () => setEditing(true) }, value),
-      h(E.IconButton, { icon: 'i-edit', label, variant: 'ghost', size: 'sm', onClick: () => setEditing(true) }));
+    return h('div', { className: 'title-row' + (small ? ' sm' : '') },
+      h('h1', { onDoubleClick: readOnly ? undefined : start, style: readOnly ? { cursor: 'default' } : undefined }, value),
+      readOnly ? null : h(E.IconButton, { icon: 'i-edit', label, variant: 'ghost', size: 'sm', onClick: start }));
   }
 
   let nameNext = null;   // a set just made: its page opens with the name being edited
 
   const SOURCE_ICON = { query: 'i-search', paper: 'i-doc', import: 'i-upload', manual: 'i-list' };
 
-  function SetsPage({ sets, current, reloadSets, templates, toast }) {
+  function SetsPage({ sets, current, reloadSets, templates, toast, acts }) {
     const s = sets.find((x) => x.id === current) || sets[0];
     const fileRef = useRef(null);
     const importFile = (e) => {
@@ -515,11 +542,11 @@
     const create = () => send('POST', '/api/sets', { name: '新题组', items: [] })
       .then((n) => { nameNext = n.id; reloadSets(); location.hash = '#/sets/' + n.id; });
     return h('div', { className: 'dm-row' },
+      h(TopActs, { el: acts },
+        act('i-plus', '新建题组', create),
+        act('i-upload', '导入 JSON', () => fileRef.current.click())),
       h('aside', { className: 'setlist' },
-        h('div', { style: { display: 'flex', gap: 8 } },
-          h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建题组'),
-          h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-upload', onClick: () => fileRef.current.click() }, '导入 JSON'),
-          h('input', { ref: fileRef, type: 'file', accept: '.json,application/json', className: 'hidden-input', onChange: importFile })),
+        h('input', { ref: fileRef, type: 'file', accept: '.json,application/json', className: 'hidden-input', onChange: importFile }),
         sets.length ? h(E.List, {
           variant: 'two-line', selectable: true, ariaLabel: '题组', value: s ? s.id : undefined,
           onChange: (v) => { location.hash = '#/sets/' + v; },
@@ -563,18 +590,19 @@
     const remove = () => { save({ items: s.items.filter((q) => !selected.includes(q)) }); setSelected([]); };
 
     return h(React.Fragment, null, h('main', { className: 'setmain' },
-      h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
-        h(EditableTitle, { value: s.name, editing: renaming, setEditing: setRenaming, label: '重命名题组', onSave: (name) => save({ name }) }),
-        h('div', { className: 'dm-meta' },
-          h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
-          h('span', { className: 't' }, s.created))),
-      h('div', { className: 'dm-toolbar' },
-        h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => setDeleting(true) }, '删除题组'),
-        h('span', { className: 'dm-grow' }),
-        h(E.IconButton, { icon: 'k-up', label: '上移题目', variant: 'ghost', size: 'sm', tooltip: 'below', disabled: !selected.length, onClick: () => move(-1) }),
-        h(E.IconButton, { icon: 'k-down', label: '下移题目', variant: 'ghost', size: 'sm', tooltip: 'below', disabled: !selected.length, onClick: () => move(1) }),
-        h(E.IconButton, { icon: 'i-trash', label: '移出题组', variant: 'ghost', size: 'sm', tooltip: 'below', disabled: !selected.length, onClick: remove }),
-        h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { location.href = `/api/sets/${s.id}/export`; } }, '导出 JSON')),
+      h('div', { className: 'page-head' },
+        h('div', { className: 'title-line' },
+          h(EditableTitle, { value: s.name, editing: renaming, setEditing: setRenaming, label: '重命名题组', onSave: (name) => save({ name }) }),
+          h(MoreMenu, { label: '更多操作', items: [
+            { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${s.id}/export`; } },
+            { label: '删除题组', danger: true, onClick: () => setDeleting(true) }] })),
+        h('div', { className: 'dm-toolbar' },
+          h('div', { className: 'dm-meta dm-grow' },
+            h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
+            h('span', { className: 't' }, s.created)),
+          act('k-up', '上移题目', () => move(-1), { disabled: !selected.length }),
+          act('k-down', '下移题目', () => move(1), { disabled: !selected.length }),
+          act('i-trash', '移出题组', remove, { disabled: !selected.length }))),
       h('div', { className: 'dm-tablebox' },
         !rows ? h(E.Loading, null) : view.length ? h(SelTable, {
           ariaLabel: '题组中的题目', rows: view, selected, onSelectedChange: setSelected, minWidth: 440,
@@ -622,17 +650,16 @@
     const docRow = (label, kind, n) => h('div', { className: 'panel-row' },
       h('span', { className: 'fs-small', style: { flexGrow: 1 } }, label),
       h('span', { className: 'dm-meta', style: { fontSize: 12 } }, h('span', null, h('b', null, n), ' 题')),
-      h(E.IconButton, { icon: 'i-doc', label: '下载' + label, variant: 'ghost', size: 'sm', disabled: !n, onClick: () => download(`/doc/${s.id}/${kind}?download=1`) }),
-      h(E.IconButton, { icon: 'i-arrow-r', label: '打开' + label, variant: 'ghost', size: 'sm', disabled: !n, onClick: () => open(`/doc/${s.id}/${kind}`, '_blank') }));
+      act('i-doc', '下载' + label, () => download(`/doc/${s.id}/${kind}?download=1`), { disabled: !n }),
+      act('i-arrow-r', '打开' + label, () => open(`/doc/${s.id}/${kind}`, '_blank'), { disabled: !n }));
     return h('aside', { className: 'setpanel' },
       h('section', null,
         h('div', { className: 'panel-row' },
-          h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '题目卷'),
+          h('h2', { className: 'fs-lead panel-title' }, '题目卷'),
           pages != null ? h('span', { className: 'dm-meta' }, h('span', null, h('b', null, pages), ' 页')) : null,
-          h(E.IconButton, { icon: 'i-arrow-r', label: '打开题目卷', variant: 'ghost', size: 'sm', disabled: !s.count, onClick: () => { location.hash = `#/sets/${s.id}/paper`; } })),
-        h('div', { style: { display: 'flex', gap: 8 } },
-          h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-doc', disabled: !s.count || pages == null, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF'),
-          h(E.Button, { variant: 'secondary', size: 'sm', disabled: !s.count || pages == null, onClick: openBoard }, '打开白板')),
+          act('i-doc', '下载 PDF', () => download(`/api/sets/${s.id}/paper.pdf`), { disabled: !s.count || pages == null }),
+          act('i-edit', '打开白板', openBoard, { disabled: !s.count || pages == null }),
+          act('i-arrow-r', '打开题目卷', () => { location.hash = `#/sets/${s.id}/paper`; }, { disabled: !s.count })),
         boards && (boards.boards.length || boards.answers) ? h('div', { className: 'panel-sub' },
           boards.boards.length ? h(React.Fragment, null,
             h('span', { className: 'fs-small panel-sub-title' }, '白板'),
@@ -647,15 +674,15 @@
               h('div', { className: 'dm-meta', style: { flexGrow: 1, fontSize: 12 } }, h('span', { className: 't' }, boards.answers.updated), h('span', null, h('b', null, boards.answers.pages), ' 页')),
               h(E.IconButton, { icon: 'i-doc', label: '下载作答 PDF', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: () => download(`/api/sets/${s.id}/answers.pdf`) }))) : null) : null),
       h('section', null,
-        h('h2', { className: 'fs-lead', style: { margin: '0 0 8px' } }, '评分细则与详解'),
+        h('div', { className: 'panel-row' }, h('h2', { className: 'fs-lead panel-title' }, '评分细则与详解')),
         docRow('评分细则', 'scheme', s.docs.scheme),
         docRow('详解', 'explanation', s.docs.explanation)),
       h('section', null,
         h('div', { className: 'panel-row' },
-          h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '导出'),
-          h(E.IconButton, { icon: 'i-sliders', label: '打开导出页', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: () => { location.hash = `#/sets/${s.id}/export/${tid}`; } })),
-        h(E.Select, { label: '模板', size: 'sm', options: templates.map((t) => ({ value: t.id, label: t.name })), value: tid, onChange: setTid }),
-        h('div', null, h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-box', disabled: !s.count, onClick: () => downloadZip(s, { template: tid }, toast) }, '下载 ZIP'))));
+          h('h2', { className: 'fs-lead panel-title' }, '导出'),
+          act('i-box', '下载 ZIP', () => downloadZip(s, { template: tid }, toast), { disabled: !s.count }),
+          act('i-sliders', '打开导出页', () => { location.hash = `#/sets/${s.id}/export/${tid}`; })),
+        h(E.Select, { ariaLabel: '导出模板', size: 'sm', options: templates.map((t) => ({ value: t.id, label: t.name })), value: tid, onChange: setTid })));
   }
 
   function PaperPage({ s }) {
@@ -804,12 +831,13 @@
         h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('h1', { className: 'fs-h3', style: { margin: 0 } }, s.name),
           h('div', { className: 'dm-meta' }, h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'))),
-        h(E.Select, { label: '模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: pick, onChange: setPick }),
+        h('div', { className: 'field-act' },
+          h(E.Select, { label: '模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: pick, onChange: setPick }),
+          act('i-plus', '另存为模板', () => { setName(''); setSaving(true); }, { disabled: !st })),
         st ? h(ExportOptions, { settings: st, onChange: setSt }) : null,
         h('div', { style: { flexGrow: 1 } }),
-        h('div', { style: { display: 'flex', gap: 8, flexWrap: 'wrap' } },
-          h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count, onClick: () => downloadZip(s, { settings: st, body }, toast) }, '下载 ZIP'),
-          h(E.Button, { variant: 'secondary', size: 'md', disabled: !st, onClick: () => { setName(''); setSaving(true); } }, '另存为模板'))),
+        h('div', null,
+          h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count, onClick: () => downloadZip(s, { settings: st, body }, toast) }, '下载 ZIP'))),
       h('section', { className: 'ex-files' },
         h('div', { className: 'panel-row' },
           h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '文件'),
@@ -820,7 +848,7 @@
           h(E.Tabs, { variant: 'line', value: doc, onChange: setDoc, ariaLabel: '压缩包文件',
             items: [{ value: 'readme', label: (st && st.prompt_file) || 'README.md' }, { value: 'manifest', label: 'manifest.json' }] }),
           h('span', { className: 'dm-grow' }),
-          h(E.IconButton, { icon: 'i-copy', label: '复制 README', variant: 'ghost', size: 'sm', tooltip: 'below', disabled: !pv, onClick: copy })),
+          act('i-copy', '复制 README', copy, { disabled: !pv })),
         h('div', { className: 'ex-docbody' },
           !pv ? h(E.Loading, null) : doc === 'readme' ? h(MdView, { text: pv.readme }) : h('pre', { className: 'md-code' }, pv.manifest))),
       saving ? h(E.Dialog, { open: true, title: '另存为模板', confirmLabel: '保存模板', onClose: () => setSaving(false), onConfirm: saveAs },
@@ -832,7 +860,7 @@
     ['{date}', '日期'], ['{question_table}', '题目表'], ['{file_tree}', '目录'],
   ];
 
-  function TemplatesPage({ templates, current, reloadTemplates, sets, toast }) {
+  function TemplatesPage({ templates, current, reloadTemplates, sets, toast, acts }) {
     const t = templates.find((x) => x.id === current) || templates[0];
     const [name, setName] = useState('');
     const [st, setSt] = useState(null);
@@ -840,18 +868,25 @@
     const [tab, setTab] = useState('src');
     const [sid, setSid] = useState(sets[0] ? sets[0].id : '');
     const [deleting, setDeleting] = useState(false);
+    const [renaming, setRenaming] = useState(false);
     const area = useRef(null);
-    useEffect(() => { if (t) { setName(t.name); setSt(t.settings); setBody(t.body); } }, [t && t.id, templates]);
+    useEffect(() => { if (t) { setName(t.name); setSt(t.settings); setBody(t.body); } }, [t && t.id, templates.length]);
+    // changes are saved as they are made (built-in templates are read-only)
+    useEffect(() => {
+      if (!t || t.builtin || !st) return undefined;
+      if (name === t.name && body === t.body && JSON.stringify(st) === JSON.stringify(t.settings)) return undefined;
+      const id = t.id;
+      const tm = setTimeout(() => send('PUT', '/api/templates/' + id, { name, settings: st, body })
+        .then(() => reloadTemplates()).catch((e) => toast('error', e.message)), 600);
+      return () => clearTimeout(tm);
+    }, [name, body, JSON.stringify(st)]);
     useEffect(() => { if (!sid && sets[0]) setSid(sets[0].id); }, [sets.length]);
     const pv = usePreview(tab === 'preview' ? sets.find((x) => x.id === sid) : null, st, body);
     if (!t || !st) return h('div', { className: 'dm-row' }, h(E.Loading, null));
-    const changed = name !== t.name || body !== t.body || JSON.stringify(st) !== JSON.stringify(t.settings);
     const go = (id) => { location.hash = '#/templates/' + id; };
     const create = () => send('POST', '/api/templates', { name: '导出模板', settings: templates[0].settings, body: templates[0].body })
       .then((n) => reloadTemplates().then(() => go(n.id)));
-    const copy = () => send('POST', '/api/templates', { name, settings: st, body }).then((n) => reloadTemplates().then(() => go(n.id)));
-    const save = () => send('PUT', '/api/templates/' + t.id, { name, settings: st, body })
-      .then(() => { toast('success', '模板已保存'); return reloadTemplates(); }).catch((e) => toast('error', e.message));
+    const copy = () => send('POST', '/api/templates', { name: name + ' 副本', settings: st, body }).then((n) => reloadTemplates().then(() => go(n.id)));
     const insert = (v) => {
       const el = area.current;
       const a = el ? el.selectionStart : body.length;
@@ -860,21 +895,18 @@
       requestAnimationFrame(() => { if (el) { el.focus(); el.selectionStart = el.selectionEnd = a + v.length; } });
     };
     return h('div', { className: 'dm-row tplpage' },
+      h(TopActs, { el: acts }, act('i-plus', '新建导出模板', create)),
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'export' }),
         h(E.List, { variant: 'compact', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
-          items: templates.map((x) => ({ value: x.id, title: x.name })) }),
-        h('div', { style: { flexGrow: 1 } }),
-        h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建导出模板'))),
+          items: templates.map((x) => ({ value: x.id, title: x.name })) })),
       h('section', { className: 'tpl-opts' },
-        h(E.TextField, { label: '名称', value: name, disabled: t.builtin, onChange: (e) => setName(e.target.value) }),
-        h('div', { className: t.builtin ? 'opts locked' : 'opts' }, h(ExportOptions, { settings: st, onChange: t.builtin ? () => {} : setSt })),
-        h('div', { style: { flexGrow: 1 } }),
-        h('div', { style: { display: 'flex', gap: 8, alignItems: 'center' } },
-          h(E.Button, { variant: 'primary', size: 'sm', disabled: t.builtin || !changed, onClick: save }, '保存模板'),
-          h(E.Button, { variant: 'secondary', size: 'sm', onClick: copy }, '复制模板'),
-          h('span', { className: 'dm-grow' }),
-          t.builtin ? null : h(E.IconButton, { icon: 'i-trash', label: '删除模板', variant: 'ghost', size: 'sm', tooltip: 'above', onClick: () => setDeleting(true) }))),
+        h('div', { className: 'title-line' },
+          h(EditableTitle, { value: name, small: true, readOnly: t.builtin, editing: renaming, setEditing: setRenaming, label: '重命名模板', onSave: setName }),
+          h(MoreMenu, { label: '更多操作', items: [
+            { label: '复制模板', onClick: copy },
+            t.builtin ? null : { label: '删除模板', danger: true, onClick: () => setDeleting(true) }] })),
+        h('div', { className: t.builtin ? 'opts locked' : 'opts' }, h(ExportOptions, { settings: st, onChange: t.builtin ? () => {} : setSt }))),
       h('section', { className: 'tpl-edit' },
         h('div', { className: 'panel-row', style: { gap: 24 } },
           h(E.Tabs, { variant: 'line', value: tab, onChange: setTab, ariaLabel: '说明文件',
@@ -940,6 +972,14 @@
     const nid = useRef(1);
 
     useEffect(() => { api('/api/flows/catalog').then(setCat); }, []);
+    // changes are saved as they are made; a built-in flow is saved only as a copy
+    useEffect(() => {
+      if (!g || g.builtin) return undefined;
+      const text = JSON.stringify(g);
+      if (text === saved) return undefined;
+      const tm = setTimeout(() => send('PUT', '/api/flows/' + g.id, g).then(() => setSaved(text)).catch((e) => toast('error', e.message)), 800);
+      return () => clearTimeout(tm);
+    }, [g, saved]);
     useEffect(() => {
       setRun(null); setSel(null);
       api('/api/flows/' + fid).then((x) => {
@@ -1071,11 +1111,8 @@
       wires.push(h('path', { key: 'drag', className: 'drag', d: wirePath(a.x + NW + 1, portY(a, drag.from[1]), drag.x, drag.y) }));
     }
 
-    const changed = JSON.stringify(g) !== saved;
-    const save = () => (g.builtin
-      ? send('POST', '/api/flows', g).then((n) => { toast('success', `已保存为 ${n.name}`); location.hash = '#/flows/' + n.id; })
-      : send('PUT', '/api/flows/' + g.id, g).then((n) => { setG({ ...n }); setSaved(JSON.stringify(n)); toast('success', '流程已保存'); }))
-      .catch((e) => toast('error', e.message));
+    const saveCopy = () => send('POST', '/api/flows', { ...g, name: g.name + ' 副本', builtin: undefined })
+      .then((n) => { location.hash = '#/flows/' + n.id; }).catch((e) => toast('error', e.message));
     const doRun = () => {
       setRunning(true);
       send('POST', `/api/flows/${g.id}/run`, g).then((r) => { setRun(r); setEv(r); reloadSets(); })
@@ -1094,8 +1131,8 @@
           h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
             h('span', { key: 't', className: 't' }, run.ran),
             h('span', { key: 'n' }, h('b', null, outputs.length), ' 项输出')] : null),
-          h(E.Button, { variant: 'secondary', size: 'sm', disabled: !changed && !g.builtin, onClick: save }, '保存流程'),
-          h(E.Button, { variant: 'primary', size: 'sm', disabled: running, onClick: doRun }, running ? '正在运行' : '运行流程')),
+          g.builtin ? act('i-copy', '另存为流程', saveCopy) : null,
+          h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程')),
         h('div', { className: 'fl', ref: box, onPointerDown: (e) => {
           if (e.target !== box.current && !e.target.classList.contains('fl-in') && e.target.tagName !== 'svg') return;
           // dragging the empty canvas pans it (a touch screen has no other way to scroll it)
@@ -1117,15 +1154,15 @@
             h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)', flexGrow: 1 } }, o.name),
             h('div', { className: 'dm-meta', style: { fontSize: 12 } }, o.meta.map((m, j) => h('span', { key: j }, m))),
             o.kind === 'set'
-              ? h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { location.hash = '#/sets/' + o.set; } }, '打开题组')
-              : h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => download(`/api/flows/${g.id}/out/${o.file}?name=${encodeURIComponent(o.name)}`) },
-                o.kind === 'zip' ? '下载 ZIP' : '下载 PDF')))) : null),
+              ? act('i-arrow-r', '打开题组', () => { location.hash = '#/sets/' + o.set; })
+              : act(o.kind === 'zip' ? 'i-box' : 'i-doc', o.kind === 'zip' ? '下载 ZIP' : '下载 PDF',
+                () => download(`/api/flows/${g.id}/out/${o.file}?name=${encodeURIComponent(o.name)}`))))) : null),
       h('aside', { className: 'fl-insp' },
         sel && sel.link != null && g.links[sel.link]
           ? h(React.Fragment, null,
             h('div', { className: 'panel-row' },
-              h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '连线'),
-              h(E.IconButton, { icon: 'i-trash', label: '删除连线', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: del })),
+              h('h2', { className: 'fs-lead panel-title' }, '连线'),
+              act('i-trash', '删除连线', del)),
             h('div', { className: 'dm-meta' },
               h('span', null, cat.nodes[byId[g.links[sel.link].from[0]].type].label), h('span', null, '→'),
               h('span', null, cat.nodes[byId[g.links[sel.link].to[0]].type].label)))
@@ -1138,9 +1175,10 @@
   function FlowProps({ g, setG, onDeleted, toast }) {
     const [deleting, setDeleting] = useState(false);
     return h(React.Fragment, null,
-      h('h2', { className: 'fs-lead', style: { margin: 0 } }, '流程'),
-      h(E.TextField, { label: '名称', size: 'sm', value: g.name, onChange: (e) => setG({ ...g, name: e.target.value }) }),
-      g.builtin ? null : h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => setDeleting(true) }, '删除流程')),
+      h('div', { className: 'panel-row' },
+        h('h2', { className: 'fs-lead panel-title' }, '流程'),
+        g.builtin ? null : act('i-trash', '删除流程', () => setDeleting(true))),
+      h(E.TextField, { label: '名称', size: 'sm', value: g.name, disabled: g.builtin, onChange: (e) => setG({ ...g, name: e.target.value }) }),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/flows/' + g.id).then(onDeleted).catch((e) => toast('error', e.message)) },
       h('p', null, `删除后 ${g.name} 将无法恢复。`)) : null);
@@ -1160,12 +1198,14 @@
       const conds = p.conds || [];
       const put = (i, patch) => update(n.id, { conds: conds.map((c, j) => (j === i ? { ...c, ...patch } : c)) });
       body = h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
+        h('div', { className: 'panel-row' },
+          h('span', { className: 'fs-small panel-title' }, '条件'),
+          act('i-plus', '添加条件', () => update(n.id, { conds: conds.concat([{ field: fields[0] ? fields[0].value : 'year', op: '=', value: '' }]) }))),
         conds.map((c, i) => h('div', { key: i, className: 'cond' },
           h('div', { className: 'cond-f' }, h(E.Select, { ariaLabel: '字段', size: 'sm', value: c.field, options: fields, onChange: (v) => put(i, { field: v }) })),
           h('div', { className: 'cond-d' }, h(E.IconButton, { icon: 'i-close', label: '删除条件', variant: 'ghost', size: 'sm', onClick: () => update(n.id, { conds: conds.filter((_, j) => j !== i) }) })),
           h('div', { className: 'cond-o' }, h(E.Select, { ariaLabel: '运算符', size: 'sm', value: c.op, options: cat.ops.map((o) => ({ value: o, label: o })), onChange: (v) => put(i, { op: v }) })),
-          h('div', { className: 'cond-v' }, h(E.TextField, { ariaLabel: '值', size: 'sm', value: String(c.value ?? ''), onChange: (e) => put(i, { value: e.target.value }) })))),
-        h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: () => update(n.id, { conds: conds.concat([{ field: fields[0] ? fields[0].value : 'year', op: '=', value: '' }]) }) }, '添加条件')));
+          h('div', { className: 'cond-v' }, h(E.TextField, { ariaLabel: '值', size: 'sm', value: String(c.value ?? ''), onChange: (e) => put(i, { value: e.target.value }) })))));
     }
     if (n.type === 'sort') {
       body = h(React.Fragment, null,
@@ -1193,8 +1233,8 @@
     const shown = out || (spec.outs.length ? null : inV);
     return h(React.Fragment, null,
       h('div', { className: 'panel-row' },
-        h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, spec.label),
-        h(E.IconButton, { icon: 'i-trash', label: '删除节点', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: onDelete })),
+        h('h2', { className: 'fs-lead panel-title' }, spec.label),
+        act('i-trash', '删除节点', onDelete)),
       body ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: 12 } }, body) : null,
       error ? h('div', { className: 'fl-err fs-small' }, error) : null,
       shown ? h('div', { className: 'sum' },
@@ -1205,19 +1245,18 @@
       outputs.length ? h('div', { className: 'sum' }, outputs.map((o, i) => h('div', { key: i, className: 'dm-meta' }, h('span', null, o.name), o.meta.map((m, j) => h('span', { key: j }, m))))) : null);
   }
 
-  function FlowListPage({ toast }) {
+  function FlowListPage({ toast, acts }) {
     const [flows, setFlows] = useState(null);
     useEffect(() => { api('/api/flows').then(setFlows); }, []);
     const create = () => send('POST', '/api/flows', { name: '批量生成', nodes: [], links: [] })
       .then((n) => { location.hash = '#/flows/' + n.id; }).catch((e) => toast('error', e.message));
     return h('div', { className: 'dm-row tplpage' },
+      h(TopActs, { el: acts }, act('i-plus', '新建流程', create)),
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'flow' }),
         flows ? h(E.List, { variant: 'compact', selectable: true, ariaLabel: '批量生成流程', value: undefined,
-          onChange: (v) => { location.hash = '#/flows/' + v; }, items: flows.map((x) => ({ value: x.id, title: x.name })) }) : h(E.Loading, null),
-        h('div', { style: { flexGrow: 1 } }),
-        h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建流程'))),
-      h('main', { className: 'setmain' }));
+          onChange: (v) => { location.hash = '#/flows/' + v; }, items: flows.map((x) => ({ value: x.id, title: x.name })) }) : h(E.Loading, null)),
+      h('main', { className: 'setmain empty-main' }, h(E.EmptyState, { icon: 'i-grid', title: '没有打开的流程' })));
   }
 
   function KindTabs({ value }) {
@@ -1266,12 +1305,27 @@
     const clearSearch = useCallback(() => { const el = searchBox(); if (el) el.value = ''; setSearch(''); }, []);
     const [templates, setTemplates] = useState([]);
     const [flowTitle, setFlowTitle] = useState('');
+    const [acts, setActs] = useState(null);        // the top bar's action slot, for the pages' actions
     useEffect(() => { if (metas && window.dmBoot) dmBoot.ready(); }, [metas]);   // index.html's loader
     const reloadSets = useCallback(() => api('/api/sets').then(setSets), []);
     const reloadTemplates = useCallback(() => api('/api/templates').then(setTemplates), []);
     useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); reloadTemplates(); api('/api/settings').then((o) => applyTheme(o.theme)); }, []);
 
     const page = hash.split('/')[1] || 'query';
+    // The sidebar opens when the pointer rests on it (not when it passes over), and
+    // closes when the pointer leaves or an entry is clicked; keyboard focus opens it too.
+    // A touch screen never opens it: there it stays a rail of icons.
+    const [navOpen, setNavOpen] = useState(false);
+    const navTimer = useRef(0);
+    const navEnter = () => { if (!NO_HOVER) { clearTimeout(navTimer.current); navTimer.current = setTimeout(() => setNavOpen(true), 120); } };
+    const navClose = () => { clearTimeout(navTimer.current); setNavOpen(false); };
+    const navClick = (e) => {
+      if (!e.target.closest('a, button')) return;
+      navClose();
+      if (document.activeElement) document.activeElement.blur();
+    };
+    const navFocus = (e) => { if (!NO_HOVER && e.target.matches(':focus-visible')) setNavOpen(true); };
+    const navBlur = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) navClose(); };
     useEffect(() => {
       const el = searchBox();
       if (!el) return;
@@ -1297,23 +1351,26 @@
       body = cur ? h('div', { className: 'dm-row' }, h(PaperPage, { s: cur })) : h(E.Loading, null);
     } else if (page === 'sets' && sub === 'export') {
       body = cur && templates.length ? h(ExportPage, { key: cur.id, s: cur, tid: subArg, templates, reloadTemplates, toast }) : h(E.Loading, null);
-    } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast });
-    else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { toast });
+    } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
+    else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { toast, acts });
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);
     else if (page === 'templates') {
-      body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast }) : h(E.Loading, null);
+      body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast, acts }) : h(E.Loading, null);
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-inbox', title: '下一阶段实现' }));
     return h('div', { className: 'dm-shell' },
-      h(E.Sidebar, { name: 'AL 题库', items: nav, value: page === 'flows' ? 'templates' : page, open: NO_HOVER ? false : undefined, tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] }),
+      h('div', { className: 'dm-nav', onMouseEnter: navEnter, onMouseLeave: navClose, onClickCapture: navClick, onFocus: navFocus, onBlur: navBlur },
+        h(E.Sidebar, { name: 'AL 题库', items: nav, value: page === 'flows' ? 'templates' : page, open: navOpen,
+          tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] })),
       h('div', { className: 'dm-col' },
         h(E.TopBar, {
           title: sub === 'paper' ? '题目卷' : sub === 'export' ? '导出' : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询'),
           crumbs: page === 'sets' && (sub === 'paper' || sub === 'export') && cur
             ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: sub === 'paper' ? '题目卷' : '导出' }]
             : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows' }] : undefined,
-          search: page === 'query' ? '搜索' : undefined, onSearch: setSearch }),
+          search: page === 'query' ? '搜索' : undefined, onSearch: setSearch,
+          actions: h('div', { ref: setActs, className: 'dm-acts' }) }),
         body));
   }
 
