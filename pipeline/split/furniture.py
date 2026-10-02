@@ -30,8 +30,20 @@ BLANK_RE = re.compile(r"^\s*(BLANK PAGE|ADDITIONAL PAGE)\s*$")
 NAV_RE = re.compile(r"is printed on the next page|continued on the (next|following) page", re.I)
 CTRL_RE = re.compile(r"[\x00-\x1f\x7f]")
 TIGHT = fitz.TEXTFLAGS_DICT | fitz.TEXT_ACCURATE_BBOXES
+# 9231 June 2021 Papers 3 and 4 print the footer at y≈761 on an 842pt page,
+# 81pt from the bottom; everywhere else it sits within 60pt. A 70pt limit left
+# those footers inside the text band, in the crops and in the question text.
+FOOTER_H = 100
 MARGIN_W = 35      # the vertical "DO NOT WRITE IN THIS MARGIN" sits within 35pt of the edge
 STRIP_W = 24       # its grey background strip is 21pt wide; 9618 tables start at x≈32
+
+
+# Typography that is question content, not barcode: the ellipsis leaders of a
+# fill-in-the-blank pseudocode line ("RETURN ……………"), arrows, maths symbols,
+# the "●●●●" of a masked password, and Symbol-font glyphs (U+F0xx, decoded by
+# clean_encoding.py). Counting these as odd dropped 40 lines from 9618 papers.
+TYPO_RE = re.compile(r"[\u2000-\u206f\u2190-\u21ff\u2200-\u22ff"
+                     r"\u25a0-\u25ff\uf000-\uf0ff]")
 
 
 def glyph_soup(txt):
@@ -39,7 +51,8 @@ def glyph_soup(txt):
     t = txt.strip()
     if len(t) < 6:
         return False
-    odd = sum(1 for c in t if ord(c) > 0x7e or CTRL_RE.match(c))
+    odd = sum(1 for c in t
+              if (ord(c) > 0x7e and not TYPO_RE.match(c)) or CTRL_RE.match(c))
     return odd / len(t) > 0.5
 
 
@@ -70,7 +83,7 @@ def furniture(page):
             # ("1.2 m" along a slope) is question content
             if r.x1 < MARGIN_W or r.x0 > W - MARGIN_W:
                 items.append(("margin", r))
-        elif FOOTER_RE.search(txt) and r.y0 > H - 70:
+        elif FOOTER_RE.search(txt) and r.y0 > H - FOOTER_H:
             items.append(("footer", r))
         elif WATERMARK_RE.search(txt) and r.y1 < 60:
             items.append(("watermark", r))
@@ -123,7 +136,8 @@ def band(page, items=None, gap=0.5):
     # crop.whiteout instead of shaping the band
     skip = ("margin", "nav", "corner")
     top = max([r.y1 for k, r in items if r.y1 < 70 and k not in skip] + [0.0]) + gap
-    bottom = min([r.y0 for k, r in items if r.y0 > H - 75 and k not in skip] + [H]) - gap
+    bottom = min([r.y0 for k, r in items
+                  if (r.y0 > H - 75 or k == "footer") and k not in skip] + [H]) - gap
     return top, bottom
 
 

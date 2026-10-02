@@ -1,0 +1,116 @@
+{
+ "id": "example-textbook",
+ "name": "教材配题",
+ "created": "2026-10-02 10:00",
+ "nodes": [
+  {
+   "id": "book",
+   "type": "book",
+   "x": 32,
+   "y": 56,
+   "params": {
+    "book": "9709_p1"
+   }
+  },
+  {
+   "id": "bank",
+   "type": "bank",
+   "x": 32,
+   "y": 296,
+   "params": {
+    "exam": "9709"
+   }
+  },
+  {
+   "id": "filter",
+   "type": "filter",
+   "x": 248,
+   "y": 296,
+   "params": {
+    "conds": [
+     {
+      "field": "component",
+      "op": "=",
+      "value": "1"
+     },
+     {
+      "field": "year",
+      "op": "≥",
+      "value": "2021"
+     }
+    ]
+   }
+  },
+  {
+   "id": "join",
+   "type": "join",
+   "x": 464,
+   "y": 176,
+   "params": {
+    "left": "topic",
+    "right": "topic"
+   }
+  },
+  {
+   "id": "out",
+   "type": "export",
+   "x": 680,
+   "y": 56,
+   "params": {
+    "template": "default"
+   }
+  }
+ ],
+ "links": [
+  {
+   "from": [
+    "book",
+    0
+   ],
+   "to": [
+    "join",
+    0
+   ]
+  },
+  {
+   "from": [
+    "bank",
+    0
+   ],
+   "to": [
+    "filter",
+    0
+   ]
+  },
+  {
+   "from": [
+    "filter",
+    0
+   ],
+   "to": [
+    "join",
+    1
+   ]
+  },
+  {
+   "from": [
+    "join",
+    0
+   ],
+   "to": [
+    "out",
+    0
+   ]
+  },
+  {
+   "from": [
+    "book",
+    1
+   ],
+   "to": [
+    "out",
+    1
+   ]
+  }
+ ]
+}

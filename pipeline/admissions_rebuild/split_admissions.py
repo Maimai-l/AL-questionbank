@@ -27,8 +27,14 @@ Failures are listed per paper; nothing is silently dropped.
 """
 import json, os, re, sys
 
-ROOT = "bank_ocr"
-KEYS = json.load(open("answers.json"))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
+from lib import paths  # noqa: E402
+from pipeline.admissions_rebuild.page_fixes import read_page  # noqa: E402  逐页人工修正
+
+ROOT = paths.BANK_OCR
+KEYS = json.load(open(os.path.join(paths.ADM, "answers.json")))
+OUT = os.path.join(paths.ADM, "questions_adm.json")
 
 BLANK = re.compile(r"^#*\s*BLANK PAGE\s*$", re.M)
 COVER = re.compile(r"INSTRUCTIONS TO CANDIDATES|Time:\s*\d+|"
@@ -45,8 +51,7 @@ def pages_of(d):
     for f in sorted(os.listdir(d)):
         m = re.match(r"page_(\d+)\.md$", f)
         if m:
-            out.append((int(m.group(1)),
-                        open(os.path.join(d, f), encoding="utf-8").read()))
+            out.append((int(m.group(1)), read_page(os.path.join(d, f))))
     return out
 
 
@@ -119,6 +124,7 @@ def split_tmua(year, paper):
         if no <= 2 and COVER.search(body):
             continue
         segs, leading = page_segments(text)
+        segs = split_at_heads(segs, len(qs) + 1)
         for k, (seg, opts) in enumerate(segs):
             if k == 0 and leading and qs and not qs[-1]["options"]:
                 # page opens with the previous question's options
@@ -134,7 +140,35 @@ def split_tmua(year, paper):
         q["text"] = re.sub(rf"^\s*(?:\*\*)?{i}(?:\*\*)?[.\s]", "",
                            q["text"], count=1).strip()
         q["answer"] = key.get(str(i))
+        m = STEM_RANGE.search(q["text"])
+        if not q["options"] and m:
+            # the options are named in the stem: "Which one of the five cards (A, B, C, D or E)"
+            q["options"] = [chr(c) for c in range(ord("A"), ord(m.group(1)) + 1)]
     return qs, len(key) or 20
+
+
+STEM_RANGE = re.compile(r"\(\s*A\s*(?:,\s*[B-G]\s*)*(?:,|\s+or|\s*[-–])\s*([B-H])\s*\)")
+TMUA_HEAD = re.compile(r"^\s*(?:\*\*|#+\s*)?(\d{1,2})(?:\*\*)?[.\s]+\S", re.M)
+
+
+def split_at_heads(segs, first):
+    """A question without an option run (its options are figures or named in
+    the stem) shares a segment with the next one; cut a segment where a line
+    opens with the number after the one it starts with."""
+    out, n = [], first
+    for seg, opts in segs:
+        h = TMUA_HEAD.match(seg)
+        start = int(h.group(1)) if h else n
+        cut = next((m for m in TMUA_HEAD.finditer(seg)
+                    if m.start() > 0 and int(m.group(1)) == start + 1), None)
+        if cut and h:
+            out.append((seg[:cut.start()].strip(), mathblock_options(seg[:cut.start()])))
+            out.append((seg[cut.start():].strip(), opts))
+            n = start + 2
+        else:
+            out.append((seg, opts))
+            n = start + 1
+    return out
 
 
 # ------------------------------------------------------------ TSA / BMAT
@@ -250,7 +284,12 @@ def line_stream(pages, skip_covers=True):
             continue
         if skip_covers and no <= 2 and COVER.search(body):
             continue
-        text = DIVLET.sub(r"\1 (图形选项)", tables_to_lines(text))
+        if re.search(r"(?m)^[A-H] \((?:图形选项|图中|见上方图)", text):
+            # the letters are already written out (page_fixes.json): the
+            # centred letters above the figures would make a second run
+            text = DIVLET.sub("", tables_to_lines(text))
+        else:
+            text = DIVLET.sub(r"\1 (图形选项)", tables_to_lines(text))
         for ln in text.split("\n"):
             out.append((no, ln))
     return repair_option_gaps(out)
@@ -486,6 +525,12 @@ def recover_short_answers(qs, want):
                     pass
                 else:
                     continue
+                prev = next((l.strip() for l in reversed(lines[:j]) if l.strip()), "")
+                pm = HEAD_NUM.match(prev)
+                if n != i + 2 and pm and int(pm.group(1)) == n - 1:
+                    # "3 ...", "4 ...": a numbered list of statements, not a
+                    # head that lost its leading digit
+                    continue
                 if True:
                     first = {"pages": q["pages"], "options": [],
                              "text": "\n".join(lines[:j]).strip()}
@@ -553,7 +598,7 @@ def main(only=None):
             report.append((f"{exam} {y}", len(qs), want, errs))
             all_qs += qs
 
-    json.dump(all_qs, open("questions_adm.json", "w"), ensure_ascii=False, indent=1)
+    json.dump(all_qs, open(OUT, "w"), ensure_ascii=False, indent=1)
     print(f"{'卷':<18}{'切出':>5}{'应有':>5}  问题")
     perfect = 0
     for label, n, want, errs in report:

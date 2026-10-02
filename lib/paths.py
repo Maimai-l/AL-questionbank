@@ -10,6 +10,8 @@ Environment overrides, for running against a copy without moving anything:
     CAIE_DATA       data folder (default: <root>/data)
     CAIE_DB         database file (default: <data>/caie.db)
     CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img_adm/ img_tara/
+    QB_WORK         what practising produces: handwriting boards, attempts
+                    (default: qb-work/ next to the project folder)
 """
 import os
 
@@ -20,11 +22,30 @@ ROOT = os.environ.get("CAIE_ROOT") or os.path.dirname(
 DATA = os.environ.get("CAIE_DATA") or os.path.join(ROOT, "data")
 DB = os.environ.get("CAIE_DB") or os.path.join(DATA, "caie.db")
 BOOKS = os.path.join(DATA, "books")
+PAPERS = os.path.join(DATA, "papers")   # original question papers and mark schemes, named as questions.qp_pdf / ms_pdf
 ASSETS = os.path.join(ROOT, "assets")        # page sources: html + vendor/
 EXPORTS = os.path.join(ROOT, "exports")      # distribution ZIPs, not tracked
 RAW = os.environ.get("CAIE_RAW") or os.path.join(ROOT, "raw")  # pipeline inputs: PDFs, OCR
 SYLLABUS = os.path.join(ROOT, "syllabus.json")
+
+# Admissions pipeline (pipeline/admissions_rebuild/). Its tracked intermediates
+# (questions_adm.json, answers.json, ms_tmua.json, retag_*.json) sit next to the
+# scripts; the downloaded papers and their page OCR are inputs under raw/.
+ADM = os.path.join(ROOT, "pipeline", "admissions_rebuild")
+BANK = os.path.join(RAW, "bank")            # manifest.py: papers, keys, specs
+BANK_OCR = os.path.join(RAW, "bank_ocr")    # ocr_bank.py: one markdown per page
+IMG_ADM = os.path.join(DATA, "img_adm")     # render_adm_imgs.py: one PNG per question
 PREREQ = os.path.join(ROOT, "prereq.json")
+
+# The practice server's own records (app/): handwriting boards and attempts.
+# Not under data/, which `sync.py pull` resets and cleans; not in the repo.
+WORK = os.environ.get("QB_WORK") or os.path.join(os.path.dirname(ROOT), "qb-work")
+INK = os.path.join(WORK, "ink")                 # inksync storage
+ATTEMPTS = os.path.join(WORK, "attempts.db")    # app/store.py
+SETS = os.path.join(WORK, "sets")               # manager/sets.py: one JSON per question set
+BOARDS = os.path.join(WORK, "boards")           # manager/board.py: question paper boards (inksync), apart from INK
+FLOWS = os.path.join(WORK, "flows")             # manager/flow.py: batch generation graphs and their outputs
+TEXTBOOKS = os.path.join(RAW, "textbooks")      # textbook PDFs, <book>.pdf (9709_p1.pdf ...), for chapter PDFs
 
 # Where the question crops may be. data/ is the normal place; the others keep
 # a copy unpacked in an older layout working.
@@ -61,6 +82,28 @@ def resolve(rel):
             if os.path.exists(p):
                 return p
     return None
+
+
+# Answer-space crops (pipeline/split/recrop.py --rows): the question crop with
+# the dot-leader answer rows below every part kept, for the writing board.
+# img9709/<id>.png -> img9709_ans/<id>.png; only questions whose question crop
+# leaves answer rows out have one.
+ANS_SUFFIX = "_ans"
+
+
+def answer_space_rel(rel):
+    """data-relative path of the answer-space crop for a question crop path."""
+    if not rel or "/" not in rel:
+        return None
+    d, f = rel.split("/", 1)
+    return f"{'img9709' if d == 'img' else d}{ANS_SUFFIX}/{f}"
+
+
+def answer_space(rel):
+    """Absolute path of the answer-space crop for a question crop, or None."""
+    a = answer_space_rel(rel)
+    p = os.path.join(DATA, a) if a else None
+    return p if p and os.path.exists(p) else None
 
 
 def under_data(path):

@@ -24,6 +24,10 @@ Re-runnable: files already on disk with plausible size are skipped.
 """
 import os, sys, time
 
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
+from lib import paths  # noqa: E402
+
 try:
     import requests
 except ImportError:
@@ -103,6 +107,9 @@ TARA_DOCS = [
      "2025/06/24172250", "TARA_Question_Guide_June2025.pdf"),
     ("TARA/docs/TARA_Content_Specification_April2025.pdf",
      "2025/04/30103001", "TARA_Content_Specification_April2025.pdf"),
+    # tag_admissions.py builds the MM1–MM8 / M1–M7 topic vectors from it
+    ("TMUA/docs/TMUA_Content_Specification_April2025.pdf",
+     "2025/04/30103002", "TMUA_Content_Specification_April2025.pdf"),
 ]
 
 
@@ -178,4 +185,4 @@ def main(root):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "bank")
+    main(sys.argv[1] if len(sys.argv) > 1 else paths.BANK)

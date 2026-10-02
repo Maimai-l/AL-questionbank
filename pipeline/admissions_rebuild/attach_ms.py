@@ -10,9 +10,15 @@ list "Question 6 ..... 8" style lines — the anchor regex requires the line to
 end after the number, so those don't split. Invariant: every paper yields
 exactly questions 1..20.
 """
-import json, os, re
+import json, os, re, sys
 
-ROOT = "bank_ocr/TMUA/worked_answers"
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))))          # 项目根目录;在任意目录下运行都能找到 lib
+from lib import paths  # noqa: E402
+from pipeline.admissions_rebuild.page_fixes import read_page  # noqa: E402  逐页人工修正
+
+ROOT = os.path.join(paths.BANK_OCR, "TMUA", "worked_answers")
+OUT = os.path.join(paths.ADM, "ms_tmua.json")
 HEAD = re.compile(r"^(?:#+\s*)?\**\s*Question\s+(\d{1,2})\s*\**\s*$", re.M)
 
 
@@ -26,7 +32,7 @@ def main():
         text = ""
         for f in sorted(os.listdir(os.path.join(ROOT, d))):
             if re.match(r"page_\d+\.md$", f):
-                text += open(os.path.join(ROOT, d, f), encoding="utf-8").read() + "\n"
+                text += read_page(os.path.join(ROOT, d, f)) + "\n"
         marks = [(int(h.group(1)), h.start(), h.end()) for h in HEAD.finditer(text)]
         qs = {}
         for i, (n, s, e) in enumerate(marks):
@@ -42,7 +48,7 @@ def main():
             problems.append(f"{year} P{paper}: 过短详解 {short}")
         out[f"{year}-{paper}"] = {str(n): b for n, b in sorted(qs.items())}
 
-    json.dump(out, open("ms_tmua.json", "w"), ensure_ascii=False, indent=1)
+    json.dump(out, open(OUT, "w"), ensure_ascii=False, indent=1)
     total = sum(len(v) for v in out.values())
     print(f"{len(out)} 份详解,共 {total} 题 -> ms_tmua.json")
     if problems:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Keep data/ in step with the `data` branch on GitHub.
 
+    python3 sync.py update          更新代码(当前分支,只快进)并取回最新数据:日常只用这一条
     python3 sync.py pull            取回最新的数据库、题图、教材与页面到 data/
     python3 sync.py status          data/ 当前是哪个版本,有没有本地改动
     python3 sync.py push -m "说明"  把 data/ 的改动推上去(云端流水线用)
@@ -53,6 +54,18 @@ def pull(force=False, gc=False):
     status()
 
 
+def update(force=False):
+    """The code (the checked-out branch, fast-forward only), then the data."""
+    branch = git("rev-parse", "--abbrev-ref", "HEAD", capture=True)
+    if git("status", "--porcelain", "--untracked-files=no", capture=True):
+        sys.exit("代码目录有未提交的改动,先提交或撤销再 update。")
+    # an explicit refspec: a single-branch clone fetches nothing else by default
+    git("fetch", REMOTE, f"+refs/heads/{branch}:refs/remotes/{REMOTE}/{branch}")
+    git("merge", "--ff-only", f"{REMOTE}/{branch}")
+    print(f"代码: {branch} {git('log', '-1', '--format=%h %s', capture=True)}")
+    pull(force=force)
+
+
 def status():
     if not is_worktree():
         print("data/ 还没有取回。运行: python3 sync.py pull")
@@ -85,6 +98,8 @@ def main():
     p = argparse.ArgumentParser(description=__doc__,
                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = p.add_subparsers(dest="cmd", required=True)
+    up = sub.add_parser("update")
+    up.add_argument("--force", action="store_true")
     pl = sub.add_parser("pull")
     pl.add_argument("--force", action="store_true", help="覆盖 data/ 里的本地改动")
     pl.add_argument("--gc", action="store_true", help="取回后清理旧版本占用的磁盘")
@@ -92,7 +107,9 @@ def main():
     ps = sub.add_parser("push")
     ps.add_argument("-m", "--message", required=True)
     a = p.parse_args()
-    if a.cmd == "pull":
+    if a.cmd == "update":
+        update(a.force)
+    elif a.cmd == "pull":
         pull(a.force, a.gc)
     elif a.cmd == "status":
         status()

@@ -26,6 +26,7 @@ from collections import Counter, defaultdict
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/ —— 直接跑脚本时也 import 得到包
+from lib import paths
 from pipeline.tags.topic_model import terms  # n-grams with stopword trimming
 
 MM_NAMES = {
@@ -45,12 +46,17 @@ REASONING = {
     "Err": "Identifying errors in proofs",
 }
 
+def adm(name):
+    return os.path.join(paths.ADM, name)
+
+
 # ------------------------------------------------------------------ TMUA
 
 def spec_topics():
     """{code: text} — each MM topic's own wording from the spec."""
     import fitz
-    d = fitz.open("bank/TMUA/docs/TMUA_Content_Specification_April2025.pdf")
+    d = fitz.open(os.path.join(paths.BANK, "TMUA", "docs",
+                             "TMUA_Content_Specification_April2025.pdf"))
     full = "\n".join(p.get_text() for p in d)
     # cut at SECTION 2: reasoning content would blur the content topics
     body = full[:full.index("SECTION 2")]
@@ -153,13 +159,13 @@ def tag_ct_ps(text):
 # ---------------------------------------------------------------- main
 
 def main():
-    qs = json.load(open("questions_adm.json"))
-    ms = json.load(open("ms_tmua.json"))
+    qs = json.load(open(adm("questions_adm.json")))
+    ms = json.load(open(adm("ms_tmua.json")))
     vecs = build_vectors(spec_topics())
     retag = {k: v for k, v in
-             json.load(open("retag_tmua.json")).items() if k != "_"}
+             json.load(open(adm("retag_tmua.json"))).items() if k != "_"}
     retag_tara = {k: v for k, v in
-                  json.load(open("retag_tara.json")).items() if k != "_"}
+                  json.load(open(adm("retag_tara.json"))).items() if k != "_"}
 
     dist = defaultdict(Counter)
     low = []
@@ -210,7 +216,7 @@ def main():
             kind = "CT" if code.startswith("CT") else "PS"
             dist[f"{q['exam']} {q['year']}"][kind] += 1
 
-    json.dump(qs, open("questions_adm.json", "w"), ensure_ascii=False, indent=1)
+    json.dump(qs, open(adm("questions_adm.json"), "w"), ensure_ascii=False, indent=1)
 
     print("== TMUA 内容主题分布")
     for p in ("TMUA P1", "TMUA P2"):

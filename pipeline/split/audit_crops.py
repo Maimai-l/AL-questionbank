@@ -2,6 +2,10 @@
 """Check every question crop against the page furniture, without looking at
 a single image.
 
+Checks: furniture inside a clip, slack below the last line, question material
+that no clip covers or that a clip boundary cuts, answer rows (dot leaders)
+left out of every answer-space clip (--crop rows), and clips of two questions overlapping on one page.
+
     python3 pipeline/split/audit_crops.py raw/pdf [--crop old|new] [--list KIND]
 
 For each question paper in the folder the splitter produces the spans, the
@@ -12,6 +16,7 @@ to the cropper can be judged by the numbers before any image is rendered.
 
 --crop old   the clip rule of the original crop.py (full width, span as given)
 --crop new   the clip rule of the rewritten crop.py
+--crop rows  the answer-space crop (crop.py rows=True); also checks rows-out
 """
 import argparse, collections, os, sys
 
@@ -52,8 +57,12 @@ def still_white(page, clip, r):
     return True
 
 
+def rows_clips(q, doc):
+    return crop.clips(q, doc, rows=True)
+
+
 def audit(pdfdir, which, only=None):
-    clips_of = old_clips if which == "old" else new_clips
+    clips_of = {"old": old_clips, "new": new_clips, "rows": rows_clips}[which]
     hits = collections.defaultdict(list)       # kind -> [question id]
     n = 0
     for f in sorted(os.listdir(pdfdir)):
@@ -99,6 +108,24 @@ def audit(pdfdir, which, only=None):
                 hits[k].append(qid)
             if not [k for k in kinds if not k.startswith("whited:")]:
                 hits["clean"].append(qid)
+        # overlap: two questions' clips on one page must not share any area.
+        # A question whose first line is set higher than its number (a built-up
+        # fraction) used to leave that line in the previous question's crop;
+        # 90 pairs, invisible to every other check here.
+        # The 6pt pad above a question's first line may meet the previous
+        # clip; only shared area that holds question material counts.
+        for p, lst in page_clips.items():
+            mat = None
+            for i, (qa, ca) in enumerate(lst):
+                for qb, cb in lst[i + 1:]:
+                    both = fitz.Rect(ca) & cb
+                    if qa == qb or both.get_area() <= MIN_OVERLAP:
+                        continue
+                    if mat is None:
+                        items = cache.get(p) or furniture.furniture(doc[p])
+                        mat = [r for _, r in crop.material(doc[p], items)]
+                    if any((both & r).get_area() > MIN_OVERLAP for r in mat):
+                        hits["overlap"].append(f"{qa}  {qb}  p{p}")
         # content check: every piece of question material on a question page
         # must sit wholly inside one clip
         pages = sorted(page_clips)
@@ -125,6 +152,14 @@ def audit(pdfdir, which, only=None):
                 else:
                     stem = f[:-4]
                     hits["uncovered"].append(f"{stem}  p{p} {[round(v) for v in r]} {label!r}")
+            # answer rows: the answer-space crop takes the candidate's writing
+            # space too, the rows after the last part included
+            for r in (split_qp.answer_lines(page) if which == "rows" else []):
+                if p == pages[0] and r.y1 <= first.y0:
+                    continue
+                if not any(fitz.Rect(r) in c + (-0.3, -0.3, 0.3, 0.3) for _, c in page_clips[p]):
+                    above = [q for q, c in page_clips[p] if c.y0 <= r.y0]
+                    hits["rows-out"].append(f"{above[-1] if above else f[:-4]}  p{p} {round(r.y0)}")
         doc.close()
     return n, hits
 
@@ -132,7 +167,7 @@ def audit(pdfdir, which, only=None):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("pdfdir")
-    ap.add_argument("--crop", choices=["old", "new"], default="new")
+    ap.add_argument("--crop", choices=["old", "new", "rows"], default="new")
     ap.add_argument("--only", help="filename prefix, e.g. 9709_s25")
     ap.add_argument("--list", help="print the question ids for this kind")
     a = ap.parse_args()
@@ -141,7 +176,7 @@ def main():
           "(cut/uncovered: number of content items; per-subject: questions or papers)")
     for k in sorted(hits, key=lambda k: -len(hits[k])):
         by_subj = collections.Counter(q.split("_")[0] for q in hits[k])
-        if k in ("cut", "uncovered"):
+        if k in ("cut", "uncovered", "overlap"):
             by_subj = collections.Counter(q.split("_")[0] for q in set(h.split("  ")[0] for h in hits[k]))
         print(f"  {k:10} {len(hits[k]):5}   " +
               "  ".join(f"{s}={c}" for s, c in sorted(by_subj.items())))

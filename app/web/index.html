@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="color-scheme" content="light dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>AL Question Bank</title>
+  <link rel="preload" href="/static/fonts/newsreader.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/vendor/katex/katex.min.css">
+  <link rel="stylesheet" href="/static/wb/wb.css">
+  <link rel="stylesheet" href="/static/style.css">
+  <script defer src="/vendor/katex/katex.min.js"></script>
+  <script defer src="/vendor/katex/auto-render.min.js"></script>
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#" aria-label="AL Question Bank"><span class="brand-mark">Q</span><span class="brand-name">AL Question Bank</span></a>
+    <nav class="exams" id="exams" aria-label="考试"></nav>
+    <nav class="views" id="views" aria-label="视图"></nav>
+    <div class="top-tools">
+      <button class="find" id="find" aria-label="跳转到题目"></button>
+      <span class="sync" id="sync" title="手写同步"></span>
+    </div>
+  </header>
+  <main class="view" id="v-overview"></main>
+  <main class="view" id="v-work" hidden></main>
+  <main class="view" id="v-review" hidden></main>
+  <div id="layer"></div>
+  <textarea id="clip" aria-hidden="true" tabindex="-1"></textarea>
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

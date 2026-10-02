@@ -1,0 +1,179 @@
+{
+ "id": "example-shuffle",
+ "name": "随机练习",
+ "created": "2026-10-02 10:00",
+ "nodes": [
+  {
+   "id": "bank",
+   "type": "bank",
+   "x": 32,
+   "y": 72,
+   "params": {
+    "exam": "9709"
+   }
+  },
+  {
+   "id": "filter",
+   "type": "filter",
+   "x": 248,
+   "y": 72,
+   "params": {
+    "conds": [
+     {
+      "field": "component",
+      "op": "=",
+      "value": "1"
+     },
+     {
+      "field": "year",
+      "op": "≥",
+      "value": "2021"
+     }
+    ]
+   }
+  },
+  {
+   "id": "group",
+   "type": "group",
+   "x": 464,
+   "y": 72,
+   "params": {
+    "field": "topic"
+   }
+  },
+  {
+   "id": "shuf",
+   "type": "sort",
+   "x": 680,
+   "y": 72,
+   "params": {
+    "by": "random",
+    "seed": 7
+   }
+  },
+  {
+   "id": "take",
+   "type": "take",
+   "x": 32,
+   "y": 344,
+   "params": {
+    "n": 2
+   }
+  },
+  {
+   "id": "flat",
+   "type": "merge",
+   "x": 248,
+   "y": 344,
+   "params": {}
+  },
+  {
+   "id": "mix",
+   "type": "sort",
+   "x": 464,
+   "y": 344,
+   "params": {
+    "by": "random",
+    "seed": 7
+   }
+  },
+  {
+   "id": "paper",
+   "type": "paper",
+   "x": 680,
+   "y": 304,
+   "params": {}
+  },
+  {
+   "id": "set",
+   "type": "newset",
+   "x": 680,
+   "y": 448,
+   "params": {
+    "name": "9709 Paper 1 随机 16 题"
+   }
+  }
+ ],
+ "links": [
+  {
+   "from": [
+    "bank",
+    0
+   ],
+   "to": [
+    "filter",
+    0
+   ]
+  },
+  {
+   "from": [
+    "filter",
+    0
+   ],
+   "to": [
+    "group",
+    0
+   ]
+  },
+  {
+   "from": [
+    "group",
+    0
+   ],
+   "to": [
+    "shuf",
+    0
+   ]
+  },
+  {
+   "from": [
+    "shuf",
+    0
+   ],
+   "to": [
+    "take",
+    0
+   ]
+  },
+  {
+   "from": [
+    "take",
+    0
+   ],
+   "to": [
+    "flat",
+    0
+   ]
+  },
+  {
+   "from": [
+    "flat",
+    0
+   ],
+   "to": [
+    "mix",
+    0
+   ]
+  },
+  {
+   "from": [
+    "mix",
+    0
+   ],
+   "to": [
+    "paper",
+    0
+   ]
+  },
+  {
+   "from": [
+    "mix",
+    0
+   ],
+   "to": [
+    "set",
+    0
+   ]
+  }
+ ]
+}

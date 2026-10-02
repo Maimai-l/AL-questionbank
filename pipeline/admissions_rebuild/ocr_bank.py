@@ -17,6 +17,7 @@ from concurrent.futures import ThreadPoolExecutor
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/ —— 直接跑脚本时也 import 得到包
+from lib import paths
 from pipeline.ocr import ocr_books as ob
 
 lock = threading.Lock()
@@ -85,5 +86,5 @@ def main(root, out_root, workers=4):
 
 if __name__ == "__main__":
     a = sys.argv[1:]
-    main(a[0] if a else "bank", a[1] if len(a) > 1 else "bank_ocr",
+    main(a[0] if a else paths.BANK, a[1] if len(a) > 1 else paths.BANK_OCR,
          int(a[2]) if len(a) > 2 else 4)

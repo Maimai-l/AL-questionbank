@@ -18,10 +18,12 @@
 | 路径 | 内容 | 由谁生成 |
 |---|---|---|
 | `caie.db` | 主库:questions、chapters、attempts、q_fts | `pipeline/db/combine.py`、`pipeline/admissions_rebuild/merge_admissions.py` 等 |
-| `img9709/` `img9231/` `img9618/` | CAIE 逐题裁图 | `pipeline/split/crop.py` |
+| `img9709/` `img9231/` `img9618/` | CAIE 逐题裁图,16 级灰度 PNG(`lib/png16.py`,下同) | `pipeline/split/crop.py` |
+| `img9709_ans/` `img9231_ans/` `img9618_ans/` | 带答题区的裁图,刷题页白板以此为底图;只收题图漏掉了点线答题行的题,文件名与题图相同 | `pipeline/split/recrop.py --rows` |
 | `img_adm/` | 入学考逐题原页图 | `pipeline/admissions_rebuild/render_adm_imgs.py` |
 | `img_tara/` | 入学考题干中引用的插图 | `pipeline/admissions_rebuild/merge_admissions.py` |
 | `books/<书>/` | 教材章节 Markdown 与插图 | `pipeline/books/split_chapters.py` |
+| `papers/` | 原卷与评分细则 PDF,文件名即 `questions.qp_pdf`、`questions.ms_pdf`(入学考在 `papers/bank/…`);数据管理页打开原卷、整卷题目卷直接用原卷 | 从 `raw/pdf`、`raw/ms`、`raw/bank` 复制 |
 | `data.js` `textbooks.js` | 页面读取的数据 | `pipeline/export/build_site.py` |
 | `practice.html` `textbook.html` `vendor/` | 从 `assets/` 复制的页面 | `pipeline/export/build_site.py` |
 
@@ -33,7 +35,8 @@
 ## 命令
 
 ```bash
-python3 sync.py pull            # 取回最新版本到 data/;首次运行时创建 worktree
+python3 sync.py update          # 日常更新:代码(当前分支,只快进)加数据
+python3 sync.py pull            # 只取回最新数据到 data/;首次运行时创建 worktree
 python3 sync.py pull --gc       # 同上,并清理旧版本占用的本地磁盘
 python3 sync.py status          # 当前版本与本地改动
 python3 sync.py push -m "说明"  # 提交 data/ 的改动并覆盖远程 data 分支

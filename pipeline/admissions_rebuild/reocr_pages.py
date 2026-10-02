@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Re-OCR the specific pages whose option blocks the first pass dropped.
 
-    python3 reocr_pages.py
+    python3 reocr_pages.py [pages.json]      # REOCR_DPI=260 换清晰度
 
 Reads questions_adm.json, finds every question whose answer letter is not
 among its options (or whose text is implausibly short), renders those exact
@@ -18,11 +18,12 @@ import json, os, re, sys, tempfile
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/ —— 直接跑脚本时也 import 得到包
+from lib import paths
 from pipeline.ocr import ocr_books as ob
 import fitz
 
-ROOT = "bank_ocr"
-BANK = "bank"
+ROOT = paths.BANK_OCR
+BANK = paths.BANK
 
 
 def pdf_for(q):
@@ -45,16 +46,21 @@ def needs_fix(q):
 
 
 def main():
+    # 渲染清晰度:同一张图再读往往得到同样的错误,换个清晰度再读
+    dpi = int(os.environ.get("REOCR_DPI", "200"))
     jobs = {}
     if len(sys.argv) > 1:
-        # explicit page list: {"TSA-2010": [9, 16], ...}
+        # explicit page list: {"TSA-2010": [9, 16], "TMUA-2016-P1": [5], ...}
         for label, pages in json.load(open(sys.argv[1])).items():
             exam, year = label.split("-", 1)
             q = {"exam": exam, "year": year}
+            if exam == "TMUA":
+                q["year"], paper = year.rsplit("-P", 1)
+                q["paper"] = int(paper)
             pdf, out = pdf_for(q)
             jobs.setdefault((pdf, out), set()).update(pages)
     else:
-        qs = json.load(open("questions_adm.json"))
+        qs = json.load(open(os.path.join(paths.ADM, "questions_adm.json")))
         for q in qs:
             if not needs_fix(q):
                 continue
@@ -72,7 +78,7 @@ def main():
         doc = fitz.open(pdf)
         tmp = fitz.open()
         for p in pages:
-            pix = doc[p - 1].get_pixmap(dpi=200)
+            pix = doc[p - 1].get_pixmap(dpi=dpi)
             # an uncompressed pixmap embeds as a ~9 MB image per page and the
             # upload stalls; JPEG at 85 is a hundredth of that
             jpg = pix.tobytes("jpeg", jpg_quality=85)

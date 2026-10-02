@@ -6,10 +6,20 @@
 Re-runnable: existing TMUA/TSA/BMAT rows are deleted and re-inserted, then
 the FTS index rows for them are rebuilt. CAIE rows are never touched.
 
+The re-inserted rows carry the keyword tags of questions_adm.json; the model
+tags in pipeline/tags/retag_model.json (topic, topic_parts, topic_source =
+'model', ...) are applied again straight after, through tag_batches.write().
+
 Schema: two new columns are added if missing —
     answer  TEXT   the key's letter (or free text for early BMAT)
     qtype   TEXT   'mcq' | 'short'  (NULL for CAIE rows)
     options TEXT   JSON list of the offered letters, e.g. ["A",..,"E"]
+    option_texts   JSON {"A": "3 and 4 only", .., "E": null}: each option's
+                   text (null when drawn as a figure), by option_texts.derive()
+
+Hand corrections checked against the papers (text_fixes.json: a question whose
+text went to its neighbour, option fragments of the previous question) replace
+the split's text and options before anything else.
 
 Text is converted from Paddle's HTML to what practice.html already renders:
 HTML tables become pipe tables, <img> tags become ![](img_tara/...) lines
@@ -19,16 +29,20 @@ Images: every question gets both.
     qb/img_adm/    一题一张原页图(render_adm_imgs.py 裁的),文件名就是题号 ID
     qb/img_tara/   题干里引用的插图裁片
 """
-import html
+import argparse, html
 import json, os, re, shutil, sqlite3, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/
 from lib import paths
+from pipeline.tags import tag_batches
+from pipeline.text.answer_lines import strip as strip_answer_lines
+from pipeline.admissions_rebuild.option_texts import derive as derive_options
 
 QB = paths.DATA                            # 题图写进 data/;CAIE_DATA 可覆盖
 DB = paths.DB
-ROOT = "bank_ocr"
+ROOT = paths.BANK_OCR
+FIXES = os.path.join(paths.ADM, "text_fixes.json")   # 对照原卷的题干修正
 
 COMPONENT_NAMES = {
     ("TMUA", "1"): "Paper 1 (Applications of Mathematical Knowledge)",
@@ -81,10 +95,12 @@ def clean_text(q, copied):
         sub = f"{q['exam']}-{q['year']}" + (f"-P{q['paper']}" if q["exam"] == "TMUA" else "")
         dst_rel = f"img_tara/{sub}/{base}"
         dst = os.path.join(QB, dst_rel)
-        if os.path.exists(frm):
+        # the figure may already be in data/ from an earlier run, and raw/bank_ocr
+        # (a local OCR cache) need not be there at all
+        if os.path.exists(frm) and not os.path.exists(dst):
             os.makedirs(os.path.dirname(dst), exist_ok=True)
-            if not os.path.exists(dst):
-                shutil.copy(frm, dst)
+            shutil.copy(frm, dst)
+        if os.path.exists(dst):
             copied.add(dst_rel)
             return f"\n![]({dst_rel})\n"
         return ""
@@ -95,16 +111,39 @@ def clean_text(q, copied):
     t = MARKRE.sub("", t)
     t = html.unescape(t)
     t = re.sub(r"\n{3,}", "\n\n", t)
-    return t.strip()
+    return strip_answer_lines(t)
+
+
+def qid_of(q):
+    if q["exam"] == "TMUA":
+        return f"TMUA-{q['year']}-P{q['paper']}-q{q['q']}"
+    return f"{q['exam']}-{q['year']}-S1-q{q['q']}"
+
+
+def apply_fix(q, fixes):
+    """The hand correction from text_fixes.json, if there is one."""
+    f = fixes.get(qid_of(q))
+    if f:
+        q = dict(q, text=f["text"], options=f["options"])
+    return q
+
+
+def fix_number(text, n):
+    """A printed number that lost its leading digit ("2 Which ..." for 12)."""
+    m = re.match(r"(\d{1,2}) ", text)
+    if m and int(m.group(1)) != n and str(n).endswith(m.group(1)):
+        return f"{n} " + text[m.end():]
+    return text
 
 
 def main():
-    qs = json.load(open("questions_adm.json"))
-    ms_tmua = json.load(open("ms_tmua.json"))
+    qs = json.load(open(os.path.join(paths.ADM, "questions_adm.json")))
+    ms_tmua = json.load(open(os.path.join(paths.ADM, "ms_tmua.json")))
+    fixes = {k: v for k, v in json.load(open(FIXES)).items() if not k.startswith("_")}
 
     con = sqlite3.connect(DB)
     cols = [r[1] for r in con.execute("PRAGMA table_info(questions)")]
-    for col in ("answer", "qtype", "options"):
+    for col in ("answer", "qtype", "options", "option_texts"):
         if col not in cols:
             con.execute(f"ALTER TABLE questions ADD COLUMN {col} TEXT")
 
@@ -114,7 +153,8 @@ def main():
     rows = []
     for q in qs:
         exam, year, paper = q["exam"], q["year"], q["paper"]
-        text = clean_text(q, copied)
+        q = apply_fix(q, fixes)
+        text = fix_number(clean_text(q, copied), q["q"])
         ans = q.get("answer") or ""
         if exam == "TMUA":
             qid = f"TMUA-{year}-P{paper}-q{q['q']}"
@@ -169,6 +209,8 @@ def main():
             "subtopic": q.get("subtopic"), "subtopic_name": q.get("subtopic_name"),
             "answer": ans, "qtype": qtype,
             "options": json.dumps(q.get("options") or []),
+            "option_texts": json.dumps(derive_options(text, q.get("options") or []),
+                                       ensure_ascii=False) if qtype == "mcq" else None,
         })
 
     keys = list(rows[0])
@@ -183,6 +225,10 @@ def main():
                    SELECT id, question_text, ms_text, topic_name FROM questions
                    WHERE syllabus IN ('TMUA','TSA','BMAT')""")
     con.commit()
+
+    # the model tags went with the deleted rows; put them back
+    tag_batches.write(argparse.Namespace(retag=tag_batches.RETAG_DEFAULT, dry_run=False),
+                      syllabi=("TMUA", "TSA", "BMAT"))
 
     # ---- verification --------------------------------------------------
     errs = []
@@ -202,6 +248,12 @@ def main():
     missing_fig = [f for f in copied if not os.path.exists(os.path.join(QB, f))]
     if missing_fig:
         errs.append(f"缺内嵌图 {missing_fig[:3]}")
+    model = {k for k, v in json.load(open(tag_batches.RETAG_DEFAULT)).items()
+             if k != "_" and k.split("-")[0] in ("TMUA", "TSA", "BMAT")}
+    got = {r[0] for r in con.execute("SELECT id FROM questions WHERE syllabus IN "
+                                     "('TMUA','TSA','BMAT') AND topic_source='model'")}
+    if model - got:
+        errs.append(f"retag_model.json 中 {len(model - got)} 题未写上模型标签")
     nf = con.execute("SELECT COUNT(*) FROM q_fts WHERE id LIKE 'TMUA%' OR id LIKE "
                      "'TSA%' OR id LIKE 'BMAT%'").fetchone()[0]
     if nf != len(rows):

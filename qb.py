@@ -9,6 +9,7 @@
   qb.py paper --syllabus 9231 --component 3          assemble a mock paper
   qb.py chapters                                     教材章节体检(主题码 / 标题 / 能配上多少题)
   qb.py serve                                        起本地服务并打开网页(教材/刷题)
+  qb.py manage                                       起数据管理页(查询、题组、导出),局域网可访问
 
 Add --json to any command for machine-readable output.
 """
@@ -146,23 +147,28 @@ def do_paper(syllabus, component, exclude_years=None):
     return picked, used, target
 
 
-def do_serve(port, open_browser=True):
-    """本地起个静态服务,再打开教材页。
-
-    双击 data/ 里的 html 也能用;起服务只是为了浏览器对 file:// 的限制不影响加载。
-    页面、data.js 与题图都在 data/ 下,由 pipeline/export/build_site.py 生成。
-    """
-    import http.server, functools, webbrowser
-    url = f"http://localhost:{port}/textbook.html"
-    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=paths.DATA)
-    handler.log_message = lambda *a, **k: None          # 别把每个请求都打出来
-    srv = http.server.ThreadingHTTPServer(("127.0.0.1", port), handler)
-    print(f"取材页: {url}\n按 Ctrl-C 停止")
+def do_manage(port, open_browser=True):
+    """数据管理页(manager/server.py):查询、题组与导出。需要 aiohttp。"""
+    try:
+        from manager.server import run
+    except ImportError as e:
+        sys.exit(f"缺少依赖:{e.name}。运行 pip install aiohttp")
     if open_browser:
-        try: webbrowser.open(url)
-        except Exception: pass
-    try: srv.serve_forever()
-    except KeyboardInterrupt: print("\n已停止")
+        import threading, webbrowser
+        threading.Timer(1.0, lambda: webbrowser.open(f"http://localhost:{port}/")).start()
+    run(port)
+
+
+def do_serve(port, open_browser=True):
+    """刷题服务端(app/server.py):页面、题目、做题记录与手写板同步。需要 aiohttp。"""
+    try:
+        from app.server import run
+    except ImportError as e:
+        sys.exit(f"缺少依赖:{e.name}。运行 pip install aiohttp(手写板同步另需 inksync 2.0)")
+    if open_browser:
+        import threading, webbrowser
+        threading.Timer(1.0, lambda: webbrowser.open(f"http://localhost:{port}/")).start()
+    run(port)
 
 
 def main():
@@ -205,8 +211,12 @@ def main():
     sub.add_parser("chapters").add_argument("--json", action="store_true")
 
     sv = sub.add_parser("serve")
-    sv.add_argument("--port", type=int, default=8765)
+    sv.add_argument("--port", type=int, default=8900)
     sv.add_argument("--no-open", action="store_true")
+
+    mg = sub.add_parser("manage")
+    mg.add_argument("--port", type=int, default=8910)
+    mg.add_argument("--no-open", action="store_true")
 
     m = sub.add_parser("paper")
     m.add_argument("--syllabus", required=True, choices=list(SYLLABUS))
@@ -243,6 +253,9 @@ def main():
 
     if a.cmd == "serve":
         do_serve(a.port, not a.no_open); return
+
+    if a.cmd == "manage":
+        do_manage(a.port, not a.no_open); return
 
     if a.cmd == "find":
         rows = do_find(a)

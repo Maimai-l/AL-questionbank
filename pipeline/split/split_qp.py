@@ -4,7 +4,8 @@
 Relies on the very regular layout of CAIE papers:
   * question-number blocks sit at the left margin (x0 < ~60)
   * question body sits indented (x0 ~ 73)
-  * answer space is rows of dot leaders
+  * answer space is rows of dot leaders; they are left out of the text and
+    the question crop, and kept in the answer-space crop (span y1_rows)
   * running header/footer live outside the text band
 Emits one record per question with text, mark tariff, and page/bbox span
 so the question can also be cropped to an image.
@@ -23,7 +24,11 @@ LEFT_MARGIN = 62          # question numbers start left of this
 # the last line off every page of the 865pt-tall 2024+ layout.
 QNUM_RE = re.compile(r"^(\d{1,2})(?:\s|$)")
 MARKS_RE = re.compile(r"\[(\d{1,2})\]")
-MARKS_END_RE = re.compile(r"(?:^|[\s.])\[(\d{1,2})\]\s*$")
+# a superscript or the foot of a fraction can share the tariff's visual line:
+# "... A^n = PDP^-1  [6]" reads "[6] 1" in 9231_s24_23 q8(d), and "x/(x-3) ...
+# no solution. [1]" reads "[1] c" in 9231_w21_12 q6(d)(ii)
+MARKS_END_RE = re.compile(r"(?:^|[\s.])\[(\d{1,2})\](?:\s+-?[0-9A-Za-z])?\s*$")
+INDEX_RE = re.compile(r"\[\d{1,2}\]\s*$")
 TARIFF_X1 = 530           # tariffs are right-aligned; every real one lands at x1 ~ 545
 # Case-sensitive on purpose: the cover page says "Any blank pages are
 # indicated", which must not be mistaken for a blank page.
@@ -171,6 +176,49 @@ def drawing_boxes(page):
     return boxes
 
 
+def answer_lines(page):
+    """Boxes of the dot-leader rows the candidate writes on.
+
+    page_blocks drops them from the text and the question crop leaves them
+    out; the answer-space crop (crop.py --rows) keeps them, so a board shows
+    the answer space under every part, the last one included."""
+    top, bottom, furn = page_furniture(page)
+    out = []
+    for blk in page.get_text("dict")["blocks"]:
+        if blk.get("type") != 0:
+            continue
+        for ln in blk["lines"]:
+            txt = "".join(sp["text"] for sp in ln["spans"])
+            r = fitz.Rect(ln["bbox"])
+            if is_dots(txt) and r.y0 >= top and r.y1 <= bottom and not in_furniture(r, furn):
+                out.append(r)
+    return out
+
+
+def heading_top(blocks, y0, y1, min_overlap=3, touch=3.5):
+    """Top of the question's first line, not just of its number.
+
+    A first line carrying a built-up fraction is set taller than the number
+    beside it and sorts as a separate line starting a few points higher
+    (9709_s21_31_q02: "Find the real root of the equation 2e^x + e^-x ..."), and
+    the top row of a column vector or an integral's upper limit sits wholly
+    above it, touching (9709_m25_32_q08, 9709_s25_31_q09). Cut at the number's
+    own top, those went to the previous question. Consecutive questions are
+    separated by far more than `touch`, so the previous question's last line
+    is never pulled in."""
+    top = y0
+    for b in blocks:
+        if min(y1, b[3]) - max(y0, b[1]) >= min_overlap:
+            top = min(top, b[1])
+    grew = True
+    while grew:
+        grew = False
+        for b in blocks:
+            if b[0] >= LEFT_MARGIN and b[1] < top and 0 <= top - b[3] < touch:
+                top, grew = b[1], True
+    return top
+
+
 def split_paper(path):
     doc = fitz.open(path)
     stem = os.path.basename(path).replace(".pdf", "")
@@ -184,11 +232,12 @@ def split_paper(path):
         page = doc[pno]
         if BLANK_RE.search(page.get_text()[:400]):
             continue
-        for x0, y0, x1, y1, txt in page_blocks(page):
+        blocks = page_blocks(page)
+        for x0, y0, x1, y1, txt in blocks:
             if x0 < LEFT_MARGIN:
                 m = QNUM_RE.match(" ".join(txt.split()))
                 if m:
-                    cand.append((pno, y0, int(m.group(1))))
+                    cand.append((pno, heading_top(blocks, y0, y1), int(m.group(1))))
 
     # Walk expecting 1, 2, 3, ...  Tolerate one missing heading (a question
     # number that got merged into a formula block); the preceding record then
@@ -223,8 +272,22 @@ def split_paper(path):
             ts = tail_start(page)
             if ts is not None:
                 hi = min(hi, ts - 12)             # and the rule drawn just above it
-            blocks = [b for b in page_blocks(page) if lo - 2 <= b[1] < hi]
+            # on a continuation page page_blocks has already dropped the lines
+            # above the band; a line whose loose box starts a few points above
+            # the page number's foot ("(b) Hence find ... [5]" at y 48, band top
+            # 51.7, 9709_m21_qp_22) belongs to the question, tariff included
+            floor = lo - 2 if p == pno else -1
+            blocks = [b for b in page_blocks(page) if floor <= b[1] < hi]
+            rows = [r for r in answer_lines(page) if floor <= r.y0 < hi]
             if not blocks:
+                # answer rows running on to a page of their own, before the
+                # next question starts: they belong to this question, in the
+                # answer-space crop only
+                if spans and rows and i + 1 < len(starts):
+                    y1 = min(max(r.y1 for r in rows) + 8, hi)
+                    spans.append({"page": p, "y0": max(lo - 6, 0), "y1": y1,
+                                  "y1_rows": y1, "rows_only": True})
+                    continue
                 # the last question's span runs to the end of the booklet; once
                 # a page has no real content left, everything after it is
                 # end matter, so stop rather than cropping blank pages in
@@ -232,12 +295,15 @@ def split_paper(path):
                     break
                 continue
             parts += [(clean(b[4]), b[2]) for b in blocks if clean(b[4])]
-            # crop extent: last text block or diagram inside the span
+            # crop extent: last text block or diagram inside the span; the
+            # answer-space crop (y1_rows) also takes the answer rows below it
             bottom = max(b[3] for b in blocks)
             for r in drawing_boxes(page):
                 if lo - 2 <= r.y0 < hi:
                     bottom = max(bottom, r.y1)
-            spans.append({"page": p, "y0": max(lo - 6, 0), "y1": min(bottom + 8, hi)})
+            below = max([bottom] + [r.y1 for r in rows if lo - 2 <= r.y0 < hi])
+            spans.append({"page": p, "y0": max(lo - 6, 0), "y1": min(bottom + 8, hi),
+                          "y1_rows": min(below + 8, hi)})
 
         text = " ".join(t for t, _ in parts)
         # A mark tariff is right-aligned at the end of the part, so it ends a
@@ -249,6 +315,9 @@ def split_paper(path):
         marks = []
         for t, x1 in parts:
             m = MARKS_END_RE.search(t)
+            # the last index of an array header ("[9] [10]", 9618_s25_33 q13)
+            if m and INDEX_RE.search(t[:m.start(1) - 1]):
+                m = None
             if m and x1 >= TARIFF_X1:
                 marks.append(int(m.group(1)))
         if not marks:

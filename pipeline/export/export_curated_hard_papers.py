@@ -21,6 +21,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from lib import paths  # noqa: E402
+from pipeline.export import question_md  # noqa: E402
 
 DATA = Path(paths.DATA)
 ASSETS = DATA  # images and books/ live in data/
@@ -123,7 +124,8 @@ def export_paper(spec: dict) -> Path:
         placeholders = ",".join("?" for _ in ids)
         found = {row["id"]: row for row in con.execute(
             f"""SELECT id, syllabus, component, paper, session, year, month, q, marks,
-                       topic_name, question_latex, question_text, ms_latex, ms_text, image
+                       topic_name, question_latex, question_text, ms_latex, ms_text, image,
+                       q_quality, part_data
                   FROM questions WHERE id IN ({placeholders})""", ids)}
     if set(found) != set(ids):
         raise RuntimeError(f"{spec['slug']}: selected IDs are missing from the database")
@@ -143,8 +145,10 @@ def export_paper(spec: dict) -> Path:
         manifest = []
         coverage_lines = [f"# {spec['title']} · Curation record", "", "Every component topic is represented once or more.", ""]
         for number, ((qid, coverage, reason), row) in enumerate(zip(spec["items"], rows), 1):
-            question = rewrite_images(row["question_latex"] or row["question_text"] or "_Question text unavailable._", images)
-            scheme = rewrite_images(row["ms_latex"] or row["ms_text"] or "_Mark scheme unavailable._", images)
+            question = rewrite_images(question_md.question_text(row), images)
+            scheme = rewrite_images(question_md.scheme_text(row), images)
+            parts = (question_md.parts_of(row) or {}).get("parts", [])
+            tasks = "; ".join(f"{p['label'] or 'whole'}: {p['task']}" for p in parts if p.get("task"))
             if row["image"]:
                 images.setdefault(row["image"], ASSETS / row["image"])
             question_lines += ["---", "", f"## Question {number}", ""]
@@ -153,10 +157,12 @@ def export_paper(spec: dict) -> Path:
             question_lines += [question.strip(), "", f"**[{row['marks']} marks]**", ""]
             answer_lines += ["---", "", f"## Question {number}", "", scheme.strip(), ""]
             coverage_lines += [f"## Question {number} · {coverage}", "", reason, "",
-                              f"Source: `{qid}` · {row['paper']} · {row['session']} · {row['marks']} marks.", ""]
+                              f"Source: `{qid}` · {row['paper']} · {row['session']} · {row['marks']} marks.", "",
+                              f"Tasks by part: {tasks or '—'}", ""]
             manifest.append({"number": number, "id": qid, "syllabus": row["syllabus"], "component": row["component"],
                              "paper": row["paper"], "session": row["session"], "year": row["year"], "question": row["q"],
-                             "marks": row["marks"], "coverage": coverage, "why_selected": reason, "image": row["image"] or ""})
+                             "marks": row["marks"], "coverage": coverage, "why_selected": reason, "tasks": tasks,
+                             "q_quality": row["q_quality"] or "", "image": row["image"] or ""})
 
         (tmp / "question_paper.md").write_text("\n".join(question_lines).rstrip() + "\n", encoding="utf-8")
         (tmp / "markscheme.md").write_text("\n".join(answer_lines).rstrip() + "\n", encoding="utf-8")

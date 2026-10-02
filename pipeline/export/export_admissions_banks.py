@@ -33,7 +33,7 @@ def source_for(row: sqlite3.Row, ref: str) -> tuple[str, Path]:
         # TMUA official worked answers retain their original per-PDF imgs/ links.
         # Bundle these legacy images under a unique, internal destination.
         base = row["id"].rsplit("-q", 1)[0].replace("-P", "-paper-") + "-worked-answers"
-        source = Path(paths.RAW) / "admissions_ocr_source" / "TMUA" / "worked_answers" / base / ref
+        source = Path(paths.BANK_OCR) / "TMUA" / "worked_answers" / base / ref
         return f"worked_answers/{base}/{Path(ref).name}", source
     return ref, ASSETS / ref
 

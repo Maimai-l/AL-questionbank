@@ -1,0 +1,466 @@
+{
+ "_说明": "入学考题干的人工修正,merge_admissions.py 在入库时用它覆盖 questions_adm.json 中的 text 与 options。每条的 note 说明原因;内容均对照原卷。",
+ "BMAT-2003-S1-q29": {
+  "text": "29 Julie has a bag of sweets which are red, blue and yellow. She invites Amanda to choose one. The probability of Amanda choosing a red sweet is 30%, and the probability of her choosing a blue one is twice the probability of her choosing a yellow one. What is the minimum number of sweets in the bag.\n\nA 7\n\nB 10\n\nC 14\n\nD 21\n\nE 30",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回选项 C 14、D 21(原卷第 14 页);第 30 题内容移出"
+ },
+ "BMAT-2003-S1-q30": {
+  "text": "30 Doctors in Great Britain can work for the public health service, a commercial service, or both. 30% of doctors in Great Britain work, at least some of the time, for the commercial sector. On the basis of this information alone, deduce which of the following statements are true of doctors in Great Britain.\n\n1 Some doctors work only in the public health service.\n\n2 More doctors work in the public health service than the commercial sector.\n\n3 Some doctors spend more time on commercial work than in the public health service.\n\nA 1 only\n\nB 2 only\n\nC 1 and 2 only\n\nD 2 and 3 only\n\nE 1,2 and 3",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 30 题,原先混在第 29 题末尾"
+ },
+ "BMAT-2003-S1-q31": {
+  "text": "31 Which two of these statements are equivalent?\n\nA Anne is not older than Susan.\n\nB Susan is younger than Anne.\n\nC Susan is at least as old as Anne.\n\nD Anne is not younger than Susan.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "原卷第 31 题,原先存在第 30 题下"
+ },
+ "BMAT-2003-S1-q32": {
+  "text": "32 Recent threats of terrorism in the UK have resulted in fear of air travel, and consequently more people are taking holidays in domestic resorts than abroad. The consequences for road planning, car parking and the rail network are immense, and travel agents risk going out of business. The government must act quickly to plan for these changes in holiday patterns.\n\nWhich one of the following is an underlying assumption of the above argument?\n\nA People may be tempted by bargain offers of holidays abroad.\n\nB The government is not willing to respond to these changes in holiday patterns.\n\nC People will prefer to use private cars rather than public transport to reach their destination.\n\nD There has been an over-reaction to threats of terrorism.\n\nE The change in holiday patterns will be more than a short term phenomenon.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 32 题,原先存在第 31 题下"
+ },
+ "BMAT-2003-S1-q33": {
+  "text": "33 Just four horses start in the 3:15 race, a short sprint. They are: Arctic Ape, Bistro, Crackdown and Drumbeat. At the first turn Bistro is ahead of Drumbeat and Crackdown is ahead of Arctic Ape, but nothing more specific is known. By the half way mark the only change is that Drumbeat has dropped back one place. Then, in the last furlong, Bistro moves up one place and that is how they finish.\n\nOn the basis of this information, which one of the following gives the correct result of the race?\n\nA $1^{\\mathrm{st}}$ Crackdown, $2^{\\mathrm{nd}}$ Drumbeat, $3^{\\mathrm{rd}}$ Arctic Ape\n\nB  $ 1^{st} $ Bistro,  $ 2^{nd} $ Crackdown,  $ 3^{rd} $ Drumbeat\n\nC $1^{\\mathrm{st}}$ Bistro, $2^{\\mathrm{nd}}$ Drumbeat, $3^{\\mathrm{rd}}$ Arctic Ape\n\nD $1^{\\mathrm{st}}$ Bistro, $2^{\\mathrm{nd}}$ Crackdown, $3^{\\mathrm{rd}}$ Arctic Ape\n\nE $1^{\\mathrm{st}}$ Drumbeat, $2^{\\mathrm{nd}}$ Arctic Ape, $3^{\\mathrm{rd}}$ Crackdown",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 33 题,原先存在第 32 题下"
+ },
+ "BMAT-2003-S1-q34": {
+  "text": "34 A food supplement is diluted from concentrate by adding 8 parts water to 1 part concentrate. By mistake, Jean added 400cm³ water to 40cm³ concentrate.\n\nWhat must she add to the resulting mix to obtain the correct concentration?\n\nA  $ 80cm^{3} $ water\n\nB 320cm $ ^{3} $ water\n\nC  $ 10~cm^{3} $ concentrate\n\nD  $ 15~cm^{3} $ concentrate\n\nE 50cm $ ^{3} $ concentrate",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 34 题,原先存在第 33 题下"
+ },
+ "BMAT-2003-S1-q35": {
+  "text": "35 Figure 1 shows the number of births and deaths recorded during each year, over a ten-year period on an island. The total population at the start of the ten-year period was 100,000 people.\n\n<div style=\"text-align: center;\">Figure 1</div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_928_634_2259_1641.jpg\" alt=\"Image\" width=\"40%\" /></div>\n\n\nAssuming there is not any immigration or emigration on the island, which of the following shows the total population over the ten-year period?\n\n<!-- 选项为六幅柱状图,字母自页面图像转录 -->\nA (见图 A)\n\nB (见图 B)\n\nC (见图 C)\n\nD (见图 D)\n\nE (见图 E)\n\nF (见图 F)\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_273_2016_1138_2863.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_1164_2045_2030_2865.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_2057_2029_2911_2861.jpg\" alt=\"Image\" width=\"25%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_274_2915_1136_3728.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_1161_2915_2028_3731.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_2054_2917_2917_3731.jpg\" alt=\"Image\" width=\"26%\" /></div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "note": "原卷第 35 题,原先存在第 34 题下;其余五幅选项图原先在第 35 题下"
+ },
+ "BMAT-2003-S1-q36": {
+  "text": "## Questions 36 to 40 refer to the following information:\n\nThe dates of two of the battles supposedly fought by the semi-legendary King Arthur have caused confusion because there are inconsistencies in the early manuscripts.\n\nThe Welsh Annals give the Battle of Badon as “year 72” and the Battle of Camlann as “year 93”. They also record the death of King Maelgwn of Gwynedd as “year 103”. There is definite evidence from the calculation of the dates of Easter that “year 9” in the Welsh Annals coincides with 455 AD in our modern dating system.\n\nThe dark age historian, Gildas, records these battles without any mention of Arthur. Records indicate that Gildas was born in the year of the battle of Badon and wrote his book “On the Ruin and Conquest of Britain” when he was 43.\n\nHowever, Maelgwn was still alive when Gildas wrote his book, which is inconsistent with the other dates given by Gildas and the Welsh Annals.\n\n36 If the dates given in the Welsh Annals are correct, when was the Battle of Badon?\n\n\n\nA 455 AD\nB 518 AD\nC 527 AD\nD 539 AD\nE 549 AD",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "第 36–40 题共用的材料原先在第 35 题下"
+ },
+ "BMAT-2004-S1-q2": {
+  "text": "2 Nutritionists say that we should eat more fruit and vegetables per day and reduce our intake of fat to help prevent major illnesses. As fruit and vegetables are relatively expensive compared to fatty foods, it is unlikely that families on very low incomes will follow this advice. If the government really wants to improve the health of the nation, it will have to consider taxing foods which are high in fat.\n\nWhich of the following, if true, would most strengthen the argument in the passage above?\n\nA Many people prefer eating fatty foods to fruit and vegetables.\n\nB Advertisers tend to focus on promoting fatty foods.\n\nC Levels of smoking have reduced in response to higher prices.\n\nD It is difficult to persuade children of the health benefits of eating less fat.\n\nE Governments tend to take measures which have short term results.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "第 3 题的首句原先挂在末尾成了选项 F"
+ },
+ "BMAT-2004-S1-q3": {
+  "text": "3 Of the 100 screws in my work box:\n\n60 are cross-headed and 40 are slot-headed\n\n70 are 3 mm diameter, 20 are 4 mm diameter and 10 are 5 mm diameter\n\n80 are 50 mm long, 5 are 35 mm long and 15 are 20 mm long.\n\nWhat is the smallest number of cross-headed, 3 mm diameter, 50 mm long screws that there could be in the box?\n\n\n\nA 0\nB 10\nC 30\nD 31\nE 60",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回首句(原先在第 2 题末尾)"
+ },
+ "BMAT-2004-S1-q23": {
+  "text": "23 The percentages shown in the 'All' columns are calculated as the total number of men or women in the survey with less than each estimated salt intake expressed as a percent of the total sample. If these percentages were to be used as estimates for 19-64 year-olds in the population, which one of the following is a plausible explanation as to why the figures might be biased?\n\nA The figures are expressed cumulatively instead of showing the actual values.\n\nB The numbers in the survey are not evenly distributed across the age range.\n\nC The total salt intake of each group is given by the number in the group multiplied by the salt intake.\n\nD The age ranges vary from 5 years to 15 years.\n\nE There are no figures for people under 19 or over 64.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "题号印成 25"
+ },
+ "BMAT-2004-S1-q31": {
+  "text": "31 Which two of these statements are equivalent?\n\nA Anne is not older than Susan.\n\nB Susan is younger than Anne.\n\nC Susan is at least as old as Anne.\n\nD Anne is not younger than Susan.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "补回题干(原卷第 17 页)"
+ },
+ "BMAT-2010-S1-q8": {
+  "text": "## Questions 8 - 11 refer to the following information:\n\nThroughout the world, boys and girls prefer to play with different types of toys. Boys typically like to play with cars and trucks, while girls typically choose to play with dolls. Why is this? A traditional sociological explanation is that boys and girls are socialised and encouraged to play with different types of toys by their parents, peers, and “society”. Growing scientific evidence suggests, however, that boys' and girls' toy preferences may have a biological origin.\n\nIn 2002, Gerianne M. Alexander of Texas A&M University and Melissa Hines of City University in London stunned the scientific world by showing that vervet monkeys showed the same sex-typical toy preferences as humans. In an incredibly ingenious study, published in Evolution and Human Behaviour, Alexander and Hines gave two stereotypically masculine toys (a ball and a police car), two stereotypically feminine toys (a soft doll and a cooking pot), and two neutral toys (a picture book and a stuffed dog) to 44 male and 44 female vervet monkeys. They then assessed the monkeys' preference for each toy by measuring how much time they spent with each. Their data demonstrated that the male vervet monkeys showed significantly greater interest in the masculine toys, and the female vervet monkeys showed significantly greater interest in the feminine toys. The two sexes did not differ in their preference for the neutral toys.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_226_634_1019_1150.jpg\" alt=\"Image\" width=\"66%\" /></div>\n\n\nFemale monkey with doll\n\nMale monkey with car\n\n8 Which one of the following views is most clearly challenged by the first paragraph?\n\nA That toy preference in humans is the result of socialising.\n\nB That boys and girls play with different types of toys.\n\nC That cars and trucks are typically chosen by boys.\n\nD That animal behaviour is not social behaviour.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "删去题首第 7 题的选项残片"
+ },
+ "BMAT-2011-S1-q24": {
+  "text": "24 Asked at a press conference whether the new signing, Petermass, would be playing in the big match on Saturday, the Manager replied: \"Only if Fredericks isn't fit.\"\n\nThree of the journalists present noted the announcement as follows:\n\nJed wrote: “If Fredericks is fit Petermass won’t be playing.”\n\nNed wrote: \"If Fredericks isn't fit, Petermass will be playing.\"\n\nTed wrote: \"If Petermass doesn't play it'll mean Fredericks is fit.\"\n\nWhich of them got the facts right?\n\nA Jed only\n\nB Ned only\n\nC Ted only\n\nD Jed and Ned only\n\nE Jed and Ted only\n\nF Ned and Ted only\n\nG Jed, Ned and Ted",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F",
+   "G"
+  ],
+  "note": "删去题首第 23 题的选项残片"
+ },
+ "BMAT-2015-S1-q17": {
+  "text": "17 The rate of recorded heart attacks among women in the UK could soon start to fall because a new blood test has been developed which provides a more accurate diagnosis of the incidence of heart attacks in women. Researchers believe that heart attacks in women may previously have been under-diagnosed because the 'old' blood test was not sufficiently sensitive. They believe that possibly twice as many women will be found using the new test to have had heart attacks as were found using the old one. With more accurate diagnosis, women can start treatment to reduce the risk of a further attack.\n\nWhich one of the following best expresses the flaw in the above argument?\n\nA It assumes that the lower number of subsequent heart attacks will not be balanced by the higher recording of first heart attacks.\n\nB It assumes that the same new blood test can be used equally well for men as for women.\n\nC It assumes that a blood test is the only way of diagnosing when a heart attack has taken place.\n\nD It assumes that treatment to prevent subsequent heart attacks is always effective.\n\nE It assumes that women are likely to seek medical help more quickly than men.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "删去题首第 16 题的选项残片"
+ },
+ "BMAT-2015-S1-q26": {
+  "text": "26 Despite years of butter and saturated fats being given a bad press, it has recently emerged that studies in the 1980s that highlighted the dangers of eating too much of these fats were based on a misleading data set. Consequently, the guidance based on these studies to reduce the intake of saturated fats cannot be justified. These studies suggested that a high intake of saturated fat was associated with an increased risk of coronary heart disease and to counter this they should only make up 10% of our diet. Now that this research has been discredited, we can once again enjoy the tastes our grandparents enjoyed without risking our health.\n\nWhich one of the following is an assumption made by the above argument?\n\nA It is possible to enjoy saturated fat in a balanced diet.\n\nB Coronary heart disease is caused by a range of factors and dietary risks.\n\nC Other, more robust studies have not subsequently suggested a risk to health from saturated fat.\n\nD People follow public health advice and limit their saturated fat intake.\n\nE It is possible to conduct long-term studies that can be used to draw meaningful conclusions about health.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "删去题首第 25 题的选项残片;选项 C 多出的 c"
+ },
+ "BMAT-2014-S1-q22": {
+  "text": "22 There have been various proposals over the years for a system of decimal time.\n\nUnder one system the day would remain the same length of time as it is at present, but would be the basic unit of time, divided into 10 decidays each made up of 100 millidays. Clocks would show the time in decidays and millidays instead of hours and minutes. Midday would be 0:00 and midnight would, therefore, be 5:00.\n\nIf this system were ever to be introduced and a new-style digital clock was compared with an old-style digital clock, what would the old clock read when the new clock showed 1:75?\n\n\n\nA 14:52\nB 15:02\nC 16:12\nD 16:20\nE 16:40",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 22 题,原先存在第 23 题下"
+ },
+ "BMAT-2014-S1-q23": {
+  "text": "23 Memory loss and growing mental incapacity used to be seen as inevitable consequences of ageing. Now we talk of dementia as an illness that could possibly be cured or prevented. The incidence of new cases of dementia is falling. A survey in the UK in 1994 revealed roughly 650 000 cases of dementia. With a subsequent increase in the average age at death, a survey in 2013 should have found nearly 900 000 cases, but in fact the total was less than 700 000. Why should this be so? Over the same period rates of heart disease have fallen, and in general the health of the blood vessels of the elderly has improved. Given that brain function requires the supply of oxygen to the brain from blood vessels, the improvement in the health of blood vessels ...\n\nWhich one of the following most logically completes the above argument?\n\nA must be the explanation as to why people are living longer.\n\nB and the fall in new cases of dementia must both be due to some other factor.\n\nC is the cause of the reduction in the incidence of new cases of dementia.\n\nD could be a contributory factor in the reduction of the incidence of new cases of dementia.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "原卷第 23 题,原先存在第 24 题下"
+ },
+ "BMAT-2014-S1-q24": {
+  "text": "24 Four friends need to stay in a hotel for one night after a concert. They are working out what it is going to cost them. The prices per room are as follows:\n\nSingle: £40, Double: £65, Family: £90 (This is up to a max of 3 adults)\n\nSpecial offers:\n\n10% discount for four rooms in a single booking\n\n5% discount for three rooms in a single booking\n\nOne of them has a voucher for £10 which can be used once for a booking of a double room.\n\nWhat is the cheapest option?\n\nA Four single rooms\n\nB Two double rooms\n\nC One double and two single rooms\n\nD One single and a family room",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "原卷第 24 题,原先存在第 25 题下"
+ },
+ "BMAT-2014-S1-q25": {
+  "text": "25 Next time you feel the flu coming on, you should think twice before reaching for painkillers because they could do more harm than good by increasing the transmission of flu. Obviously painkillers can make you feel better by reducing muscle pains and headaches, but they also lower fever. Fever is thought to be an antiviral weapon, because many viruses find it hard to replicate at temperatures higher than the normal human body temperature. Some studies have shown that lowering fever can prolong viral infections and increase the amount of the virus that can be passed on to others.\n\nWhich one of the following, if true, strengthens the above argument?\n\nA Overuse of painkillers can reduce their effectiveness in curing headaches.\n\nB Taking painkillers increases the likelihood that flu sufferers will return to work while still infectious.\n\nC c The studies of the effect of lowering fever were carried out on animals, not humans.\n\nD The most effective defence against flu is an annual anti-flu injection.\n\nE People are more likely to take an accidental overdose of painkillers when they have a virus.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 25 题,原先存在第 26 题下"
+ },
+ "BMAT-2014-S1-q26": {
+  "text": "26 Most people remember a PIN because it has only four digits and it is used regularly, but few know their bank account number.\n\nI have no trouble remembering my eight-digit account number, however, because squaring each of the four digits of my debit card PIN in turn produces it.\n\nAll the digits of my account number are different, and there is no zero in it. Which other digit does it not contain?\n\nA 2\n\nB 3\n\nC 5\n\nD 7\n\nE 8",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原卷第 26 题,原先与第 27 题并在一起且缺选项数值;取自原卷文字层"
+ },
+ "BMAT-2014-S1-q27": {
+  "text": "27 Drivers of motor vehicles are not the only threat to the safety of pedestrians. Official road casualty statistics for 2012 show that, per billion kilometres travelled, cyclists seriously injured 21 pedestrians, compared with 24 pedestrians seriously injured by vehicle drivers. Cyclists who ride on the pavement are regarded as a problem by pedestrians, but statistics show that most collisions between pedestrians and cyclists occur when pedestrians step into the road without seeing a cyclist. Analysis of road casualty data shows that cyclists killed 23 pedestrians in the decade to 2012 and seriously injured 585.\n\nAssuming that 2012 is a representative year, which of the following conclusions can be drawn from the above passage?\n\n1 A pedestrian is almost as likely to be seriously injured by a cyclist as by a motor vehicle driver.\n\n2 As a proportion of distance travelled, the risk of a cyclist causing serious injury to pedestrians is almost as great as the risk posed by vehicle drivers.\n\n3 Pedestrians are less likely to be seriously injured by a cyclist when walking on a pavement than when stepping into the road.\n\n\n\nA 1 only\nB 2 only\nC 3 only\nD 1 and 2 only\nE 2 and 3 only\nF 1, 2 and 3",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "note": "原卷第 27 题,原先与第 26 题并在一起"
+ },
+ "BMAT-2023-S1-q1": {
+  "text": "1 Lizards are a large group of reptiles comprising more than 6000 species. Like the snakes to which they are closely related, they have scaly bodies and long tails, but unlike the snakes they are typically four-legged. Some reptile species, such as Ophisaurus ventralis and Anguis fragilis, are legless, with scaly and elongated bodies, looking just like snakes. These species, however, are still classified as lizards. The confusion arises from the fact that over many generations a number of four-legged lizard species have gradually lost their limbs while adapting to the environment they inhabit. It is often difficult to tell a legless lizard from a snake if you do not observe the animals closely and search for some characteristic features. Lizards differ from snakes, for instance, in having clearly visible ear-openings on the sides of the head.\n\nWhich one of the following can be drawn as a conclusion from the above passage?\n\nA Lizards have a more acute sense of hearing than snakes.\n\nB All currently living reptiles are either lizards or snakes.\n\nC Anguis fragilis and Ophisaurus ventralis have visible ear-openings.\n\nD If an animal has a scaly body and a long tail, it is a reptile.\n\nE The only way to tell a lizard from a snake is by the presence or absence of ear-openings.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "选项重复且混入第 2 题;取自原卷文字层"
+ },
+ "BMAT-2023-S1-q2": {
+  "text": "2 Maisy bought a bag of bird seed on a visit to a wetland centre.\n\nThe bag had a tiny hole in the bottom and as Maisy was walking along, seeds were dropping out of the bag and slowly making the hole bigger.\n\nDuring the first minute 5 grams of seed dropped through the hole, but with each successive minute, the loss of seeds progressively increased by 1 gram, i.e. 6 grams in the second minute,\n\n7 grams in the third minute, etc.\n\nAfter 5 minutes of walking, Maisy took a 20 gram handful of seeds out of the bag to feed some ducks.\n\nAfter another 5 minutes, Maisy took another 20 gram handful of seeds out of the bag to feed some geese.\n\nAfter a further 5 minutes, Maisy stopped walking and realised that she had only half the quantity of seeds that she started with.\n\nHow much seed was in the bag when Maisy bought it?\n\nA 118 grams\n\nB 230 grams\n\nC 360 grams\n\nD 440 grams\n\nE 480 grams",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "原先只剩选项;取自原卷文字层"
+ },
+ "BMAT-2018-S1-q14": {
+  "text": "14 Among a group of 6 children, 2 belong to a football team.\n\nPhilip says it is Roger and Qayla. Qayla says it is Philip and Roger. Roger says it is Qayla and Sam. Sam says it is Trista and Roger. Trista says it is Ursula and Sam. Ursula refuses to say anything.\n\nFour of the children correctly named one person and lied about the other. One person lied about both. The sixth person, Ursula, said nothing.\n\nWhich two children belong to the football team?\n\nA Philip and Qayla\n\nB Philip and Sam\n\nC Philip and Ursula\n\nD Qayla and Ursula\n\nE Roger and Sam\n\nF Roger and Ursula",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "BMAT-2020-S1-q13": {
+  "text": "13 Tom is organising a 7-night tour holiday for his parents and himself.\n\n<div style=\"text-align: center;\">The table below shows details of the five tour companies that Tom is considering.</div>\n\n\n\n<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>company</td><td style='text-align: center; word-wrap: break-word;'>day tours</td><td style='text-align: center; word-wrap: break-word;'>cost per person</td><td style='text-align: center; word-wrap: break-word;'>single supplement per person per night</td><td style='text-align: center; word-wrap: break-word;'>escorted travel</td><td style='text-align: center; word-wrap: break-word;'>flights</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Alltravel</td><td style='text-align: center; word-wrap: break-word;'>inclusive</td><td style='text-align: center; word-wrap: break-word;'>€1100</td><td style='text-align: center; word-wrap: break-word;'>€40</td><td style='text-align: center; word-wrap: break-word;'>fully escorted</td><td style='text-align: center; word-wrap: break-word;'>1 change</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Beyond</td><td style='text-align: center; word-wrap: break-word;'>inclusive</td><td style='text-align: center; word-wrap: break-word;'>€1200</td><td style='text-align: center; word-wrap: break-word;'>€10</td><td style='text-align: center; word-wrap: break-word;'>fully escorted</td><td style='text-align: center; word-wrap: break-word;'>direct</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Cosmic</td><td style='text-align: center; word-wrap: break-word;'>inclusive</td><td style='text-align: center; word-wrap: break-word;'>€1150</td><td style='text-align: center; word-wrap: break-word;'>€30</td><td style='text-align: center; word-wrap: break-word;'>fully escorted</td><td style='text-align: center; word-wrap: break-word;'>direct</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Discreet</td><td style='text-align: center; word-wrap: break-word;'>inclusive</td><td style='text-align: center; word-wrap: break-word;'>€1100</td><td style='text-align: center; word-wrap: break-word;'>€40</td><td style='text-align: center; word-wrap: break-word;'>fully escorted</td><td style='text-align: center; word-wrap: break-word;'>direct</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Ecotravel</td><td style='text-align: center; word-wrap: break-word;'>inclusive</td><td style='text-align: center; word-wrap: break-word;'>€1000</td><td style='text-align: center; word-wrap: break-word;'>€30</td><td style='text-align: center; word-wrap: break-word;'>partly escorted</td><td style='text-align: center; word-wrap: break-word;'>direct</td></tr></table>\n\nTom has a maximum budget of €3600. All three travellers will qualify for the quoted cost per person, but Tom will also have to pay the additional single supplement.\n\nThey will need direct flights. They will want fully escorted travel and inclusive day tours.\n\nWhich company should Tom choose for the holiday?\n\nA Alltravel\n\nB Beyond\n\nC Cosmic\n\nD Discreet\n\nE Ecotravel",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "BMAT-2020-S1-q32": {
+  "text": "32 A puzzle consists of 4 tiles, all of which have the shape shown below.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_541_221_704_334.jpg\" alt=\"Image\" width=\"13%\" /></div>\n\n\nOn each tile one of the squares is coloured black and the other three are coloured white. No two tiles look the same. The back of each tile is grey.\n\nWhich one of the following patterns can be made by placing the four tiles together?\n\nA (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_301_529_512_743.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\nB (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_776_529_987_743.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\nC (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_300_811_513_1027.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\nD (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_774_811_987_1027.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\nE (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_300_1094_512_1310.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\n<div style=\"text-align: center;\">END OF TEST</div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "BMAT-2021-S1-q32": {
+  "text": "32 Three identical Roman dice are shown below.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_388_168_586_391.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_663_170_861_392.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_523_394_719_609.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\nWhich one of the following dice is identical to the three above?\n\nA (图形选项)\nB (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_307_705_507_930.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_782_705_983_938.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\nC (图形选项)\nD (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_307_985_506_1215.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_782_985_981_1217.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\nE (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_308_1268_506_1498.jpg\" alt=\"Image\" width=\"16%\" /></div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "BMAT-2023-S1-q26": {
+  "text": "26 The following graph shows how the price of a particular share varied over an eight-day period:\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_306_197_943_527.jpg\" alt=\"Image\" width=\"53%\" /></div>\n\n\nWhich one of the following graphs could show the percentage change from the previous day over the same period of time?\n\nA (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_193_655_623_901.jpg\" alt=\"Image\" width=\"36%\" /></div>\n\n\nB (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_660_657_1097_883.jpg\" alt=\"Image\" width=\"36%\" /></div>\n\n\nC (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_181_938_623_1164.jpg\" alt=\"Image\" width=\"37%\" /></div>\n\n\nD (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_669_941_1099_1153.jpg\" alt=\"Image\" width=\"36%\" /></div>\n\n\nE (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_194_1220_617_1489.jpg\" alt=\"Image\" width=\"35%\" /></div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2018-S1-q32": {
+  "text": "32 Connem Ltd. has recently adopted a new company logo.\n\nA large plastic version of the logo has just been delivered to the office, to be attached to the outside of the building. Unfortunately, in transit, the plastic has broken into two pieces, as shown below:\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_424_303_567_442.jpg\" alt=\"Image\" width=\"12%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_611_300_822_442.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\nWhich one of the following could not be Connem's new logo?\n\nA (图形选项)\nB (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_296_545_519_826.jpg\" alt=\"Image\" width=\"18%\" /></div>\n\n\nC (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_741_610_1024_829.jpg\" alt=\"Image\" width=\"23%\" /></div>\n\n\nD (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_262_908_554_1084.jpg\" alt=\"Image\" width=\"24%\" /></div>\n\n\nE (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_772_872_989_1084.jpg\" alt=\"Image\" width=\"18%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_268_1161_544_1366.jpg\" alt=\"Image\" width=\"23%\" /></div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2018-S1-q38": {
+  "text": "38 The diagram below shows part of a map of Ruralia.\n\n<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•</td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>V•</td><td style='text-align: center; word-wrap: break-word;'>W•</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•X</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•Y</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•Z</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td></tr><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>•</td><td style='text-align: center; word-wrap: break-word;'></td></tr></table>\n\nA group of students are on an expedition and must meet their teacher at Longwood, grid reference 787634. Unfortunately, they have been given a version of the map with the numbers missing from the gridlines, and the place names have been omitted too. They have a list of grid\n\nreferences for some places on the map, and are trying to work out which point to head for in order to be sure of meeting their teacher.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_543_623_702_759.jpg\" alt=\"Image\" width=\"13%\" /></div>\n\n\nThey have a set of instructions showing how the grid references work:\n\nThe grid reference of point P is 172427. Go to vertical line to the west of the point, read the number 17. Estimate how many tenths across the square the point appears at, hence 172. Go to horizontal line to the south of point P, read the number 42, estimate how many tenths up the square the point is, hence 427. This gives 172427 as the complete grid reference number.\n\nHere is the list of the grid references / place names the students have been given.\n\n\n<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>Hilltop</td><td style='text-align: center; word-wrap: break-word;'>763613</td><td style='text-align: center; word-wrap: break-word;'>Riverside</td><td style='text-align: center; word-wrap: break-word;'>781614</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Sunnybank</td><td style='text-align: center; word-wrap: break-word;'>804613</td><td style='text-align: center; word-wrap: break-word;'>Topfield</td><td style='text-align: center; word-wrap: break-word;'>777634</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>High Moor</td><td style='text-align: center; word-wrap: break-word;'>792626</td><td style='text-align: center; word-wrap: break-word;'>Longwood</td><td style='text-align: center; word-wrap: break-word;'>787634</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Highscar</td><td style='text-align: center; word-wrap: break-word;'>773649</td><td style='text-align: center; word-wrap: break-word;'>Stakefell</td><td style='text-align: center; word-wrap: break-word;'>793658</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>West Pasture</td><td style='text-align: center; word-wrap: break-word;'>815642</td><td style='text-align: center; word-wrap: break-word;'>Lower Green</td><td style='text-align: center; word-wrap: break-word;'>837654</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Little Tarn</td><td style='text-align: center; word-wrap: break-word;'>825605</td><td colspan=\"2\"></td></tr></table>\n\nUsing this information to help you, which of the places marked on the map is Longwood?\n\nA V\n\nB W\n\nC X\n\nD Y\n\nE Z",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2018-S1-q44": {
+  "text": "44 Here is a diagram of a cube.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_521_223_726_438.jpg\" alt=\"Image\" width=\"17%\" /></div>\n\n\nWhich one of the following nets could be folded to make this cube?\n\n1\n\n2\n\n3\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_156_604_452_732.jpg\" alt=\"Image\" width=\"24%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_471_604_769_731.jpg\" alt=\"Image\" width=\"25%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_791_604_1088_731.jpg\" alt=\"Image\" width=\"24%\" /></div>\n\n\n4\n\n5\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_342_837_640_963.jpg\" alt=\"Image\" width=\"25%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_661_837_960_963.jpg\" alt=\"Image\" width=\"25%\" /></div>\n\n\nA 1\n\nB 2\n\nC 3\n\nD 4\n\nE 5",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2019-S1-q42": {
+  "text": "42 The drawing below shows an allotment shed.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_431_181_806_635.jpg\" alt=\"Image\" width=\"31%\" /></div>\n\n\n[diagram not to scale]\n\nThe four outside wood surfaces of the shed, including the door, need to be painted with three coats of paint. It takes 4 minutes to paint 1 square metre.\n\nI have two identical sheds to paint and will take just one 20-minute tea break.\n\nHow long will it take to paint the two sheds?\n\nA 36 minutes\n\nB 1 hour and 48 minutes\n\nC 2 hours and 8 minutes\n\nD 3 hours and 36 minutes\n\nE 3 hours and 56 minutes",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2019-S1-q50": {
+  "text": "50 The net below can be folded to make a Roman numerical dice.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_348_178_898_587.jpg\" alt=\"Image\" width=\"46%\" /></div>\n\n\nWhich one of the following dice could have been made as a result of folding the net?\n\nA (图形选项)\nB (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_229_747_428_958.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\nC (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_545_749_743_958.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_863_748_1060_958.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\nD (图形选项)\nE (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_229_1033_428_1244.jpg\" alt=\"Image\" width=\"16%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_545_1029_744_1244.jpg\" alt=\"Image\" width=\"16%\" /></div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2023-S1-q20": {
+  "text": "20 The block paved area shown below is laid using three different-sized blocks.\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_image_box_336_210_909_718.jpg\" alt=\"Image\" width=\"48%\" /></div>\n\n\nWhich one of the following charts shows the relative comparison of the number of each size of block used in this paved area?\n\nA (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_179_857_465_1115.jpg\" alt=\"Image\" width=\"24%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_468_857_788_1116.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n\nC (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_816_857_1095_1117.jpg\" alt=\"Image\" width=\"23%\" /></div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_154_1140_471_1400.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n\nE (图形选项)\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_476_1138_781_1398.jpg\" alt=\"Image\" width=\"25%\" /></div>",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "TSA-2023-S1-q48": {
+  "text": "48 The charges at the Puffins adventure park are shown in the following table.\n\n<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>price ($)</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>adult entry</td><td style='text-align: center; word-wrap: break-word;'>30</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>child entry</td><td style='text-align: center; word-wrap: break-word;'>25</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>family ticket (entry for 2 adults and 2 children, includes 8 single-ride tokens)</td><td style='text-align: center; word-wrap: break-word;'>120</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>single-ride token</td><td style='text-align: center; word-wrap: break-word;'>5</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>super ride (10 single-ride tokens)</td><td style='text-align: center; word-wrap: break-word;'>40</td></tr></table>\n\nA single-ride token allows one person one ride on any of the adventure rides.\n\nMike and Helen are visiting Puffins with their two children, Amy and Ben, and Helen's mother, Pearl. They pay $250 and want to have as many rides as possible. Mike, Helen, Amy and Ben will each have the same number of rides. Pearl will have at least two rides.\n\nWhat is the maximum number of rides that Amy will have?\n\nA 4\n\nB 5\n\nC 6\n\nD 7\n\nE 8",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "BMAT-2019-S1-q22": {
+  "text": "22 Which of the following statements is/are supported by the data in Figure 2?\n\n1 Between 2017 and 2018 the combined sales of the nine national daily papers fell by between 11% and 12%.\n\n2 In 2016 the sales of the five pro-Leave newspapers accounted for more than 70% of the combined sales of the nine major daily papers.\n\nA 1 only\n\nB 2 only\n\nC both 1 and 2\n\nD neither 1 nor 2",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "补回识别漏掉的首句(原卷文字层)"
+ },
+ "BMAT-2019-S1-q19": {
+  "text": "Questions 19–22 refer to the following information.\n\n## National daily newspapers\n\nThe sales of national daily papers in the UK reached a peak in the mid-1950s. Since then there has been a gradual decline in sales. The availability of multimedia news platforms has accelerated this decline in the 21st century, and by the close of 2014, no UK newspaper had daily sales exceeding two million.\n\nDespite this decline, there is no denying the enormous power the national newspapers still have to influence public opinion. No papers have done this on a bigger scale than Rupert Murdoch's Sun and the Mail under Paul Dacre. And no issue has ever demonstrated it more clearly than the divisive issue of Brexit.\n\nDacre became editor at the Mail in 1992 and resigned in 2018 (Figure 1 relates to his time in charge). Before and during the 2016 referendum – on leaving or remaining in the European Union – the Mail openly backed the Leave campaign, along with the Express, Star, Sun, and Telegraph. The combined daily sales of these brands was over 4 million, dwarfing those of the four Remain-supporting papers. No surprise, therefore, that the majority of the UK population was persuaded to vote Leave.\n\n<div style=\"text-align: center;\">Figure 1</div>\n\n\n<div style=\"text-align: center;\">Percentage change in national daily newspaper sales, 1992-2018</div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_405_1819_2019_2903.jpg\" alt=\"Image\" width=\"48%\" /></div>\n\n\n<div style=\"text-align: center;\">Figure 2</div>\n\n\n<div style=\"text-align: center;\">Average daily sales of the nine national daily papers</div>\n\n\n\n<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'>title</td><td style='text-align: center; word-wrap: break-word;'>2018</td><td style='text-align: center; word-wrap: break-word;'>2017</td><td style='text-align: center; word-wrap: break-word;'>2016</td><td style='text-align: center; word-wrap: break-word;'>2015</td><td style='text-align: center; word-wrap: break-word;'>2010</td><td style='text-align: center; word-wrap: break-word;'>2005</td><td style='text-align: center; word-wrap: break-word;'>2000</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Times</td><td style='text-align: center; word-wrap: break-word;'>440558</td><td style='text-align: center; word-wrap: break-word;'>451261</td><td style='text-align: center; word-wrap: break-word;'>404155</td><td style='text-align: center; word-wrap: break-word;'>396621</td><td style='text-align: center; word-wrap: break-word;'>508250</td><td style='text-align: center; word-wrap: break-word;'>686327</td><td style='text-align: center; word-wrap: break-word;'>726349</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Mail</td><td style='text-align: center; word-wrap: break-word;'>1343142</td><td style='text-align: center; word-wrap: break-word;'>1511357</td><td style='text-align: center; word-wrap: break-word;'>1589471</td><td style='text-align: center; word-wrap: break-word;'>1688727</td><td style='text-align: center; word-wrap: break-word;'>2120347</td><td style='text-align: center; word-wrap: break-word;'>2409121</td><td style='text-align: center; word-wrap: break-word;'>2353915</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>FT</td><td style='text-align: center; word-wrap: break-word;'>189579</td><td style='text-align: center; word-wrap: break-word;'>188924</td><td style='text-align: center; word-wrap: break-word;'>198237</td><td style='text-align: center; word-wrap: break-word;'>219444</td><td style='text-align: center; word-wrap: break-word;'>390315</td><td style='text-align: center; word-wrap: break-word;'>422519</td><td style='text-align: center; word-wrap: break-word;'>435478</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Star</td><td style='text-align: center; word-wrap: break-word;'>391998</td><td style='text-align: center; word-wrap: break-word;'>443452</td><td style='text-align: center; word-wrap: break-word;'>470369</td><td style='text-align: center; word-wrap: break-word;'>425246</td><td style='text-align: center; word-wrap: break-word;'>779376</td><td style='text-align: center; word-wrap: break-word;'>861825</td><td style='text-align: center; word-wrap: break-word;'>502647</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Sun</td><td style='text-align: center; word-wrap: break-word;'>1545594</td><td style='text-align: center; word-wrap: break-word;'>1666715</td><td style='text-align: center; word-wrap: break-word;'>1787096</td><td style='text-align: center; word-wrap: break-word;'>1978702</td><td style='text-align: center; word-wrap: break-word;'>3006565</td><td style='text-align: center; word-wrap: break-word;'>3382509</td><td style='text-align: center; word-wrap: break-word;'>3557336</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Telegraph</td><td style='text-align: center; word-wrap: break-word;'>385346</td><td style='text-align: center; word-wrap: break-word;'>472258</td><td style='text-align: center; word-wrap: break-word;'>472033</td><td style='text-align: center; word-wrap: break-word;'>494675</td><td style='text-align: center; word-wrap: break-word;'>691128</td><td style='text-align: center; word-wrap: break-word;'>920745</td><td style='text-align: center; word-wrap: break-word;'>1039749</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Guardian</td><td style='text-align: center; word-wrap: break-word;'>137839</td><td style='text-align: center; word-wrap: break-word;'>156756</td><td style='text-align: center; word-wrap: break-word;'>164163</td><td style='text-align: center; word-wrap: break-word;'>185429</td><td style='text-align: center; word-wrap: break-word;'>302285</td><td style='text-align: center; word-wrap: break-word;'>376816</td><td style='text-align: center; word-wrap: break-word;'>401560</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Express</td><td style='text-align: center; word-wrap: break-word;'>364721</td><td style='text-align: center; word-wrap: break-word;'>392526</td><td style='text-align: center; word-wrap: break-word;'>408700</td><td style='text-align: center; word-wrap: break-word;'>457914</td><td style='text-align: center; word-wrap: break-word;'>674640</td><td style='text-align: center; word-wrap: break-word;'>949238</td><td style='text-align: center; word-wrap: break-word;'>1050846</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Mirror</td><td style='text-align: center; word-wrap: break-word;'>583192</td><td style='text-align: center; word-wrap: break-word;'>724888</td><td style='text-align: center; word-wrap: break-word;'>809147</td><td style='text-align: center; word-wrap: break-word;'>922235</td><td style='text-align: center; word-wrap: break-word;'>1218425</td><td style='text-align: center; word-wrap: break-word;'>1748327</td><td style='text-align: center; word-wrap: break-word;'>2270543</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Totals</td><td style='text-align: center; word-wrap: break-word;'>5381969</td><td style='text-align: center; word-wrap: break-word;'>6008137</td><td style='text-align: center; word-wrap: break-word;'>6303371</td><td style='text-align: center; word-wrap: break-word;'>6768993</td><td style='text-align: center; word-wrap: break-word;'>9691331</td><td style='text-align: center; word-wrap: break-word;'>11757427</td><td style='text-align: center; word-wrap: break-word;'>12338423</td></tr></table>\n19 Which one of the following is the best estimate of the average daily sales of the Mirror in 1992?\n\nA 0.5m\n\nB 1.3m\n\nC 1.5m\n\nD 2.9m",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "原先缺问句,补在选项前(原卷文字层)"
+ },
+ "BMAT-2007-S1-q33": {
+  "text": "If the authors of the report concluded that each year of education past 15 improves wages by 8-10% on average, which one of the following would be an assumption they were making in drawing this conclusion?\n\nA That a few graduates with extremely high wages are not biasing the data.\n\nB That people's wages do not increase, on average, as they get older.\n\nC That higher wages are due mainly to the extra education.\n\nD That those people with higher wages would have had them even if they had not stayed in education longer.\n\nE That no 15 year olds earn any wages.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "识别错字:It the authors -> If the authors(原卷)"
+ },
+ "TSA-2018-S1-q22": {
+  "text": "22 A new supermarket scheme awards money-off vouchers to customers who spend  $ \\pm 40 $ a week on their grocery shopping. As your weekly shop only costs  $ \\pounds 15 $, you are not eligible for vouchers.\n\nWhich one of the following most closely parallels the reasoning used in the above argument?\n\nA discount is given to gym members who introduce new customers. You brought two friends who joined up, so you will get a discount.\n\nB Dessert is given to all those who have completed their main course. You have not eaten your main course so you will not be given dessert.\n\nC Anyone between the ages of 18–30 inclusive gets admission into the nightclub half-price. You are 30 so you will not pay full price.\n\nD A bursary is given to those on incomes below £10 000. You earn £9000 so you will receive a bursary.\n\nE Only experienced wine drinkers can appreciate a good wine. You prefer poor quality wine as you have only recently started drinking wine.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "识别错字:screme -> scheme(原卷)"
+ },
+ "TSA-2018-S1-q25": {
+  "text": "25 The President of Bugaria is elected using the supplementary vote system, which is conducted as follows:\n\nVoters vote for their first-choice and second-choice candidates (though a second choice is optional).\n\nThe two candidates with the most first-choice votes go through to a second stage, whilst the others are eliminated. The second-choice votes for these two from the ballot papers of the eliminated candidates are added to their first-choice votes, and the candidate with the greater total is elected President.\n\nThe table below shows a summary of the votes cast for the five candidates in last week's\n\nBugarian Presidential Election. For example, 37 862 voters cast their first vote for Sam and\n\ntheir second vote for Val.\n\n\n<table border=1 style='margin: auto; word-wrap: break-word;'><tr><td style='text-align: center; word-wrap: break-word;'></td><td colspan=\"5\">first-choice votes</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>second-choice votes</td><td style='text-align: center; word-wrap: break-word;'>Sam</td><td style='text-align: center; word-wrap: break-word;'>Val</td><td style='text-align: center; word-wrap: break-word;'>Kim</td><td style='text-align: center; word-wrap: break-word;'>Pat</td><td style='text-align: center; word-wrap: break-word;'>Jo</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Sam</td><td style='text-align: center; word-wrap: break-word;'>—</td><td style='text-align: center; word-wrap: break-word;'>37 304</td><td style='text-align: center; word-wrap: break-word;'>34 493</td><td style='text-align: center; word-wrap: break-word;'>38 206</td><td style='text-align: center; word-wrap: break-word;'>22 871</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Val</td><td style='text-align: center; word-wrap: break-word;'>37 862</td><td style='text-align: center; word-wrap: break-word;'>—</td><td style='text-align: center; word-wrap: break-word;'>25 517</td><td style='text-align: center; word-wrap: break-word;'>27 818</td><td style='text-align: center; word-wrap: break-word;'>20 143</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Kim</td><td style='text-align: center; word-wrap: break-word;'>23 148</td><td style='text-align: center; word-wrap: break-word;'>31 690</td><td style='text-align: center; word-wrap: break-word;'>—</td><td style='text-align: center; word-wrap: break-word;'>30 247</td><td style='text-align: center; word-wrap: break-word;'>42 620</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Pat</td><td style='text-align: center; word-wrap: break-word;'>26 493</td><td style='text-align: center; word-wrap: break-word;'>24 485</td><td style='text-align: center; word-wrap: break-word;'>29 681</td><td style='text-align: center; word-wrap: break-word;'>—</td><td style='text-align: center; word-wrap: break-word;'>31 354</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>Jo</td><td style='text-align: center; word-wrap: break-word;'>28 506</td><td style='text-align: center; word-wrap: break-word;'>27 530</td><td style='text-align: center; word-wrap: break-word;'>25 308</td><td style='text-align: center; word-wrap: break-word;'>24 763</td><td style='text-align: center; word-wrap: break-word;'>—</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>no second choice</td><td style='text-align: center; word-wrap: break-word;'>822</td><td style='text-align: center; word-wrap: break-word;'>1027</td><td style='text-align: center; word-wrap: break-word;'>1263</td><td style='text-align: center; word-wrap: break-word;'>952</td><td style='text-align: center; word-wrap: break-word;'>848</td></tr></table>\n\nWho has been elected President of Bugaria?\n\nA Sam\n\nB Val\n\nC Kim\n\nD Pat\n\nE Jo",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "识别错字:Bulgaria -> Bugaria(原卷)"
+ },
+ "TMUA-specimen-P1-q8": {
+  "text": "Given that $a^x b^{2x} c^{3x} = 2$, where $a$, $b$, and $c$ are positive real numbers, then $x =$\n\nA $ \\log_{10} \\left( \\frac{2}{a+2b+3c} \\right) $\n\nB $ \\frac{\\log_{10} 2}{\\log_{10}(a+2b+3c)} $\n\nC $ \\frac{2}{\\log_{10}(a+2b+3c)} $\n\nD $ \\frac{2}{a+2b+3c} $\n\nE $ \\log_{10} \\left( \\frac{2}{ab^2 c^3} \\right) $\n\nF $ \\frac{\\log_{10} 2}{\\log_{10}(ab^2 c^3)} $\n\nG $ \\frac{2}{\\log_{10}(ab^2 c^3)} $\n\nH $ \\frac{2}{ab^2 c^3} $",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F",
+   "G",
+   "H"
+  ],
+  "note": "识别错字:指数 ex、xx 应为 2x、3x(原卷第 7 页)"
+ }
+}
