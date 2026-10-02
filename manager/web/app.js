@@ -16,6 +16,8 @@
     method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   });
   const MONTH = { 3: '3 月', 6: '6 月', 11: '11 月' };
+  // The sidebar opens on hover; a touch screen never un-hovers it, so there it stays closed (icons only).
+  const NO_HOVER = matchMedia('(hover: none)').matches;
   const sum = (rows) => rows.reduce((a, r) => a + (r.marks || 0), 0);
 
   function useHash() {
@@ -905,7 +907,18 @@
             h('span', { key: 'n' }, h('b', null, outputs.length), ' 项输出')] : null),
           h(E.Button, { variant: 'secondary', size: 'sm', disabled: !changed && !g.builtin, onClick: save }, '保存流程'),
           h(E.Button, { variant: 'primary', size: 'sm', disabled: running, onClick: doRun }, running ? '正在运行' : '运行流程')),
-        h('div', { className: 'fl', ref: box, onPointerDown: (e) => { if (e.target === box.current || e.target.classList.contains('fl-in')) setSel(null); } },
+        h('div', { className: 'fl', ref: box, onPointerDown: (e) => {
+          if (e.target !== box.current && !e.target.classList.contains('fl-in') && e.target.tagName !== 'svg') return;
+          // dragging the empty canvas pans it (a touch screen has no other way to scroll it)
+          const el = box.current, x0 = e.clientX, y0 = e.clientY, sl = el.scrollLeft, st = el.scrollTop;
+          let moved = false;
+          const move = (ev2) => {
+            if (Math.abs(ev2.clientX - x0) + Math.abs(ev2.clientY - y0) > 4) moved = true;
+            el.scrollLeft = sl - (ev2.clientX - x0); el.scrollTop = st - (ev2.clientY - y0);
+          };
+          const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); if (!moved) setSel(null); };
+          addEventListener('pointermove', move); addEventListener('pointerup', up);
+        } },
           h('div', { className: 'fl-in', style: { width: W, height: H } },
             h('svg', { className: 'fl-w', width: W, height: H }, wires),
             g.nodes.map(nodeEl))),
@@ -919,7 +932,15 @@
               : h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => download(`/api/flows/${g.id}/out/${o.file}?name=${encodeURIComponent(o.name)}`) },
                 o.kind === 'zip' ? '下载 ZIP' : '下载 PDF')))) : null),
       h('aside', { className: 'fl-insp' },
-        sel && sel.node && byId[sel.node]
+        sel && sel.link != null && g.links[sel.link]
+          ? h(React.Fragment, null,
+            h('div', { className: 'panel-row' },
+              h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '连线'),
+              h(E.IconButton, { icon: 'i-trash', label: '删除连线', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: del })),
+            h('div', { className: 'dm-meta' },
+              h('span', null, cat.nodes[byId[g.links[sel.link].from[0]].type].label), h('span', null, '→'),
+              h('span', null, cat.nodes[byId[g.links[sel.link].to[0]].type].label)))
+          : sel && sel.node && byId[sel.node]
           ? h(Inspector, { cat, n: byId[sel.node], inV: inOf(sel.node, 0), in2: inOf(sel.node, 1), out: outOf(sel.node, 0),
             error: errors[sel.node], update, templates, sets, onDelete: del, outputs: outputs.filter((o) => o.node === sel.node) })
           : h(FlowProps, { g, setG, onDeleted: () => { location.hash = '#/templates/flows'; } , toast })));
@@ -1080,7 +1101,7 @@
     else if (page === 'query') body = h(QueryPage, { metas, search, sets, reloadSets, toast });
     else body = h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-inbox', title: '下一阶段实现' }));
     return h('div', { className: 'dm-shell' },
-      h(E.Sidebar, { name: 'AL 题库', items: nav, value: page === 'flows' ? 'templates' : page, tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] }),
+      h(E.Sidebar, { name: 'AL 题库', items: nav, value: page === 'flows' ? 'templates' : page, open: NO_HOVER ? false : undefined, tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] }),
       h('div', { className: 'dm-col' },
         h(E.TopBar, {
           title: sub === 'paper' ? '题目卷' : sub === 'export' ? '导出' : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询'),
