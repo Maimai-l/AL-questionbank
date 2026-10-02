@@ -167,6 +167,9 @@
 - 每一版题目卷一块白板,ID 为题目卷的缓存名(`<题组 ID>-<键>`);新建时把题目卷 PDF 复制到 `paths.BOARDS` 下的 `papers/`,
   题组之后修改不影响已有白板。页面排布与 white-board 的文档板相同(页距 24 pt,按最宽一页居中)。
 - 书写页 `/write/<白板 ID>`:白板应用的工具栏与 iPad 笔具盘(`manager/web/board/`),顶栏为返回、题组名、当前页的题号与页码、导出 PDF。
+- iPad 外壳打开 `/ipad`:只显示书写页,跟随 Mac。Mac 上点「打开白板」后,该白板成为当前白板(记在 `paths.BOARDS` 下的 `current.json`),
+  iPad 随即切换到它;没有当前白板时显示等待页。跟随模式的书写页不显示返回按钮。页面标签按题目卷实际排布生成:
+  整卷原样拼接时按原卷页码标注,重新排版时按排版结果标注。
 - 导出把笔迹作为新的内容流追加到页面上,原有内容流不改(`manager/whiteboard/docs.py`,用 PyMuPDF 实现 white-board
   中 pypdf 的做法)。最近一次导出存为 `paths.WORK/answers/<题组 ID>.pdf`,即导出 ZIP 中的作答 PDF。
 

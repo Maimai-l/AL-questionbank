@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>白板</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="stylesheet" href="/board/css/app.css">
+<style>
+  body { display: grid; place-items: center; height: 100vh; margin: 0; background: var(--surface); color: var(--on-surface-variant);
+         font: 15px/1.5 -apple-system, "PingFang SC", sans-serif; }
+</style>
+</head>
+<body>
+  <p>在 Mac 上打开白板</p>
+  <script>
+    // the iPad waits here until the Mac opens a board, then shows it
+    setInterval(() => fetch("/api/boards/current").then((r) => r.json()).then((d) => { if (d.id) location.reload(); }).catch(() => {}), 2000);
+  </script>
+</body>
+</html>

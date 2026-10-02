@@ -34,7 +34,8 @@ sets and later outputs live in paths.WORK.
   /api/flows/eval        POST {graph}: every port's count and the node details, no outputs
   /api/flows/<id>/run    POST {graph}: the same, and the output nodes make their files and sets
   /api/flows/<id>/out/<file>?name=   a file a run made
-  /write/<board id>      the writing page (white-board's toolbar and pen tray, manager/web/board/)
+  /write/<board id>      the writing page (white-board's toolbar and pen tray, manager/web/board/); makes it current
+  /ipad                  the iPad shell's page: the writing page following the current board, or a wait
   /ws, /inksync/         ink sync and its front end (manager/vendor/inksync, from white-board)
 """
 import json
@@ -262,7 +263,9 @@ async def board_open(request):
     s = _get(request.match_info["sid"])
     if not s["items"]:
         raise web.HTTPBadRequest(text="题组中没有题目")
-    return web.json_response({"id": await board.open_for(request.app[HUB], s)})
+    bid = await board.open_for(request.app[HUB], s)
+    await board.follow(request.app[HUB], bid)
+    return web.json_response({"id": bid})
 
 
 async def board_list(request):
@@ -309,8 +312,19 @@ async def board_export(request):
 
 
 async def write_page(request):
-    _board(request)
+    bid, _ = _board(request)
+    await board.follow(request.app[HUB], bid)
     return web.FileResponse(os.path.join(WEB, "board", "write.html"), headers={"Cache-Control": "no-cache"})
+
+
+async def ipad_page(request):
+    """The iPad's page: the writing page following the Mac's current board, or a wait."""
+    name = "write.html" if board.current() else "wait.html"
+    return web.FileResponse(os.path.join(WEB, "board", name), headers={"Cache-Control": "no-cache"})
+
+
+async def current_board(request):
+    return web.json_response({"id": board.current()})
 
 
 async def flow_list(request):
@@ -429,6 +443,8 @@ def make_app():
     app.router.add_get(r"/api/boards/{bid}/page/{n:\d+}", board_page)
     app.router.add_post(r"/api/boards/{bid}/export", board_export)
     app.router.add_get(r"/write/{bid}", write_page)
+    app.router.add_get("/ipad", ipad_page)
+    app.router.add_get("/api/boards/current", current_board)
     app.router.add_get("/api/flows", flow_list)
     app.router.add_post("/api/flows", flow_create)
     app.router.add_get("/api/flows/catalog", flow_catalog)
@@ -450,6 +466,7 @@ def make_app():
     app.router.add_static("/vendor/", os.path.join(paths.ASSETS, "vendor"))
     app.router.add_static("/board/", os.path.join(WEB, "board"))
     hub = Hub(FileStorage(board.ROOT), policy=BoardPolicy())
+    hub.set_hello(board.hello)
     app[HUB] = hub
     mount(app, hub, path="/ws")
     serve_sdk(app, prefix="/inksync/")
@@ -460,5 +477,5 @@ def run(port=8910, host="0.0.0.0"):
     print(f"数据管理页: http://localhost:{port}/(局域网内的 iPad 用本机地址访问,白板 iPad 外壳的来源填 @qb-manage)\n"
           f"题组: {paths.SETS}\n按 Ctrl-C 停止")
     app = make_app()
-    advertise(app, port=port, source="qb-manage", path="/")   # the iPad shell finds it as @qb-manage (app/ is @qb)
+    advertise(app, port=port, source="qb-manage", path="/ipad")   # the iPad shell opens /ipad (@qb-manage; app/ is @qb)
     web.run_app(app, host=host, port=port, print=None)

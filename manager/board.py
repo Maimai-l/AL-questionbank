@@ -7,6 +7,9 @@ id is the paper's cache name (<set id>-<key>, manager/paper.py), and the paper i
 copied next to the board when the board is made, so later changes to the set leave
 the board and its pages as they were.
 
+The Mac opens a board; the iPad page (/ipad, which the iPad shell opens) follows it:
+it shows whichever board the Mac opened last and switches when the Mac opens another.
+
 Exported ink is appended to that copy (docs.export_pdf); the latest export of a set
 is kept as paths.WORK/answers/<set id>.pdf, which the ZIP export picks up (F7).
 """
@@ -28,6 +31,36 @@ ROOT = paths.BOARDS
 PDFS = os.path.join(ROOT, "papers")
 
 
+CURRENT = os.path.join(ROOT, "current.json")
+
+
+def current():
+    """The board the Mac opened last: the one the iPad page (/ipad) shows."""
+    try:
+        with open(CURRENT, encoding="utf-8") as f:
+            bid = json.load(f).get("board")
+    except (OSError, ValueError):
+        return None
+    return bid if bid and os.path.isfile(pdf_of(bid)) else None
+
+
+async def hello(conn, msg):
+    """inksync's hello for a page that follows (the iPad page): the current board."""
+    conn.ext["follow"] = True
+    return current()
+
+
+async def follow(hub, bid):
+    """Make `bid` the current board and move every following page (the iPad) to it."""
+    os.makedirs(ROOT, exist_ok=True)
+    with open(CURRENT + ".tmp", "w", encoding="utf-8") as f:
+        json.dump({"board": bid}, f)
+    os.replace(CURRENT + ".tmp", CURRENT)
+    for c in hub.connections():
+        if c.ext.get("follow") and c.board != bid:
+            await hub.open(c, bid, "switch")
+
+
 def pdf_of(bid):
     return os.path.join(PDFS, bid + ".pdf")
 
@@ -35,18 +68,20 @@ def pdf_of(bid):
 def _labels(s, path):
     """For each page of the paper, the questions on it: ["9709/12/M/J/23 Q5", ...]."""
     rows = paper._rows(s["items"])
-    if paper.whole_paper(rows) and path.endswith(".pdf"):
+    opts = paper.settings.load()
+
+    def label(pairs):                     # [(code, q)] -> "9709/12/M/J/23 Q5 Q6"
+        by = {}
+        for code, q in pairs:
+            by.setdefault(code, []).append(f"Q{q}")
+        return " ".join(f"{c} {' '.join(dict.fromkeys(qs))}" for c, qs in by.items())
+    if paper.original_pdf(rows, opts):
         by = {}
         for r in rows:
             for n in json.loads(r["qp_pages"] or "[]"):
-                by.setdefault(n - 1, []).append(f"{bank.paper_code(r)} Q{r['q']}")
-        return [" ".join(by.get(i, [])) for i in range(paper.page_count(path))]
-    out = []
-    for items in paper.layout(rows, paper.settings.load()):
-        codes = list(dict.fromkeys(it[3] for it in items))
-        qs = " ".join(dict.fromkeys(f"Q{it[4]}" for it in items))
-        out.append(f"{' '.join(codes)} {qs}".strip())
-    return out
+                by.setdefault(n - 1, []).append((bank.paper_code(r), r["q"]))
+        return [label(by.get(i, [])) for i in range(paper.page_count(path))]
+    return [label([(it[3], it[4]) for it in items]) for items in paper.layout(rows, opts)]
 
 
 async def open_for(hub, s):

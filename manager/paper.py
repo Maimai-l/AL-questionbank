@@ -87,6 +87,15 @@ def booklet(r):
     return _booklet[name]
 
 
+def original_pdf(rows, opts):
+    """The original PDF when the paper is used as it is: a whole paper, unless it needs
+    answer lines (answered in a booklet, with answer space on)."""
+    original = whole_paper(rows)
+    if original and opts["cie_space"] and booklet(rows[0]):
+        return None                      # laid out again, to add the answer lines
+    return original
+
+
 def _cut_row(gray, start, end):
     """Row in [start, end) to cut at: the lowest of the whitest rows."""
     if end <= start:
@@ -217,9 +226,7 @@ def build(s):
     for f in os.listdir(CACHE):
         if f.startswith(s["id"] + "-"):
             os.remove(os.path.join(CACHE, f))
-    original = whole_paper(rows)
-    if original and opts["cie_space"] and booklet(rows[0]):
-        original = None                  # laid out again, to add the answer lines
+    original = original_pdf(rows, opts)
     if original:
         doc = pymupdf.open(original)
     else:

@@ -12,7 +12,9 @@ import { boardView, loadFingerDraw, saveFingerDraw } from "./boards.js";
 import { iconButton } from "./ui-common.js";
 import { el } from "/inksync/util.js";
 
-const BOARD = decodeURIComponent(location.pathname.split("/").pop());
+// /write/<id> opens that board; /ipad (the iPad shell's page) follows the board the Mac opened last
+const FOLLOW = location.pathname === "/ipad";
+const BOARD = FOLLOW ? null : decodeURIComponent(location.pathname.split("/").pop());
 
 function role() {
   return navigator.maxTouchPoints > 1 || /iPad|iPhone/.test(navigator.userAgent) ? "ipad" : "mac";
@@ -45,7 +47,7 @@ class Writer extends InkPad {
     super({
       role: r,
       clientId: deviceClientId(),
-      target: { space: "", board: BOARD, follow: false },
+      target: FOLLOW ? { space: "", follow: true } : { space: "", board: BOARD, follow: false },
       fingerDraw: loadFingerDraw(),
       stage: document.getElementById("stage"),
       base: document.getElementById("base"),
@@ -143,6 +145,7 @@ class Writer extends InkPad {
   bindHead() {
     const back = document.getElementById("wb-back");
     back.innerHTML = icon("back");
+    if (FOLLOW) back.hidden = true;               // the iPad only writes; the Mac runs the manager
     document.getElementById("wb-export").addEventListener("click", () => this.openExport());
     setInterval(() => this.showPage(), 250);
   }
@@ -194,7 +197,7 @@ class Writer extends InkPad {
       go.disabled = true;
       try {
         await this.persist();
-        const r = await fetch(`/api/boards/${BOARD}/export`, {
+        const r = await fetch(`/api/boards/${this.state.id}/export`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name: name.value, scheme: scheme.checked, explanation: explain.checked }),
