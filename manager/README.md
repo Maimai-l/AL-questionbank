@@ -12,8 +12,9 @@
 | `web/style.css` | 页面布局;类名以 `dm-` 开头的是为了避开设计系统已用的类名 |
 | `web/ds/` | 设计系统 ENDFIELD React 的副本:React 18、`bundle.js`、`bundle.css`、`tokens.css`、字体 |
 
-`web/ds/fixes.css` 记录对设计系统的两处覆盖:纹理图暂不显示(图片在设计系统的资源库中,未复制);
-Sidebar 的线条图标补上描边设置。设计系统更新后,重新复制 `bundle.js` 与 `bundle.css`,并检查这两处是否还需要。
+设计系统的来源是仓库 `Maimai-l/endfield-backup`(`design-system-react/project/components/` 与
+`design-system/project/assets/Textures/`)。复制 `bundle.css` 后,把其中的 `url(/_blob/<id>)` 换成 `textures/` 下的同名图片。
+`web/ds/fixes.css` 补上 Sidebar 线条图标的描边设置;设计系统修好后删除。
 
 分期:第一阶段(查询、单题详情、题组)已实现;题目卷、评分细则与详解、导出、模板、白板、批量生成按
 `docs/data-manager.md` 第 10 节依次实现。
