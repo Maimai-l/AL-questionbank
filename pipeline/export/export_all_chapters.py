@@ -4,9 +4,16 @@
 Each chapter gets its own ZIP containing chapter.md and its textbook images, a
 separate questions.md, question images, and mark schemes. It only reads the
 question-bank database and assets; it never changes them.
+
+    python3 pipeline/export/export_all_chapters.py [--syllabus 9618] [--chapter 8] [--no-images]
+
+--syllabus and --chapter limit the run. --no-images leaves every image out: the
+textbook's image lines are dropped from chapter.md, questions.md has no image
+links, and the archive name ends in _no_images.
 """
 from __future__ import annotations
 
+import argparse
 import json
 import re
 import shutil
@@ -28,6 +35,8 @@ DB = Path(paths.DB)
 ASSETS = DATA  # images and books/ live in data/
 OUT_DIR = Path(paths.EXPORTS) / "chapters"
 IMG_REF = re.compile(r"(?:src|href)=[\"'](imgs/[^\"'#?]+)", re.IGNORECASE)
+IMG_LINE = re.compile(r"^[ \t]*(?:<div[^>]*>)?\s*<img [^>]*src=[\"']imgs/[^>]*>\s*(?:</div>)?[ \t]*\n?", re.IGNORECASE | re.MULTILINE)
+IMG_TAG = re.compile(r"<img [^>]*src=[\"']imgs/[^>]*>", re.IGNORECASE)
 
 
 def safe_name(value: str) -> str:
@@ -69,6 +78,12 @@ def add_file(zf: zipfile.ZipFile, source: Path, archive_name: str, added: set[st
 
 
 def main() -> None:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--syllabus")
+    ap.add_argument("--chapter", type=int)
+    ap.add_argument("--no-images", action="store_true")
+    args = ap.parse_args()
+    images = not args.no_images
     if not DB.is_file():
         raise FileNotFoundError(DB)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -79,15 +94,18 @@ def main() -> None:
     try:
         con = sqlite3.connect(DB)
         con.row_factory = sqlite3.Row
-        chapters = list(con.execute("""
+        chapters = [c for c in con.execute("""
             SELECT id, syllabus, book, chapter_no, title, path, topic, topic_name
             FROM chapters
             ORDER BY syllabus, book, chapter_no, id
-        """))
+        """) if (not args.syllabus or c["syllabus"] == args.syllabus)
+            and (args.chapter is None or c["chapter_no"] == args.chapter)]
         for number, chapter in enumerate(chapters, start=1):
             # One portable ZIP per chapter.  Its Markdown stays next to imgs/,
             # while question images live at images/questions/.
             archive_stem = f"{chapter['syllabus']}_{safe_name(chapter['book'])}_{chapter['chapter_no']:02d}_{safe_name(chapter['title'])}"
+            if not images:
+                archive_stem += "_no_images"
             # Keep the exported chapter packages grouped by their source book.
             book_out_dir = OUT_DIR / safe_name(chapter["book"] or chapter["syllabus"] or "other")
             book_out_dir.mkdir(parents=True, exist_ok=True)
@@ -102,6 +120,8 @@ def main() -> None:
                 questions_file = "questions.md"
                 chapter_arc = f"{package_root}/{chapter_file}"
                 original = chapter_source.read_text(encoding="utf-8")
+                if not images:
+                    original = IMG_TAG.sub("", IMG_LINE.sub("", original))
                 # whole questions on the topic, and questions with only some
                 # parts on it (topic_parts), of which just those parts are given
                 questions = [q for q in con.execute("""
@@ -122,7 +142,7 @@ def main() -> None:
                     question_parts += ["", "_当前没有已标注到这个 topic 的题目。_"]
                 for question in questions:
                     image_link = None
-                    if question["image"]:
+                    if question["image"] and images:
                         image_source = ASSETS / question["image"]
                         image_arc = f"{package_root}/images/questions/{question['image']}"
                         if add_file(zf, image_source, image_arc, added):
@@ -159,6 +179,10 @@ def main() -> None:
                 }
                 manifest.append(chapter_manifest)
                 readme = f"""# {chapter['title']}
+
+This archive contains one textbook chapter, all questions whose `syllabus +
+topic` tag matches it, and extracted mark schemes, as text only: no images.
+""" if not images else f"""# {chapter['title']}
 
 This archive contains one textbook chapter, all questions whose `syllabus +
 topic` tag matches it, their original question images, and extracted mark
