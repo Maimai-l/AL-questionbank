@@ -1,11 +1,11 @@
 ---
-name: 默认
+name: 题目与评分细则
 per_question: [image_with_space, mark_scheme]
 documents: []
-answers: written_pdf
+answers: none
 layout: folder_per_question
 filename: "{index:02}_{paper_code}_Q{q}"
-answer_filename: answers
+answer_filename: 批注版
 manifest: true
 summary: false
 prompt_file: README.md

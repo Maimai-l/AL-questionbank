@@ -153,7 +153,7 @@ async def set_import(request):
     try:
         ids, title = sets.parse_import(await request.json())
     except (ValueError, AttributeError) as e:
-        raise web.HTTPBadRequest(text=str(e) or "无法读取")
+        raise web.HTTPBadRequest(text=str(e) or "文件无法读取")
     known = bank.exists(ids)
     s = sets.create(sets.import_name(), [q for q in ids if q in known], "import")
     view = _set_view(s)

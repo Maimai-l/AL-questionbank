@@ -1,5 +1,5 @@
 ---
-name: 交给模型
+name: 批注版与评分细则
 format: images
 per_question: [mark_scheme]
 documents: []

@@ -22,7 +22,7 @@ DEFAULTS = {
     "answers": "none",
     "layout": "folder_per_question",
     "filename": "{index:02}_{paper_code}_Q{q}",
-    "answer_filename": "answers",
+    "answer_filename": "批注版",
     "manifest": True,
     "summary": False,
     "prompt_file": "README.md",

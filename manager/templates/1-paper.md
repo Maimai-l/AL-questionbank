@@ -1,5 +1,5 @@
 ---
-name: 练习卷 PDF
+name: 只有练习卷
 format: pdf
 per_question: []
 documents: [question_paper]

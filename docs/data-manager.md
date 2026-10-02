@@ -187,7 +187,7 @@
   iPad 随即切换到它;没有当前白板时显示等待页。跟随模式的书写页不显示返回按钮。页面标签按题目卷实际排布生成:
   整卷原样拼接时按原卷页码标注,重新排版时按排版结果标注。
 - 导出把笔迹作为新的内容流追加到页面上,原有内容流不改(`manager/whiteboard/docs.py`,用 PyMuPDF 实现 white-board
-  中 pypdf 的做法)。最近一次导出存为 `paths.WORK/answers/<题组 ID>.pdf`,即导出 ZIP 中的作答 PDF。
+  中 pypdf 的做法)。最近一次导出存为 `paths.WORK/answers/<题组 ID>.pdf`,即导出压缩包中的批注版。
 
 ### F6 评分细则与详解
 
@@ -308,18 +308,18 @@
 | `name` | 文本 | 按第 7.5 节的规则 | 必填 | 模板名称 |
 | `per_question` | 列表 | `image`、`image_with_space`、`text`、`mark_scheme`、`explanation` | `[image]` | 每道题放入压缩包的内容,按列出顺序排列。`image` 为紧凑题图;`image_with_space` 为带答题区题图,没有时用紧凑题图;`text` 为题干文本;`mark_scheme` 为该题评分细则(Markdown);`explanation` 为该题详解(Markdown) |
 | `documents` | 列表 | `mark_scheme`、`explanation`、`question_paper` | `[]` | 放入压缩包的整份文档:评分细则文档、详解文档(F6)、题目卷 PDF(F4) |
-| `answers` | 文本 | `none`、`written_pdf` | `none` | 是否放入 F5 导出的作答 PDF |
+| `answers` | 文本 | `none`、`written_pdf` | `none` | 是否放入批注版 |
 | `format` | 文本 | `pdf`、`zip`、`images` | `zip` | `pdf`:一个 PDF(有笔迹且选了批注版时为批注版,否则为练习卷);`zip`:压缩包;`images`:压缩包,其中的 PDF(练习卷、批注版)按页拆成灰度 JPEG,每张不超过 100 KB,文件夹名为原文件名 |
 | `layout` | 文本 | `folder_per_question`、`flat` | `folder_per_question` | 每道题一个文件夹,或全部文件放在同一层 |
 | `filename` | 文本 | 含占位符的文件名 | `{index:02}_{paper_code}_Q{q}` | 每道题的文件夹名(`folder_per_question`)或文件名前缀(`flat`) |
-| `answer_filename` | 文本 | 文件名 | `answers` | 作答 PDF 在压缩包中的文件名 |
+| `answer_filename` | 文本 | 文件名 | `批注版` | 批注版在压缩包中的文件名 |
 | `manifest` | 布尔 | `true`、`false` | `true` | 是否附 `manifest.json`:题组名称、每题的 ID、试卷代码、分值、小问、主题、对应文件 |
 | `summary` | 布尔 | `true`、`false` | `true` | 是否附 `summary.md`:题组的题目一览表 |
 | `prompt_file` | 文本 | 文件名 | `README.md` | 说明文字在压缩包中的文件名 |
 
 压缩包中每道题的文件名固定:`question.png`(题图)、`question.md`(题干文字)、`mark_scheme.md`
 (评分细则,CIE 为 Answer | Mark | Guidance 三列表格)、`explanation.md`(详解)。`layout: flat` 时以
-`filename` 的结果加下划线作前缀。没有评分细则或详解的题不生成对应文件。作答 PDF 取自
+`filename` 的结果加下划线作前缀。没有评分细则或详解的题不生成对应文件。批注版取自
 `paths.WORK/answers/<题组 ID>.pdf`(F5 写入),不存在时不放入。`manifest.json` 的格式为 `alevel-export/v1`。
 
 ### 7.3 占位符
@@ -334,7 +334,7 @@
 | `{question_table}` | 题目一览表(Markdown 表格):序号、试卷代码、题号、分值、主题 | |
 | `{file_tree}` | 压缩包的目录结构 | |
 | `{index}` | 题目序号,从 1 开始;`{index:02}` 补足两位 | `03` |
-| `{paper_code}` | 试卷代码,斜线换成连字符 | `9709-12-MJ-23` |
+| `{paper_code}` | 试卷代码,斜线换成连字符 | `9709-12-M-J-23` |
 | `{q}` | 题号 | `5` |
 | `{id}` | 题目 ID | `9709_s23_12_q05` |
 
@@ -344,20 +344,20 @@
 
 ```
 ---
-name: 默认
+name: 题目与评分细则
 per_question: [image_with_space, mark_scheme]
 documents: []
-answers: written_pdf
+answers: none
 layout: folder_per_question
 filename: "{index:02}_{paper_code}_Q{q}"
-answer_filename: answers
+answer_filename: 批注版
 manifest: true
 summary: false
 prompt_file: README.md
 ---
 # {title}
 
-{count} 道题,满分 {total_marks} 分,来自 {papers}。
+{count} 题,满分 {total_marks} 分,来自 {papers}。
 
 ## 文件
 

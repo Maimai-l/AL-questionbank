@@ -122,7 +122,7 @@ def explanation(s):
         ex = json.loads(r["explanation"])
         body = []
         for p in ex.get("parts", []):
-            body.append(f'<h3>{_e(p.get("label") or "解答")}</h3>')
+            body.append(f'<h3>{_e(p.get("label") or "整题")}</h3>')
             if p.get("approach"):
                 body.append(f'<p>{_e(p["approach"])}</p>')
             if p.get("points"):

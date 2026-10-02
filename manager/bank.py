@@ -3,6 +3,7 @@ import json
 import os
 import re
 import struct
+import unicodedata
 
 from lib import db, paths, scheme
 
@@ -20,8 +21,27 @@ def paper_code(r):
     return f'{r["paper"]}/{r["year"]}'
 
 
-def task_label(t):
-    return t.replace("_", " ").capitalize()
+SYMBOL = {"alpha": "α", "beta": "β", "gamma": "γ", "delta": "δ", "theta": "θ", "lambda": "λ", "mu": "μ",
+          "pi": "π", "sigma": "σ", "phi": "φ", "omega": "ω", "Delta": "Δ", "Sigma": "Σ", "times": "×",
+          "div": "÷", "pm": "±", "leq": "≤", "le": "≤", "geq": "≥", "ge": "≥", "neq": "≠", "ne": "≠",
+          "infty": "∞", "circ": "°", "cdot": "·", "approx": "≈", "to": "→", "rightarrow": "→", "int": "∫"}
+
+
+def stem(text, n=120):
+    """The start of a question's text for the table, on one line: without the question
+    number, and with the TeX written out (fractions as a/b, symbols as characters)."""
+    t = unicodedata.normalize("NFKC", text or "").replace("$", "")
+    t = t.replace("^{\\circ}", "°").replace("^\\circ", "°")
+    for _ in range(3):
+        t = re.sub(r"\\[dt]?frac\s*\{([^{}]*)\}\s*\{([^{}]*)\}", r"(\1)/(\2)", t)
+        t = re.sub(r"\\sqrt\s*\{([^{}]*)\}", r"√(\1)", t)
+    t = re.sub(r"\(([\w.^]+)\)/", r"\1/", t)
+    t = re.sub(r"/\(([\w.^]+)\)", r"/\1", t)
+    t = re.sub(r"√\((\w+)\)", r"√\1", t.replace("[DIAGRAM]", ""))
+    t = re.sub(r"\\([a-zA-Z]+)\s*", lambda m: SYMBOL.get(m.group(1), m.group(1) + " ")
+               if m.group(1) not in ("left", "right", "mathrm", "text", "mathbf", "quad", "displaystyle") else "", t)
+    t = re.sub(r"\s+([,.;:?])", r"\1", re.sub(r"\s+", " ", re.sub(r"[{}]", "", t))).strip()
+    return re.sub(r"^\d{1,2}\s+(?=\S)", "", t)[:n]
 
 
 def _tasks(part_data):
@@ -39,7 +59,7 @@ def rows(exam):
     con = db.connect()
     qs = con.execute(
         "SELECT id, syllabus, component, paper, series, year, month, q, marks, parts, topic, "
-        "topic_name, subtopic, has_diagram, part_data, "
+        "topic_name, subtopic, has_diagram, part_data, COALESCE(question_latex, question_text) AS qtext, "
         "explanation IS NOT NULL AND explanation != '' AS has_expl "
         "FROM questions WHERE syllabus = ?", (exam,)).fetchall()
     last = {}
@@ -55,7 +75,7 @@ def rows(exam):
             "month": MONTH.get(r["series"][0], r["month"]) if r["syllabus"] in CIE else r["month"],
             "q": r["q"], "marks": r["marks"] or 0, "parts": len(parts) or 1,
             "position": round(r["q"] / last[(r["paper"], r["series"])], 3),
-            "topic": r["topic"], "subtopic": r["subtopic"],
+            "topic": r["topic"], "subtopic": r["subtopic"], "stem": stem(r["qtext"]),
             "tasks": _tasks(r["part_data"]),
             "diagram": bool(r["has_diagram"]), "explanation": bool(r["has_expl"]),
         })

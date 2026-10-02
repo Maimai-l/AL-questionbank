@@ -33,8 +33,8 @@ def answer_pdf(s):
 
 
 def file_code(r):
-    """9709/12/M/J/23 as 9709-12-MJ-23, for file names."""
-    return re.sub(r"/([A-Z])/([A-Z])/", r"-\1\2-", bank.paper_code(r)).replace("/", "-")
+    """9709/12/M/J/23 as 9709-12-M-J-23, for file names."""
+    return bank.paper_code(r).replace("/", "-")
 
 
 def fill_name(pattern, i, r):
@@ -52,7 +52,7 @@ def _cell(t):
 
 
 def scheme_md(r):
-    head = f"# {bank.paper_code(r)} Q{r['q']} mark scheme\n\n"
+    head = f"# {bank.paper_code(r)} Q{r['q']} 评分细则\n\n"
     ms = r["ms_latex"] or r["ms_text"]
     if not ms:
         return None
@@ -70,7 +70,7 @@ def question_md(r):
     text = (r["question_latex"] or r["question_text"] or "").strip()
     if not text:
         return None
-    marks = f" ({r['marks']} marks)" if r["marks"] else ""
+    marks = f"（{r['marks']} 分）" if r["marks"] else ""
     return f"# {bank.paper_code(r)} Q{r['q']}{marks}\n\n{text}\n"
 
 
@@ -78,9 +78,9 @@ def explanation_md(r):
     if not r["explanation"]:
         return None
     ex = json.loads(r["explanation"])
-    out = [f"# {bank.paper_code(r)} Q{r['q']} explanation", ""]
+    out = [f"# {bank.paper_code(r)} Q{r['q']} 详解", ""]
     for p in ex.get("parts", []):
-        out += [f"## {p.get('label') or 'Solution'}", ""]
+        out += [f"## {p.get('label') or '整题'}", ""]
         if p.get("approach"):
             out += [p["approach"], ""]
         if p.get("points"):

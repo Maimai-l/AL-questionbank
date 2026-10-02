@@ -47,7 +47,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .sn:not(.is-open) .sn-head .sn-toggle { pointer-events: auto; }
 
 .dm-meta { display: flex; gap: var(--sib); font-size: 13px; color: var(--color-text-secondary); }
-.dm-meta b { font-family: var(--font-numeric); font-weight: 500; color: var(--color-text-primary); }
+.dm-meta b { font: inherit; color: inherit; font-variant-numeric: tabular-nums; }
 .dm-meta .t { font-family: var(--font-tech); font-size: 12px; }
 
 /* query: condition panel */
@@ -56,7 +56,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .fx-head .check { flex-grow: 1; font-family: var(--font-medium); }
 .fx-row .check { flex-grow: 1; min-width: 0; padding: 4px 0; }
 .fx-grid .check { white-space: nowrap; }
-.fx-n { font-family: var(--font-numeric); font-size: 12px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
+.fx-n { font-size: 12px; color: var(--color-text-tertiary); font-variant-numeric: tabular-nums; }
 .fx-grid { display: grid; grid-template-columns: 1fr 1fr; column-gap: var(--sib); }
 .years { display: flex; align-items: center; gap: var(--el); }
 .years > * { flex: 1; }
@@ -65,14 +65,15 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 /* query: results */
 .dm-results { flex-grow: 1; min-width: 0; padding: var(--pad); display: flex; flex-direction: column; gap: var(--sib); }
 .headline { display: flex; align-items: baseline; gap: var(--sib); min-height: 40px; margin-bottom: calc(var(--head) - var(--sib)); }   /* title area to toolbar */
-.headline b { font: 28px/1.25 var(--font-numeric); }
-.headline span { font-size: 13px; color: var(--color-text-secondary); }
+.headline > span { font: 20px/1.3 var(--font-bold); font-variant-numeric: tabular-nums; }
 .search-chip { align-self: center; display: inline-flex; align-items: center; gap: var(--el); max-width: 320px; height: 32px; padding: 0 var(--sub);
   border: 1px solid var(--color-border-strong); border-radius: 16px; background: var(--color-bg-surface); color: var(--color-text-primary); font: 13px var(--font-body); cursor: pointer; }
 .search-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-primary); font-size: 13px; }
 .search-chip:hover { background: var(--color-state-hover); }
 .selbar { display: flex; align-items: center; gap: var(--sib); height: 40px; padding: 0 var(--el) 0 24px; background: var(--color-bg-surface); border-radius: 4px; }
-.dm-tablebox { flex-grow: 1; min-height: 0; overflow: auto; padding: 8px; margin: -8px; display: flex; flex-direction: column; gap: var(--sib); }   /* room for the corner marks, outside the content edge */
+.dm-tablebox { flex-grow: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: var(--sib); }
+/* the columns with a width keep it; the text column (the start of the question) takes the rest */
+.sel-tbl { table-layout: fixed; }
 /* tables: one size for every cell; numbers and their units together */
 .tbl td, .tbl td.num, .tbl td.num b, .tbl .c-id { font-size: 13px; }
 

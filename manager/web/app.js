@@ -15,7 +15,11 @@
   const send = (method, url, body) => api(url, {
     method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
   });
-  const MONTH = { 3: '3 月', 6: '6 月', 11: '11 月' };
+  const SEASON = { 3: 'F/M', 6: 'M/J', 11: 'O/N' };
+  // the task types of the parts (docs/ui-text.md 3.1)
+  const TASK = { find: '求解', calculate: '计算', explain: '解释', prove: '证明', sketch: '草绘', draw: '作图',
+    hypothesis_test: '检验', logic: '逻辑', write_code: '编程', complete_code: '补全', trace: '追踪', test: '测试',
+    sql: 'SQL', assembly: '汇编', other: '其他' };
   const sum = (rows) => rows.reduce((a, r) => a + (r.marks || 0), 0);
 
   // Dropdown menus (the design system's .dd .menu) sit in the scrolling panels, which
@@ -233,9 +237,9 @@
     const cell = (c, r) => {
       const v = r[c.key];
       if (c.kind === 'number') return h('td', { key: c.key, className: 'num' }, h('b', null, typeof v === 'number' ? v.toLocaleString('en-US') : v), c.unit);
-      return h('td', { key: c.key, className: c.kind === 'id' ? 'c-id' : undefined }, v);
+      return h('td', { key: c.key, className: c.kind === 'id' ? 'c-id' : c.kind === 'text' ? 'c-text' : undefined, title: c.kind === 'text' ? v : undefined }, v);
     };
-    return h('div', { className: 'tbl-frame' }, h('i'), h('i'), h('i'), h('i'),
+    return h('div', { className: 'tbl-frame' },
       h('div', { className: 'tbl-scroll' },
         h('table', { className: 'tbl sel-tbl', 'aria-multiselectable': true, 'aria-label': ariaLabel, style: minWidth ? { minWidth } : undefined },
           h('colgroup', null, columns.map((c) => h('col', { key: c.key, style: c.width ? { width: c.width } : undefined }))),
@@ -254,10 +258,9 @@
     const comps = meta.components.filter((c) => f.components.has(c.value)).map((c) => c.label);
     const topics = meta.topics.filter((t) => f.topics.has(t.value) && f.components.has(t.component));
     const allTopics = meta.topics.filter((t) => f.components.has(t.component));
-    const topicPart = topics.length && topics.length < allTopics.length
-      ? topics.map((t) => t.label.replace(/^\S+\s/, '')).join('、') : '';
+    const what = topics.length && topics.length < allTopics.length ? topics.map((t) => t.label).join('、') : comps.join('、');
     const years = f.from === f.to ? String(f.from) : `${f.from}-${f.to}`;
-    return [meta.exam, comps.join('、'), topicPart, years].filter(Boolean).join(' ');
+    return [meta.exam, what, years].filter(Boolean).join(' ');
   }
 
   function wholePaper(rows, allRows) {
@@ -340,7 +343,7 @@
         r.tasks.forEach((t) => { all[t] = (all[t] || 0) + 1; if (counted) n[t] = (n[t] || 0) + 1; });
       });
       return Object.keys(all).sort((a, b) => all[b] - all[a]).map((t) => ({
-        value: t, label: t.replace(/_/g, ' ').replace(/^./, (c) => c.toUpperCase()), n: n[t] || 0,
+        value: t, label: TASK[t] || t, n: n[t] || 0,
       }));
     }, [allRows, f.components, f.topics, f.from, f.to, hits]);
     const tasks = f.tasks || new Set(taskItems.map((t) => t.value));
@@ -363,7 +366,7 @@
     }), [allRows, f, tasks, hits, taskItems]);
     const view = useMemo(() => rows
       .slice().sort((a, b) => b.year - a.year || a.month - b.month || a.paper.localeCompare(b.paper) || a.q - b.q)
-      .map((r) => ({ ...r, season: MONTH[r.month] || r.month + ' 月', qn: 'Q' + r.q })), [rows]);
+      .map((r) => ({ ...r, season: SEASON[r.month] || '', qn: 'Q' + r.q })), [rows]);
 
     useEffect(() => { if (hits && hits.code && rows.length === 1) setFocus(rows[0].id); }, [hits, rows]);
 
@@ -394,7 +397,7 @@
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'dm-cond', 'aria-label': '查询条件' },
         h(E.Select, { label: '考试', options: exams, value: exam, onChange: changeExam }),
-        h(Facet, { title: '卷别', items: compItems, picked: f.components, onChange: setComponents, grid: meta.components.length > 2 }),
+        h(Facet, { title: '试卷', items: compItems, picked: f.components, onChange: setComponents, grid: meta.components.length > 2 }),
         h('section', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
           h('div', { className: 'fx-head' }, h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)' } }, '年份')),
           h('div', { className: 'years' },
@@ -405,7 +408,7 @@
         taskItems.length ? h(Facet, { title: '小问类型', items: taskItems, picked: tasks, onChange: (s) => setF({ ...f, tasks: s }) }) : null),
       h('main', { className: 'dm-results' },
         h('div', { className: 'headline' },
-          h('b', null, view.length), h('span', null, '题'), h('b', null, sum(rows)), h('span', null, '分'),
+          h('span', null, `${view.length} 题`), h('span', null, `${sum(rows)} 分`),
           search ? h('button', { type: 'button', className: 'search-chip', onClick: clearSearch, 'aria-label': '清除搜索' },
             h(E.Icon, { name: 'i-search', size: 'sm' }), h('span', null, search), h(E.Icon, { name: 'i-close', size: 'sm' })) : null),
         h('div', { className: 'selbar' },
@@ -414,16 +417,17 @@
           h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => setAdding(true) }, '加入题组')),
         h('div', { className: 'dm-tablebox' },
           allRows.length ? h(SelTable, {
-            ariaLabel: '题目', rows: view, selected, onSelectedChange: setSelected, onActivate: setFocus, minWidth: 460,
+            ariaLabel: '题目', rows: view, selected, onSelectedChange: setSelected, onActivate: setFocus, minWidth: 560,
+            // a column whose value is the same in every row is left out (docs/ui-text.md 4.3)
             columns: [
-              { key: 'year', label: '年份', kind: 'id', width: 88 },
+              { key: 'year', label: '年份', kind: 'id', width: 96 },
               { key: 'season', label: '考季', kind: 'id', width: 72, sortValue: (r) => r.month },
               { key: 'paper', label: '卷号', kind: 'id', width: 64 },
-              { key: 'qn', label: '题号', kind: 'id', sortValue: (r) => r.q },
-              { key: 'parts', label: '小问数', kind: 'number', width: 104 },
-              { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 88 },
-            ],
-          }) : h(E.Loading, { label: '读取题目' }),
+              { key: 'qn', label: '题号', kind: 'id', width: 64, sortValue: (r) => r.q },
+              { key: 'stem', label: '题干', kind: 'text', sortable: false },
+              { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 80 },
+            ].filter((c) => c.kind !== 'id' || c.key === 'qn' || view.length < 2 || view.some((r) => r[c.key] !== view[0][c.key])),
+          }) : h(E.Loading, { label: '正在读取题目' }),
           allRows.length && !view.length ? h(E.EmptyState, { icon: 'i-search', title: '没有符合条件的题目' }) : null)),
       h(Detail, { qid: focus }),
       adding ? h(AddDialog, {
@@ -455,15 +459,14 @@
 
   function Detail({ qid }) {
     const [d, setD] = useState(null);
-    const [crop, setCrop] = useState('compact');
     const [tab, setTab] = useState('ms');
     useEffect(() => { setD(null); if (qid) api('/api/question/' + qid).then(setD); }, [qid]);
     if (!qid) return h('aside', { className: 'detail' },
-      h('div', { className: 'detail-body' }, h(E.EmptyState, { icon: 'i-list', title: '没有选中的题目' })));
+      h('div', { className: 'detail-body' }, h(E.EmptyState, { icon: 'i-list', title: '未选择题目' })));
     if (!d) return h('aside', { className: 'detail' }, h('div', { className: 'detail-body' }, h(E.Loading, null)));
-    const img = crop === 'space' && d.image_space ? d.image_space : d.image;
+    const img = d.image;
     const hasEx = d.explanation && d.explanation.parts && d.explanation.parts.length;
-    const tabs = [{ value: 'ms', label: d.scheme ? '评分细则' : '答案与解析' }, { value: 'text', label: '题干' },
+    const tabs = [{ value: 'ms', label: d.scheme ? '评分细则' : '答案与解析' }, { value: 'text', label: '题干文字' },
       { value: 'ex', label: '详解', disabled: !hasEx }];
     return h('aside', { className: 'detail' },
       h('div', { className: 'detail-head' },
@@ -476,9 +479,7 @@
           h(E.Tag, { size: 'sm' }, `${d.marks} 分`),
           d.diagram ? h(E.Tag, { size: 'sm' }, '含图') : null)),
       h('div', { className: 'detail-media' },
-        d.image_space ? h(E.SegmentedControl, { ariaLabel: '题图', value: crop, onChange: setCrop,
-          options: [{ value: 'compact', label: '仅题目' }, { value: 'space', label: '含答题区' }] }) : null,
-        img ? h('div', { className: 'qimg' }, h('img', { src: img.src, alt: `${d.code} 第 ${d.q} 题题图` })) : null),
+        img ? h('div', { className: 'qimg' }, h('img', { src: img.src, alt: `第 ${d.q} 题题目截图` })) : null),
       h('div', { className: 'detail-tabs' },
         h(E.Tabs, { variant: 'line', items: tabs, value: tab, onChange: setTab, ariaLabel: '题目资料' })),
       h('div', { className: 'detail-body' },
@@ -499,7 +500,7 @@
 
   function ExPart({ p }) {
     return h('div', { className: 'ex-part' },
-      h('h4', null, p.label || '解答'),
+      h('h4', null, p.label || '整题'),
       p.approach ? h(Tex, { tag: 'div', className: 'dm-prose', text: p.approach }) : null,
       p.points && p.points.length ? h('div', { className: 'ms' }, p.points.map((pt, i) => [
         h('span', { className: 'c', key: 'c' + i }, pt.mark),
@@ -542,15 +543,19 @@
       const file = e.target.files[0];
       e.target.value = '';
       if (!file) return;
-      file.text().then((t) => send('POST', '/api/sets/import', JSON.parse(t)))
+      file.text().then((t) => {
+        let doc;
+        try { doc = JSON.parse(t); } catch (err) { throw new Error('文件无法读取'); }
+        return send('POST', '/api/sets/import', doc);
+      })
         .then((n) => {
           toast(n.unknown && n.unknown.length ? 'warning' : 'success',
-            n.unknown && n.unknown.length ? `${n.count} 题已导入,${n.unknown.length} 个编号在题库中找不到` : `${n.count} 题已导入`);
+            n.unknown && n.unknown.length ? `${n.count} 题已导入，${n.unknown.length} 个编号不在题库中` : `${n.count} 题已导入`);
           reloadSets(); location.hash = '#/sets/' + n.id;
         })
-        .catch((err) => toast('error', err.message || '无法读取这个文件'));
+        .catch((err) => toast('error', err.message || '文件无法读取'));
     };
-    const create = () => send('POST', '/api/sets', { name: '新题组', items: [] })
+    const create = () => send('POST', '/api/sets', { name: '未命名题组', items: [] })
       .then((n) => { nameNext = n.id; reloadSets(); location.hash = '#/sets/' + n.id; });
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'setlist' },
@@ -562,7 +567,7 @@
           variant: 'two-line', selectable: true, ariaLabel: '题组', value: s ? s.id : undefined,
           onChange: (v) => { location.hash = '#/sets/' + v; },
           items: sets.map((x) => ({ value: x.id, icon: SOURCE_ICON[x.source] || 'i-list', title: x.name, subtitle: `${x.count} 题 ${x.marks} 分` })),
-        }) : h(E.EmptyState, { icon: 'i-list', title: '还没有题组' })),
+        }) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' })),
       s ? h(SetDetail, { key: s.id, s, reloadSets, templates, toast }) : h('main', { className: 'setmain' }));
   }
 
@@ -597,7 +602,7 @@
     const items = s.items.filter((q) => rows && rows[q]);
     const view = items.map((q, i) => {
       const r = rows[q];
-      return { ...r, n: String(i + 1).padStart(2, '0'), season: MONTH[r.month] || r.month + ' 月', qn: 'Q' + r.q };
+      return { ...r, n: String(i + 1).padStart(2, '0'), season: SEASON[r.month] || '', qn: 'Q' + r.q };
     });
     const save = (body) => send('PATCH', '/api/sets/' + s.id, body).then(reloadSets).catch((e) => toast('error', e.message));
     const move = (d) => {
@@ -669,7 +674,6 @@
   }
 
   /** 9709/12/M/J/23 for a question row of /api/questions. */
-  const SEASON = { 3: 'F/M', 6: 'M/J', 11: 'O/N' };
   const bank_code = (r) => r.code || `${r.exam || ''}/${r.paper}/${SEASON[r.month] || ''}/${String(r.year).slice(2)}`;
 
   const download = (url) => { const a = document.createElement('a'); a.href = url; a.download = ''; document.body.appendChild(a); a.click(); a.remove(); };
@@ -744,12 +748,12 @@
     const groups = pv ? fileGroups(pv.files) : [];
     return h(E.Dialog, { open: true, title: '输出', onClose, confirmLabel: pdf ? '下载 PDF' : '下载 ZIP', onConfirm: go },
       h('div', { className: 'op' },
-        h(E.Select, { label: '预设', value: tid, onChange: setTid, options: templates.map((x) => ({ value: x.id, label: x.name })) }),
+        h(E.Select, { label: '模板', value: tid, onChange: setTid, options: templates.map((x) => ({ value: x.id, label: x.name })) }),
         tuning ? h('div', { className: 'op-tune' },
           h('fieldset', { className: 'opt-group ex' }, h('legend', null, '格式'),
             h(E.SegmentedControl, { ariaLabel: '格式', value: st.format, onChange: (v) => setSt({ ...st, format: v }),
               options: [{ value: 'pdf', label: 'PDF' }, { value: 'zip', label: 'ZIP' }, { value: 'images', label: '图片 ZIP' }] })),
-          h('fieldset', { className: 'opt-group ex' }, h('legend', null, '包含'),
+          h('fieldset', { className: 'opt-group ex' }, h('legend', null, pdf ? 'PDF 内容' : '压缩包包含'),
             h('div', { className: 'op-checks' },
               box('q', '题目', pdf), box('ms', '评分细则', pdf), box('ex', '详解', pdf || !s.docs.explanation), box('ink', '批注版', !written))))
           : h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-sliders', onClick: () => setTuning(true) }, '调整格式与内容')),
@@ -757,9 +761,9 @@
           h('h4', null, pdf ? '文件' : '压缩包内容'),
           !pv ? h(E.Loading, null) : groups.map((g) => h('div', { key: g.name, className: 'op-file' },
             h(E.Icon, { name: 'i-doc', size: 'sm' }), h('span', { className: 'op-name' }, g.name),
-            h('span', { className: 'op-n' }, g.n > 1 ? `${g.n} ${g.images ? '张' : '个文件'}` : ''),
+            h('span', { className: 'op-n' }, g.n > 1 ? `${g.n} 个文件` : ''),
             h('span', { className: 'op-n' }, sizeText(g.size)))),
-          busy ? h(E.Loading, { label: '正在生成' }) : null)));
+          busy ? h(E.Loading, { label: pdf ? '正在生成 PDF' : '正在生成压缩包' }) : null)));
   }
 
   /** The board inside the page: the whiteboard's writing page in a rounded frame, as it is.
@@ -788,14 +792,12 @@
     const shown = info ? Array.from({ length: Math.min(per, info.pages - first) }, (_, i) => first + i) : [];
     return h('main', { className: 'paperpage' },
       h('div', { className: 'paper-head' },
-        h('div', { className: 'page-head', style: { flexGrow: 1 } },
-          h('h1', { className: 'page-title' }, s.name),
-          h('div', { className: 'dm-meta' }, h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
-            info ? h('span', null, h('b', null, info.pages), ' 页') : null)),
+        h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, h('span', null, `${s.count} 题`), h('span', null, `${s.marks} 分`),
+          info ? h('span', null, `${info.pages} 页`) : null),
         info && info.pages > per ? h(E.Pagination, { total: info.pages, pageSize: per, page, onChange: setPage, variant: 'simple' }) : null,
         h(E.Button, { variant: 'primary', size: 'md', icon: 'i-doc', disabled: !info, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF')),
       info ? h('div', { className: 'sheets' }, shown.map((n) => h('img', { key: n + '-' + s.items.join(), className: 'sheet', src: `/api/sets/${s.id}/paper/${n}.png`, alt: `第 ${n + 1} 页` })))
-        : h(E.Loading, { label: '生成题目卷' }));
+        : h(E.Loading, { label: '正在生成练习卷' }));
   }
 
   // ------------------------------------------------------------------ export (F7) and templates (F8)
@@ -804,8 +806,8 @@
   const optsOf = (st) => {
     const per = st.per_question;
     return {
-      image: per.some((k) => IMG.includes(k)), text: per.includes('text'), space: !per.includes('image'),
-      ms: per.includes('mark_scheme'), ex: per.includes('explanation'),
+      image: per.some((k) => IMG.includes(k)), text: per.includes('text'), space: per.includes('image_with_space'),
+      ms: per.includes('mark_scheme'), ex: per.includes('explanation'), paper: st.documents.includes('question_paper'),
       answers: st.answers === 'written_pdf', layout: st.layout, readme: !!st.prompt_file,
     };
   };
@@ -815,7 +817,8 @@
     if (o.text) per.push('text');
     if (o.ms) per.push('mark_scheme');
     if (o.ex) per.push('explanation');
-    return { ...st, per_question: per, answers: o.answers ? 'written_pdf' : 'none', layout: o.layout,
+    const docs = st.documents.filter((d) => d !== 'question_paper').concat(o.paper ? ['question_paper'] : []);
+    return { ...st, per_question: per, documents: docs, answers: o.answers ? 'written_pdf' : 'none', layout: o.layout,
       prompt_file: o.readme ? (st.prompt_file || 'README.md') : '' };
   };
   const sizeText = (n) => (n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB');
@@ -825,30 +828,36 @@
   /** A template's format and what it carries, for the template list. */
   function contents(settings) {
     const o = optsOf(settings);
-    const parts = [settings.documents.includes('question_paper') && '练习卷', o.image && '题图', o.text && '题干文字',
+    const parts = [o.paper && '练习卷', o.image && '题目截图', o.text && '题干文字',
       o.ms && '评分细则', o.ex && '详解', o.answers && '批注版'].filter(Boolean);
     return `${FORMAT[settings.format] || 'ZIP'}：${parts.join('、')}`;
   }
 
+  /** The export options (docs/ui-text.md 2.3): the format, then for a PDF which one, for a
+      ZIP what each question and the ZIP hold and how the files are laid out. */
   function ExportOptions({ settings, onChange }) {
     const o = optsOf(settings);
     const set = (k, v) => onChange(settingsOf(settings, { ...o, [k]: v }));
-    const box = (k, label, lock) => h(E.Checkbox, { checked: o[k], onChange: () => { if (!(lock && o[k])) set(k, !o[k]); } }, label);
+    // something must show the questions: the last of these cannot be turned off
+    const QS = ['image', 'text', 'paper', 'answers'];
+    const last = (k) => o[k] && QS.filter((x) => o[x]).length === 1;
+    const box = (k, label, disabled) => h(E.Checkbox, { checked: o[k], disabled, onChange: () => { if (!last(k)) set(k, !o[k]); } }, label);
+    const seg = (legend, value, options, onSeg) => h('fieldset', { className: 'opt-group ex' }, h('legend', null, legend),
+      h(E.SegmentedControl, { ariaLabel: legend, value, onChange: onSeg, options }));
+    const format = settings.format || 'zip';
     return h(React.Fragment, null,
-      h('fieldset', { className: 'opt-group ex' }, h('legend', null, '格式'),
-        Object.entries(FORMAT).map(([v, label]) => h(E.Radio, { key: v, name: 'format', checked: (settings.format || 'zip') === v,
-          onChange: () => onChange({ ...settings, format: v }) }, label))),
-      h('fieldset', { className: 'opt-group ex' }, h('legend', null, '题目'),
-        box('image', '题图', !o.text), box('text', '题干文字', !o.image)),
-      h('fieldset', { className: 'opt-group ex' }, h('legend', null, '题图范围'),
-        h(E.Radio, { name: 'crop', checked: !o.space, disabled: !o.image, onChange: () => set('space', false) }, '仅题目'),
-        h(E.Radio, { name: 'crop', checked: o.space, disabled: !o.image, onChange: () => set('space', true) }, '含答题区')),
-      h('fieldset', { className: 'opt-group ex' }, h('legend', null, '附加'),
-        box('ms', '评分细则'), box('ex', '详解'), box('answers', '作答 PDF')),
-      h('fieldset', { className: 'opt-group ex' }, h('legend', null, '文件结构'),
-        h(E.Radio, { name: 'layout', checked: o.layout === 'folder_per_question', onChange: () => set('layout', 'folder_per_question') }, '每题一个文件夹'),
-        h(E.Radio, { name: 'layout', checked: o.layout === 'flat', onChange: () => set('layout', 'flat') }, '全部放在同一层')),
-      h('fieldset', { className: 'opt-group ex' }, h('legend', null, '说明文件'), box('readme', 'README.md')));
+      seg('格式', format, Object.entries(FORMAT).map(([value, label]) => ({ value, label })), (v) => onChange({ ...settings, format: v })),
+      format === 'pdf'
+        ? seg('PDF 内容', o.answers ? 'answers' : 'paper', [{ value: 'paper', label: '练习卷' }, { value: 'answers', label: '批注版' }],
+          (v) => onChange(settingsOf(settings, { ...o, answers: v === 'answers', paper: true })))
+        : h(React.Fragment, null,
+          h('fieldset', { className: 'opt-group ex' }, h('legend', null, '每道题包含'),
+            box('image', '题目截图'), box('space', '截图保留原卷答题区', !o.image), box('text', '题干文字'),
+            box('ms', '评分细则'), box('ex', '详解')),
+          h('fieldset', { className: 'opt-group ex' }, h('legend', null, '压缩包包含'),
+            box('paper', '练习卷'), box('answers', '批注版'), box('readme', 'README.md')),
+          seg('文件结构', o.layout, [{ value: 'folder_per_question', label: '按题分文件夹' }, { value: 'flat', label: '不分文件夹' }],
+            (v) => set('layout', v))));
   }
 
   /** The README as the export writes it: headings, paragraphs, code blocks, tables. */
@@ -894,19 +903,6 @@
     return h('div', { className: 'tree' }, out);
   }
 
-  function downloadZip(s, body, toast) {
-    return fetch(`/api/sets/${s.id}/zip`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-      .then((r) => { if (!r.ok) throw new Error(r.statusText); return r.blob(); })
-      .then((b) => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(b);
-        a.download = s.name.replace(/[/\\:]/g, '-') + '.zip';
-        document.body.appendChild(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-      })
-      .catch((e) => toast('error', e.message));
-  }
-
   function usePreview(s, st, body) {
     const [pv, setPv] = useState(null);
     useEffect(() => {
@@ -929,17 +925,18 @@
       if (t) { setSt(t.settings); setBody(t.body); }
     }, [pick, templates]);
     const pv = usePreview(s, st, body);
-    const copy = () => navigator.clipboard.writeText(pv.readme).then(() => toast('success', '已复制 README'), () => toast('error', '无法复制'));
+    const [busy, setBusy] = useState(false);
+    const copy = () => navigator.clipboard.writeText(pv.readme).then(() => toast('success', 'README 已复制'), () => toast('error', 'README 无法复制'));
     const saveAs = () => send('POST', '/api/templates', { name, settings: st, body })
-      .then((t) => { toast('success', `已保存为 ${t.name}`); return reloadTemplates().then(() => setPick(t.id)); })
+      .then((t) => { toast('success', `${t.name} 已保存`); return reloadTemplates().then(() => setPick(t.id)); })
       .catch((e) => toast('error', e.message));
     return h('div', { className: 'dm-row exportpage' },
       h(TopActs, { el: acts },
-        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count, onClick: () => downloadZip(s, { settings: st, body }, toast) }, '下载 ZIP')),
+        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count || busy, onClick: () => {
+          setBusy(true);
+          fetchFile(`/api/sets/${s.id}/output`, { settings: st, body }, toast).then(() => setBusy(false));
+        } }, st && st.format === 'pdf' ? '下载 PDF' : '下载 ZIP')),
       h('aside', { className: 'ex-side' },
-        h('div', { className: 'page-head' },
-          h('h1', { className: 'page-title' }, s.name),
-          h('div', { className: 'dm-meta' }, h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'))),
         h('div', { className: 'field-act' },
           h(E.Select, { label: '模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: pick, onChange: setPick }),
           act('i-plus', '另存为模板', () => { setName(''); setSaving(true); }, { disabled: !st })),
@@ -947,7 +944,8 @@
       h('section', { className: 'ex-files' },
         h('div', { className: 'panel-row' },
           h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '文件'),
-          pv ? h('div', { className: 'dm-meta', style: { fontSize: 12 } }, h('span', null, h('b', null, pv.files.length), ' 个'), h('span', null, sizeText(pv.size))) : null),
+          pv ? h('div', { className: 'dm-meta' }, h('span', null, `${pv.files.length} 个文件`), h('span', null, sizeText(pv.size))) : null),
+        busy ? h(E.Loading, { label: st.format === 'pdf' ? '正在生成 PDF' : '正在生成压缩包' }) : null,
         pv ? h(FileTree, { files: pv.files }) : h(E.Loading, null)),
       h('section', { className: 'ex-doc' },
         h('div', { className: 'panel-row' },
@@ -990,7 +988,7 @@
     const pv = usePreview(tab === 'preview' ? sets.find((x) => x.id === sid) : null, st, body);
     if (!t || !st) return h('div', { className: 'dm-row' }, h(E.Loading, null));
     const go = (id) => { location.hash = '#/templates/' + id; };
-    const create = () => send('POST', '/api/templates', { name: '导出模板', settings: templates[0].settings, body: templates[0].body })
+    const create = () => send('POST', '/api/templates', { name: '未命名模板', settings: templates[0].settings, body: templates[0].body })
       .then((n) => reloadTemplates().then(() => go(n.id)));
     const copy = () => send('POST', '/api/templates', { name: name + ' 副本', settings: st, body }).then((n) => reloadTemplates().then(() => go(n.id)));
     const insert = (v) => {
@@ -1001,9 +999,9 @@
       requestAnimationFrame(() => { if (el) { el.focus(); el.selectionStart = el.selectionEnd = a + v.length; } });
     };
     return h('div', { className: 'dm-row tplpage' },
-      h(TopActs, { el: acts }, act('i-plus', '新建导出模板', create)),
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'export' }),
+        h('div', { className: 'setlist-acts' }, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建模板')),
         h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
           items: templates.map((x) => ({ value: x.id, icon: 'i-doc', title: x.name, subtitle: contents(x.settings) })) })),
       h('section', { className: 'tpl-opts' },
@@ -1026,7 +1024,7 @@
               options: sets.map((x) => ({ value: x.id, label: x.name })) }))),
         tab === 'src'
           ? h('textarea', { ref: area, className: 'tpl-src', value: body, readOnly: t.builtin, spellCheck: false, onChange: (e) => setBody(e.target.value) })
-          : h('div', { className: 'ex-docbody' }, pv ? h(MdView, { text: pv.readme }) : sets.length ? h(E.Loading, null) : h(E.EmptyState, { icon: 'i-list', title: '还没有题组' }))),
+          : h('div', { className: 'ex-docbody' }, pv ? h(MdView, { text: pv.readme }) : sets.length ? h(E.Loading, null) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' }))),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除模板', confirmLabel: '删除模板', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/templates/' + t.id).then(() => reloadTemplates()).then(() => go('default')) },
       h('p', null, `删除后 ${t.name} 将无法恢复。`)) : null);
@@ -1472,7 +1470,7 @@
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = null;
-    const SUB = { paper: '题目卷', export: '导出', board: '白板' };
+    const SUB = { paper: '练习卷', export: '导出', board: '白板' };
     const title = page === 'sets' && SUB[sub] ? SUB[sub] : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');
     // the browser tab names the page and, on a set's pages, the set
     useEffect(() => {

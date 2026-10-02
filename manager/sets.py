@@ -96,7 +96,7 @@ def parse_import(data):
     if isinstance(data, list):
         return [str(q) for q in data], None
     if data.get("schema") != SCHEMA:
-        raise ValueError("不是 alevel-question-set/v1 文件")
+        raise ValueError("文件不是 alevel-question-set/v1 格式")
     ids = []
     for item in data.get("items", []):
         ids += [str(q) for q in item.get("question_ids", [])]
