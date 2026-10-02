@@ -1065,22 +1065,6 @@
 
   // ------------------------------------------------------------------ shell
 
-  // The page loader's progress: it runs on its own but stops short of 100 until the
-  // data is in, then finishes; the page shows once the loader's exit has played.
-  function useBoot(ready) {
-    const [p, setP] = useState(0);
-    const [done, setDone] = useState(false);
-    useEffect(() => {
-      const t = setInterval(() => setP((g) => {
-        const n = Math.min(ready ? 100 : 90, g + Math.ceil(Math.random() * (g < 80 ? 12 : 5)));
-        if (n >= 100) clearInterval(t);
-        return n;
-      }), 160);
-      return () => clearInterval(t);
-    }, [ready]);
-    return [p, done, useCallback(() => setDone(true), [])];
-  }
-
   function App() {
     const hash = useHash();
     const toast = E.useToast();
@@ -1089,7 +1073,7 @@
     const [search, setSearch] = useState('');
     const [templates, setTemplates] = useState([]);
     const [flowTitle, setFlowTitle] = useState('');
-    const [boot, booted, onBooted] = useBoot(!!metas);
+    useEffect(() => { if (metas && window.dmBoot) dmBoot.ready(); }, [metas]);   // index.html's loader
     const reloadSets = useCallback(() => api('/api/sets').then(setSets), []);
     const reloadTemplates = useCallback(() => api('/api/templates').then(setTemplates), []);
     useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); reloadTemplates(); api('/api/settings').then((o) => applyTheme(o.theme)); }, []);
@@ -1104,7 +1088,7 @@
     const [, , arg, sub, subArg] = hash.split('/');
     const cur = page === 'sets' ? sets.find((x) => x.id === arg) : null;
     let body;
-    if (!metas || !booted) body = h(E.PageLoader, { progress: boot, onDone: onBooted });
+    if (!metas) body = null;
     else if (page === 'sets' && sub === 'paper') {
       body = cur ? h('div', { className: 'dm-row' }, h(PaperPage, { s: cur })) : h(E.Loading, null);
     } else if (page === 'sets' && sub === 'export') {
