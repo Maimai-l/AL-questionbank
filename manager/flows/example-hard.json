@@ -1,6 +1,6 @@
 {
  "id": "example-hard",
- "name": "Paper 3 高难度题",
+ "name": "Paper 3 后段高分题",
  "created": "2026-10-02 10:00",
  "nodes": [
   {
@@ -53,9 +53,7 @@
    "type": "newset",
    "x": 680,
    "y": 96,
-   "params": {
-    "name": "9709 Paper 3 高难度"
-   }
+   "params": {}
   },
   {
    "id": "out",

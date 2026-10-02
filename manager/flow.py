@@ -7,7 +7,7 @@ works on a list, fed with groups, works on each group and keeps the groups.
 
 evaluate() works out every node's outputs without side effects (the counts by the ports and
 the details beside the canvas); run() also makes what the output nodes make: ZIPs, question
-papers (files under paths.FLOWS/out/<graph id>/) and question sets. Random order is seeded:
+practice papers (files under paths.FLOWS/out/<graph id>/) and question sets. Random order is seeded:
 the same graph, bank and seed give the same result.
 """
 import hashlib
@@ -35,11 +35,11 @@ BOOKS = {
 }
 
 # fields: key, label, kind (num | text | bool)
-QFIELDS = [("exam", "考试", "text"), ("component", "卷别", "num"), ("paper", "卷号", "text"),
+QFIELDS = [("exam", "考试", "text"), ("component", "试卷", "num"), ("paper", "卷号", "text"),
            ("year", "年份", "num"), ("season", "考季", "num"), ("q", "题号", "num"),
            ("position", "卷内位置", "num"), ("marks", "分值", "num"), ("parts", "小问数", "num"),
            ("topic", "主题", "text"), ("subtopic", "子主题", "text"),
-           ("diagram", "有图形", "bool"), ("explained", "有详解", "bool")]
+           ("diagram", "含图", "bool"), ("explained", "有详解", "bool")]
 CFIELDS = [("book", "教材", "text"), ("chapter", "章号", "num"), ("title", "标题", "text"), ("topic", "主题", "text")]
 FFIELDS = [("name", "文件名", "text")]
 FIELDS = {"q": QFIELDS, "c": CFIELDS, "f": FFIELDS}
@@ -53,13 +53,13 @@ NODES = {
     "set": {"cat": "来源", "label": "题组", "ins": [], "outs": [("题目", "q", "list")]},
     "filter": {"cat": "处理", "label": "筛选", "ins": [("列表", None)], "outs": [("列表", "same", "same")]},
     "sort": {"cat": "处理", "label": "排序", "ins": [("列表", None)], "outs": [("列表", "same", "same")]},
-    "take": {"cat": "处理", "label": "取前", "ins": [("列表", None)], "outs": [("列表", "same", "same")]},
+    "take": {"cat": "处理", "label": "限制数量", "ins": [("列表", None)], "outs": [("列表", "same", "same")]},
     "group": {"cat": "处理", "label": "分组", "ins": [("列表", None)], "outs": [("分组", "same", "group")]},
     "merge": {"cat": "处理", "label": "合并", "ins": [("分组", None)], "outs": [("列表", "same", "list")]},
     "join": {"cat": "处理", "label": "连接", "ins": [("左", None), ("右", None)], "outs": [("分组", "right", "group")]},
     "export": {"cat": "输出", "label": "导出", "ins": [("题目", ("q",)), ("附件", ("f",))], "outs": []},
     "newset": {"cat": "输出", "label": "新建题组", "ins": [("题目", ("q",))], "outs": []},
-    "paper": {"cat": "输出", "label": "题目卷", "ins": [("题目", ("q",))], "outs": []},
+    "paper": {"cat": "输出", "label": "练习卷", "ins": [("题目", ("q",))], "outs": []},
 }
 
 
@@ -108,9 +108,11 @@ def chapter_records(book):
     out, files = [], []
     for r in con.execute("SELECT id, book, chapter_no, title, topic, page_from, page_to FROM chapters "
                          "WHERE book = ? ORDER BY chapter_no", (book,)):
-        out.append({"id": r["id"], "label": r["title"], "book": book, "chapter": r["chapter_no"],
+        title = re.sub(r"^\d+\s+", "", r["title"])
+        label = f'第 {r["chapter_no"]} 章 {title}'      # 第 9 章 Integration
+        out.append({"id": r["id"], "label": label, "book": book, "chapter": r["chapter_no"],
                     "title": r["title"], "topic": r["topic"] or ""})
-        files.append({"id": r["id"], "label": f"{r['title']}.pdf", "name": f"{r['title']}.pdf",
+        files.append({"id": r["id"], "label": f"{label}.pdf", "name": f"{label}.pdf",
                       "chapter": r["id"], "pdf": pdf, "pages": [r["page_from"], r["page_to"]]})
     return out, files
 
@@ -136,7 +138,7 @@ def _field(t, key):
     for k, label, kind in FIELDS[t]:
         if k == key:
             return kind
-    raise FlowError(f"没有字段 {key}")
+    raise FlowError(f"字段 {key} 不存在")
 
 
 def _num(v):
@@ -171,14 +173,14 @@ def _sort_key(kind):
 def node_bank(p, ins):
     exam = p.get("exam") or "9709"
     if exam not in EXAMS:
-        raise FlowError("没有这个考试")
+        raise FlowError("考试不存在")
     return [lst("q", question_records(exam))]
 
 
 def node_book(p, ins):
     book = p.get("book") or "9709_p1"
     if book not in BOOKS:
-        raise FlowError("没有这本教材")
+        raise FlowError("教材不存在")
     chapters, files = chapter_records(book)
     return [lst("c", chapters), lst("f", files)]
 
@@ -187,7 +189,7 @@ def node_set(p, ins):
     try:
         s = sets.get(p.get("set") or "")
     except (KeyError, FileNotFoundError):
-        raise FlowError("没有选题组")
+        raise FlowError("未选择题组")
     return [lst("q", _records_by_id(s["items"]))]
 
 
@@ -218,7 +220,7 @@ def node_take(p, ins):
     try:
         n = max(0, int(p.get("n", 10)))
     except (TypeError, ValueError):
-        raise FlowError("条数要填整数")
+        raise FlowError("条数须为整数")
     return [per_list(ins[0], lambda items, _: items[:n])]
 
 
@@ -233,7 +235,7 @@ def _group_name(value):
 def node_group(p, ins):
     v = ins[0]
     if v["shape"] != "list":
-        raise FlowError("分组要接列表,先接合并")
+        raise FlowError("分组节点的输入须为列表")
     key = p.get("field") or ("topic" if v["type"] != "f" else "name")
     kind = _field(v["type"], key)
     by, label = {}, {}
@@ -249,7 +251,7 @@ def node_group(p, ins):
 def node_merge(p, ins):
     v = ins[0]
     if v["shape"] != "group":
-        raise FlowError("合并要接分组")
+        raise FlowError("合并节点的输入须为分组")
     seen, out = set(), []
     for g in v["groups"]:
         for r in g["items"]:
@@ -262,7 +264,7 @@ def node_merge(p, ins):
 def node_join(p, ins):
     left, right = ins
     if left["shape"] != "list" or right["shape"] != "list":
-        raise FlowError("连接的两侧都要接列表")
+        raise FlowError("连接节点的两个输入须为列表")
     lf = p.get("left") or "topic"
     rf = p.get("right") or "topic"
     _field(left["type"], lf)
@@ -315,7 +317,7 @@ def out_export(g, node, ins, outdir):
     try:
         t = templates.get(node["params"].get("template") or "default")
     except KeyError:
-        raise FlowError("没有这个导出模板")
+        raise FlowError("导出模板不存在")
     st, body = t["settings"], t["body"]
     attach = att["items"] if att and att["shape"] == "list" else []
     files, missing, count = [], 0, 0
@@ -342,18 +344,18 @@ def out_export(g, node, ins, outdir):
                     if data:
                         files.append((f"{folder}/{_safe(f['name'])}", data))
         folders = len(v["groups"])
-    name = _safe(node["params"].get("name") or g["name"]) + ".zip"
+    name = _safe(g["name"]) + ".zip"
     path = os.path.join(outdir, f"{node['id']}.zip")
     _write_zip(path, files)
     meta = ([f"{folders} 个文件夹"] if folders else []) + [f"{count} 题"]
     if missing:
-        meta.append(f"缺 {missing} 份章节 PDF")
+        meta.append(f"缺少 {missing} 份章节 PDF")
     return [{"node": node["id"], "kind": "zip", "name": name, "file": os.path.basename(path), "meta": meta}]
 
 
 def out_newset(g, node, ins, outdir):
     v = ins[0]
-    base = (node["params"].get("name") or g["name"]).strip()
+    base = g["name"].strip()
     parts = [(base, v["items"])] if v["shape"] == "list" else [(f"{base} {x['name']}", x["items"]) for x in v["groups"]]
     out = []
     for name, items in parts:
@@ -378,7 +380,7 @@ def out_paper(g, node, ins, outdir):
         with open(src, "rb") as fh, open(os.path.join(outdir, fname), "wb") as w:
             w.write(fh.read())
         out.append({"node": node["id"], "kind": "pdf", "name": _safe(name) + ".pdf", "file": fname,
-                    "meta": ["题目卷", f"{len(s['items'])} 题", f"{paper.page_count(src)} 页"]})
+                    "meta": ["练习卷", f"{len(s['items'])} 题", f"{paper.page_count(src)} 页"]})
     return out
 
 
@@ -395,7 +397,7 @@ def _order(nodes, links):
     while len(order) < len(nodes):
         ready = [n for n in nodes if n["id"] not in done and deps[n["id"]] <= done]
         if not ready:
-            raise FlowError("连线成环")
+            raise FlowError("连线构成环路")
         for n in ready:
             done.add(n["id"])
             order.append(n)
@@ -420,6 +422,8 @@ def evaluate(g, make=False):
     for n in _order(nodes, links):
         spec = NODES[n["type"]]
         ins = []
+        if any(l["to"][0] == n["id"] and l["from"][0] in errors for l in links):
+            continue                         # fed by a node that failed: that node shows the error
         for i, (label, accept) in enumerate(spec["ins"]):
             src = next((l["from"] for l in links if l["to"] == [n["id"], i]), None)
             v = values.get(src[0], [None] * 9)[src[1]] if src else None
@@ -429,9 +433,9 @@ def evaluate(g, make=False):
         n.setdefault("params", {})
         try:
             if spec["ins"] and ins[0] is None:
-                raise FlowError(f"{spec['ins'][0][0]}没有接上")
+                raise FlowError(f"{'左侧' if spec['ins'][0][0] == '左' else spec['ins'][0][0]}输入未连接")
             if n["type"] == "join" and ins[1] is None:
-                raise FlowError("右侧没有接上")
+                raise FlowError("右侧输入未连接")
             if n["type"] in RUN:
                 values[n["id"]] = RUN[n["type"]](n["params"], ins)
             elif make:
@@ -492,7 +496,7 @@ def summary(g):
         elif n["type"] == "group":
             parts.append(f"按{labels.get(p.get('field', 'topic'), '主题')}分组")
         elif n["type"] == "take":
-            parts.append(f"限制数量 {p.get('n', 10)}")
+            parts.append(f"限制数量：{p.get('n', 10)}")
         elif n["type"] == "join":
             parts.append(f"按{labels.get(p.get('right', 'topic'), '主题')}连接")
     return "、".join(dict.fromkeys(x for x in parts if x))
@@ -518,7 +522,7 @@ def get(fid):
 def save(g, new=False):
     """Save a user graph (a built-in one is saved as a copy)."""
     taken = {x["name"] for x in all_flows() if x["id"] != g.get("id")}
-    name = (g.get("name") or "批量生成").strip()
+    name = (g.get("name") or "未命名流程").strip()
     if new or g.get("builtin") or not g.get("id"):
         g = dict(g, id=uuid.uuid4().hex[:12], created=time.strftime("%Y-%m-%d %H:%M"))
         base, n = name, 2

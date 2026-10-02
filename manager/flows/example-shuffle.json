@@ -1,6 +1,6 @@
 {
  "id": "example-shuffle",
- "name": "随机练习",
+ "name": "Paper 1 每主题随机 2 题",
  "created": "2026-10-02 10:00",
  "nodes": [
   {
@@ -89,9 +89,7 @@
    "type": "newset",
    "x": 680,
    "y": 448,
-   "params": {
-    "name": "9709 Paper 1 随机 16 题"
-   }
+   "params": {}
   }
  ],
  "links": [

@@ -1,5 +1,5 @@
 /* 题库数据管理 (docs/data-manager.md). React without a build step: h = createElement.
-   Pages: #/query, #/sets/<id>[/paper | /export/<template>], #/templates/<id>, #/templates/flows, #/flows/<id>, #/settings. */
+   Pages: #/query, #/sets/<id>[/paper | /export/<template>], #/templates/<id>, #/templates/flows[/<id>], #/flows/<id>, #/settings. */
 (function () {
   'use strict';
   const { useState, useEffect, useMemo, useRef, useCallback } = React;
@@ -1041,17 +1041,17 @@
     const p = n.params || {};
     const F = (k) => fieldLabel(cat, inType || 'q', k);
     switch (n.type) {
-      case 'bank': return p.exam || '9709';
-      case 'book': return ((cat.books.find((b) => b.value === p.book) || {}).label) || p.book || '';
-      case 'set': return ((sets.find((s) => s.id === p.set) || {}).name) || '';
+      case 'bank': return `考试：${p.exam || '9709'}`;
+      case 'book': return `教材：${((cat.books.find((b) => b.value === p.book) || {}).label) || p.book || ''}`;
+      case 'set': return `题组：${((sets.find((s) => s.id === p.set) || {}).name) || ''}`;
       case 'filter': return (p.conds || []).filter((c) => c.field && String(c.value || '').trim()).map((c) => `${F(c.field)} ${c.op} ${c.value}`);
-      case 'sort': return p.by === 'random' ? ['随机', `种子 ${p.seed ?? 1}`] : `${F(p.field || 'marks')} ${p.desc ? '降序' : '升序'}`;
-      case 'take': return inShape === 'group' ? `每组 ${p.n ?? 10} 条` : `前 ${p.n ?? 10} 条`;
-      case 'group': return F(p.field || 'topic');
+      case 'sort': return p.by === 'random' ? ['依据：随机', `种子：${p.seed ?? 1}`] : `依据：${F(p.field || 'marks')}${p.desc ? '降序' : '升序'}`;
+      case 'take': return `${inShape === 'group' ? '每组条数' : '条数'}：${p.n ?? 10}`;
+      case 'group': return `依据：${F(p.field || 'topic')}`;
       case 'merge': return '';
       case 'join': return `${fieldLabel(cat, 'c', p.left || 'topic')} = ${F(p.right || 'topic')}`;
-      case 'export': return [((templates.find((t) => t.id === (p.template || 'default')) || {}).name) || '默认'].concat(inShape === 'group' ? ['每组一个文件夹'] : []);
-      case 'newset': return p.name || '';
+      case 'export': return `模板：${((templates.find((t) => t.id === (p.template || 'default')) || {}).name) || ''}`;
+      case 'newset': return '';
       case 'paper': return '';
       default: return '';
     }
@@ -1113,7 +1113,7 @@
     }, [del]);
 
     useEffect(() => { if (g && onTitle) onTitle(g.name); }, [g && g.name]);
-    if (g === false) return h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-doc', title: '没有这个流程' }));
+    if (g === false) return h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-doc', title: '流程不存在' }));
     if (!g || !cat) return h('div', { className: 'dm-row' }, h(E.Loading, null));
 
     const byId = Object.fromEntries(g.nodes.map((n) => [n.id, n]));
@@ -1131,7 +1131,7 @@
       const id = 'n' + nid.current++;
       const params = { bank: { exam: '9709' }, book: { book: '9709_p1' }, filter: { conds: [{ field: 'year', op: '≥', value: '' }] },
         sort: { by: 'field', field: 'marks', desc: true }, take: { n: 10 }, group: { field: 'topic' },
-        join: { left: 'topic', right: 'topic' }, export: { template: 'default' }, newset: { name: g.name },
+        join: { left: 'topic', right: 'topic' }, export: { template: 'default' },
         set: { set: sets[0] ? sets[0].id : '' } }[type] || {};
       setG({ ...g, nodes: g.nodes.concat([{ id, type, x: Math.round(x), y: Math.round(y), params }]) });
       setSel({ node: id });
@@ -1225,6 +1225,7 @@
     };
 
     const outputs = (run && run.outputs) || [];
+    const failed = run && failure(run, (id) => byId[id] && cat.nodes[byId[id].type].label);
     return h('div', { className: 'dm-row flowpage' },
       h('aside', { className: 'fl-pal' },
         ['来源', '处理', '输出'].map((c) => h(React.Fragment, { key: c },
@@ -1233,9 +1234,9 @@
             h('button', { key: k, type: 'button', className: 'pal', onClick: () => add(k) }, v.label))))),
       h('main', { className: 'fl-main' },
         h('div', { className: 'fl-bar' },
-          h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
-            h('span', { key: 't', className: 't' }, run.ran),
-            h('span', { key: 'n' }, h('b', null, outputs.length), ' 项输出')] : null),
+          failed ? h('span', { className: 'fl-err dm-grow' }, failed)
+            : h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
+              h('span', { key: 't' }, run.ran), h('span', { key: 'n' }, `${outputs.length} 项输出`)] : null),
           g.builtin ? act('i-copy', '另存为流程', saveCopy) : null,
           h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程')),
         h('div', { className: 'fl', ref: box, onPointerDown: (e) => {
@@ -1255,13 +1256,7 @@
             g.nodes.map(nodeEl))),
         outputs.length ? h('section', { className: 'outs' },
           h('h2', { className: 'fs-lead', style: { margin: 0 } }, '输出'),
-          outputs.map((o, i) => h('div', { key: i, className: 'op' },
-            h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)', flexGrow: 1 } }, o.name),
-            h('div', { className: 'dm-meta', style: { fontSize: 12 } }, o.meta.map((m, j) => h('span', { key: j }, m))),
-            o.kind === 'set'
-              ? act('i-arrow-r', '打开题组', () => { location.hash = '#/sets/' + o.set; })
-              : act(o.kind === 'zip' ? 'i-box' : 'i-doc', o.kind === 'zip' ? '下载 ZIP' : '下载 PDF',
-                () => download(`/api/flows/${g.id}/out/${o.file}?name=${encodeURIComponent(o.name)}`))))) : null),
+          h(FlowOutputs, { fid: g.id, outputs })) : null),
       h('aside', { className: 'fl-insp' },
         sel && sel.link != null && g.links[sel.link]
           ? h(React.Fragment, null,
@@ -1275,6 +1270,23 @@
           ? h(Inspector, { cat, n: byId[sel.node], inV: inOf(sel.node, 0), in2: inOf(sel.node, 1), out: outOf(sel.node, 0),
             error: errors[sel.node], update, templates, sets, onDelete: del, outputs: outputs.filter((o) => o.node === sel.node) })
           : h(FlowProps, { g, setG, onDeleted: () => { location.hash = '#/templates/flows'; } , toast })));
+  }
+
+  /** "流程无法运行（节点：原因）" for a run with errors, else null. */
+  function failure(run, label) {
+    const [id, why] = Object.entries(run.errors || {})[0] || [];
+    return id ? `流程无法运行（${label(id) || id}：${why}）` : null;
+  }
+
+  /** What a run made: each file to download, each set to open. */
+  function FlowOutputs({ fid, outputs }) {
+    return h('div', { className: 'fo-list' }, outputs.map((o, i) => h('div', { key: i, className: 'fo-row' },
+      h('span', { className: 'fo-name' }, o.name),
+      h('div', { className: 'dm-meta' }, o.meta.map((m, j) => h('span', { key: j }, m))),
+      o.kind === 'set'
+        ? act('i-arrow-r', '打开题组', () => { location.hash = '#/sets/' + o.set; })
+        : act(o.kind === 'zip' ? 'i-box' : 'i-doc', o.kind === 'zip' ? '下载 ZIP' : '下载 PDF',
+          () => download(`/api/flows/${fid}/out/${o.file}?name=${encodeURIComponent(o.name)}`)))));
   }
 
   function FlowProps({ g, setG, onDeleted, toast }) {
@@ -1334,7 +1346,6 @@
         sel('右侧字段', p.right || 'topic', (cat.fields[rt] || []).map(([v, l]) => ({ value: v, label: l })), (v) => update(n.id, { right: v })));
     }
     if (n.type === 'export') body = sel('导出模板', p.template || 'default', templates.map((x) => ({ value: x.id, label: x.name })), (v) => update(n.id, { template: v }));
-    if (n.type === 'newset') body = h(E.TextField, { label: '名称', size: 'sm', value: p.name || '', onChange: (e) => update(n.id, { name: e.target.value }) });
 
     const shown = out || (spec.outs.length ? null : inV);
     return h(React.Fragment, null,
@@ -1351,19 +1362,74 @@
       outputs.length ? h('div', { className: 'sum' }, outputs.map((o, i) => h('div', { key: i, className: 'dm-meta' }, h('span', null, o.name), o.meta.map((m, j) => h('span', { key: j }, m))))) : null);
   }
 
-  function FlowListPage({ toast, acts }) {
+  const FLOW_OUT = { export: '压缩包', paper: '练习卷', newset: '题组' };
+
+  /** The flows: the list, and the one picked with its conditions, what it makes and the
+      two actions, 编辑流程 and 运行流程. */
+  function FlowListPage({ current, reloadSets, toast }) {
     const [flows, setFlows] = useState(null);
-    useEffect(() => { api('/api/flows').then(setFlows); }, []);
-    const create = () => send('POST', '/api/flows', { name: '批量生成', nodes: [], links: [] })
+    const reload = () => api('/api/flows').then(setFlows);
+    useEffect(() => { reload(); }, []);
+    const create = () => send('POST', '/api/flows', { name: '未命名流程', nodes: [], links: [] })
       .then((n) => { location.hash = '#/flows/' + n.id; }).catch((e) => toast('error', e.message));
+    const f = flows && (flows.find((x) => x.id === current) || flows[0]);
     return h('div', { className: 'dm-row tplpage' },
-      h(TopActs, { el: acts }, act('i-plus', '新建流程', create)),
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'flow' }),
-        flows ? h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '批量生成流程', value: undefined,
-          onChange: (v) => { location.hash = '#/flows/' + v; },
-          items: flows.map((x) => ({ value: x.id, icon: 'i-grid', title: x.name, subtitle: x.summary })) }) : h(E.Loading, null)),
-      h('main', { className: 'setmain empty-main' }, h(E.EmptyState, { icon: 'i-grid', title: '没有打开的流程' })));
+        h('div', { className: 'setlist-acts' }, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建流程')),
+        !flows ? h(E.Loading, null) : flows.length ? h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '流程', value: f && f.id,
+          onChange: (v) => { location.hash = '#/templates/flows/' + v; },
+          items: flows.map((x) => ({ value: x.id, icon: 'i-grid', title: x.name, subtitle: x.summary })) })
+          : h(E.EmptyState, { icon: 'i-grid', title: '没有流程' })),
+      f ? h(FlowOverview, { key: f.id, fid: f.id, reload, reloadSets, toast })
+        : h('main', { className: 'setmain empty-main' }, flows ? h(E.EmptyState, { icon: 'i-grid', title: '没有流程' }) : null));
+  }
+
+  function FlowOverview({ fid, reload, reloadSets, toast }) {
+    const [g, setG] = useState(null);
+    const [run, setRun] = useState(null);
+    const [running, setRunning] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [cat, setCat] = useState(null);
+    useEffect(() => { api('/api/flows/' + fid).then(setG).catch(() => setG(false)); }, [fid]);
+    useEffect(() => { api('/api/flows/catalog').then(setCat); }, []);
+    if (g === false) return h('main', { className: 'setmain empty-main' }, h(E.EmptyState, { icon: 'i-doc', title: '流程不存在' }));
+    if (!g) return h('main', { className: 'setmain' }, h(E.Loading, null));
+    const doRun = () => {
+      setRunning(true);
+      send('POST', `/api/flows/${g.id}/run`, g).then((r) => { setRun(r); reloadSets(); })
+        .catch((e) => toast('error', e.message)).finally(() => setRunning(false));
+    };
+    const copy = () => send('POST', '/api/flows', { ...g, name: g.name + ' 副本', builtin: undefined })
+      .then((n) => reload().then(() => { location.hash = '#/templates/flows/' + n.id; })).catch((e) => toast('error', e.message));
+    const failed = run && failure(run, (id) => { const n = g.nodes.find((x) => x.id === id); return n && (cat ? cat.nodes[n.type].label : n.type); });
+    const conds = (g.summary || '').split('、').filter(Boolean);
+    const makes = g.nodes.filter((n) => FLOW_OUT[n.type]).map((n) => FLOW_OUT[n.type]);
+    return h('main', { className: 'setmain fo' },
+      h('header', { className: 'fo-head' },
+        h('div', { className: 'page-head dm-grow' },
+          h('h1', { className: 'page-title' }, g.name),
+          h('div', { className: 'dm-meta' }, h('span', null, `${g.nodes.length} 个节点`), g.created ? h('span', null, g.created) : null)),
+        h(E.Button, { variant: 'primary', size: 'md', onClick: () => { location.hash = '#/flows/' + g.id; } }, '编辑流程'),
+        h(E.Button, { variant: 'primary', size: 'md', disabled: running, loading: running, onClick: doRun }, '运行流程'),
+        h(MoreMenu, { label: '更多操作', items: [
+          { label: '复制流程', onClick: copy },
+          g.builtin ? null : { label: '删除流程', danger: true, onClick: () => setDeleting(true) }] })),
+      h('section', { className: 'fo-sec' },
+        h('h2', { className: 'fs-lead fo-title' }, '条件'),
+        conds.length ? h('ul', { className: 'fo-items' }, conds.map((c, i) => h('li', { key: i }, c))) : h('span', { className: 'empty-note' }, '没有条件')),
+      h('section', { className: 'fo-sec' },
+        h('h2', { className: 'fs-lead fo-title' }, '输出'),
+        running ? h(E.Loading, { label: '正在运行流程' })
+          : failed ? h('span', { className: 'fl-err' }, failed)
+          : run ? h(React.Fragment, null,
+            h('div', { className: 'dm-meta' }, h('span', null, run.ran), h('span', null, `${run.outputs.length} 项输出`)),
+            h(FlowOutputs, { fid: g.id, outputs: run.outputs }))
+          : makes.length ? h('ul', { className: 'fo-items' }, makes.map((m, i) => h('li', { key: i }, m))) : h('span', { className: 'empty-note' }, '没有输出')),
+      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(false),
+        onConfirm: () => send('DELETE', '/api/flows/' + g.id).then(() => reload()).then(() => { location.hash = '#/templates/flows'; })
+          .catch((e) => toast('error', e.message)) },
+      h('p', null, `删除后 ${g.name} 将无法恢复。`)) : null);
   }
 
   function KindTabs({ value }) {
@@ -1472,7 +1538,7 @@
     } else if (page === 'sets' && sub === 'export') {
       body = cur && templates.length ? h(ExportPage, { key: cur.id, s: cur, tid: subArg, templates, reloadTemplates, toast, acts }) : h(E.Loading, null);
     } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
-    else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { toast, acts });
+    else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { current: sub, reloadSets, toast });
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);
     else if (page === 'templates') {
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast, acts }) : h(E.Loading, null);
@@ -1494,7 +1560,7 @@
           title,
           crumbs: page === 'sets' && SUB[sub] && cur
             ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: SUB[sub] }]
-            : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows' }] : undefined,
+            : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows/' + arg }] : undefined,
           search: page === 'query' ? '搜索题干、评分细则或试卷代码' : undefined, onSearch: setSearch,
           actions: h('div', { ref: setActs, className: 'dm-acts' }) }),
         body));

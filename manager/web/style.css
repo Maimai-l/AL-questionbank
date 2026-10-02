@@ -184,7 +184,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .pal:hover { border-color: var(--color-text-secondary); }
 .fl-main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
 .fl-bar { height: 56px; flex: none; display: flex; align-items: center; gap: var(--el); padding: 0 var(--pad); border-bottom: 1px solid var(--color-border-subtle); }
-.fl { position: relative; flex: 1 1 0; min-height: 0; overflow: auto; background-color: var(--color-bg-page); background-image: radial-gradient(var(--color-border-subtle) 1px, transparent 1px); background-size: 16px 16px; touch-action: none; cursor: grab; }
+.fl { position: relative; flex: 1 1 0; min-height: 0; overflow: auto; background: var(--color-bg-page); touch-action: none; cursor: grab; }
 .fl-in { position: relative; }
 .fl-w { position: absolute; left: 0; top: 0; }
 .fl-w path { fill: none; stroke: var(--color-text-secondary); stroke-width: 1.5; cursor: pointer; pointer-events: stroke; }
@@ -193,10 +193,11 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .fl-w path.drag { stroke-dasharray: 4 4; pointer-events: none; }
 .nd { position: absolute; box-sizing: border-box; background: var(--color-bg-raised); border: 1px solid var(--color-border-control); border-radius: 4px; font-size: 12px; cursor: grab; user-select: none; }
 .nd.sel { outline: 2px solid var(--color-text-primary); outline-offset: 2px; }
-.nd.err { border-color: var(--color-status-error, #d33); }
+.nd.err { border-color: var(--color-error); }
+.nd.err .nd-h { background: var(--color-error); color: #ffffff; }
 .nd-h { height: 32px; display: flex; align-items: center; padding: 0 12px; background: var(--color-bg-emphasis); color: var(--color-text-on-emphasis); font: 13px var(--font-medium); border-radius: 3px 3px 0 0; }
 .nd-r { position: relative; height: 28px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; color: var(--color-text-secondary); }
-.nd-r b { font-family: var(--font-numeric); font-weight: 500; color: var(--color-text-primary); margin-left: 8px; }
+.nd-r b { font-weight: 400; color: var(--color-text-primary); margin-left: 8px; font-variant-numeric: tabular-nums; }
 .pt { position: absolute; top: 50%; width: 12px; height: 12px; box-sizing: border-box; border-radius: 50%; background: var(--color-text-secondary); transform: translateY(-50%); cursor: crosshair; }
 .pt.sq { border-radius: 1px; }
 .pt.l { left: -7px; } .pt.r { right: -7px; }
@@ -208,8 +209,20 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .cond-f { grid-area: f; } .cond-d { grid-area: d; } .cond-o { grid-area: o; } .cond-v { grid-area: v; }
 .sum { display: flex; flex-direction: column; gap: var(--sub); padding-top: var(--sib); border-top: 1px solid var(--color-border-subtle); }
 .res { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--el) var(--sub); font-size: 12px; color: var(--color-text-secondary); }
-.res b { font-family: var(--font-numeric); font-weight: 500; color: var(--color-text-primary); text-align: right; }
-.fl-err { color: var(--color-status-error, #d33); }
+.res b { font-weight: 400; color: var(--color-text-primary); text-align: right; font-variant-numeric: tabular-nums; }
+.fl-err { color: var(--color-error); font-size: 13px; }
+/* flow outputs, in the editor and the overview */
+.fo-list { display: flex; flex-direction: column; }
+.fo-row { display: flex; align-items: center; gap: var(--sib); min-height: 40px; border-bottom: 1px solid var(--color-border-subtle); }
+.fo-name { flex: 1 1 auto; min-width: 0; font: 13px var(--font-medium); }
+/* the flow overview */
+.fo { overflow-y: auto; gap: var(--block); }
+.fo-head { display: flex; align-items: flex-start; gap: var(--el); }
+.fo-head .dm-grow { flex-grow: 1; min-width: 0; margin-right: var(--sib); }
+.fo-sec { display: flex; flex-direction: column; gap: var(--sub); max-width: 640px; }
+.fo-title { margin: 0; }
+.fo-items { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; font-size: 14px; }
+.fo-items li { min-height: 32px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border-subtle); }
 @media (max-width: 1366px) {
   .fl-pal { width: 144px; }
   .fl-insp { width: 264px; }

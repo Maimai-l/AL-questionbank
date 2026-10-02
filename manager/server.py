@@ -357,7 +357,8 @@ async def flow_catalog(request):
 
 async def flow_get(request):
     try:
-        return web.json_response(flow.get(request.match_info["fid"]))
+        g = flow.get(request.match_info["fid"])
+        return web.json_response({**g, "summary": flow.summary(g)})
     except KeyError:
         raise web.HTTPNotFound()
 
