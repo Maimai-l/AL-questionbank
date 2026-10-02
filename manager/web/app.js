@@ -1012,7 +1012,7 @@
             t.builtin ? null : { label: '删除模板', danger: true, onClick: () => setDeleting(true) }] })),
         t.builtin ? h('p', { className: 'lock-note' }, '内置模板不可修改，复制模板后可修改副本') : null,
         h('div', { className: t.builtin ? 'opts locked' : 'opts' }, h(ExportOptions, { settings: st, onChange: t.builtin ? () => {} : setSt }))),
-      h('section', { className: 'tpl-edit' },
+      st.format === 'pdf' ? h('section', { className: 'tpl-edit' }, h(E.EmptyState, { icon: 'i-doc', title: '没有 README' })) : h('section', { className: 'tpl-edit' },
         h('div', { className: 'panel-row', style: { gap: 'var(--head)' } },
           h(E.Tabs, { variant: 'line', value: tab, onChange: setTab, ariaLabel: '说明文件',
             items: [{ value: 'src', label: st.prompt_file || 'README.md' }, { value: 'preview', label: '预览' }] }),

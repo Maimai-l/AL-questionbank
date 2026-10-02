@@ -299,7 +299,7 @@ async def answers_pdf(request):
         raise web.HTTPNotFound()
     return web.FileResponse(p, headers={
         "Content-Type": "application/pdf",
-        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(s["name"] + " 作答.pdf")})
+        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(s["name"] + " 批注版.pdf")})
 
 
 def _board(request):
@@ -324,7 +324,7 @@ async def board_export(request):
     bid, meta = _board(request)
     s = _get(meta["data"]["set"])
     b = await request.json()
-    name = (b.get("name") or "").strip().replace("/", "-") or s["name"].replace("/", "-") + " 作答"
+    name = (b.get("name") or "").strip().replace("/", "-") or s["name"].replace("/", "-") + " 批注版"
     data, fname = await board.export_board(request.app[HUB], s, bid, name, bool(b.get("scheme")), bool(b.get("explanation")))
     return web.Response(body=data, content_type="application/zip" if fname.endswith(".zip") else "application/pdf",
                         headers={"Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(fname)})

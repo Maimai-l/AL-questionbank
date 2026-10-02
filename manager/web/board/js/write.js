@@ -2,7 +2,7 @@
 //
 // 书写、橡皮擦、撤销、同步和视口都在 inksync 的 InkPad 里;工具栏、颜色与粗细、
 // iPad 上的笔具盘来自白板应用的 ui.js。白板应用里管白板列表、设置、更新的部分
-// 这里不用:一个页面只写一块白板,导出 PDF 在 Mac 的顶栏。
+// 这里不用:一个页面只写一块白板,导出批注版在 Mac 的顶栏。
 // iPad 只用来书写:没有顶栏与导出,只有画布与笔具盘;在原生外壳里保留「白板设置」,
 // 其中的「换一台 Mac」用来选择服务器。
 
@@ -47,7 +47,7 @@ class WriteUI extends UI {
     this.root.append(
       el("div", { id: "zoombar", class: "pill" }, [
         iconButton("zoomIn", "放大", () => this.actions.onZoom(1.25)),
-        iconButton("fit", "回到内容", () => this.actions.onFit()),
+        iconButton("fit", "适应页面", () => this.actions.onFit()),
         iconButton("zoomOut", "缩小", () => this.actions.onZoom(0.8)),
       ]),
     );
@@ -122,8 +122,7 @@ class Writer extends InkPad {
     this.on("interrupted", () => {
       this.ui.showNotice(
         "scribble",
-        "笔迹被系统打断了几次。iPad 的「随手写」会抢走 Apple Pencil 的输入," +
-          "在 设置 → Apple Pencil 里关掉它即可。",
+        "Apple Pencil 的笔迹多次被系统中断。请在 iPad 的「设置」中进入「Apple Pencil」，关闭「随手写」。",
       );
     });
     this.on("locked", ({ locked, unlock }) => {
@@ -131,8 +130,8 @@ class Writer extends InkPad {
       if (locked) this.ui.showLocked(locked, unlock);
       else this.ui.hideLocked();
     });
-    this.on("error", ({ reason }) => this.ui.message(`打不开这块白板(${reason})`, "close", 8000));
-    this.on("deleted", () => this.ui.message("这块白板已被删除", "close", 8000));
+    this.on("error", ({ reason }) => this.ui.message(`白板无法打开（${reason}）`, "close", 8000));
+    this.on("deleted", () => this.ui.message("白板已删除", "close", 8000));
   }
 
   bindKeys() {
@@ -212,12 +211,12 @@ class Writer extends InkPad {
 
   openExport() {
     if (this.exportDialog) return;
-    const name = el("input", { type: "text", value: `${(this.meta && this.meta.name) || "题组"} 作答`.replace(/\//g, "-") });
+    const name = el("input", { type: "text", value: `${(this.meta && this.meta.name) || "题组"} 批注版`.replace(/\//g, "-") });
     const scheme = el("input", { type: "checkbox" });
     const explain = el("input", { type: "checkbox" });
-    const go = el("button", { class: "btn primary", type: "button" }, "下载 PDF");
+    const go = el("button", { class: "btn primary", type: "button" }, "导出批注版");
     const sync = () => {
-      go.textContent = scheme.checked || explain.checked ? "下载 ZIP" : "下载 PDF";
+      go.textContent = scheme.checked || explain.checked ? "导出 ZIP" : "导出批注版";
     };
     scheme.addEventListener("change", sync);
     explain.addEventListener("change", sync);
@@ -239,7 +238,7 @@ class Writer extends InkPad {
         const blob = await r.blob();
         const disp = r.headers.get("Content-Disposition") || "";
         const m = disp.match(/filename\*=UTF-8''([^;]+)/);
-        const a = el("a", { href: URL.createObjectURL(blob), download: m ? decodeURIComponent(m[1]) : "answers.pdf" });
+        const a = el("a", { href: URL.createObjectURL(blob), download: m ? decodeURIComponent(m[1]) : "批注版.pdf" });
         document.body.append(a);
         a.click();
         a.remove();
@@ -248,11 +247,11 @@ class Writer extends InkPad {
         this.ui.toast("check");
       } catch (err) {
         go.disabled = false;
-        this.ui.message(`导出失败:${String(err.message || err).slice(0, 80)}`, "close", 6000);
+        this.ui.message(`批注版无法导出（${String(err.message || err).slice(0, 80)}）`, "close", 6000);
       }
     });
     const dialog = el("div", { class: "wb-export", role: "dialog" }, [
-      el("h2", {}, "导出 PDF"),
+      el("h2", {}, "导出批注版"),
       el("label", { class: "field" }, ["文件名", el("div", { class: "name" }, [name, el("span", {}, ".pdf")])]),
       el("div", { class: "checks" }, [
         el("label", {}, [scheme, "评分细则"]),
