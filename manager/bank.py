@@ -203,15 +203,38 @@ def paper_pdf(r):
     return None
 
 
+def fts_query(text):
+    """What the search box holds as an FTS5 query: every word must occur (as a word or
+    the start of one), "quoted words" as a phrase, OR between two terms for either.
+    A word with punctuation in it (x-axis, 10.5) is its parts in a row, as the index's
+    tokenizer splits it, so punctuation never reaches FTS5 as syntax."""
+    terms = []
+    for phrase, word in re.findall(r'"([^"]*)"?|(\S+)', text):
+        if phrase:
+            words = re.findall(r"\w+", phrase)
+            if words:
+                terms.append('"' + " ".join(words) + '"')
+        elif word == "OR":
+            if terms and terms[-1] != "OR":
+                terms.append("OR")
+        else:
+            words = re.findall(r"\w+", word)     # x-axis, 10.5: the parts in a row
+            if words:
+                terms.append('"' + " ".join(words) + '"*')
+    while terms and terms[-1] == "OR":
+        terms.pop()
+    return " ".join(terms)
+
+
 def search(exam, text):
-    """Question ids of one exam whose text or mark scheme matches."""
-    con = db.connect()
-    try:
-        return [r[0] for r in con.execute(
-            "SELECT q.id FROM questions q JOIN q_fts f ON f.id = q.id "
-            "WHERE q.syllabus = ? AND q_fts MATCH ?", (exam, text))]
-    except Exception:                       # a query the full-text index cannot parse
+    """Question ids of one exam whose text, mark scheme or topic name matches."""
+    query = fts_query(text)
+    if not query:
         return []
+    con = db.connect()
+    return [r[0] for r in con.execute(
+        "SELECT q.id FROM questions q JOIN q_fts f ON f.id = q.id "
+        "WHERE q.syllabus = ? AND q_fts MATCH ?", (exam, query))]
 
 
 def exists(ids):
