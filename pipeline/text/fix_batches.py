@@ -223,7 +223,7 @@ def check_question(text, r):
     layer = [w.lower() for w in WORD.findall(layer_text)]
     if layer:
         have = set(w.lower() for w in WORD.findall(text))
-        for m in re.findall(r"\$([^$]+)\$", text):              # the text layer runs math together: "lncosx"
+        for m in re.findall(r"\$+([^$]+)\$+", text):              # the text layer runs math together: "lncosx"
             have |= {w.lower() for w in WORD.findall(re.sub(r"\\[a-zA-Z]+|[\\\s{}^_]", lambda x: x.group(0)[1:] if x.group(0)[0] == "\\" and len(x.group(0)) > 1 else "", m))}
         lost = sum(1 for w in layer if w not in have)
         miss = lost / len(layer)
