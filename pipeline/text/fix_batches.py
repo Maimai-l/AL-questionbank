@@ -2,7 +2,7 @@
 """Rewrite CAIE question text and mark schemes against the original pages, through
 sub-agents, and keep the result as replayable corrections.
 
-    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--size 10] [--out run1] [ID ...]
+    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--size 10] [--out run1] [--skip-done] [ID ...]
     python3 pipeline/text/fix_batches.py verify raw/text_fix/run1/out/batch_01.json
     python3 pipeline/text/fix_batches.py apply [--write]
 
@@ -140,6 +140,9 @@ def plan(a):
     else:
         rows = list(con.execute("SELECT * FROM questions WHERE syllabus = ? ORDER BY id", (a.syllabus,)))
     rows = [r for r in rows if r]
+    if a.skip_done and os.path.exists(FIXES):
+        done = {json.loads(line)["id"] for line in open(FIXES, encoding="utf-8")}
+        rows = [r for r in rows if r["id"] not in done]
     n = 0
     for b in range(0, len(rows), a.size):
         n += 1
@@ -306,6 +309,7 @@ def main():
     p.add_argument("--syllabus", default="9618")
     p.add_argument("--size", type=int, default=10)
     p.add_argument("--out", default="run1")
+    p.add_argument("--skip-done", action="store_true", help="leave out questions already in text_fixes.jsonl")
     p.set_defaults(fn=plan)
     p = sub.add_parser("verify")
     p.add_argument("file")
