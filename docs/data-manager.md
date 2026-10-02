@@ -374,6 +374,8 @@ prompt_file: README.md
 ## 8. 设计
 
 - 设计稿:`https://claude.ai/artifact/HvHpPHh4SwvhhQJwoyuv78`(深色与浅色各一套)。页面:查询、题组、题目卷、设置、导出、模板、iPad 白板与导出对话框、批量生成。
+- 界面规范(术语、句式、数据格式、排版、交互、状态,以及现有界面的修改清单):`docs/ui-text.md`。
+- 现状(2026-10-02):设计稿与 `docs/ui-text.md` 已按最新规范修订;`manager/web/` 的代码尚未按 `docs/ui-text.md` 第 5 节修改,界面将在新会话中重做。
 - 使用设计系统 ENDFIELD React(`https://claude.ai/artifact/Y7GzkWZhPQVDPaAWQf1Due`),组件从 `window.Endfield` 取用,样式来自它的 `bundle.css` 与 `tokens.css`。React、组件包与字体复制在 `manager/web/ds/`,页面不依赖外网。
 - 本页面属于设计系统中的"工作页",间距按工作页的规定。
 - 按钮文字一律动词在前、宾语在后,例如"下载 PDF""打开白板""加入题组"。
