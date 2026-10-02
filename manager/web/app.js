@@ -1042,7 +1042,7 @@
     }, [g && JSON.stringify({ n: g.nodes.map((n) => [n.id, n.type, n.params]), l: g.links })]);
 
     const del = useCallback(() => {
-      if (!sel || !g) return;
+      if (!sel || !g || g.builtin) return;
       if (sel.node) setG({ ...g, nodes: g.nodes.filter((n) => n.id !== sel.node), links: g.links.filter((l) => l.from[0] !== sel.node && l.to[0] !== sel.node) });
       else setG({ ...g, links: g.links.filter((_, i) => i !== sel.link) });
       setSel(null);
@@ -1065,9 +1065,11 @@
     const outOf = (id, i) => (ports[id] || [])[i];
     const inOf = (id, i) => { const l = g.links.find((x) => x.to[0] === id && x.to[1] === i); return l ? outOf(l.from[0], l.from[1]) : null; };
     const shapeOf = (id, i) => { const o = outOf(id, i); return o ? o.shape : cat.nodes[byId[id].type].outs[i][1]; };
-    const update = (id, patch) => setG({ ...g, nodes: g.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, ...patch } } : n)) });
+    // a built-in flow can be looked at and run, not changed
+    const update = (id, patch) => !g.builtin && setG({ ...g, nodes: g.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, ...patch } } : n)) });
 
     const add = (type) => {
+      if (g.builtin) return;
       const el = box.current;
       const x = (el ? el.scrollLeft : 0) + 32 + (g.nodes.length % 4) * 24;
       const y = (el ? el.scrollTop : 0) + 32 + (g.nodes.length % 4) * 24;
@@ -1085,12 +1087,14 @@
       if (e.button !== 0) return;
       e.preventDefault();
       setSel({ node: n.id });
+      if (g.builtin) return;
       const [sx, sy] = local(e); const ox = n.x, oy = n.y;
       const move = (ev2) => { const [x, y] = local(ev2); setG((cur) => ({ ...cur, nodes: cur.nodes.map((m) => (m.id === n.id ? { ...m, x: Math.max(8, Math.round(ox + x - sx)), y: Math.max(8, Math.round(oy + y - sy)) } : m)) })); };
       const up = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); };
       addEventListener('pointermove', move); addEventListener('pointerup', up);
     };
     const startWire = (e, n, i) => {
+      if (g.builtin) return;
       e.preventDefault(); e.stopPropagation();
       const [x, y] = local(e);
       setDrag({ from: [n.id, i], x, y });
@@ -1159,8 +1163,6 @@
       wires.push(h('path', { key: 'drag', className: 'drag', d: wirePath(a.x + NW + 1, portY(a, drag.from[1]), drag.x, drag.y) }));
     }
 
-    const saveCopy = () => send('POST', '/api/flows', { ...g, name: g.name + ' 副本', builtin: undefined })
-      .then((n) => { location.hash = '#/flows/' + n.id; }).catch((e) => toast('error', e.message));
     const doRun = () => {
       setRunning(true);
       send('POST', `/api/flows/${g.id}/run`, g).then((r) => { setRun(r); setEv(r); reloadSets(); })
@@ -1169,18 +1171,17 @@
 
     const outputs = (run && run.outputs) || [];
     const failed = run && failure(run, (id) => byId[id] && cat.nodes[byId[id].type].label);
-    return h('div', { className: 'dm-row flowpage' },
+    return h('div', { className: 'dm-row flowpage' + (g.builtin ? ' is-locked' : '') },
       h('aside', { className: 'fl-pal' },
         ['来源', '处理', '输出'].map((c) => h(React.Fragment, { key: c },
           h('span', { className: 'fs-small fl-cat' }, c),
           Object.entries(cat.nodes).filter(([, v]) => v.cat === c).map(([k, v]) =>
-            h('button', { key: k, type: 'button', className: 'pal', onClick: () => add(k) }, v.label))))),
+            h('button', { key: k, type: 'button', className: 'pal', disabled: g.builtin, onClick: () => add(k) }, v.label))))),
       h('main', { className: 'fl-main' },
         h('div', { className: 'fl-bar' },
           failed ? h('span', { className: 'fl-err dm-grow' }, failed)
             : h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
               h('span', { key: 't' }, run.ran), h('span', { key: 'n' }, `${outputs.length} 项输出`)] : null),
-          g.builtin ? act('i-copy', '另存为流程', saveCopy) : null,
           h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程')),
         h('div', { className: 'fl', ref: box, onPointerDown: (e) => {
           if (e.target !== box.current && !e.target.classList.contains('fl-in') && e.target.tagName !== 'svg') return;
@@ -1205,13 +1206,13 @@
           ? h(React.Fragment, null,
             h('div', { className: 'panel-row' },
               h('h2', { className: 'fs-lead panel-title' }, '连线'),
-              act('i-trash', '删除连线', del)),
+              g.builtin ? null : act('i-trash', '删除连线', del)),
             h('div', { className: 'dm-meta' },
               h('span', null, cat.nodes[byId[g.links[sel.link].from[0]].type].label), h('span', null, '→'),
               h('span', null, cat.nodes[byId[g.links[sel.link].to[0]].type].label)))
           : sel && sel.node && byId[sel.node]
           ? h(Inspector, { cat, n: byId[sel.node], inV: inOf(sel.node, 0), in2: inOf(sel.node, 1), out: outOf(sel.node, 0),
-            error: errors[sel.node], update, templates, sets, onDelete: del, outputs: outputs.filter((o) => o.node === sel.node) })
+            error: errors[sel.node], update, templates, sets, onDelete: del, locked: g.builtin, outputs: outputs.filter((o) => o.node === sel.node) })
           : h(FlowProps, { g, setG, onDeleted: () => { location.hash = '#/templates/flows'; } , toast })));
   }
 
@@ -1238,14 +1239,14 @@
       h('div', { className: 'panel-row' },
         h('h2', { className: 'fs-lead panel-title' }, '流程'),
         g.builtin ? null : act('i-trash', '删除流程', () => setDeleting(true))),
-      g.builtin ? h('p', { className: 'lock-note' }, '内置流程不可修改，另存为流程后可修改副本') : null,
+      g.builtin ? h('p', { className: 'lock-note' }, '内置流程不可修改，在流程列表中复制流程后可修改副本') : null,
       h(E.TextField, { label: '名称', size: 'sm', value: g.name, disabled: g.builtin, onChange: (e) => setG({ ...g, name: e.target.value }) }),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/flows/' + g.id).then(onDeleted).catch((e) => toast('error', e.message)) },
       h('p', null, `删除后 ${g.name} 将无法恢复。`)) : null);
   }
 
-  function Inspector({ cat, n, inV, in2, out, error, update, templates, sets, onDelete, outputs }) {
+  function Inspector({ cat, n, inV, in2, out, error, update, templates, sets, onDelete, outputs, locked }) {
     const spec = cat.nodes[n.type];
     const p = n.params || {};
     const t = (inV && inV.type) || 'q';
@@ -1294,8 +1295,9 @@
     return h(React.Fragment, null,
       h('div', { className: 'panel-row' },
         h('h2', { className: 'fs-lead panel-title' }, spec.label),
-        act('i-trash', '删除节点', onDelete)),
-      body ? h('div', { style: { display: 'flex', flexDirection: 'column', gap: 'var(--sub)' } }, body) : null,
+        locked ? null : act('i-trash', '删除节点', onDelete)),
+      locked ? h('p', { className: 'lock-note' }, '内置流程不可修改，在流程列表中复制流程后可修改副本') : null,
+      body ? h('div', { className: locked ? 'locked' : undefined, style: { display: 'flex', flexDirection: 'column', gap: 'var(--sub)' } }, body) : null,
       error ? h('div', { className: 'fl-err fs-small' }, error) : null,
       shown ? h('div', { className: 'sum' },
         h('div', { className: 'dm-meta' }, shown.shape === 'group'

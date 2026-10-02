@@ -142,7 +142,9 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .tpl-src { flex: 1 1 0; min-height: 0; resize: none; border-radius: var(--radius-sm); background: var(--color-bg-surface); color: var(--color-text-primary); border: 1px solid var(--color-border-subtle); padding: var(--sib); font-family: var(--font-tech); font-size: 13px; line-height: 1.8; outline: none; }
 .tpl-src:focus { border-color: var(--color-border-strong, var(--color-border-subtle)); }
 .opts { display: flex; flex-direction: column; gap: var(--sib); }
-.opts.locked { pointer-events: none; opacity: .6; }
+.opts.locked, .fl-insp .locked { pointer-events: none; opacity: .6; }
+.pal:disabled { cursor: default; opacity: .4; }
+.pal:disabled:hover { border-color: var(--color-border-subtle); }
 .lock-note { margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary); }
 
 /* windows up to 1366 wide: give the middle column the room */
@@ -253,3 +255,4 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .li .trail .btn--ghost.ibtn { --btn-fg: var(--li-fg2); --btn-fg-h: var(--li-fg); }
 .li .trail .btn--ghost.ibtn[aria-expanded="true"] { --btn-fg: var(--li-fg); }
 .li .trail { margin-right: -12px; }
+.flowpage.is-locked .nd { cursor: pointer; }
