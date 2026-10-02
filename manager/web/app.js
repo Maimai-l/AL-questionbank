@@ -1,5 +1,5 @@
 /* 题库数据管理 (docs/data-manager.md). React without a build step: h = createElement.
-   Pages: #/query, #/sets/<id>[/paper | /export/<template>], #/templates/<id>, #/templates/flows[/<id>], #/flows/<id>, #/settings. */
+   Pages: #/query, #/sets/<id>[/board/<board>], #/templates/<id>, #/templates/flows[/<id>], #/flows/<id>, #/settings. */
 (function () {
   'use strict';
   const { useState, useEffect, useMemo, useRef, useCallback } = React;
@@ -783,23 +783,6 @@
       h('div', { className: 'board-frame' }, h('iframe', { title: '白板', src: `/write/${encodeURIComponent(bid)}?embed=1` })));
   }
 
-  function PaperPage({ s }) {
-    const [info, setInfo] = useState(null);
-    const [page, setPage] = useState(1);
-    const per = 3;
-    useEffect(() => { api(`/api/sets/${s.id}/paper`).then(setInfo); }, [s.id]);
-    const first = (page - 1) * per;
-    const shown = info ? Array.from({ length: Math.min(per, info.pages - first) }, (_, i) => first + i) : [];
-    return h('main', { className: 'paperpage' },
-      h('div', { className: 'paper-head' },
-        h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, h('span', null, `${s.count} 题`), h('span', null, `${s.marks} 分`),
-          info ? h('span', null, `${info.pages} 页`) : null),
-        info && info.pages > per ? h(E.Pagination, { total: info.pages, pageSize: per, page, onChange: setPage, variant: 'simple' }) : null,
-        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-doc', disabled: !info, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF')),
-      info ? h('div', { className: 'sheets' }, shown.map((n) => h('img', { key: n + '-' + s.items.join(), className: 'sheet', src: `/api/sets/${s.id}/paper/${n}.png`, alt: `第 ${n + 1} 页` })))
-        : h(E.Loading, { label: '正在生成练习卷' }));
-  }
-
   // ------------------------------------------------------------------ export (F7) and templates (F8)
 
   const IMG = ['image', 'image_with_space'];
@@ -889,20 +872,6 @@
     return h('article', { className: 'md-view' }, out);
   }
 
-  function FileTree({ files }) {
-    const seen = new Set();
-    const out = [];
-    files.forEach((f) => {
-      const k = f.path.lastIndexOf('/');
-      if (k > 0) {
-        const dir = f.path.slice(0, k);
-        if (!seen.has(dir)) { seen.add(dir); out.push(h('div', { key: 'd' + dir, className: 'tree-row' }, h('span', null, dir))); }
-        out.push(h('div', { key: f.path, className: 'tree-row in' }, h('span', null, f.path.slice(k + 1)), h('span', null, sizeText(f.size))));
-      } else out.push(h('div', { key: f.path, className: 'tree-row' }, h('span', null, f.path), h('span', null, sizeText(f.size))));
-    });
-    return h('div', { className: 'tree' }, out);
-  }
-
   function usePreview(s, st, body) {
     const [pv, setPv] = useState(null);
     useEffect(() => {
@@ -911,52 +880,6 @@
       return () => clearTimeout(t);
     }, [s && s.id, s && s.items.join(), JSON.stringify(st), body]);
     return pv;
-  }
-
-  function ExportPage({ s, tid, templates, reloadTemplates, toast, acts }) {
-    const [pick, setPick] = useState(tid || 'default');
-    const [st, setSt] = useState(null);
-    const [body, setBody] = useState('');
-    const [doc, setDoc] = useState('readme');
-    const [saving, setSaving] = useState(false);
-    const [name, setName] = useState('');
-    useEffect(() => {
-      const t = templates.find((x) => x.id === pick);
-      if (t) { setSt(t.settings); setBody(t.body); }
-    }, [pick, templates]);
-    const pv = usePreview(s, st, body);
-    const [busy, setBusy] = useState(false);
-    const copy = () => navigator.clipboard.writeText(pv.readme).then(() => toast('success', 'README 已复制'), () => toast('error', 'README 无法复制'));
-    const saveAs = () => send('POST', '/api/templates', { name, settings: st, body })
-      .then((t) => { toast('success', `${t.name} 已保存`); return reloadTemplates().then(() => setPick(t.id)); })
-      .catch((e) => toast('error', e.message));
-    return h('div', { className: 'dm-row exportpage' },
-      h(TopActs, { el: acts },
-        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-box', disabled: !st || !s.count || busy, onClick: () => {
-          setBusy(true);
-          fetchFile(`/api/sets/${s.id}/output`, { settings: st, body }, toast).then(() => setBusy(false));
-        } }, st && st.format === 'pdf' ? '下载 PDF' : '下载 ZIP')),
-      h('aside', { className: 'ex-side' },
-        h('div', { className: 'field-act' },
-          h(E.Select, { label: '模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: pick, onChange: setPick }),
-          act('i-plus', '另存为模板', () => { setName(''); setSaving(true); }, { disabled: !st })),
-        st ? h(ExportOptions, { settings: st, onChange: setSt }) : null),
-      h('section', { className: 'ex-files' },
-        h('div', { className: 'panel-row' },
-          h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '文件'),
-          pv ? h('div', { className: 'dm-meta' }, h('span', null, `${pv.files.length} 个文件`), h('span', null, sizeText(pv.size))) : null),
-        busy ? h(E.Loading, { label: st.format === 'pdf' ? '正在生成 PDF' : '正在生成压缩包' }) : null,
-        pv ? h(FileTree, { files: pv.files }) : h(E.Loading, null)),
-      h('section', { className: 'ex-doc' },
-        h('div', { className: 'panel-row' },
-          h(E.Tabs, { variant: 'line', value: doc, onChange: setDoc, ariaLabel: '压缩包文件',
-            items: [{ value: 'readme', label: (st && st.prompt_file) || 'README.md' }, { value: 'manifest', label: 'manifest.json' }] }),
-          h('span', { className: 'dm-grow' }),
-          act('i-copy', '复制 README', copy, { disabled: !pv })),
-        h('div', { className: 'ex-docbody' },
-          !pv ? h(E.Loading, null) : doc === 'readme' ? h(MdView, { text: pv.readme }) : h('pre', { className: 'md-code' }, pv.manifest))),
-      saving ? h(E.Dialog, { open: true, title: '另存为模板', confirmLabel: '保存模板', onClose: () => setSaving(false), onConfirm: saveAs },
-        h(E.TextField, { label: '名称', value: name, onChange: (e) => setName(e.target.value) })) : null);
   }
 
   const HOLES = [
@@ -1495,8 +1418,11 @@
 
     const PAGES = ['query', 'sets', 'templates', 'flows', 'settings'];
     const page = hash.split('/')[1] || 'query';
+    const [, , arg, sub, subArg] = hash.split('/');
     // an address that names no page goes to the query page
     useEffect(() => { if (!PAGES.includes(page)) location.replace('#/query'); }, [page]);
+    // a set's address with an unknown part (the former practice paper and export pages) goes to the set
+    useEffect(() => { if (page === 'sets' && sub && sub !== 'board') location.replace('#/sets/' + arg); }, [page, sub]);
     // The sidebar opens when the pointer rests on it (not when it passes over), and
     // closes when the pointer leaves or an entry is clicked; keyboard focus opens it too.
     const [navOpen, setNavOpen] = useState(false);
@@ -1527,16 +1453,11 @@
       { value: 'templates', label: '模板', icon: 'i-doc', href: '#/templates' },
     ];
     const titles = { query: '查询', sets: '题组', templates: '模板', settings: '设置' };
-    const [, , arg, sub, subArg] = hash.split('/');
     const cur = page === 'sets' ? sets.find((x) => x.id === arg) : null;
     let body;
     if (!metas) body = null;
-    else if (page === 'sets' && sub === 'paper') {
-      body = cur ? h('div', { className: 'dm-row' }, h(PaperPage, { s: cur })) : h(E.Loading, null);
-    } else if (page === 'sets' && sub === 'board') {
+    else if (page === 'sets' && sub === 'board') {
       body = cur ? h(BoardPage, { key: subArg, s: cur, bid: subArg, acts }) : h(E.Loading, null);
-    } else if (page === 'sets' && sub === 'export') {
-      body = cur && templates.length ? h(ExportPage, { key: cur.id, s: cur, tid: subArg, templates, reloadTemplates, toast, acts }) : h(E.Loading, null);
     } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
     else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { current: sub, reloadSets, toast });
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);
@@ -1545,7 +1466,7 @@
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage, { sets }));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = null;
-    const SUB = { paper: '练习卷', export: '导出', board: '白板' };
+    const SUB = { board: '白板' };
     const title = page === 'sets' && SUB[sub] ? SUB[sub] : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');
     // the browser tab names the page and, on a set's pages, the set
     useEffect(() => {

@@ -26,7 +26,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .dm-acts { display: flex; align-items: center; gap: var(--el); }
 .dm-acts:empty { display: none; }
 .topbar .acts:has(> .dm-acts:empty) { display: none; }
-.setpanel .dd, .fl-insp .dd, .dm-cond .dd { width: 100%; }
+.fl-insp .dd, .dm-cond .dd { width: 100%; }
 /* no outlined buttons: secondary buttons (dialog cancel) are drawn without a border */
 .btn--secondary { --btn-bg: transparent; --btn-bd: transparent; --btn-bd-h: transparent; box-shadow: none; filter: none; }
 .more-dd { width: auto; flex: none; }
@@ -116,17 +116,8 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .dlg-stack { display: flex; flex-direction: column; gap: var(--sib); }
 .hidden-input { display: none; }
 
-/* set page: outputs panel */
-.setpanel { width: 352px; flex: none; border-left: 1px solid var(--color-border-subtle); background: var(--color-bg-surface); padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: calc(var(--block) / 2); overflow-y: auto; }
-.setpanel section { display: flex; flex-direction: column; gap: var(--sub); }
-/* blocks are 32 apart, the divider halfway */
-.setpanel section + section { padding-top: calc(var(--block) / 2); border-top: 1px solid var(--color-border-subtle); }
 .panel-row { display: flex; align-items: center; gap: var(--el); min-height: 32px; }
 
-/* question paper page */
-.paperpage { flex-grow: 1; min-width: 0; background: var(--color-bg-muted); padding: var(--pad); display: flex; flex-direction: column; gap: var(--head); overflow: auto; }
-.paper-head { display: flex; align-items: center; gap: var(--sib); }
-.sheets { display: flex; gap: var(--sib); align-items: flex-start; }
 .sheet { width: calc((100% - 2 * var(--sib)) / 3); height: auto; background: #ffffff; box-shadow: var(--shadow-lg); }
 
 /* settings: options on the left, the practice paper on the right */
@@ -136,18 +127,10 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .ex { border: 0; margin: 0; padding: 0; gap: var(--el); }
 .ex legend { font: 14px var(--font-medium); margin-bottom: var(--sub); }   /* a small heading to its options */
 
-/* export (F7) and templates (F8) */
-.ex-side, .tpl-opts { width: 352px; flex: none; border-right: 1px solid var(--color-border-subtle); padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--sib); overflow-y: auto; }
-.ex-side > .page-head { margin-bottom: calc(var(--head) - var(--sib)); }   /* title area to the options */
-.tpl-opts { width: 320px; }
-.ex-files { width: 384px; flex: none; padding: var(--pad); box-sizing: border-box; border-right: 1px solid var(--color-border-subtle); display: flex; flex-direction: column; gap: var(--sib); overflow-y: auto; }
-.ex-doc, .tpl-edit { flex: 1 1 0; min-width: 0; padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--sib); min-height: 0; }
+/* templates (F8) */
+.tpl-opts { width: 320px; flex: none; border-right: 1px solid var(--color-border-subtle); padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--sib); overflow-y: auto; }
+.tpl-edit { flex: 1 1 0; min-width: 0; padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--sib); min-height: 0; }
 .ex-docbody { flex: 1 1 0; min-height: 0; overflow: auto; }
-.tree { display: flex; flex-direction: column; gap: var(--txt); font-family: var(--font-tech); font-size: 13px; }
-.tree-row { display: flex; gap: var(--el); }
-.tree-row span:first-child { flex-grow: 1; min-width: 0; overflow-wrap: anywhere; }
-.tree-row span + span { color: var(--color-text-secondary); white-space: nowrap; }
-.tree-row.in { padding-left: 24px; color: var(--color-text-secondary); }
 .md-view { max-width: 640px; display: flex; flex-direction: column; gap: var(--sub); }
 .md-view h2, .md-view h3, .md-view h4, .md-view p { margin: 0; }
 .md-view h3 { margin-top: var(--el); }
@@ -161,17 +144,12 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .opts { display: flex; flex-direction: column; gap: var(--sib); }
 .opts.locked { pointer-events: none; opacity: .6; }
 .lock-note { margin: 0; font-size: 13px; line-height: 1.5; color: var(--color-text-secondary); }
-.panel-sub { display: flex; flex-direction: column; gap: var(--txt); padding-left: var(--sib); border-left: 2px solid var(--color-border-subtle); }
-.panel-sub-title { color: var(--color-text-secondary); margin-top: var(--txt); }
 
 /* windows up to 1366 wide: give the middle column the room */
 @media (max-width: 1366px) {
   .setlist { width: 280px; }
-  .setpanel { width: 300px; }
   .dm-cond { width: 264px; }
   .detail { width: 320px; }
-  .ex-side { width: 296px; }
-  .ex-files { width: 300px; }
   .tpl-list { width: 280px; }
   .tpl-opts { width: 288px; }
 }
