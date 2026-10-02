@@ -225,7 +225,7 @@ def check_question(text, r):
         have = set(w.lower() for w in WORD.findall(text))
         for m in re.findall(r"\$+([^$]+)\$+", text):              # the text layer runs math together: "lncosx"
             have |= {w.lower() for w in WORD.findall(re.sub(r"\\[a-zA-Z]+|[\\\s{}^_]", lambda x: x.group(0)[1:] if x.group(0)[0] == "\\" and len(x.group(0)) > 1 else "", m))}
-        lost = sum(1 for w in layer if w not in have)
+        lost = sum(1 for w in layer if w not in have and not any(w in h for h in have))   # "erential": a lost ligature
         miss = lost / len(layer)
         if miss > 0.08 and lost > 1:                    # one word is the text layer running math together
             problems.append(f"文本层中 {miss:.0%} 的词不在新题干里")
