@@ -19,7 +19,7 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>/paper   {pages, whole}: the question paper (F4), built on demand
   /api/sets/<id>/paper.pdf, /api/sets/<id>/paper/<n>.png
   /doc/<id>/scheme, /doc/<id>/explanation   reading documents (F6); ?download=1 to save
-  /api/settings          GET, PUT {cie_space, adm_layout, footer_*, theme}
+  /api/settings          GET, PUT {footer_*, theme}
   /api/templates         GET list, POST create {name, settings, body}
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
   /api/sets/<id>/zip/preview  POST {template} or {settings, body}: files, sizes, README (F7)

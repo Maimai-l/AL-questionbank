@@ -1,15 +1,17 @@
-"""Question papers (docs/data-manager.md, F4 and section 6): a set laid out on A4 as a PDF.
+"""Practice papers (docs/data-manager.md, F4; layout in docs/ui-text.md 4.8): a set laid
+out on A4 as a PDF, one layout for every exam.
 
 - A set that is exactly one whole paper, in order, is the original PDF from data/papers/
   (unless the paper needs answer lines, below).
-- A CIE question starts a new page; a crop taller than a page is cut at the whitest row
-  near the page bottom and continues on the next page. Papers answered in a separate
-  answer booklet (9709 June 2026 papers 12 and 32) have no answer space: ruled lines
-  are added below the question, two per mark, at least the rest of the page.
-- Admissions questions go two to a page, half a page each (the space below the
-  question is for working), or one after another ("flow"), per the settings.
+- Questions run on from top to bottom in the set's order, 24 pt apart. A question that
+  does not fit in the rest of the page starts the next page; only a question taller than
+  a whole page is cut, at the whitest row near the page bottom, and continues overleaf.
+- CIE questions use the crop with the paper's answer space. Papers answered in a separate
+  answer booklet (9709 June 2026 papers 12 and 32) have none: ruled lines are added
+  8 pt below the question, two per mark, 24 pt apart.
+- Admissions questions use the question crop, spaced the same way.
 - The footer holds the set name, paper code and question numbers, and page number,
-  each switchable in the settings.
+  each switchable in the settings; 8 pt, its baseline 24 pt above the paper's edge.
 The result is cached in paths.WORK/papers/ under a hash of the set and the settings.
 """
 import hashlib
@@ -26,11 +28,13 @@ from lib import db, paths
 from manager import bank, settings
 
 A4 = (595.0, 842.0)
-SIDE, TOP, BOTTOM = 40.0, 40.0, 52.0
-GAP = 14.0
-LINE = 25.0                              # ruled answer lines, as on the CIE papers
+SIDE, TOP, BOTTOM = 40.0, 40.0, 56.0
+GAP = 24.0                               # between questions
+LINES_GAP = 8.0                          # between a question and its added answer lines
+LINE = 24.0                              # ruled answer lines
+FOOT = 24.0                              # footer baseline above the paper's lower edge
 CACHE = os.path.join(paths.WORK, "papers")
-VERSION = 2                              # part of the cache key: raise when the layout changes
+VERSION = 3                              # part of the cache key: raise when the layout changes
 FONT = "china-s"
 LATIN = "helv"
 CJK = re.compile(r"([\u2e80-\u9fff\u3000-\u303f\uff00-\uffef]+)")
@@ -87,11 +91,11 @@ def booklet(r):
     return _booklet[name]
 
 
-def original_pdf(rows, opts):
+def original_pdf(rows):
     """The original PDF when the paper is used as it is: a whole paper, unless it needs
-    answer lines (answered in a booklet, with answer space on)."""
+    answer lines (answered in a booklet)."""
     original = whole_paper(rows)
-    if original and opts["cie_space"] and booklet(rows[0]):
+    if original and booklet(rows[0]):
         return None                      # laid out again, to add the answer lines
     return original
 
@@ -127,69 +131,62 @@ def _slices(path, width_pt, first_room, room):
     return out
 
 
-def layout(rows, opts):
-    """Pages as lists of (png, height, qid, code, q)."""
+def layout(rows):
+    """Pages as lists of (png or None for answer lines, y, height, qid, code, q)."""
     width = A4[0] - 2 * SIDE
     room = A4[1] - TOP - BOTTOM
-    pages, cur, used, kind = [], None, 0.0, None
+    pages = [[]]
+    y = TOP                                  # where the next block goes on the last page
 
-    def new_page(k):
-        nonlocal cur, used, kind
-        cur, used, kind = [], 0.0, k
-        pages.append(cur)
+    def new_page():
+        nonlocal y
+        pages.append([])
+        y = TOP
 
-    half = (room - GAP) / 2
     for r in rows:
         code = bank.paper_code(r)
         cie = r["syllabus"] in bank.CIE
-        crop = paths.answer_space(r["image"]) if cie and opts["cie_space"] else None
-        crop = crop or paths.resolve(r["image"])
+        crop = (paths.answer_space(r["image"]) if cie else None) or paths.resolve(r["image"])
         if not crop:
             continue
-        if cie:
-            new_page("cie")
-            for i, (png, hpt) in enumerate(_slices(crop, width, room, room)):
-                if i:
-                    new_page("cie")
-                cur.append((png, hpt, r["id"], code, r["q"]))
-                used += hpt + GAP
-            if opts["cie_space"] and booklet(r):
-                need = max(8, 2 * (r["marks"] or 4)) * LINE
-                while True:
-                    h = (room - used) // LINE * LINE
-                    if h >= 3 * LINE:
-                        cur.append((None, h, r["id"], code, r["q"]))
-                        need -= h
-                    if need < 3 * LINE:
-                        break
-                    new_page("cie")
-            continue
         pieces = _slices(crop, width, room, room)
-        if opts["adm_layout"] == "two":
-            png, hpt = pieces[0][0], min(pieces[0][1], half)
-            if kind != "two" or len(cur) >= 2:
-                new_page("two")
-            cur.append((png, hpt, r["id"], code, r["q"], half))
-            used += half + GAP
-        else:
-            hpt = pieces[0][1]
-            if kind != "flow" or used + hpt > room:
-                new_page("flow")
-            cur.append((pieces[0][0], min(hpt, room), r["id"], code, r["q"]))
-            used += min(hpt, room) + GAP
-    return pages
+        lines = 2 * (r["marks"] or 2) * LINE if cie and booklet(r) else 0
+        height = pieces[0][1] if len(pieces) == 1 else room + 1
+        if pages[-1]:
+            y += GAP
+            need = height + (LINES_GAP + lines if lines else 0)
+            if need > room:                  # too tall to keep together: at least three lines with it
+                need = height + (LINES_GAP + 3 * LINE if lines else 0)
+            if y + need > TOP + room:        # starts the next page rather than being cut
+                new_page()
+        for i, (png, hpt) in enumerate(pieces):
+            if i:
+                new_page()
+            pages[-1].append((png, y, hpt, r["id"], code, r["q"]))
+            y += hpt
+        if lines:
+            y += LINES_GAP
+            while lines >= LINE:
+                band = min(lines, (TOP + room - y) // LINE * LINE)
+                if band < LINE:
+                    new_page()
+                    continue
+                pages[-1].append((None, y, band, r["id"], code, r["q"]))
+                y += band
+                lines -= band
+    return [p for p in pages if p]
 
 
 def _lines(page, y, h):
     """Dotted answer lines filling a band of height h from y."""
     x0, x1 = SIDE + 28, A4[0] - SIDE
     for k in range(1, int(h // LINE) + 1):
-        yy = y + k * LINE - 4
+        yy = y + k * LINE
         page.draw_line((x0, yy), (x1, yy), color=(0.55, 0.55, 0.55), width=0.5, dashes="[1 2] 0")
 
 
 def _footer(page, n, total, name, items, opts):
-    y = A4[1] - 28
+    y = A4[1] - FOOT
     size = 8
     color = (0.35, 0.35, 0.35)
     page.draw_line((SIDE, y - 12), (A4[0] - SIDE, y - 12), color=(0.82, 0.82, 0.82), width=0.6)
@@ -226,24 +223,21 @@ def build(s):
     for f in os.listdir(CACHE):
         if f.startswith(s["id"] + "-"):
             os.remove(os.path.join(CACHE, f))
-    original = original_pdf(rows, opts)
+    original = original_pdf(rows)
     if original:
         doc = pymupdf.open(original)
     else:
         doc = pymupdf.open()
-        pages = layout(rows, opts)
+        pages = layout(rows)
+        width = A4[0] - 2 * SIDE
         for n, items in enumerate(pages, 1):
             page = doc.new_page(width=A4[0], height=A4[1])
-            y = TOP
-            for it in items:
-                png, hpt = it[0], it[1]
-                width = A4[0] - 2 * SIDE
+            for png, y, hpt, *_ in items:
                 if png is None:
                     _lines(page, y, hpt)
                 else:
                     page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), stream=png)
-                y += (it[5] if len(it) > 5 else hpt) + GAP
-            _footer(page, n, len(pages), s["name"], items, opts)
+            _footer(page, n, len(pages), s["name"], [(None, None) + tuple(it[3:]) for it in items], opts)
     doc.save(out, garbage=3, deflate=True)
     return out
 

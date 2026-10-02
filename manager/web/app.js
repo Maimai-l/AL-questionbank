@@ -1371,25 +1371,34 @@
       onChange: (v) => { location.hash = v === 'flow' ? '#/templates/flows' : '#/templates'; } });
   }
 
-  function SettingsPage() {
+  /** Settings: the options on the left, a practice paper of the first set that has
+      questions on the right, redrawn as the footer options change. */
+  function SettingsPage({ sets }) {
     const [o, setO] = useState(null);
+    const [pages, setPages] = useState(null);
     useEffect(() => { api('/api/settings').then(setO); }, []);
-    if (!o) return h('div', { className: 'dm-row' }, h(E.Loading, null));
+    const sample = sets.find((x) => x.count);
+    const foot = o ? [o.footer_name, o.footer_code, o.footer_page].map(Number).join('') : '';
+    useEffect(() => {
+      setPages(null);
+      if (o && sample) api(`/api/sets/${sample.id}/paper`).then((p) => setPages(p.pages)).catch(() => setPages(0));
+    }, [foot, sample && sample.id]);
+    if (!o) return h(E.Loading, null);
     const put = (k, v) => send('PUT', '/api/settings', { [k]: v }).then((n) => { setO(n); if (k === 'theme') applyTheme(v); });
-    const radios = (legend, key, opts) => h('fieldset', { className: 'opt-group ex' }, h('legend', null, legend),
-      opts.map(([v, label]) => h(E.Radio, { key: v, name: key, checked: o[key] === v, onChange: () => put(key, v) }, label)));
     const box = (key, label) => h(E.Checkbox, { checked: o[key], onChange: () => put(key, !o[key]) }, label);
-    return h('main', { className: 'settings' },
-      h('section', null, h('h2', { className: 'fs-lead' }, '题目卷'),
-        h('div', { className: 'settings-grid' },
-          h('fieldset', { className: 'opt-group ex' }, h('legend', null, 'CIE 题目'),
-            h(E.Radio, { name: 'cie', checked: !o.cie_space, onChange: () => put('cie_space', false) }, '仅题目'),
-            h(E.Radio, { name: 'cie', checked: o.cie_space, onChange: () => put('cie_space', true) }, '含答题区')),
-          radios('入学考选择题', 'adm_layout', [['two', '每页两题'], ['flow', '连续排列']]),
-          h('fieldset', { className: 'opt-group ex' }, h('legend', null, '页脚'),
-            box('footer_name', '题组名称'), box('footer_code', '试卷代码与题号'), box('footer_page', '页码')))),
-      h('section', null, h('h2', { className: 'fs-lead' }, '外观'),
-        radios('主题', 'theme', [['system', '跟随系统'], ['light', '浅色'], ['dark', '深色']])));
+    return h(React.Fragment, null,
+      h('section', { className: 'st-opts' },
+        h('fieldset', { className: 'opt-group ex' }, h('legend', null, '页脚显示'),
+          box('footer_name', '题组名称'), box('footer_code', '试卷代码与题号'), box('footer_page', '页码')),
+        h('fieldset', { className: 'opt-group ex' }, h('legend', null, '配色'),
+          h(E.SegmentedControl, { ariaLabel: '配色', value: o.theme, onChange: (v) => put('theme', v),
+            options: [{ value: 'system', label: '自动' }, { value: 'light', label: '浅色' }, { value: 'dark', label: '深色' }] }))),
+      h('section', { className: 'st-preview' },
+        h('h2', { className: 'fs-lead st-title' }, '练习卷预览'),
+        !sample ? h(E.EmptyState, { icon: 'i-list', title: '没有题组' })
+          : pages == null ? h(E.Loading, { label: '正在生成练习卷' })
+          : h('div', { className: 'sd-sheets' }, Array.from({ length: Math.min(pages, 2) }, (_, n) =>
+            h('img', { key: n + foot, className: 'sheet', src: `/api/sets/${sample.id}/paper/${n}.png?f=${foot}`, alt: `第 ${n + 1} 页` })))));
   }
 
   function applyTheme(t) {
@@ -1467,7 +1476,7 @@
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);
     else if (page === 'templates') {
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast, acts }) : h(E.Loading, null);
-    } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
+    } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage, { sets }));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = null;
     const SUB = { paper: '练习卷', export: '导出', board: '白板' };

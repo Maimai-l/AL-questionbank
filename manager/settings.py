@@ -1,5 +1,5 @@
-"""The settings page (docs/data-manager.md, section 6): question-paper layout and theme,
-one JSON file in paths.WORK."""
+"""The settings page (docs/data-manager.md, section 6): the practice paper's footer and the
+colour scheme, one JSON file in paths.WORK. The paper's layout is fixed (docs/ui-text.md 4.8)."""
 import json
 import os
 
@@ -7,8 +7,6 @@ from lib import paths
 
 PATH = os.path.join(paths.WORK, "settings.json")
 DEFAULTS = {
-    "cie_space": True,          # CIE questions with the paper's answer space
-    "adm_layout": "two",        # admissions tests: "two" per page, half a page each; "flow"
     "footer_name": True,        # footer: set name
     "footer_code": True,        #         paper code and question number
     "footer_page": True,        #         page number

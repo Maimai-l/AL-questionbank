@@ -129,12 +129,10 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .sheets { display: flex; gap: var(--sib); align-items: flex-start; }
 .sheet { width: calc((100% - 2 * var(--sib)) / 3); height: auto; background: #ffffff; box-shadow: var(--shadow-lg); }
 
-/* settings */
-.settings { flex-grow: 1; padding: var(--pad); display: flex; flex-direction: column; gap: calc(var(--block) / 2); overflow-y: auto; }
-.settings section { display: flex; flex-direction: column; gap: var(--sib); }
-.settings section + section { padding-top: calc(var(--block) / 2); border-top: 1px solid var(--color-border-subtle); }
-.settings h2 { margin: 0; }
-.settings-grid { display: grid; grid-template-columns: repeat(3, 240px); gap: var(--sib); }
+/* settings: options on the left, the practice paper on the right */
+.st-opts { width: 336px; flex: none; border-right: 1px solid var(--color-border-subtle); padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--sib); overflow-y: auto; }
+.st-preview { flex: 1 1 0; min-width: 0; overflow: auto; padding: var(--pad); background: var(--color-bg-muted); display: flex; flex-direction: column; gap: var(--sub); }
+.st-title { margin: 0; }
 .ex { border: 0; margin: 0; padding: 0; gap: var(--el); }
 .ex legend { font: 14px var(--font-medium); margin-bottom: var(--sub); }   /* a small heading to its options */
 

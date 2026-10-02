@@ -68,20 +68,19 @@ def pdf_of(bid):
 def _labels(s, path):
     """For each page of the paper, the questions on it: ["9709/12/M/J/23 Q5", ...]."""
     rows = paper._rows(s["items"])
-    opts = paper.settings.load()
 
     def label(pairs):                     # [(code, q)] -> "9709/12/M/J/23 Q5 Q6"
         by = {}
         for code, q in pairs:
             by.setdefault(code, []).append(f"Q{q}")
         return " ".join(f"{c} {' '.join(dict.fromkeys(qs))}" for c, qs in by.items())
-    if paper.original_pdf(rows, opts):
+    if paper.original_pdf(rows):
         by = {}
         for r in rows:
             for n in json.loads(r["qp_pages"] or "[]"):
                 by.setdefault(n - 1, []).append((bank.paper_code(r), r["q"]))
         return [label(by.get(i, [])) for i in range(paper.page_count(path))]
-    return [label([(it[3], it[4]) for it in items]) for items in paper.layout(rows, opts)]
+    return [label([(it[4], it[5]) for it in items]) for items in paper.layout(rows)]
 
 
 async def open_for(hub, s):
