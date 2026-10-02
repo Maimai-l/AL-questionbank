@@ -15,8 +15,12 @@ import { iconButton } from "./ui-common.js";
 import { el } from "/inksync/util.js";
 import { inShell } from "/inksync/shell.js";
 
-// /write/<id> opens that board; /ipad (the iPad shell's page) follows the board the Mac opened last
+// /write/<id> opens that board; /ipad (the iPad shell's page) follows the board the Mac opened last.
+// /write/<id>?embed=1 is the board inside the data manager's page (#/sets/<set>/board/<id>), which
+// draws the header itself: no header here, the current question and page are posted to the parent.
 const FOLLOW = location.pathname === "/ipad";
+const EMBED = new URLSearchParams(location.search).has("embed");
+if (EMBED) document.documentElement.dataset.embed = "1";
 const BOARD = FOLLOW ? null : decodeURIComponent(location.pathname.split("/").pop());
 
 function role() {
@@ -159,8 +163,9 @@ class Writer extends InkPad {
   // ------------------------------------------------------------ 顶栏
 
   bindHead() {
-    if (role() === "ipad") {
+    if (role() === "ipad" || EMBED) {
       document.getElementById("wb-head").remove();
+      if (EMBED) setInterval(() => this.showPage(), 250);
       return;
     }
     const back = document.getElementById("wb-back");
@@ -174,10 +179,13 @@ class Writer extends InkPad {
     this.meta = meta;
     const set = meta.data && meta.data.set;
     document.title = meta.name || "白板";
-    if (!document.getElementById("wb-head")) return;
+    this.page = -1;
+    if (!document.getElementById("wb-head")) {
+      if (EMBED) this.showPage();
+      return;
+    }
     document.getElementById("wb-name").textContent = meta.name || "";
     if (set) document.getElementById("wb-back").href = `/#/sets/${set}`;
-    this.page = -1;
     this.showPage();
   }
 
@@ -192,6 +200,10 @@ class Writer extends InkPad {
     if (n === this.page) return;
     this.page = n;
     const labels = (this.meta && this.meta.data && this.meta.data.labels) || [];
+    if (EMBED) {
+      parent.postMessage({ type: "wb-page", label: labels[n] || "", page: n + 1, pages: layers.length }, location.origin);
+      return;
+    }
     document.getElementById("wb-label").textContent = labels[n] || "";
     document.getElementById("wb-page").textContent = `${n + 1} / ${layers.length}`;
   }

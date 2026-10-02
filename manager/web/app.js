@@ -653,7 +653,7 @@
       if (s.count) api(`/api/sets/${s.id}/paper`).then((p) => setPages(p.pages)).catch(() => setPages(0));
     }, [s.id, s.items.join(), s.name]);
     useEffect(() => { api(`/api/sets/${s.id}/boards`).then(setBoards).catch(() => setBoards(null)); }, [s.id, s.items.join()]);
-    const openBoard = () => send('POST', `/api/sets/${s.id}/board`).then((b) => { location.href = '/write/' + b.id; })
+    const openBoard = () => send('POST', `/api/sets/${s.id}/board`).then((b) => { location.hash = `#/sets/${s.id}/board/${b.id}`; })
       .catch((e) => toast('error', e.message));
     const docRow = (label, kind, n) => h('div', { className: 'panel-row' },
       h('span', { className: 'fs-small', style: { flexGrow: 1 } }, label),
@@ -675,7 +675,7 @@
               h('div', { className: 'dm-meta', style: { flexGrow: 1, fontSize: 12 } }, h('span', { className: 't' }, b.updated), h('span', null, h('b', null, b.pages), ' 页')),
               h(E.IconButton, { icon: 'i-doc', label: '导出作答 PDF', variant: 'ghost', size: 'sm', tooltip: 'below',
                 onClick: () => fetchFile(`/api/boards/${b.id}/export`, {}, toast).then(() => api(`/api/sets/${s.id}/boards`).then(setBoards)) }),
-              h(E.IconButton, { icon: 'i-arrow-r', label: '打开白板', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: () => { location.href = '/write/' + b.id; } })))) : null,
+              h(E.IconButton, { icon: 'i-arrow-r', label: '打开白板', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: () => { location.hash = `#/sets/${s.id}/board/${b.id}`; } })))) : null,
           boards.answers ? h(React.Fragment, null,
             h('span', { className: 'fs-small panel-sub-title' }, '作答 PDF'),
             h('div', { className: 'panel-row' },
@@ -691,6 +691,23 @@
           act('i-box', '下载 ZIP', () => downloadZip(s, { template: tid }, toast), { disabled: !s.count }),
           act('i-sliders', '打开导出页', () => { location.hash = `#/sets/${s.id}/export/${tid}`; })),
         h(E.Select, { ariaLabel: '导出模板', options: templates.map((t) => ({ value: t.id, label: t.name })), value: tid, onChange: setTid })));
+  }
+
+  /** The board inside the page: the whiteboard's writing page in a rounded frame, as it is.
+      It reports the question and page in view; 「完成」 goes back to the set. */
+  function BoardPage({ s, bid, acts }) {
+    const [at, setAt] = useState(null);
+    useEffect(() => {
+      const on = (e) => { if (e.origin === location.origin && e.data && e.data.type === 'wb-page') setAt(e.data); };
+      addEventListener('message', on);
+      return () => removeEventListener('message', on);
+    }, []);
+    return h('div', { className: 'dm-row board-page' },
+      h(TopActs, { el: acts },
+        at ? h('span', { className: 'dm-meta board-at' }, at.label ? h('span', null, at.label) : null,
+          h('span', null, '第 ', h('b', null, at.page), ' / ', h('b', null, at.pages), ' 页')) : null,
+        h(E.Button, { variant: 'primary', size: 'md', onClick: () => { location.hash = '#/sets/' + s.id; } }, '完成')),
+      h('div', { className: 'board-frame' }, h('iframe', { title: '白板', src: `/write/${encodeURIComponent(bid)}?embed=1` })));
   }
 
   function PaperPage({ s }) {
@@ -1367,6 +1384,8 @@
     if (!metas) body = null;
     else if (page === 'sets' && sub === 'paper') {
       body = cur ? h('div', { className: 'dm-row' }, h(PaperPage, { s: cur })) : h(E.Loading, null);
+    } else if (page === 'sets' && sub === 'board') {
+      body = cur ? h(BoardPage, { key: subArg, s: cur, bid: subArg, acts }) : h(E.Loading, null);
     } else if (page === 'sets' && sub === 'export') {
       body = cur && templates.length ? h(ExportPage, { key: cur.id, s: cur, tid: subArg, templates, reloadTemplates, toast, acts }) : h(E.Loading, null);
     } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
@@ -1377,7 +1396,8 @@
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = null;
-    const title = sub === 'paper' ? '题目卷' : sub === 'export' ? '导出' : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');
+    const SUB = { paper: '题目卷', export: '导出', board: '白板' };
+    const title = page === 'sets' && SUB[sub] ? SUB[sub] : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');
     // the browser tab names the page and, on a set's pages, the set
     useEffect(() => {
       document.title = page === 'sets' && cur ? (sub ? `${cur.name} ${title}` : cur.name) : title;
@@ -1389,8 +1409,8 @@
       h('div', { className: 'dm-col' },
         h(E.TopBar, {
           title,
-          crumbs: page === 'sets' && (sub === 'paper' || sub === 'export') && cur
-            ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: sub === 'paper' ? '题目卷' : '导出' }]
+          crumbs: page === 'sets' && SUB[sub] && cur
+            ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: SUB[sub] }]
             : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows' }] : undefined,
           search: page === 'query' ? '搜索' : undefined, onSearch: setSearch,
           actions: h('div', { ref: setActs, className: 'dm-acts' }) }),

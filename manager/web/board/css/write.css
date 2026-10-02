@@ -1,8 +1,11 @@
 /* The writing page (docs/data-manager.md, F5): white-board's look (app.css), with a
    header for the set and its export, above the board. */
 :root { --head: calc(56px + env(safe-area-inset-top)); }
-/* the iPad only writes: no header, the board fills the screen */
-:root[data-role="ipad"] { --head: 0px; }
+/* the iPad only writes, and the data manager draws the header around an embedded board:
+   no header here, the board fills the page */
+:root[data-role="ipad"], :root[data-embed] { --head: 0px; }
+/* the connection dot shows only trouble: green is not a status colour here (docs/ui-text.md 2.4) */
+#status.online { visibility: hidden; }
 #wb-head {
   position: fixed; top: 0; left: 0; right: 0; height: var(--head); z-index: 20;
   box-sizing: border-box; padding: env(safe-area-inset-top) calc(16px + env(safe-area-inset-right)) 0 calc(12px + env(safe-area-inset-left));
