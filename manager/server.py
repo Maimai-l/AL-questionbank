@@ -377,8 +377,8 @@ def make_app():
 
 
 def run(port=8910, host="0.0.0.0"):
-    print(f"数据管理页: http://localhost:{port}/(局域网内的 iPad 用本机地址访问,白板 iPad 外壳的来源填 @qb)\n"
+    print(f"数据管理页: http://localhost:{port}/(局域网内的 iPad 用本机地址访问,白板 iPad 外壳的来源填 @qb-manage)\n"
           f"题组: {paths.SETS}\n按 Ctrl-C 停止")
     app = make_app()
-    advertise(app, port=port, source="qb", path="/")     # the iPad shell finds it as @qb
+    advertise(app, port=port, source="qb-manage", path="/")   # the iPad shell finds it as @qb-manage (app/ is @qb)
     web.run_app(app, host=host, port=port, print=None)

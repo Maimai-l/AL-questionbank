@@ -163,8 +163,8 @@
 实现(2026-10-02):
 
 - 同步与保存用 white-board 的 inksync(复制在 `manager/vendor/inksync/`),挂在数据管理页的服务上(`/ws`、`/inksync/`);
-  白板存在 `paths.WORK/ink/`。iPad 外壳的「来源」填 `@qb`。
-- 每一版题目卷一块白板,ID 为题目卷的缓存名(`<题组 ID>-<键>`);新建时把题目卷 PDF 复制到 `paths.WORK/ink/papers/`,
+  白板存在 `paths.BOARDS`(`paths.WORK/boards/`,与刷题服务 `app/` 的 `paths.INK` 分开)。iPad 外壳的「来源」填 `@qb-manage`(刷题服务 `app/` 是 `@qb`)。
+- 每一版题目卷一块白板,ID 为题目卷的缓存名(`<题组 ID>-<键>`);新建时把题目卷 PDF 复制到 `paths.BOARDS` 下的 `papers/`,
   题组之后修改不影响已有白板。页面排布与 white-board 的文档板相同(页距 24 pt,按最宽一页居中)。
 - 书写页 `/write/<白板 ID>`:白板应用的工具栏与 iPad 笔具盘(`manager/web/board/`),顶栏为返回、题组名、当前页的题号与页码、导出 PDF。
 - 导出把笔迹作为新的内容流追加到页面上,原有内容流不改(`manager/whiteboard/docs.py`,用 PyMuPDF 实现 white-board

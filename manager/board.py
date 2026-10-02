@@ -1,6 +1,6 @@
 """Writing boards for question papers (docs/data-manager.md, F5).
 
-A board is white-board's document board: the pages of a question paper laid out top
+A board (stored in paths.BOARDS) is white-board's document board: the pages of a question paper laid out top
 to bottom (manager/whiteboard/docs.py), ink stored as vectors by inksync and synced
 between the Mac and the iPad. One board per version of a set's question paper: its
 id is the paper's cache name (<set id>-<key>, manager/paper.py), and the paper is
@@ -24,7 +24,7 @@ from lib import paths
 from manager import bank, docs as reading, export, paper
 from manager.whiteboard import docs
 
-ROOT = os.path.join(paths.WORK, "ink")
+ROOT = paths.BOARDS
 PDFS = os.path.join(ROOT, "papers")
 
 

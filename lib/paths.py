@@ -43,6 +43,9 @@ WORK = os.environ.get("QB_WORK") or os.path.join(os.path.dirname(ROOT), "qb-work
 INK = os.path.join(WORK, "ink")                 # inksync storage
 ATTEMPTS = os.path.join(WORK, "attempts.db")    # app/store.py
 SETS = os.path.join(WORK, "sets")               # manager/sets.py: one JSON per question set
+BOARDS = os.path.join(WORK, "boards")           # manager/board.py: question paper boards (inksync), apart from INK
+FLOWS = os.path.join(WORK, "flows")             # manager/flow.py: batch generation graphs and their outputs
+TEXTBOOKS = os.path.join(RAW, "textbooks")      # textbook PDFs, <book>.pdf (9709_p1.pdf ...), for chapter PDFs
 
 # Where the question crops may be. data/ is the normal place; the others keep
 # a copy unpacked in an older layout working.
