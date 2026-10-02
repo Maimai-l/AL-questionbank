@@ -20,6 +20,32 @@
   const NO_HOVER = matchMedia('(hover: none)').matches;
   const sum = (rows) => rows.reduce((a, r) => a + (r.marks || 0), 0);
 
+  // Dropdown menus (the design system's .dd .menu) sit in the scrolling panels, which
+  // clip them. An open menu is taken out of the flow (position: fixed), as wide as its
+  // field, below it or above it when there is more room there, and kept on screen.
+  function placeMenu(menu) {
+    const field = menu.parentElement.querySelector('.select') || menu.parentElement;
+    const r = field.getBoundingClientRect();
+    if (!r.width) return;
+    const s = menu.style;
+    Object.assign(s, { position: 'fixed', right: 'auto', bottom: 'auto', left: '0px', top: '0px',
+      minWidth: r.width + 'px', width: 'max-content', maxWidth: Math.max(r.width, 360) + 'px' });
+    const below = innerHeight - r.bottom - 12, above = r.top - 12;
+    const up = menu.scrollHeight > below && above > below;
+    s.maxHeight = Math.min(320, up ? above : below) + 'px';
+    const m = menu.getBoundingClientRect();   // a transformed ancestor (a dialog) moves the origin
+    const left = Math.max(8, Math.min(r.left, innerWidth - m.width - 8));
+    const top = up ? r.top - 4 - m.height : r.bottom + 4;
+    s.left = left - m.left + 'px';
+    s.top = top - m.top + 'px';
+  }
+  const openMenus = () => document.querySelectorAll('.dd > .menu:not([hidden])');
+  new MutationObserver((list) => list.forEach((x) => {
+    if (x.target.matches('.dd > .menu:not([hidden])')) placeMenu(x.target);
+  })).observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['hidden'] });
+  addEventListener('scroll', () => openMenus().forEach(placeMenu), true);
+  addEventListener('resize', () => openMenus().forEach(placeMenu));
+
   function useHash() {
     const [hash, setHash] = useState(location.hash || '#/query');
     useEffect(() => {
