@@ -289,6 +289,7 @@ def apply(a):
         for line in open(FIXES, encoding="utf-8"):
             f = json.loads(line)
             have.add((f["id"], f["column"], f["base"]))
+            have.add((f["id"], f["column"], "=" + sha(f["text"])))
     added = 0
     with open(FIXES, "a", encoding="utf-8") as out:
         for path in sorted(glob.glob(os.path.join(WORK, "*", "out", "batch_*.json"))):
@@ -297,10 +298,12 @@ def apply(a):
             for line in report:
                 print(f"{rel(path)}: {line}")
             for f in ok:
-                if f["id"] in bad or (f["id"], f["column"], f["base"]) in have:
+                done = (f["id"], f["column"], "=" + sha(f["text"]))   # already recorded, base being the applied text
+                if f["id"] in bad or (f["id"], f["column"], f["base"]) in have or done in have:
                     continue
                 out.write(json.dumps(f, ensure_ascii=False) + "\n")
                 have.add((f["id"], f["column"], f["base"]))
+                have.add(done)
                 added += 1
     print(f"追加 {added} 条到 {rel(FIXES)}")
     replay(a.write)
