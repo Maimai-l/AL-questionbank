@@ -10,7 +10,7 @@
 | `paddleocr.aistudio-app.com` | PaddleOCR-VL 接口,全部 OCR 依赖它 | `pipeline/ocr/paddle.py`、`pipeline/ocr/ocr_books.py` | 可访问 |
 | `cie.fraft.cn` | CAIE 试卷与评分细则(Frank 的 CIE 工坊)。接口已改到 `obj/Common/` 下:`Subject/combo` 学科列表,`Fetch/renum` 按学科、年份、季度检索(POST `subject=9709&year=2024&season=Jun`),`Fetch/redir/<文件名>` 下载,直接返回 PDF、不跳转,缺卷返回 404。参考代码 github.com/iewnfod/get_paper_rs 用的是旧接口 `obj/Fetch/...`,已失效 | `fetch_any.py --url-template` | 可访问(2026-09-29) |
 | `*.bj.bcebos.com`(如 `paddleocr-store-3.bj.bcebos.com`) | PaddleOCR 结果与插图的下载地址:任务提交到 aistudio,结果 JSON 与图片由这里下发 | `pipeline/ocr/*.py`、`ocr_bank.py` | 可访问(2026-09-29 加入白名单后) |
-| `pastpapers.papacambridge.com` | 9231 试卷与评分细则 PDF(dynamicpapers 没有 9231);9709 2025 年 6 月的评分细则(dynamicpapers 返回 404);cie.fraft.cn 上文本层不可读的 2025–2026 年文件 | `fetch_any.py --url-template`、`fetch_fraft.py` | 可访问 |
+| `pastpapers.papacambridge.com` | 9231 试卷与评分细则 PDF(dynamicpapers 没有 9231);9709 2025 年 6 月的评分细则(dynamicpapers 返回 404);cie.fraft.cn 上文本层不可读的 2025–2026 年文件。2026 年的文件带水印,下载后运行 `strip_watermark.py` | `fetch_any.py --url-template`、`fetch_fraft.py` | 可访问 |
 | `bestexamhelp.com` | 9231 的旧来源,已由 papacambridge 取代 | — | 被拦截 |
 | `esat-tmua.ac.uk` | TMUA 官方站点,查找新卷子链接时使用 | — | 可访问 |
 | `www.uat-uk.org` | 入学考官方站点,查找新卷子链接时使用 | — | 被拦截 |

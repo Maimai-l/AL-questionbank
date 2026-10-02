@@ -291,3 +291,16 @@ python3 pipeline/split/recrop.py && python3 pipeline/split/recrop.py --rows
    `9709_m21_qp_22` q6(b)、`9709_s21_qp_21` q7(c) 连同分值一起丢失;修正后全库 237 题的题干
    找回了文字。`9709_s26_ms_13` 三个站点的评分细则都解析不出,该卷只有 OCR 的 `ms_latex`。
    9709 的关键词标注表(`tag.py`)没有卷 2、卷 6,`tag_batches.py` 对这两卷直接用考纲的主题。
+
+## 去除 PapaCambridge 水印(2026-10-02)
+
+`pipeline/fetch/strip_watermark.py` 就地处理 `raw/pdf`、`raw/ms`、`data/papers` 中带水印的文件。
+2026 年 3 月、6 月的 58 份试卷来自 papacambridge,每页叠有斜向水印、底部横幅和页面中央的浅色字样;
+其中 52 份把原卷整页包在 `/R` 里,只保留这一层即得原卷;另 6 份(`9618_s26_qp_12`、`_41`、`_42`、`_43`,
+`9709_s26_qp_12`、`_32`)是 papacambridge 重新排版的压缩版,没有斜向水印,只有叠在最后的浅色字样和横幅,
+内容流用空格分隔运算符;脚本在叠加层开始的整页裁剪处截断。这 6 份最初被误判为无水印,旧题图带有浅色字样,
+其中 `9709_s26_12_q02` 还多截了下一题的首行,已重裁。
+fraft 上同名文件没有水印,但已被重新排到 Letter 纸上(字号缩小到 0.94 倍),字体也没有 Unicode 映射,
+不能用来切题;两份评分细则(`9709_m26_ms_42`、`9709_s26_ms_13`)只供阅读,改用 fraft 版。
+处理前的原文件在 `raw/papacambridge_orig/`。之后对这 58 份试卷重跑 `recrop.py` 与 `recrop.py --rows`。
+

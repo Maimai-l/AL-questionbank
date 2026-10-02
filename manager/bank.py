@@ -167,7 +167,7 @@ def paper_pdf(r):
     name = r["qp_pdf"]
     if not name:
         return None
-    for base in (os.path.join(paths.DATA, "papers"), os.path.join(paths.RAW, "pdf"), paths.RAW):
+    for base in (paths.PAPERS, os.path.join(paths.RAW, "pdf"), paths.RAW):
         p = os.path.join(base, name)
         if os.path.exists(p):
             return p

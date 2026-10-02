@@ -367,7 +367,7 @@
     };
     const remove = () => { save({ items: s.items.filter((q) => !selected.includes(q)) }); setSelected([]); };
 
-    return h('main', { className: 'setmain' },
+    return h(React.Fragment, null, h('main', { className: 'setmain' },
       h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
         h('div', { style: { display: 'flex', alignItems: 'center', gap: 8 } },
           h('h1', { style: { flexGrow: 1 } }, s.name),
@@ -399,7 +399,81 @@
       h(E.TextField, { label: '名称', value: name, onChange: (e) => setName(e.target.value) })) : null,
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除题组', confirmLabel: '删除题组', onClose: () => setDeleting(false),
         onConfirm: () => send('DELETE', '/api/sets/' + s.id).then(() => { location.hash = '#/sets'; reloadSets(); }) },
-      h('p', null, `删除后 ${s.name} 将无法恢复。题库中的题目不受影响。`)) : null);
+      h('p', null, `删除后 ${s.name} 将无法恢复。题库中的题目不受影响。`)) : null),
+    h(SetPanel, { s }));
+  }
+
+
+  const download = (url) => { const a = document.createElement('a'); a.href = url; a.download = ''; document.body.appendChild(a); a.click(); a.remove(); };
+
+  function SetPanel({ s }) {
+    const [pages, setPages] = useState(null);
+    useEffect(() => {
+      setPages(null);
+      if (s.count) api(`/api/sets/${s.id}/paper`).then((p) => setPages(p.pages)).catch(() => setPages(0));
+    }, [s.id, s.items.join(), s.name]);
+    const docRow = (label, kind, n) => h('div', { className: 'panel-row' },
+      h('span', { className: 'fs-small', style: { flexGrow: 1 } }, label),
+      h('span', { className: 'dm-meta', style: { fontSize: 12 } }, h('span', null, h('b', null, n), ' 题')),
+      h(E.IconButton, { icon: 'i-doc', label: '下载' + label, variant: 'ghost', size: 'sm', disabled: !n, onClick: () => download(`/doc/${s.id}/${kind}?download=1`) }),
+      h(E.IconButton, { icon: 'i-arrow-r', label: '打开' + label, variant: 'ghost', size: 'sm', disabled: !n, onClick: () => open(`/doc/${s.id}/${kind}`, '_blank') }));
+    return h('aside', { className: 'setpanel' },
+      h('section', null,
+        h('div', { className: 'panel-row' },
+          h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '题目卷'),
+          pages != null ? h('span', { className: 'dm-meta' }, h('span', null, h('b', null, pages), ' 页')) : null,
+          h(E.IconButton, { icon: 'i-arrow-r', label: '打开题目卷', variant: 'ghost', size: 'sm', disabled: !s.count, onClick: () => { location.hash = `#/sets/${s.id}/paper`; } })),
+        h('div', null, h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-doc', disabled: !s.count || pages == null, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF'))),
+      h('section', null,
+        h('h2', { className: 'fs-lead', style: { margin: '0 0 8px' } }, '评分细则与详解'),
+        docRow('评分细则', 'scheme', s.docs.scheme),
+        docRow('详解', 'explanation', s.docs.explanation)));
+  }
+
+  function PaperPage({ s }) {
+    const [info, setInfo] = useState(null);
+    const [page, setPage] = useState(1);
+    const per = 3;
+    useEffect(() => { api(`/api/sets/${s.id}/paper`).then(setInfo); }, [s.id]);
+    const first = (page - 1) * per;
+    const shown = info ? Array.from({ length: Math.min(per, info.pages - first) }, (_, i) => first + i) : [];
+    return h('main', { className: 'paperpage' },
+      h('div', { className: 'paper-head' },
+        h('div', { style: { flexGrow: 1, display: 'flex', flexDirection: 'column', gap: 8 } },
+          h('h1', { className: 'fs-h3', style: { margin: 0 } }, s.name),
+          h('div', { className: 'dm-meta' }, h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
+            info ? h('span', null, h('b', null, info.pages), ' 页') : null)),
+        info && info.pages > per ? h(E.Pagination, { total: info.pages, pageSize: per, page, onChange: setPage, variant: 'simple' }) : null,
+        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-doc', disabled: !info, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF')),
+      info ? h('div', { className: 'sheets' }, shown.map((n) => h('img', { key: n + '-' + s.items.join(), className: 'sheet', src: `/api/sets/${s.id}/paper/${n}.png`, alt: `第 ${n + 1} 页` })))
+        : h(E.Loading, { label: '生成题目卷' }));
+  }
+
+  function SettingsPage() {
+    const [o, setO] = useState(null);
+    useEffect(() => { api('/api/settings').then(setO); }, []);
+    if (!o) return h('div', { className: 'dm-row' }, h(E.Loading, null));
+    const put = (k, v) => send('PUT', '/api/settings', { [k]: v }).then((n) => { setO(n); if (k === 'theme') applyTheme(v); });
+    const radios = (legend, key, opts) => h('fieldset', { className: 'opt-group ex' }, h('legend', null, legend),
+      opts.map(([v, label]) => h(E.Radio, { key: v, name: key, checked: o[key] === v, onChange: () => put(key, v) }, label)));
+    const box = (key, label) => h(E.Checkbox, { checked: o[key], onChange: () => put(key, !o[key]) }, label);
+    return h('main', { className: 'settings' },
+      h('section', null, h('h2', { className: 'fs-lead' }, '题目卷'),
+        h('div', { className: 'settings-grid' },
+          h('fieldset', { className: 'opt-group ex' }, h('legend', null, 'CIE 题目'),
+            h(E.Radio, { name: 'cie', checked: !o.cie_space, onChange: () => put('cie_space', false) }, '仅题目'),
+            h(E.Radio, { name: 'cie', checked: o.cie_space, onChange: () => put('cie_space', true) }, '含答题区')),
+          radios('入学考选择题', 'adm_layout', [['two', '每页两题'], ['flow', '连续排列']]),
+          h('fieldset', { className: 'opt-group ex' }, h('legend', null, '页脚'),
+            box('footer_name', '题组名称'), box('footer_code', '试卷代码与题号'), box('footer_page', '页码')))),
+      h('section', null, h('h2', { className: 'fs-lead' }, '外观'),
+        radios('主题', 'theme', [['system', '跟随系统'], ['light', '浅色'], ['dark', '深色']])));
+  }
+
+  function applyTheme(t) {
+    try { localStorage.setItem('dm-theme', t); } catch (e) {}
+    const light = t === 'light' || (t === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
+    document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
   }
 
   // ------------------------------------------------------------------ shell
@@ -411,7 +485,7 @@
     const [sets, setSets] = useState([]);
     const [search, setSearch] = useState('');
     const reloadSets = useCallback(() => api('/api/sets').then(setSets), []);
-    useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); }, []);
+    useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); api('/api/settings').then((o) => applyTheme(o.theme)); }, []);
 
     const page = hash.split('/')[1] || 'query';
     const nav = [
@@ -422,13 +496,20 @@
     const titles = { query: '查询', sets: '题组', templates: '模板', settings: '设置' };
     let body;
     if (!metas) body = h(E.PageLoader || E.Loading, null);
-    else if (page === 'sets') body = h(SetsPage, { sets, current: hash.split('/')[2], reloadSets, toast });
+    else if (page === 'sets' && hash.split('/')[3] === 'paper') {
+      const ps = sets.find((x) => x.id === hash.split('/')[2]);
+      body = ps ? h('div', { className: 'dm-row' }, h(PaperPage, { s: ps })) : h(E.Loading, null);
+    } else if (page === 'sets') body = h(SetsPage, { sets, current: hash.split('/')[2], reloadSets, toast });
+    else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage));
     else if (page === 'query') body = h(QueryPage, { metas, search, sets, reloadSets, toast });
     else body = h('div', { className: 'dm-row' }, h(E.EmptyState, { icon: 'i-inbox', title: '下一阶段实现' }));
     return h('div', { className: 'dm-shell' },
       h(E.Sidebar, { name: 'AL 题库', items: nav, value: page, tools: [{ label: '设置', icon: 'i-sliders', onClick: () => { location.hash = '#/settings'; } }] }),
       h('div', { className: 'dm-col' },
-        h(E.TopBar, { title: titles[page] || '查询', search: page === 'query' ? '搜索' : undefined, onSearch: setSearch }),
+        h(E.TopBar, {
+          title: hash.split('/')[3] === 'paper' ? '题目卷' : (titles[page] || '查询'),
+          crumbs: hash.split('/')[3] === 'paper' ? [{ label: '题组', href: '#/sets/' + hash.split('/')[2] }, { label: '题目卷' }] : undefined,
+          search: page === 'query' ? '搜索' : undefined, onSearch: setSearch }),
         body));
   }
 

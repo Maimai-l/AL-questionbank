@@ -59,3 +59,24 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .dm-toolbar .dm-grow { flex-grow: 1; }
 .dlg-stack { display: flex; flex-direction: column; gap: 16px; }
 .hidden-input { display: none; }
+
+/* set page: outputs panel */
+.setpanel { width: 352px; flex: none; border-left: 1px solid var(--color-border-subtle); background: var(--color-bg-surface); padding: 24px; box-sizing: border-box; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; }
+.setpanel section { display: flex; flex-direction: column; gap: 12px; }
+.setpanel section + section { padding-top: 24px; border-top: 1px solid var(--color-border-subtle); }
+.panel-row { display: flex; align-items: center; gap: 8px; min-height: 32px; }
+
+/* question paper page */
+.paperpage { flex-grow: 1; min-width: 0; background: var(--color-bg-muted); padding: 24px 32px 32px; display: flex; flex-direction: column; gap: 24px; overflow: auto; }
+.paper-head { display: flex; align-items: center; gap: 24px; }
+.sheets { display: flex; gap: 24px; align-items: flex-start; }
+.sheet { width: calc((100% - 48px) / 3); height: auto; background: #ffffff; box-shadow: var(--shadow-lg); }
+
+/* settings */
+.settings { flex-grow: 1; padding: 32px; display: flex; flex-direction: column; gap: 32px; overflow-y: auto; }
+.settings section { display: flex; flex-direction: column; gap: 24px; }
+.settings section + section { padding-top: 32px; border-top: 1px solid var(--color-border-subtle); }
+.settings h2 { margin: 0; }
+.settings-grid { display: grid; grid-template-columns: repeat(3, 240px); gap: 48px; }
+.ex { border: 0; margin: 0; padding: 0; gap: 8px; }
+.ex legend { font: 14px var(--font-medium); margin-bottom: 8px; }

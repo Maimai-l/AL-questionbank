@@ -22,6 +22,7 @@ ROOT = os.environ.get("CAIE_ROOT") or os.path.dirname(
 DATA = os.environ.get("CAIE_DATA") or os.path.join(ROOT, "data")
 DB = os.environ.get("CAIE_DB") or os.path.join(DATA, "caie.db")
 BOOKS = os.path.join(DATA, "books")
+PAPERS = os.path.join(DATA, "papers")   # original question papers and mark schemes, named as questions.qp_pdf / ms_pdf
 ASSETS = os.path.join(ROOT, "assets")        # page sources: html + vendor/
 EXPORTS = os.path.join(ROOT, "exports")      # distribution ZIPs, not tracked
 RAW = os.environ.get("CAIE_RAW") or os.path.join(ROOT, "raw")  # pipeline inputs: PDFs, OCR

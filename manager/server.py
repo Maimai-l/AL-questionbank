@@ -16,6 +16,10 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>         GET, PATCH {name, items, add}, DELETE
   /api/sets/<id>/export  alevel-question-set/v1
   /api/sets/import       POST an alevel-question-set/v1 document
+  /api/sets/<id>/paper   {pages, whole}: the question paper (F4), built on demand
+  /api/sets/<id>/paper.pdf, /api/sets/<id>/paper/<n>.png
+  /doc/<id>/scheme, /doc/<id>/explanation   reading documents (F6); ?download=1 to save
+  /api/settings          GET, PUT {cie_space, adm_layout, footer_*, theme}
 """
 import json
 import os
@@ -23,7 +27,10 @@ import os
 from aiohttp import web
 
 from lib import paths
-from manager import bank, sets
+import asyncio
+import urllib.parse
+
+from manager import bank, docs, paper, sets, settings
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 IMG_DIRS = {"img9709", "img9231", "img9618", "img_adm", "img_tara",
@@ -43,7 +50,7 @@ def _set_view(s):
                                  f"({','.join('?' * len(chunk))})", chunk):
                 rows[r["id"]] = r["marks"] or 0
     return {**s, "count": len(s["items"]), "marks": sum(rows.values()),
-            "missing": [q for q in s["items"] if q not in rows]}
+            "missing": [q for q in s["items"] if q not in rows], "docs": docs.counts(s)}
 
 
 async def meta(request):
@@ -108,8 +115,7 @@ async def set_delete(request):
 async def set_export(request):
     s = _get(request.match_info["sid"])
     return web.json_response(sets.export(s), headers={
-        "Content-Disposition": "attachment; filename*=UTF-8''"
-        + __import__("urllib.parse").parse.quote(s["name"] + ".json")})
+        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(s["name"] + ".json")})
 
 
 async def set_import(request):
@@ -124,6 +130,51 @@ async def set_import(request):
     return web.json_response(view)
 
 
+async def _paper(request):
+    s = _get(request.match_info["sid"])
+    return await asyncio.get_running_loop().run_in_executor(None, paper.build, s), s
+
+
+async def paper_info(request):
+    path, s = await _paper(request)
+    return web.json_response({"pages": paper.page_count(path), "whole": bool(paper.whole_paper(paper._rows(s["items"])))})
+
+
+async def paper_pdf(request):
+    path, s = await _paper(request)
+    return web.FileResponse(path, headers={
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "inline; filename*=UTF-8''" + urllib.parse.quote(s["name"] + ".pdf")})
+
+
+async def paper_page(request):
+    path, s = await _paper(request)
+    n = int(request.match_info["n"])
+    png = await asyncio.get_running_loop().run_in_executor(None, paper.page_png, path, n)
+    return web.Response(body=png, content_type="image/png", headers={"Cache-Control": "no-cache"})
+
+
+async def reading(request):
+    s = _get(request.match_info["sid"])
+    kind = request.match_info["kind"]
+    if kind not in ("scheme", "explanation"):
+        raise web.HTTPNotFound()
+    page = docs.scheme(s) if kind == "scheme" else docs.explanation(s)
+    headers = {}
+    if request.query.get("download"):
+        name = s["name"] + (" 评分细则" if kind == "scheme" else " 详解") + ".html"
+        headers["Content-Disposition"] = "attachment; filename*=UTF-8''" + urllib.parse.quote(name)
+    return web.Response(text=page, content_type="text/html", headers=headers)
+
+
+async def settings_get(request):
+    return web.json_response(settings.load())
+
+
+async def settings_put(request):
+    return web.json_response(settings.save(await request.json()))
+
+
 async def image(request):
     rel = request.match_info["path"]
     if rel.split("/")[0] not in IMG_DIRS or ".." in rel:
@@ -134,7 +185,7 @@ async def image(request):
     return web.FileResponse(path, headers={"Cache-Control": "max-age=86400"})
 
 
-async def paper(request):
+async def original(request):
     from lib import db
     r = db.connect().execute("SELECT * FROM questions WHERE id = ?",
                              (request.match_info["qid"],)).fetchone()
@@ -162,8 +213,14 @@ def make_app():
     app.router.add_patch(r"/api/sets/{sid}", set_patch)
     app.router.add_delete(r"/api/sets/{sid}", set_delete)
     app.router.add_get(r"/api/sets/{sid}/export", set_export)
+    app.router.add_get(r"/api/sets/{sid}/paper", paper_info)
+    app.router.add_get(r"/api/sets/{sid}/paper.pdf", paper_pdf)
+    app.router.add_get(r"/api/sets/{sid}/paper/{n:\d+}.png", paper_page)
+    app.router.add_get(r"/doc/{sid}/{kind}", reading)
+    app.router.add_get("/api/settings", settings_get)
+    app.router.add_put("/api/settings", settings_put)
     app.router.add_get(r"/q/{path:.+}", image)
-    app.router.add_get(r"/paper/{qid}", paper)
+    app.router.add_get(r"/paper/{qid}", original)
     app.router.add_static("/static/", WEB)
     app.router.add_static("/vendor/", os.path.join(paths.ASSETS, "vendor"))
     return app
