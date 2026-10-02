@@ -196,13 +196,16 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .fo-row { display: flex; align-items: center; gap: var(--sib); min-height: 40px; border-bottom: 1px solid var(--color-border-subtle); }
 .fo-name { flex: 1 1 auto; min-width: 0; font: 13px var(--font-medium); }
 /* the flow overview */
-.fo { overflow-y: auto; gap: var(--block); }
-.fo-head { display: flex; align-items: flex-start; gap: var(--el); }
+.fo { overflow-y: auto; gap: var(--head); }
+.fo-head { display: flex; align-items: center; gap: var(--el); }
+/* the overview's picture of the flow */
+.fl.fl-pv { flex: none; height: 392px; border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); overflow: hidden; cursor: default; touch-action: auto; }
+.fl-pv .fl-in { position: absolute; left: 0; top: 0; }
+.fl-pv .fl-w path { cursor: default; }
+.fl-pv .nd { cursor: default; }
 .fo-head .dm-grow { flex-grow: 1; min-width: 0; margin-right: var(--sib); }
-.fo-sec { display: flex; flex-direction: column; gap: var(--sub); max-width: 640px; }
+.fo-sec { display: flex; flex-direction: column; gap: var(--sub); }
 .fo-title { margin: 0; }
-.fo-items { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; font-size: 14px; }
-.fo-items li { min-height: 32px; display: flex; align-items: center; border-bottom: 1px solid var(--color-border-subtle); }
 @media (max-width: 1366px) {
   .fl-pal { width: 144px; }
   .fl-insp { width: 264px; }
@@ -251,8 +254,11 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
    menu is open; the icon darkens instead */
 .btn--ghost.ibtn { --btn-bg-h: transparent; --btn-bg-a: transparent; --btn-fg: var(--color-text-secondary); --btn-fg-h: var(--color-text-primary); }
 .btn--ghost.ibtn[aria-expanded="true"] { --btn-fg: var(--color-text-primary); }
-/* in a list item it follows the item's colours (ink, or yellow when selected) */
-.li .trail .btn--ghost.ibtn { --btn-fg: var(--li-fg2); --btn-fg-h: var(--li-fg); }
-.li .trail .btn--ghost.ibtn[aria-expanded="true"] { --btn-fg: var(--li-fg); }
-.li .trail { margin-right: -12px; }
+/* a list item's "more" button (the design's .li-more): a 40 px circle at the item's right end,
+   shown on hover and on the selected item; hovered or open, it is filled like the item's icon */
+.li:has(.more-dd) { padding-right: 7px; }
+.li .trail .btn--ghost.ibtn { width: 40px; height: 40px; border-radius: 50%; --btn-fg: var(--li-fg2); --btn-fg-h: var(--li-ic-fg);
+  --btn-bg-h: var(--li-ic-bg); --btn-bg-a: var(--li-ic-bg); opacity: 0; transition: opacity var(--duration-base) ease, background-color var(--duration-base) ease; }
+.li:hover .trail .ibtn, .li[aria-selected="true"] .trail .ibtn, .li .trail .ibtn[aria-expanded="true"], .li .trail .ibtn:focus-visible { opacity: 1; }
+.li .trail .ibtn[aria-expanded="true"] { background-color: var(--li-ic-bg); --btn-fg: var(--li-ic-fg); }
 .flowpage.is-locked .nd { cursor: pointer; }

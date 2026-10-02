@@ -347,7 +347,7 @@ def out_export(g, node, ins, outdir):
     name = _safe(g["name"]) + ".zip"
     path = os.path.join(outdir, f"{node['id']}.zip")
     _write_zip(path, files)
-    meta = ([f"{folders} 个文件夹"] if folders else []) + [f"{count} 题"]
+    meta = ([f"{folders} 个文件夹"] if folders else []) + [f"{count} 题", _size(path)]
     if missing:
         meta.append(f"缺少 {missing} 份章节 PDF")
     return [{"node": node["id"], "kind": "zip", "name": name, "file": os.path.basename(path), "meta": meta}]
@@ -380,7 +380,7 @@ def out_paper(g, node, ins, outdir):
         with open(src, "rb") as fh, open(os.path.join(outdir, fname), "wb") as w:
             w.write(fh.read())
         out.append({"node": node["id"], "kind": "pdf", "name": _safe(name) + ".pdf", "file": fname,
-                    "meta": ["练习卷", f"{len(s['items'])} 题", f"{paper.page_count(src)} 页"]})
+                    "meta": ["练习卷", f"{len(s['items'])} 题", f"{paper.page_count(src)} 页", _size(src)]})
     return out
 
 
@@ -459,12 +459,31 @@ def _summary(v, limit=40):
             "rows": [[x["name"], len(x["items"])] for x in v["groups"][:limit]]}
 
 
+def _size(path):
+    n = os.path.getsize(path)
+    return f"{n / 1048576:.1f} MB" if n >= 1048576 else f"{max(1, round(n / 1024))} KB"
+
+
 def view(g, make=False):
-    """evaluate() as JSON for the page: per node, a summary of each output."""
+    """evaluate() as JSON for the page: per node, a summary of each output. A run is also
+    kept as OUT/<graph id>/run.json, the overview's 上次输出."""
     r = evaluate(g, make)
-    return {"ports": {k: [_summary(x) for x in v] for k, v in r["values"].items()},
-            "errors": r["errors"], "outputs": r["outputs"],
-            "ran": time.strftime("%Y-%m-%d %H:%M") if make else None}
+    out = {"ports": {k: [_summary(x) for x in v] for k, v in r["values"].items()},
+           "errors": r["errors"], "outputs": r["outputs"],
+           "ran": time.strftime("%Y-%m-%d %H:%M") if make else None}
+    if make:
+        with open(os.path.join(OUT, g["id"], "run.json"), "w", encoding="utf-8") as f:
+            json.dump({k: out[k] for k in ("ran", "errors", "outputs")}, f, ensure_ascii=False)
+    return out
+
+
+def last_run(fid):
+    """The last run of a flow: {ran, errors, outputs}, or None."""
+    try:
+        with open(os.path.join(OUT, os.path.basename(fid), "run.json"), encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
 
 
 # ------------------------------------------------------------------ storage
@@ -483,23 +502,22 @@ def _read(path, builtin):
 
 
 def summary(g):
-    """One line for the flow list: the conditions, joined by 、."""
+    """One line for the flow list and the overview: the book, the conditions and the limit,
+    joined by ，(试卷 = 1，年份 ≥ 2021，每组 2 题)."""
     labels = {k: label for f in FIELDS.values() for k, label, _ in f}
-    parts = []
+    parts, grouped = [], False
     for n in g.get("nodes", []):
         p = n.get("params") or {}
         if n["type"] == "book":
-            parts.append(BOOKS.get(p.get("book"), p.get("book", "")))
+            parts.append("教材：" + BOOKS.get(p.get("book"), p.get("book", "")))
         elif n["type"] == "filter":
             parts += [f"{labels.get(c['field'], c['field'])} {c['op']} {c['value']}" for c in p.get("conds", [])
                       if c.get("field") and str(c.get("value", "")).strip()]
-        elif n["type"] == "group":
-            parts.append(f"按{labels.get(p.get('field', 'topic'), '主题')}分组")
+        elif n["type"] in ("group", "join"):
+            grouped = True
         elif n["type"] == "take":
-            parts.append(f"限制数量：{p.get('n', 10)}")
-        elif n["type"] == "join":
-            parts.append(f"按{labels.get(p.get('right', 'topic'), '主题')}连接")
-    return "、".join(dict.fromkeys(x for x in parts if x))
+            parts.append(f"{'每组' if grouped else '前'} {p.get('n', 10)} 题")
+    return "，".join(dict.fromkeys(x for x in parts if x))
 
 
 def all_flows():

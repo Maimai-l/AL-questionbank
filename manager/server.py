@@ -406,6 +406,10 @@ async def flow_run(request):
     return await _flow_view(g, True)
 
 
+async def flow_last(request):
+    return web.json_response(flow.last_run(request.match_info["fid"]))
+
+
 async def flow_out(request):
     p = flow.output_file(request.match_info["fid"], request.match_info["name"])
     if not p:
@@ -488,6 +492,7 @@ def make_app():
     app.router.add_put(r"/api/flows/{fid}", flow_put)
     app.router.add_delete(r"/api/flows/{fid}", flow_delete)
     app.router.add_post(r"/api/flows/{fid}/run", flow_run)
+    app.router.add_get(r"/api/flows/{fid}/last", flow_last)
     app.router.add_get(r"/api/flows/{fid}/out/{name}", flow_out)
     app.router.add_get("/api/templates", template_list)
     app.router.add_post("/api/templates", template_create)

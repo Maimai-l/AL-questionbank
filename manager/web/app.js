@@ -112,7 +112,7 @@
 
   /** Actions that are seldom used or destructive, behind a "more" button. Uses the
       design system's dropdown menu (.dd .menu), placed by placeMenu. */
-  function MoreMenu({ label = '更多', items }) {
+  function MoreMenu({ label = '更多', items, tip = true }) {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
     useEffect(() => {
@@ -125,7 +125,7 @@
     }, [open]);
     const shown = items.filter(Boolean);
     return h('div', { ref, className: 'dd more-dd', onClick: (e) => e.stopPropagation(), onKeyDown: (e) => e.stopPropagation() },
-      h(E.IconButton, { icon: 'i-more', label, variant: 'ghost', size: 'sm', tooltip: open ? undefined : 'below',
+      h(E.IconButton, { icon: 'i-more', label, variant: 'ghost', size: 'sm', tooltip: open || !tip ? undefined : 'below',
         'aria-haspopup': 'menu', 'aria-expanded': open, onClick: () => setOpen(!open) }),
       h('div', { className: 'menu', role: 'menu', hidden: !open },
         shown.map((it, i) => h(React.Fragment, { key: it.label },
@@ -577,9 +577,10 @@
           variant: 'two-line', selectable: true, ariaLabel: '题组', value: s ? s.id : undefined,
           onChange: (v) => { location.hash = '#/sets/' + v; },
           items: sets.map((x) => ({ value: x.id, icon: SOURCE_ICON[x.source] || 'i-list', title: x.name, subtitle: `${x.count} 题 ${x.marks} 分`,
-            trailing: h(MoreMenu, { items: [
-              { label: '重命名题组', onClick: () => { setRenameId(x.id); location.hash = '#/sets/' + x.id; } },
-              { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${x.id}/export`; } },
+            trailing: h(MoreMenu, { label: '更多操作', tip: false, items: [
+              { label: '重命名', onClick: () => { setRenameId(x.id); location.hash = '#/sets/' + x.id; } },
+              { label: '复制题组', onClick: () => send('POST', '/api/sets', { name: x.name + ' 副本', items: x.items, source: x.source })
+                .then((n) => { reloadSets(); location.hash = '#/sets/' + n.id; }).catch((e) => toast('error', e.message)) },
               { label: '删除题组', danger: true, onClick: () => setDeleting(x) }] }) })),
         }) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' })),
       s ? h(SetDetail, { key: s.id, s, reloadSets, templates, toast, rename: renameId === s.id, onRename: () => setRenameId(null) })
@@ -653,7 +654,8 @@
           h(E.Button, { variant: written ? 'primary' : 'secondary', size: 'md', icon: 'i-box', disabled: !s.count, onClick: () => setOutput(true) }, '输出'),
           h(MoreMenu, { label: '更多操作', items: [
             { label: '打开评分细则', onClick: () => open(`/doc/${s.id}/scheme`, '_blank') },
-            s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null] }))),
+            s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null,
+            { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${s.id}/export`; } }] }))),
       !s.count ? h('div', { className: 'sd-empty' }, h(E.EmptyState, { icon: 'i-list', title: '题组中没有题目',
         action: h(E.Button, { variant: 'secondary', size: 'md', onClick: () => { location.hash = '#/query'; } }, '打开查询') }))
         : h('div', { className: 'sd-body' },
@@ -945,8 +947,8 @@
         h('div', { className: 'setlist-acts' }, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建模板')),
         h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
           items: templates.map((x) => ({ value: x.id, icon: 'i-doc', title: x.name, subtitle: contents(x.settings),
-            trailing: h(MoreMenu, { items: [
-              x.builtin ? null : { label: '重命名模板', onClick: () => { setRenameId(x.id); go(x.id); } },
+            trailing: h(MoreMenu, { label: '更多操作', tip: false, items: [
+              x.builtin ? null : { label: '重命名', onClick: () => { setRenameId(x.id); go(x.id); } },
               { label: '复制模板', onClick: () => copy(x) },
               x.builtin ? null : { label: '删除模板', danger: true, onClick: () => setDeleting(x) }] }) })) })),
       h('section', { className: 'tpl-opts' },
@@ -1005,6 +1007,88 @@
   function portLabel(v, fallback) {
     if (!v || ['左', '右', '附件'].includes(fallback)) return fallback;
     return v.shape === 'group' ? '分组' : TYPE_LABEL[v.type] || fallback;
+  }
+
+  // forward: a curve; backward (into a node to the left): out to the right, along the gap
+  // between the two nodes, and in from the left, as in the design
+  function wirePath(cat, x1, y1, x2, y2, a, b) {
+    if (x2 > x1 + 8) { const d = Math.max(32, (x2 - x1) / 2); return `M${x1} ${y1} C${x1 + d} ${y1}, ${x2 - d} ${y2}, ${x2} ${y2}`; }
+    let mid = (y1 + y2) / 2;
+    if (a && b) {
+      const aBottom = a.y + HEAD + ROW * nodeRows(cat, a) + 64, bBottom = b.y + HEAD + ROW * nodeRows(cat, b) + 64;
+      mid = b.y > aBottom ? (aBottom + b.y) / 2 : a.y > bBottom ? (bBottom + a.y) / 2 : Math.max(aBottom, bBottom) + 16;
+    }
+    const r = 8, xo = x1 + 16, xi = x2 - 16, down = mid > y1 ? 1 : -1, back = y2 > mid ? 1 : -1;
+    return `M${x1} ${y1} H${xo - r} Q${xo} ${y1} ${xo} ${y1 + r * down} V${mid - r * down} Q${xo} ${mid} ${xo - r} ${mid}` +
+      ` H${xi + r} Q${xi} ${mid} ${xi} ${mid + r * back} V${y2 - r * back} Q${xi} ${y2} ${xi + r} ${y2} H${x2}`;
+  }
+
+  const countText = (o) => (!o ? '' : o.shape === 'group' ? `${o.count} 组` : String(o.count));
+
+  /** A flow's nodes and wires as elements, with the counts from an evaluation (ev). The
+      editor passes its handlers; the overview's preview passes none and is only drawn. */
+  function flowParts(g, cat, ev, templates, sets, on = {}) {
+    const byId = Object.fromEntries(g.nodes.map((n) => [n.id, n]));
+    const ports = (ev && ev.ports) || {};
+    const errors = (ev && ev.errors) || {};
+    const outOf = (id, i) => (ports[id] || [])[i];
+    const inOf = (id, i) => { const l = g.links.find((x) => x.to[0] === id && x.to[1] === i); return l ? outOf(l.from[0], l.from[1]) : null; };
+    const shapeOf = (id, i) => { const o = outOf(id, i); return o ? o.shape : cat.nodes[byId[id].type].outs[i][1]; };
+    const sel = on.sel;
+    const nodes = g.nodes.filter((n) => cat.nodes[n.type]).map((n) => {
+      const spec = cat.nodes[n.type];
+      const inV = inOf(n.id, 0);
+      const ptxt = paramText(cat, n, inV && inV.type, inV && inV.shape, templates, sets);
+      const rows = [];
+      for (let i = 0; i < nodeRows(cat, n); i++) {
+        const ins = spec.ins[i]; const outs = spec.outs[i];
+        const inShape = ins ? ((inOf(n.id, i) || {}).shape || (n.type === 'merge' ? 'group' : 'list')) : null;
+        const inLabel = ins ? portLabel(inOf(n.id, i), ins) : null;
+        const outLabel = outs ? portLabel(outOf(n.id, i), outs[0]) : null;
+        rows.push(h('div', { key: i, className: 'nd-r' },
+          ins ? h(React.Fragment, null, h('span', null, inLabel), h('i', { className: `pt l${inShape === 'group' ? ' sq' : ''}`, 'data-in': `${n.id}:${i}` })) : h('span'),
+          outs ? h(React.Fragment, null, h('span', null, outLabel, h('b', null, countText(outOf(n.id, i)))),
+            h('i', { className: `pt r${shapeOf(n.id, i) === 'group' ? ' sq' : ''}`, onPointerDown: on.startWire ? (e) => on.startWire(e, n, i) : undefined })) : null));
+      }
+      const lines = [].concat(ptxt).filter((x) => x !== '');
+      return h('div', { key: n.id, className: `nd${sel && sel.node === n.id ? ' sel' : ''}${errors[n.id] ? ' err' : ''}`, style: { left: n.x, top: n.y, width: NW },
+        onPointerDown: on.startMove ? (e) => { if (!e.target.classList.contains('pt')) on.startMove(e, n); } : undefined },
+      h('div', { className: 'nd-h' }, spec.label), rows,
+      lines.length ? h('div', { className: 'nd-p' }, lines.map((t, i) => h('div', { key: i }, t))) : null);
+    });
+    const wires = g.links.map((l, i) => {
+      const a = byId[l.from[0]], b = byId[l.to[0]];
+      if (!a || !b || !cat.nodes[a.type] || !cat.nodes[b.type]) return null;
+      const d = wirePath(cat, a.x + NW + 1, portY(a, l.from[1]), b.x - 1, portY(b, l.to[1]), a, b);
+      return h('path', { key: i, d, className: `${shapeOf(a.id, l.from[1]) === 'group' ? 'g' : ''}${sel && sel.link === i ? ' sel' : ''}`,
+        onPointerDown: on.selectLink ? (e) => { e.stopPropagation(); on.selectLink(i); } : undefined });
+    });
+    return { nodes, wires };
+  }
+
+  /** The overview's picture of a flow: the graph scaled to fit a fixed-height box, not editable. */
+  function FlowPreview({ g, cat, templates, sets }) {
+    const [ev, setEv] = useState(null);
+    const [width, setWidth] = useState(0);
+    const box = useRef(null);
+    useEffect(() => { send('POST', '/api/flows/eval', g).then(setEv).catch(() => {}); }, [g.id]);
+    useEffect(() => {
+      const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
+      if (box.current) ro.observe(box.current);
+      return () => ro.disconnect();
+    }, []);
+    // the nodes' extent (a node's parameter lines are not measured: about 64 px below its ports)
+    const PAD = 24, HIGH = 392;
+    const x0 = Math.min(...g.nodes.map((n) => n.x)), y0 = Math.min(...g.nodes.map((n) => n.y));
+    const x1 = Math.max(...g.nodes.map((n) => n.x + NW)), y1 = Math.max(...g.nodes.map((n) => n.y + HEAD + ROW * nodeRows(cat, n) + 64));
+    const w = x1 - x0, hgt = y1 - y0;
+    const scale = Math.min(1, (width - 2 * PAD) / w, (HIGH - 2 * PAD) / hgt) || 1;
+    const { nodes, wires } = flowParts(g, cat, ev, templates, sets);
+    return h('div', { ref: box, className: 'fl fl-pv', 'aria-label': '流程图' },
+      g.nodes.length ? h('div', { className: 'fl-in', style: { width: x1, height: y1, transformOrigin: '0 0',
+        transform: `translate(${PAD - x0 * scale}px, ${(HIGH - hgt * scale) / 2 - y0 * scale}px) scale(${scale})` } },
+      h('svg', { className: 'fl-w', width: x1 + 64, height: y1 + 64 }, wires), nodes)
+        : h(E.EmptyState, { icon: 'i-grid', title: '没有节点' }));
   }
 
   function FlowPage({ fid, templates, sets, reloadSets, toast, onTitle }) {
@@ -1112,55 +1196,13 @@
       addEventListener('pointermove', move); addEventListener('pointerup', up);
     };
 
-    // forward: a curve; backward (into a node to the left): out to the right, along the gap
-    // between the two nodes, and in from the left, as in the design
-    const wirePath = (x1, y1, x2, y2, a, b) => {
-      if (x2 > x1 + 8) { const d = Math.max(32, (x2 - x1) / 2); return `M${x1} ${y1} C${x1 + d} ${y1}, ${x2 - d} ${y2}, ${x2} ${y2}`; }
-      let mid = (y1 + y2) / 2;
-      if (a && b) {
-        const aBottom = a.y + HEAD + ROW * nodeRows(cat, a) + 64, bBottom = b.y + HEAD + ROW * nodeRows(cat, b) + 64;
-        mid = b.y > aBottom ? (aBottom + b.y) / 2 : a.y > bBottom ? (bBottom + a.y) / 2 : Math.max(aBottom, bBottom) + 16;
-      }
-      const r = 8, xo = x1 + 16, xi = x2 - 16, down = mid > y1 ? 1 : -1, back = y2 > mid ? 1 : -1;
-      return `M${x1} ${y1} H${xo - r} Q${xo} ${y1} ${xo} ${y1 + r * down} V${mid - r * down} Q${xo} ${mid} ${xo - r} ${mid}` +
-        ` H${xi + r} Q${xi} ${mid} ${xi} ${mid + r * back} V${y2 - r * back} Q${xi} ${y2} ${xi + r} ${y2} H${x2}`;
-    };
     const W = Math.max(960, ...g.nodes.map((n) => n.x + NW + 240));
     const H = Math.max(560, ...g.nodes.map((n) => n.y + 280));
-
-    const countText = (o) => (!o ? '' : o.shape === 'group' ? `${o.count} 组` : String(o.count));
-    const nodeEl = (n) => {
-      const spec = cat.nodes[n.type];
-      const inV = inOf(n.id, 0);
-      const ptxt = paramText(cat, n, inV && inV.type, inV && inV.shape, templates, sets);
-      const rows = [];
-      for (let i = 0; i < nodeRows(cat, n); i++) {
-        const ins = spec.ins[i]; const outs = spec.outs[i];
-        const inShape = ins ? ((inOf(n.id, i) || {}).shape || (n.type === 'merge' ? 'group' : 'list')) : null;
-        const inLabel = ins ? portLabel(inOf(n.id, i), ins) : null;
-        const outLabel = outs ? portLabel(outOf(n.id, i), outs[0]) : null;
-        rows.push(h('div', { key: i, className: 'nd-r' },
-          ins ? h(React.Fragment, null, h('span', null, inLabel), h('i', { className: `pt l${inShape === 'group' ? ' sq' : ''}`, 'data-in': `${n.id}:${i}` })) : h('span'),
-          outs ? h(React.Fragment, null, h('span', null, outLabel, h('b', null, countText(outOf(n.id, i)))),
-            h('i', { className: `pt r${shapeOf(n.id, i) === 'group' ? ' sq' : ''}`, onPointerDown: (e) => startWire(e, n, i) })) : null));
-      }
-      const lines = [].concat(ptxt).filter((x) => x !== '');
-      return h('div', { key: n.id, className: `nd${sel && sel.node === n.id ? ' sel' : ''}${errors[n.id] ? ' err' : ''}`, style: { left: n.x, top: n.y, width: NW },
-        onPointerDown: (e) => { if (!e.target.classList.contains('pt')) startMove(e, n); } },
-      h('div', { className: 'nd-h' }, spec.label), rows,
-      lines.length ? h('div', { className: 'nd-p' }, lines.map((t, i) => h('div', { key: i }, t))) : null);
-    };
-
-    const wires = g.links.map((l, i) => {
-      const a = byId[l.from[0]], b = byId[l.to[0]];
-      if (!a || !b) return null;
-      const d = wirePath(a.x + NW + 1, portY(a, l.from[1]), b.x - 1, portY(b, l.to[1]), a, b);
-      return h('path', { key: i, d, className: `${shapeOf(a.id, l.from[1]) === 'group' ? 'g' : ''}${sel && sel.link === i ? ' sel' : ''}`,
-        onPointerDown: (e) => { e.stopPropagation(); setSel({ link: i }); } });
-    });
+    const { nodes: nodeEls, wires } = flowParts(g, cat, ev, templates, sets, {
+      sel, startMove, startWire, selectLink: (i) => setSel({ link: i }) });
     if (drag) {
       const a = byId[drag.from[0]];
-      wires.push(h('path', { key: 'drag', className: 'drag', d: wirePath(a.x + NW + 1, portY(a, drag.from[1]), drag.x, drag.y) }));
+      wires.push(h('path', { key: 'drag', className: 'drag', d: wirePath(cat, a.x + NW + 1, portY(a, drag.from[1]), drag.x, drag.y) }));
     }
 
     const doRun = () => {
@@ -1179,7 +1221,7 @@
             h('button', { key: k, type: 'button', className: 'pal', disabled: g.builtin, onClick: () => add(k) }, v.label))))),
       h('main', { className: 'fl-main' },
         h('div', { className: 'fl-bar' },
-          failed ? h('span', { className: 'fl-err dm-grow' }, failed)
+          failed ? h('div', { className: 'dm-grow' }, h(E.Banner, { type: 'error', title: failed }))
             : h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
               h('span', { key: 't' }, run.ran), h('span', { key: 'n' }, `${outputs.length} 项输出`)] : null),
           h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程')),
@@ -1197,7 +1239,7 @@
         } },
           h('div', { className: 'fl-in', style: { width: W, height: H } },
             h('svg', { className: 'fl-w', width: W, height: H }, wires),
-            g.nodes.map(nodeEl))),
+            nodeEls)),
         outputs.length ? h('section', { className: 'outs' },
           h('h2', { className: 'fs-lead', style: { margin: 0 } }, '输出'),
           h(FlowOutputs, { fid: g.id, outputs })) : null),
@@ -1307,11 +1349,9 @@
       outputs.length ? h('div', { className: 'sum' }, outputs.map((o, i) => h('div', { key: i, className: 'dm-meta' }, h('span', null, o.name), o.meta.map((m, j) => h('span', { key: j }, m))))) : null);
   }
 
-  const FLOW_OUT = { export: '压缩包', paper: '练习卷', newset: '题组' };
-
   /** The flows: the list, and the one picked with its conditions, what it makes and the
       two actions, 编辑流程 and 运行流程. */
-  function FlowListPage({ current, reloadSets, toast }) {
+  function FlowListPage({ current, reloadSets, templates, sets, toast }) {
     const [flows, setFlows] = useState(null);
     const [renameId, setRenameId] = useState(null);     // 重命名流程 from a list item's menu
     const [deleting, setDeleting] = useState(null);
@@ -1330,12 +1370,12 @@
         !flows ? h(E.Loading, null) : flows.length ? h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '流程', value: f && f.id,
           onChange: go,
           items: flows.map((x) => ({ value: x.id, icon: 'i-grid', title: x.name, subtitle: x.summary,
-            trailing: h(MoreMenu, { items: [
-              x.builtin ? null : { label: '重命名流程', onClick: () => { setRenameId(x.id); go(x.id); } },
+            trailing: h(MoreMenu, { label: '更多操作', tip: false, items: [
+              x.builtin ? null : { label: '重命名', onClick: () => { setRenameId(x.id); go(x.id); } },
               { label: '复制流程', onClick: () => copy(x) },
               x.builtin ? null : { label: '删除流程', danger: true, onClick: () => setDeleting(x) }] }) })) })
           : h(E.EmptyState, { icon: 'i-grid', title: '没有流程' })),
-      f ? h(FlowOverview, { key: f.id, fid: f.id, reload, reloadSets, toast, rename: renameId === f.id, onRename: () => setRenameId(null) })
+      f ? h(FlowOverview, { key: f.id, fid: f.id, reload, reloadSets, templates, sets, toast, rename: renameId === f.id, onRename: () => setRenameId(null) })
         : h('main', { className: 'setmain empty-main' }, flows ? h(E.EmptyState, { icon: 'i-grid', title: '没有流程' }) : null),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(null),
         onConfirm: () => send('DELETE', '/api/flows/' + deleting.id).then(() => reload())
@@ -1344,45 +1384,43 @@
       h('p', null, `删除后 ${deleting.name} 将无法恢复。`)) : null);
   }
 
-  function FlowOverview({ fid, reload, reloadSets, toast, rename, onRename }) {
+  /** A flow picked in the list: its name and conditions, 编辑流程 and 运行流程, a picture of
+      the graph, and what the last run made. */
+  function FlowOverview({ fid, reload, reloadSets, templates, sets, toast, rename, onRename }) {
     const [g, setG] = useState(null);
-    const [run, setRun] = useState(null);
+    const [last, setLast] = useState(undefined);       // the last run: {ran, errors, outputs}, null: never run
     const [running, setRunning] = useState(false);
     const [renaming, setRenaming] = useState(false);
     const [cat, setCat] = useState(null);
     useEffect(() => { api('/api/flows/' + fid).then(setG).catch(() => setG(false)); }, [fid]);
+    useEffect(() => { api(`/api/flows/${fid}/last`).then(setLast).catch(() => setLast(null)); }, [fid]);
     useEffect(() => { api('/api/flows/catalog').then(setCat); }, []);
     useEffect(() => { if (rename && g) { setRenaming(true); onRename(); } }, [rename, !!g]);
     if (g === false) return h('main', { className: 'setmain empty-main' }, h(E.EmptyState, { icon: 'i-doc', title: '流程不存在' }));
-    if (!g) return h('main', { className: 'setmain' }, h(E.Loading, null));
+    if (!g || !cat) return h('main', { className: 'setmain' }, h(E.Loading, null));
     const doRun = () => {
       setRunning(true);
-      send('POST', `/api/flows/${g.id}/run`, g).then((r) => { setRun(r); reloadSets(); })
+      send('POST', `/api/flows/${g.id}/run`, g).then((r) => { setLast(r); reloadSets(); })
         .catch((e) => toast('error', e.message)).finally(() => setRunning(false));
     };
     const saveName = (name) => send('PUT', '/api/flows/' + g.id, { ...g, name })
       .then((n) => { setG({ ...g, name: n.name }); reload(); }).catch((e) => toast('error', e.message));
-    const failed = run && failure(run, (id) => { const n = g.nodes.find((x) => x.id === id); return n && (cat ? cat.nodes[n.type].label : n.type); });
-    const conds = (g.summary || '').split('、').filter(Boolean);
-    const makes = g.nodes.filter((n) => FLOW_OUT[n.type]).map((n) => FLOW_OUT[n.type]);
+    const failed = last && failure(last, (id) => { const n = g.nodes.find((x) => x.id === id); return n && cat.nodes[n.type] && cat.nodes[n.type].label; });
     return h('main', { className: 'setmain fo' },
       h('header', { className: 'fo-head' },
         h('div', { className: 'page-head dm-grow' },
           h(EditableTitle, { value: g.name, readOnly: g.builtin, editing: renaming, setEditing: setRenaming, label: '重命名流程', onSave: saveName }),
-          h('div', { className: 'dm-meta' }, h('span', null, `${g.nodes.length} 个节点`), g.created ? h('span', null, g.created) : null)),
-        h(E.Button, { variant: 'primary', size: 'md', onClick: () => { location.hash = '#/flows/' + g.id; } }, '编辑流程'),
+          h('div', { className: 'dm-meta' }, g.summary ? h('span', null, g.summary) : null, last ? h('span', { className: 't' }, last.ran) : null)),
+        h(E.Button, { variant: 'primary', size: 'md', icon: 'i-edit', onClick: () => { location.hash = '#/flows/' + g.id; } }, '编辑流程'),
         h(E.Button, { variant: 'primary', size: 'md', disabled: running, loading: running, onClick: doRun }, '运行流程')),
+      h(FlowPreview, { key: g.id, g, cat, templates, sets }),
       h('section', { className: 'fo-sec' },
-        h('h2', { className: 'fs-lead fo-title' }, '条件'),
-        conds.length ? h('ul', { className: 'fo-items' }, conds.map((c, i) => h('li', { key: i }, c))) : h('span', { className: 'empty-note' }, '没有条件')),
-      h('section', { className: 'fo-sec' },
-        h('h2', { className: 'fs-lead fo-title' }, '输出'),
+        h('h2', { className: 'fs-lead fo-title' }, '上次输出'),
         running ? h(E.Loading, { label: '正在运行流程' })
-          : failed ? h('span', { className: 'fl-err' }, failed)
-          : run ? h(React.Fragment, null,
-            h('div', { className: 'dm-meta' }, h('span', null, run.ran), h('span', null, `${run.outputs.length} 项输出`)),
-            h(FlowOutputs, { fid: g.id, outputs: run.outputs }))
-          : makes.length ? h('ul', { className: 'fo-items' }, makes.map((m, i) => h('li', { key: i }, m))) : h('span', { className: 'empty-note' }, '没有输出')));
+          : last === undefined ? h(E.Loading, null)
+          : !last ? h('span', { className: 'empty-note' }, '未运行流程')
+          : failed ? h(E.Banner, { type: 'error', title: failed })
+          : h(FlowOutputs, { fid: g.id, outputs: last.outputs })));
   }
 
   function KindTabs({ value }) {
@@ -1489,7 +1527,7 @@
     else if (page === 'sets' && sub === 'board') {
       body = cur ? h(BoardPage, { key: subArg, s: cur, bid: subArg, acts }) : h(E.Loading, null);
     } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
-    else if (page === 'templates' && arg === 'flows') body = h(FlowListPage, { current: sub, reloadSets, toast });
+    else if (page === 'templates' && arg === 'flows') body = (templates.length ? h(FlowListPage, { current: sub, reloadSets, templates, sets, toast }) : h(E.Loading, null));
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);
     else if (page === 'templates') {
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast, acts }) : h(E.Loading, null);
