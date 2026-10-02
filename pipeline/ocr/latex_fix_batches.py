@@ -95,7 +95,7 @@ def scheme_pages(doc, q, col=0.13):
     if first is None:                    # some schemes set the question column further in
         return scheme_pages(doc, q, 0.25) if col < 0.25 else []
     end = max(last, nxt if nxt is not None else last)
-    return list(range(first, min(end, first + 3) + 1))
+    return list(range(first, min(end, first + 7) + 1))
 
 
 def render(path, pages, stem):

@@ -110,7 +110,7 @@ def _image(path):
 MARK = re.compile(r"^(\*|D|SC\s*)?[A-Z]{1,2}\d")
 PART = re.compile(r"^\s*(\d+(?:\([a-z]+\))?(?:\([ivx]+\))?)\s+")
 CODES = re.compile(r"(?:(?:\*|D|SC\s*)?[A-Z]{1,2}\d+(?:\s*FT|ft)?\*?\s*)+")
-LABEL = re.compile(r"^\s*\d+\([a-z]+\)(?:\([ivx]+\))?\s")
+LABEL = re.compile(r"^\s*\d+(?:\([a-z]+\)(?:\([ivx]+\))?\s|\s{2}\S)")   # 3(b) , or a bare 5 and two spaces
 
 
 def _breaks(text):

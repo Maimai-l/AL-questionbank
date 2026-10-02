@@ -30,6 +30,8 @@ def main():
         assert f["column"] in ("ms_latex", "ms_text", "question_latex")
         text = con.execute(f"SELECT {f['column']} FROM questions WHERE id=?",
                            (f["id"],)).fetchone()[0] or ""
+        if f["find"] in f["replace"] and f["replace"] in text:
+            continue                         # already applied (the replacement contains the text it replaces)
         if f["find"] not in text:
             print(f"{f['id']}: 未找到原文,跳过(已改过或已重新识别)")
             continue
