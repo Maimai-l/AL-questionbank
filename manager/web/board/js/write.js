@@ -1,0 +1,234 @@
+// 题目卷白板(docs/data-manager.md F5):白板应用的书写界面接到一块题目卷白板上。
+//
+// 书写、橡皮擦、撤销、同步和视口都在 inksync 的 InkPad 里;工具栏、颜色与粗细、
+// iPad 上的笔具盘来自白板应用的 ui.js。白板应用里管白板列表、设置、更新的部分
+// 这里不用:一个页面只写一块白板,导出 PDF 在顶栏。
+
+import { InkPad, deviceClientId } from "/inksync/pad.js";
+import { isTextField } from "/inksync/util.js";
+import { UI } from "./ui.js";
+import { icon } from "./icons.js";
+import { boardView, loadFingerDraw, saveFingerDraw } from "./boards.js";
+import { iconButton } from "./ui-common.js";
+import { el } from "/inksync/util.js";
+
+const BOARD = decodeURIComponent(location.pathname.split("/").pop());
+
+function role() {
+  return navigator.maxTouchPoints > 1 || /iPad|iPhone/.test(navigator.userAgent) ? "ipad" : "mac";
+}
+
+/** 白板应用的界面,去掉右上角那一组(白板列表、设置、导出 PNG);Mac 上保留缩放。 */
+class WriteUI extends UI {
+  buildCorner() {
+    if (this.role !== "mac") return;
+    this.root.append(
+      el("div", { id: "zoombar", class: "pill" }, [
+        iconButton("zoomIn", "放大", () => this.actions.onZoom(1.25)),
+        iconButton("fit", "回到内容", () => this.actions.onFit()),
+        iconButton("zoomOut", "缩小", () => this.actions.onZoom(0.8)),
+      ]),
+    );
+  }
+
+  setPerms(perms) {
+    this.perms = perms;
+    if (this.clearButton) this.clearButton.hidden = !this.may("clear");
+    if (this.pk) this.pk.allowClear = this.may("clear");
+  }
+}
+
+class Writer extends InkPad {
+  constructor() {
+    const r = role();
+    document.documentElement.dataset.role = r;
+    super({
+      role: r,
+      clientId: deviceClientId(),
+      target: { space: "", board: BOARD, follow: false },
+      fingerDraw: loadFingerDraw(),
+      stage: document.getElementById("stage"),
+      base: document.getElementById("base"),
+      live: document.getElementById("live"),
+    });
+    this.ui = new WriteUI({ role: r, native: false, perms: new Set(["clear"]), actions: this.actions() });
+    this.tool = this.ui.toolState();
+    this.bindPad();
+    this.bindHead();
+    this.bindKeys();
+    this.start();
+  }
+
+  actions() {
+    return {
+      isNative: () => false,
+      onFingerDraw: (enabled) => {
+        this.input.setFingerDraw(enabled);
+        saveFingerDraw(enabled);
+      },
+      onToolChange: (tool) => this.setTool(tool),
+      onUndo: () => this.undo(),
+      onRedo: () => this.redo(),
+      onClear: () => this.clearBoard(),
+      onZoom: (factor) => this.zoom(factor),
+      onFit: () => this.fit(),
+      onToggleDebug: () => this.perf.toggle(),
+    };
+  }
+
+  bindPad() {
+    const root = document.documentElement;
+    this.on("status", (status) => this.ui.setStatus(status));
+    this.on("history", ({ undo, redo }) => {
+      this.ui.setUndoEnabled(undo);
+      this.ui.setRedoEnabled(redo);
+    });
+    this.on("meta", (meta) => {
+      this.ui.setMeta(boardView(meta));
+      this.showMeta(meta);
+    });
+    this.on("shell", (shell) => {
+      root.dataset.shell = shell.active ? "active" : "inactive";
+    });
+    this.on("strokestart", () => {
+      root.dataset.drawing = "1";
+      this.ui.strokeStarted();
+    });
+    this.on("strokeend", () => {
+      delete root.dataset.drawing;
+    });
+    this.on("interrupted", () => {
+      this.ui.showNotice(
+        "scribble",
+        "笔迹被系统打断了几次。iPad 的「随手写」会抢走 Apple Pencil 的输入," +
+          "在 设置 → Apple Pencil 里关掉它即可。",
+      );
+    });
+    this.on("locked", ({ locked, unlock }) => {
+      root.toggleAttribute("data-locked", !!locked);
+      if (locked) this.ui.showLocked(locked, unlock);
+      else this.ui.hideLocked();
+    });
+    this.on("error", ({ reason }) => this.ui.message(`打不开这块白板(${reason})`, "close", 8000));
+    this.on("deleted", () => this.ui.message("这块白板已被删除", "close", 8000));
+  }
+
+  bindKeys() {
+    addEventListener("keydown", (event) => {
+      if (isTextField(event.target)) return;
+      const meta = event.metaKey || event.ctrlKey;
+      const key = event.key.toLowerCase();
+      if (meta && key === "z") {
+        event.preventDefault();
+        if (event.shiftKey) this.redo();
+        else this.undo();
+      } else if (meta && key === "y") {
+        event.preventDefault();
+        this.redo();
+      } else if (meta && (key === "0" || key === ")")) {
+        event.preventDefault();
+        this.fit();
+      } else if (meta && (key === "=" || key === "+")) {
+        event.preventDefault();
+        this.zoom(1.25);
+      } else if (meta && key === "-") {
+        event.preventDefault();
+        this.zoom(0.8);
+      }
+    });
+  }
+
+  // ------------------------------------------------------------ 顶栏
+
+  bindHead() {
+    const back = document.getElementById("wb-back");
+    back.innerHTML = icon("back");
+    document.getElementById("wb-export").addEventListener("click", () => this.openExport());
+    setInterval(() => this.showPage(), 250);
+  }
+
+  showMeta(meta) {
+    this.meta = meta;
+    const set = meta.data && meta.data.set;
+    document.getElementById("wb-name").textContent = meta.name || "";
+    document.title = meta.name || "白板";
+    if (set) document.getElementById("wb-back").href = `/#/sets/${set}`;
+    this.page = -1;
+    this.showPage();
+  }
+
+  /** 视口中央所在的那一页:题号与页码。 */
+  showPage() {
+    const layers = (this.state && this.state.layers) || [];
+    if (!layers.length || !this.renderer) return;
+    const v = this.viewport;
+    const cy = (this.renderer.viewH / 2 - v.y) / v.scale;
+    let n = 0;
+    for (let i = 0; i < layers.length; i++) if (cy >= layers[i].y - 12) n = i;
+    if (n === this.page) return;
+    this.page = n;
+    const labels = (this.meta && this.meta.data && this.meta.data.labels) || [];
+    document.getElementById("wb-label").textContent = labels[n] || "";
+    document.getElementById("wb-page").textContent = `${n + 1} / ${layers.length}`;
+  }
+
+  // ------------------------------------------------------------ 导出
+
+  openExport() {
+    if (this.exportDialog) return;
+    const name = el("input", { type: "text", value: `${(this.meta && this.meta.name) || "题组"} 作答`.replace(/\//g, "-") });
+    const scheme = el("input", { type: "checkbox" });
+    const explain = el("input", { type: "checkbox" });
+    const go = el("button", { class: "btn primary", type: "button" }, "下载 PDF");
+    const sync = () => {
+      go.textContent = scheme.checked || explain.checked ? "下载 ZIP" : "下载 PDF";
+    };
+    scheme.addEventListener("change", sync);
+    explain.addEventListener("change", sync);
+    const close = () => {
+      scrim.remove();
+      this.exportDialog = null;
+    };
+    const cancel = el("button", { class: "btn", type: "button", onclick: close }, "取消");
+    go.addEventListener("click", async () => {
+      go.disabled = true;
+      try {
+        await this.persist();
+        const r = await fetch(`/api/boards/${BOARD}/export`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: name.value, scheme: scheme.checked, explanation: explain.checked }),
+        });
+        if (!r.ok) throw new Error((await r.text()) || r.statusText);
+        const blob = await r.blob();
+        const disp = r.headers.get("Content-Disposition") || "";
+        const m = disp.match(/filename\*=UTF-8''([^;]+)/);
+        const a = el("a", { href: URL.createObjectURL(blob), download: m ? decodeURIComponent(m[1]) : "answers.pdf" });
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+        close();
+        this.ui.toast("check");
+      } catch (err) {
+        go.disabled = false;
+        this.ui.message(`导出失败:${String(err.message || err).slice(0, 80)}`, "close", 6000);
+      }
+    });
+    const dialog = el("div", { class: "wb-export", role: "dialog" }, [
+      el("h2", {}, "导出 PDF"),
+      el("label", { class: "field" }, ["文件名", el("div", { class: "name" }, [name, el("span", {}, ".pdf")])]),
+      el("div", { class: "checks" }, [
+        el("label", {}, [scheme, "评分细则"]),
+        el("label", {}, [explain, "详解"]),
+      ]),
+      el("div", { class: "actions" }, [cancel, go]),
+    ]);
+    const scrim = el("div", { class: "scrim", onclick: (e) => { if (e.target === scrim) close(); } }, [dialog]);
+    this.ui.root.append(scrim);
+    this.exportDialog = scrim;
+    name.focus();
+  }
+}
+
+window.whiteboard = new Writer();

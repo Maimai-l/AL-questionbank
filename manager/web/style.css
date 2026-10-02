@@ -104,3 +104,5 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .tpl-src:focus { border-color: var(--color-border-strong, var(--color-border-subtle)); }
 .opts { display: flex; flex-direction: column; gap: 24px; }
 .opts.locked { pointer-events: none; opacity: .6; }
+.panel-sub { display: flex; flex-direction: column; gap: 4px; padding-left: 16px; border-left: 2px solid var(--color-border-subtle); }
+.panel-sub-title { color: var(--color-text-secondary); margin-top: 4px; }

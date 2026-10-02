@@ -406,13 +406,29 @@
 
   const download = (url) => { const a = document.createElement('a'); a.href = url; a.download = ''; document.body.appendChild(a); a.click(); a.remove(); };
 
+  const fetchFile = (url, body, toast) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    .then((r) => { if (!r.ok) throw new Error(r.statusText); return Promise.all([r.blob(), r.headers.get('Content-Disposition') || '']); })
+    .then(([b, disp]) => {
+      const m = disp.match(/filename\*=UTF-8''([^;]+)/);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(b);
+      a.download = m ? decodeURIComponent(m[1]) : '';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    })
+    .catch((e) => toast('error', e.message));
+
   function SetPanel({ s, templates, toast }) {
     const [pages, setPages] = useState(null);
     const [tid, setTid] = useState('default');
+    const [boards, setBoards] = useState(null);
     useEffect(() => {
       setPages(null);
       if (s.count) api(`/api/sets/${s.id}/paper`).then((p) => setPages(p.pages)).catch(() => setPages(0));
     }, [s.id, s.items.join(), s.name]);
+    useEffect(() => { api(`/api/sets/${s.id}/boards`).then(setBoards).catch(() => setBoards(null)); }, [s.id, s.items.join()]);
+    const openBoard = () => send('POST', `/api/sets/${s.id}/board`).then((b) => { location.href = '/write/' + b.id; })
+      .catch((e) => toast('error', e.message));
     const docRow = (label, kind, n) => h('div', { className: 'panel-row' },
       h('span', { className: 'fs-small', style: { flexGrow: 1 } }, label),
       h('span', { className: 'dm-meta', style: { fontSize: 12 } }, h('span', null, h('b', null, n), ' 题')),
@@ -424,7 +440,22 @@
           h('h2', { className: 'fs-lead', style: { margin: 0, flexGrow: 1 } }, '题目卷'),
           pages != null ? h('span', { className: 'dm-meta' }, h('span', null, h('b', null, pages), ' 页')) : null,
           h(E.IconButton, { icon: 'i-arrow-r', label: '打开题目卷', variant: 'ghost', size: 'sm', disabled: !s.count, onClick: () => { location.hash = `#/sets/${s.id}/paper`; } })),
-        h('div', null, h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-doc', disabled: !s.count || pages == null, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF'))),
+        h('div', { style: { display: 'flex', gap: 8 } },
+          h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-doc', disabled: !s.count || pages == null, onClick: () => download(`/api/sets/${s.id}/paper.pdf`) }, '下载 PDF'),
+          h(E.Button, { variant: 'secondary', size: 'sm', disabled: !s.count || pages == null, onClick: openBoard }, '打开白板')),
+        boards && (boards.boards.length || boards.answers) ? h('div', { className: 'panel-sub' },
+          boards.boards.length ? h(React.Fragment, null,
+            h('span', { className: 'fs-small panel-sub-title' }, '白板'),
+            boards.boards.map((b) => h('div', { key: b.id, className: 'panel-row' },
+              h('div', { className: 'dm-meta', style: { flexGrow: 1, fontSize: 12 } }, h('span', { className: 't' }, b.updated), h('span', null, h('b', null, b.pages), ' 页')),
+              h(E.IconButton, { icon: 'i-doc', label: '导出作答 PDF', variant: 'ghost', size: 'sm', tooltip: 'below',
+                onClick: () => fetchFile(`/api/boards/${b.id}/export`, {}, toast).then(() => api(`/api/sets/${s.id}/boards`).then(setBoards)) }),
+              h(E.IconButton, { icon: 'i-arrow-r', label: '打开白板', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: () => { location.href = '/write/' + b.id; } })))) : null,
+          boards.answers ? h(React.Fragment, null,
+            h('span', { className: 'fs-small panel-sub-title' }, '作答 PDF'),
+            h('div', { className: 'panel-row' },
+              h('div', { className: 'dm-meta', style: { flexGrow: 1, fontSize: 12 } }, h('span', { className: 't' }, boards.answers.updated), h('span', null, h('b', null, boards.answers.pages), ' 页')),
+              h(E.IconButton, { icon: 'i-doc', label: '下载作答 PDF', variant: 'ghost', size: 'sm', tooltip: 'below', onClick: () => download(`/api/sets/${s.id}/answers.pdf`) }))) : null) : null),
       h('section', null,
         h('h2', { className: 'fs-lead', style: { margin: '0 0 8px' } }, '评分细则与详解'),
         docRow('评分细则', 'scheme', s.docs.scheme),

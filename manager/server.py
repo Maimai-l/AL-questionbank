@@ -24,6 +24,13 @@ sets and later outputs live in paths.WORK.
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
   /api/sets/<id>/zip/preview  POST {template} or {settings, body}: files, sizes, README (F7)
   /api/sets/<id>/zip          POST the same: the ZIP
+  /api/sets/<id>/board   POST: open (make) the writing board for the set's question paper (F5)
+  /api/sets/<id>/boards  GET the set's boards and its latest answer PDF
+  /api/sets/<id>/answers.pdf  the latest exported answer PDF
+  /api/boards/<id>/page/<n>?w=   a page of a board's paper
+  /api/boards/<id>/export     POST {name, scheme, explanation}: the paper with the ink (PDF, or ZIP)
+  /write/<board id>      the writing page (white-board's toolbar and pen tray, manager/web/board/)
+  /ws, /inksync/         ink sync and its front end (manager/vendor/inksync, from white-board)
 """
 import json
 import os
@@ -34,9 +41,22 @@ from lib import paths
 import asyncio
 import urllib.parse
 
-from manager import bank, docs, export, paper, sets, settings, templates
+from manager import bank, board, docs, export, paper, sets, settings, templates
+from manager.vendor.inksync import DefaultPolicy, FileStorage, Hub, mount, serve_sdk
+from manager.vendor.inksync.netinfo import advertise
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
+HUB = web.AppKey("hub", Hub)
+
+
+class BoardPolicy(DefaultPolicy):
+    """Boards are made by the server from a set; pages can write and clear, not rename."""
+
+    def can_create(self, who, board_id, spec):
+        return False
+
+    def can_edit_meta(self, who, meta, patch):
+        return False
 IMG_DIRS = {"img9709", "img9231", "img9618", "img_adm", "img_tara",
             "img9709" + paths.ANS_SUFFIX, "img9231" + paths.ANS_SUFFIX, "img9618" + paths.ANS_SUFFIX}
 
@@ -233,6 +253,61 @@ async def zip_download(request):
         "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(export.zip_name(args[0]))})
 
 
+async def board_open(request):
+    s = _get(request.match_info["sid"])
+    if not s["items"]:
+        raise web.HTTPBadRequest(text="题组中没有题目")
+    return web.json_response({"id": await board.open_for(request.app[HUB], s)})
+
+
+async def board_list(request):
+    s = _get(request.match_info["sid"])
+    return web.json_response({"boards": board.boards_of(request.app[HUB], s["id"]), "answers": board.answers_info(s)})
+
+
+async def answers_pdf(request):
+    s = _get(request.match_info["sid"])
+    p = export.answer_pdf(s)
+    if not p:
+        raise web.HTTPNotFound()
+    return web.FileResponse(p, headers={
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(s["name"] + " 作答.pdf")})
+
+
+def _board(request):
+    bid = request.match_info["bid"]
+    meta = request.app[HUB].board_meta(bid)
+    if not meta or not os.path.isfile(board.pdf_of(bid)):
+        raise web.HTTPNotFound()
+    return bid, meta
+
+
+async def board_page(request):
+    bid, meta = _board(request)
+    n = int(request.match_info["n"])
+    if n >= len(meta["layers"]):
+        raise web.HTTPNotFound()
+    png = await asyncio.get_running_loop().run_in_executor(
+        None, board.page_png, bid, n, request.query.get("w", "1024"))
+    return web.Response(body=png, content_type="image/png", headers={"Cache-Control": "max-age=31536000, immutable"})
+
+
+async def board_export(request):
+    bid, meta = _board(request)
+    s = _get(meta["data"]["set"])
+    b = await request.json()
+    name = (b.get("name") or "").strip().replace("/", "-") or s["name"].replace("/", "-") + " 作答"
+    data, fname = await board.export_board(request.app[HUB], s, bid, name, bool(b.get("scheme")), bool(b.get("explanation")))
+    return web.Response(body=data, content_type="application/zip" if fname.endswith(".zip") else "application/pdf",
+                        headers={"Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(fname)})
+
+
+async def write_page(request):
+    _board(request)
+    return web.FileResponse(os.path.join(WEB, "board", "write.html"), headers={"Cache-Control": "no-cache"})
+
+
 async def image(request):
     rel = request.match_info["path"]
     if rel.split("/")[0] not in IMG_DIRS or ".." in rel:
@@ -277,6 +352,12 @@ def make_app():
     app.router.add_get(r"/doc/{sid}/{kind}", reading)
     app.router.add_post(r"/api/sets/{sid}/zip/preview", zip_preview)
     app.router.add_post(r"/api/sets/{sid}/zip", zip_download)
+    app.router.add_post(r"/api/sets/{sid}/board", board_open)
+    app.router.add_get(r"/api/sets/{sid}/boards", board_list)
+    app.router.add_get(r"/api/sets/{sid}/answers.pdf", answers_pdf)
+    app.router.add_get(r"/api/boards/{bid}/page/{n:\d+}", board_page)
+    app.router.add_post(r"/api/boards/{bid}/export", board_export)
+    app.router.add_get(r"/write/{bid}", write_page)
     app.router.add_get("/api/templates", template_list)
     app.router.add_post("/api/templates", template_create)
     app.router.add_put(r"/api/templates/{tid}", template_put)
@@ -287,10 +368,17 @@ def make_app():
     app.router.add_get(r"/paper/{qid}", original)
     app.router.add_static("/static/", WEB)
     app.router.add_static("/vendor/", os.path.join(paths.ASSETS, "vendor"))
+    app.router.add_static("/board/", os.path.join(WEB, "board"))
+    hub = Hub(FileStorage(board.ROOT), policy=BoardPolicy())
+    app[HUB] = hub
+    mount(app, hub, path="/ws")
+    serve_sdk(app, prefix="/inksync/")
     return app
 
 
 def run(port=8910, host="0.0.0.0"):
-    print(f"数据管理页: http://localhost:{port}/(局域网内的 iPad 用本机地址访问)\n"
+    print(f"数据管理页: http://localhost:{port}/(局域网内的 iPad 用本机地址访问,白板 iPad 外壳的来源填 @qb)\n"
           f"题组: {paths.SETS}\n按 Ctrl-C 停止")
-    web.run_app(make_app(), host=host, port=port, print=None)
+    app = make_app()
+    advertise(app, port=port, source="qb", path="/")     # the iPad shell finds it as @qb
+    web.run_app(app, host=host, port=port, print=None)
