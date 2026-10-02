@@ -438,8 +438,21 @@ async def index(request):
     return web.FileResponse(os.path.join(WEB, "index.html"), headers={"Cache-Control": "no-cache"})
 
 
+# The page's own scripts and styles change with the code: the browser checks them on every
+# load (a 304 when unchanged) instead of running a copy it kept from an older version.
+FRESH = ("/static/", "/board/", "/inksync/")
+
+
+@web.middleware
+async def revalidate(request, handler):
+    resp = await handler(request)
+    if request.path.startswith(FRESH) and "Cache-Control" not in resp.headers:
+        resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
 def make_app():
-    app = web.Application()
+    app = web.Application(middlewares=[revalidate])
     app.router.add_get("/", index)
     app.router.add_get("/api/meta", meta)
     app.router.add_get("/api/questions", questions)
