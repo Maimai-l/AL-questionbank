@@ -245,6 +245,11 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 /* a row clicked with the mouse is focused for the arrow keys but shows no focus ring (SelTable) */
 .sel-tbl tbody[data-pointer] tr:focus-visible td { box-shadow: none; }
 
-/* a list item's "more" button follows the item's colours (ink or yellow when selected) */
-.li .trail .btn--ghost { --btn-fg: var(--li-fg); --btn-bg-h: color-mix(in srgb, var(--li-fg) 12%, transparent); --btn-bg-a: color-mix(in srgb, var(--li-fg) 20%, transparent); }
+/* borderless icon buttons are the icon alone: no box behind it on hover, on press or while its
+   menu is open; the icon darkens instead */
+.btn--ghost.ibtn { --btn-bg-h: transparent; --btn-bg-a: transparent; --btn-fg: var(--color-text-secondary); --btn-fg-h: var(--color-text-primary); }
+.btn--ghost.ibtn[aria-expanded="true"] { --btn-fg: var(--color-text-primary); }
+/* in a list item it follows the item's colours (ink, or yellow when selected) */
+.li .trail .btn--ghost.ibtn { --btn-fg: var(--li-fg2); --btn-fg-h: var(--li-fg); }
+.li .trail .btn--ghost.ibtn[aria-expanded="true"] { --btn-fg: var(--li-fg); }
 .li .trail { margin-right: -12px; }
