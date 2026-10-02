@@ -20,6 +20,10 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>/paper.pdf, /api/sets/<id>/paper/<n>.png
   /doc/<id>/scheme, /doc/<id>/explanation   reading documents (F6); ?download=1 to save
   /api/settings          GET, PUT {cie_space, adm_layout, footer_*, theme}
+  /api/templates         GET list, POST create {name, settings, body}
+  /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
+  /api/sets/<id>/zip/preview  POST {template} or {settings, body}: files, sizes, README (F7)
+  /api/sets/<id>/zip          POST the same: the ZIP
 """
 import json
 import os
@@ -30,7 +34,7 @@ from lib import paths
 import asyncio
 import urllib.parse
 
-from manager import bank, docs, paper, sets, settings
+from manager import bank, docs, export, paper, sets, settings, templates
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
 IMG_DIRS = {"img9709", "img9231", "img9618", "img_adm", "img_tara",
@@ -175,6 +179,60 @@ async def settings_put(request):
     return web.json_response(settings.save(await request.json()))
 
 
+async def template_list(request):
+    return web.json_response(templates.all_templates())
+
+
+async def template_create(request):
+    b = await request.json()
+    return web.json_response(templates.create(b.get("name", ""), b.get("settings"), b.get("body", "")))
+
+
+async def template_put(request):
+    b = await request.json()
+    try:
+        return web.json_response(templates.update(request.match_info["tid"], b.get("name"),
+                                                  b.get("settings"), b.get("body")))
+    except KeyError:
+        raise web.HTTPNotFound()
+    except PermissionError:
+        raise web.HTTPForbidden()
+
+
+async def template_delete(request):
+    try:
+        templates.delete(request.match_info["tid"])
+    except KeyError:
+        raise web.HTTPNotFound()
+    except PermissionError:
+        raise web.HTTPForbidden()
+    return web.json_response({"ok": True})
+
+
+async def _export_args(request):
+    s = _get(request.match_info["sid"])
+    b = await request.json()
+    if b.get("template"):
+        try:
+            t = templates.get(b["template"])
+        except KeyError:
+            raise web.HTTPNotFound()
+        return s, t["settings"], t["body"]
+    return s, templates.clean(b.get("settings")), b.get("body", "")
+
+
+async def zip_preview(request):
+    args = await _export_args(request)
+    return web.json_response(await asyncio.get_running_loop().run_in_executor(None, export.preview, *args))
+
+
+async def zip_download(request):
+    args = await _export_args(request)
+    data = await asyncio.get_running_loop().run_in_executor(None, export.zip_bytes, *args)
+    return web.Response(body=data, content_type="application/zip", headers={
+        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(export.zip_name(args[0]))})
+
+
 async def image(request):
     rel = request.match_info["path"]
     if rel.split("/")[0] not in IMG_DIRS or ".." in rel:
@@ -217,6 +275,12 @@ def make_app():
     app.router.add_get(r"/api/sets/{sid}/paper.pdf", paper_pdf)
     app.router.add_get(r"/api/sets/{sid}/paper/{n:\d+}.png", paper_page)
     app.router.add_get(r"/doc/{sid}/{kind}", reading)
+    app.router.add_post(r"/api/sets/{sid}/zip/preview", zip_preview)
+    app.router.add_post(r"/api/sets/{sid}/zip", zip_download)
+    app.router.add_get("/api/templates", template_list)
+    app.router.add_post("/api/templates", template_create)
+    app.router.add_put(r"/api/templates/{tid}", template_put)
+    app.router.add_delete(r"/api/templates/{tid}", template_delete)
     app.router.add_get("/api/settings", settings_get)
     app.router.add_put("/api/settings", settings_put)
     app.router.add_get(r"/q/{path:.+}", image)

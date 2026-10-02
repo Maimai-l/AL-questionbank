@@ -1,8 +1,11 @@
 """Question papers (docs/data-manager.md, F4 and section 6): a set laid out on A4 as a PDF.
 
-- A set that is exactly one whole paper, in order, is the original PDF from data/papers/.
+- A set that is exactly one whole paper, in order, is the original PDF from data/papers/
+  (unless the paper needs answer lines, below).
 - A CIE question starts a new page; a crop taller than a page is cut at the whitest row
-  near the page bottom and continues on the next page.
+  near the page bottom and continues on the next page. Papers answered in a separate
+  answer booklet (9709 June 2026 papers 12 and 32) have no answer space: ruled lines
+  are added below the question, two per mark, at least the rest of the page.
 - Admissions questions go two to a page, half a page each (the space below the
   question is for working), or one after another ("flow"), per the settings.
 - The footer holds the set name, paper code and question numbers, and page number,
@@ -25,7 +28,9 @@ from manager import bank, settings
 A4 = (595.0, 842.0)
 SIDE, TOP, BOTTOM = 40.0, 40.0, 52.0
 GAP = 14.0
+LINE = 25.0                              # ruled answer lines, as on the CIE papers
 CACHE = os.path.join(paths.WORK, "papers")
+VERSION = 2                              # part of the cache key: raise when the layout changes
 FONT = "china-s"
 LATIN = "helv"
 CJK = re.compile(r"([\u2e80-\u9fff\u3000-\u303f\uff00-\uffef]+)")
@@ -67,6 +72,19 @@ def whole_paper(rows):
     if all_q != [r["id"] for r in rows]:
         return None
     return bank.paper_pdf(r0)
+
+
+_booklet = {}
+
+
+def booklet(r):
+    """True when the paper is answered in a separate answer booklet (no answer space)."""
+    name = r["qp_pdf"]
+    if name not in _booklet:
+        p = bank.paper_pdf(r)
+        with pymupdf.open(p) if p else pymupdf.open() as d:
+            _booklet[name] = bool(p) and "answer booklet" in d[0].get_text().lower()
+    return _booklet[name]
 
 
 def _cut_row(gray, start, end):
@@ -125,7 +143,17 @@ def layout(rows, opts):
                 if i:
                     new_page("cie")
                 cur.append((png, hpt, r["id"], code, r["q"]))
-                used += hpt
+                used += hpt + GAP
+            if opts["cie_space"] and booklet(r):
+                need = max(8, 2 * (r["marks"] or 4)) * LINE
+                while True:
+                    h = (room - used) // LINE * LINE
+                    if h >= 3 * LINE:
+                        cur.append((None, h, r["id"], code, r["q"]))
+                        need -= h
+                    if need < 3 * LINE:
+                        break
+                    new_page("cie")
             continue
         pieces = _slices(crop, width, room, room)
         if opts["adm_layout"] == "two":
@@ -141,6 +169,14 @@ def layout(rows, opts):
             cur.append((pieces[0][0], min(hpt, room), r["id"], code, r["q"]))
             used += min(hpt, room) + GAP
     return pages
+
+
+def _lines(page, y, h):
+    """Dotted answer lines filling a band of height h from y."""
+    x0, x1 = SIDE + 28, A4[0] - SIDE
+    for k in range(1, int(h // LINE) + 1):
+        yy = y + k * LINE - 4
+        page.draw_line((x0, yy), (x1, yy), color=(0.55, 0.55, 0.55), width=0.5, dashes="[1 2] 0")
 
 
 def _footer(page, n, total, name, items, opts):
@@ -172,7 +208,7 @@ def build(s):
         for p in (paths.resolve(r["image"]), paths.answer_space(r["image"])):
             out.append(int(os.path.getmtime(p)) if p else 0)
         return out
-    key = hashlib.sha1(json.dumps([s["name"], s["items"], {k: opts[k] for k in opts if k != "theme"},
+    key = hashlib.sha1(json.dumps([VERSION, s["name"], s["items"], {k: opts[k] for k in opts if k != "theme"},
                                    [stamp(r) for r in rows]], ensure_ascii=False).encode()).hexdigest()[:12]
     os.makedirs(CACHE, exist_ok=True)
     out = os.path.join(CACHE, f'{s["id"]}-{key}.pdf')
@@ -182,6 +218,8 @@ def build(s):
         if f.startswith(s["id"] + "-"):
             os.remove(os.path.join(CACHE, f))
     original = whole_paper(rows)
+    if original and opts["cie_space"] and booklet(rows[0]):
+        original = None                  # laid out again, to add the answer lines
     if original:
         doc = pymupdf.open(original)
     else:
@@ -193,7 +231,10 @@ def build(s):
             for it in items:
                 png, hpt = it[0], it[1]
                 width = A4[0] - 2 * SIDE
-                page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), stream=png)
+                if png is None:
+                    _lines(page, y, hpt)
+                else:
+                    page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), stream=png)
                 y += (it[5] if len(it) > 5 else hpt) + GAP
             _footer(page, n, len(pages), s["name"], items, opts)
     doc.save(out, garbage=3, deflate=True)

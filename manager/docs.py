@@ -44,7 +44,8 @@ h2 small { color: var(--muted); font-weight: 400; font-size: 13px; }
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 td { padding: 6px 8px; vertical-align: top; border-bottom: 1px solid var(--line); }
 td.code { white-space: nowrap; font-family: ui-monospace, Menlo, monospace; font-size: 13px; width: 64px; }
-td.guide { color: var(--muted); font-size: 13px; white-space: pre-line; width: 38%; }
+td { white-space: pre-line; }
+td.guide { color: var(--muted); font-size: 13px; width: 38%; }
 tr.part td { background: var(--band); font-weight: 600; }
 h3 { font-size: 15px; margin: 16px 0 6px; }
 ul { margin: 6px 0; padding-left: 20px; color: var(--muted); font-size: 14px; }
@@ -72,7 +73,7 @@ def _md(text):
     out = []
     for p in re.split(r"\n{2,}", text or ""):
         if p.strip():
-            out.append("<p>" + re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", _e(p.strip())) + "</p>")
+            out.append("<p>" + re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", _e(p.strip())).replace("&lt;br&gt;", "<br>") + "</p>")
     return "".join(out)
 
 

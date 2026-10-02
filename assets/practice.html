@@ -212,7 +212,8 @@ function typeset(node){
 const esc = s => (s==null?"":String(s)).replace(/[&<>]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));
 
 /* Truth tables, trace tables and frequency tables are stored as pipe tables.
-   Left as text they wrap into mush at any narrow width, so draw them. */
+   Left as text they wrap into mush at any narrow width, so draw them.
+   A line break inside a table cell or a mark-scheme row is stored as <br>. */
 const RULE = /^\s*\|[\s|:-]+\|\s*$/;
 const isRow = l => /^\s*\|.*\|\s*$/.test(l);
 function richText(src){
@@ -221,7 +222,7 @@ function richText(src){
   for (let i = 0; i < lines.length; i++){
     const im = lines[i].trim().match(/^!\[\]\((\S+)\)$/);
     if (im){ out.push({t:"img", v:im[1]}); continue; }
-    if (!isRow(lines[i])) { out.push({t:"p", v:lines[i]}); continue; }
+    if (!isRow(lines[i])) { out.push({t:"p", v:lines[i].replace(/<br>/g, "\n")}); continue; }
     const rows = [];
     while (i < lines.length && isRow(lines[i])){
       if (!RULE.test(lines[i]))
@@ -244,7 +245,7 @@ function richText(src){
     else {
       flush();
       html += `<table class="grid">` + b.v.map((r,ri)=>`<tr>` +
-        r.map(c=>`<${ri?"td":"th"}>${esc(c)}</${ri?"td":"th"}>`).join("") + `</tr>`).join("") + `</table>`;
+        r.map(c=>`<${ri?"td":"th"}>${esc(c).replace(/&lt;br&gt;/g, "<br>")}</${ri?"td":"th"}>`).join("") + `</tr>`).join("") + `</table>`;
     }
   }
   flush();

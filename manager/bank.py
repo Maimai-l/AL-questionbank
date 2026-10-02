@@ -4,7 +4,7 @@ import os
 import re
 import struct
 
-from lib import db, paths
+from lib import db, paths, scheme
 
 EXAMS = [("9709", "9709 Mathematics"), ("9231", "9231 Further Mathematics"),
          ("9618", "9618 Computer Science"), ("TMUA", "TMUA"), ("TSA", "TSA"), ("BMAT", "BMAT")]
@@ -109,22 +109,31 @@ def _image(path):
 
 MARK = re.compile(r"^(\*|D|SC\s*)?[A-Z]{1,2}\d")
 PART = re.compile(r"^\s*(\d+(?:\([a-z]+\))?(?:\([ivx]+\))?)\s+")
+CODES = re.compile(r"(?:(?:\*|D|SC\s*)?[A-Z]{1,2}\d+(?:\s*FT|ft)?\*?\s*)+")
+LABEL = re.compile(r"^\s*\d+\([a-z]+\)(?:\([ivx]+\))?\s")
+
+
+def _breaks(text):
+    """<br> (a line break inside a table cell) as a newline, for plain-text display."""
+    return text.replace("<br>", "\n") if text else text
 
 
 def scheme_rows(ms):
-    """Mark-scheme text (rows of `answer | marks | guidance`) as a list of rows.
-    Lines without a bar continue the guidance of the row above; a bare number
-    is the part total and is dropped."""
-    out = []
+    """Mark-scheme text (rows of `answer  |  marks  |  guidance`, lib/scheme.py) as a
+    list of rows. Lines that are not rows continue the guidance of the row above,
+    unless they open a part (`3(b)`); a bare number is the part total and is dropped."""
+    out, last = [], None
     for line in (ms or "").splitlines():
         if not line.strip():
             continue
-        if "|" not in line:
+        if not scheme.is_row(line) and not LABEL.match(line):
             if re.fullmatch(r"\s*\d+\s*", line) or not out:
                 continue
-            out[-1]["guide"] = (out[-1]["guide"] + "\n" + line.strip()).strip()
+            out[-1]["guide"] = (out[-1]["guide"] + "\n" + _breaks(line.strip())).strip()
             continue
-        cells = [c.strip() for c in line.split("|")]
+        cells = [_breaks(c) for c in scheme.cells(line)]
+        if len(cells) > 1 and CODES.fullmatch(cells[0]) and not CODES.fullmatch(cells[1]):
+            cells.insert(0, "")              # the answer cell was empty
         answer, code = cells[0], cells[1] if len(cells) > 1 else ""
         guide = " | ".join(cells[2:]) if len(cells) > 2 else ""
         m = PART.match(answer)
@@ -135,6 +144,9 @@ def scheme_rows(ms):
             if out and code:                 # part total, then guidance that ran on
                 out[-1]["guide"] = (out[-1]["guide"] + "\n" + code).strip()
             continue
+        if part and part == last:        # the label repeated at the top of a new page
+            part = ""
+        last = part or last
         out.append({"part": part, "answer": answer, "code": code, "guide": guide})
     return out
 
@@ -151,9 +163,9 @@ def detail(qid):
         "marks": r["marks"], "topic": r["topic"], "topic_name": r["topic_name"],
         "diagram": bool(r["has_diagram"]),
         "image": _image(img), "image_space": _image(paths.answer_space(r["image"])),
-        "text": r["question_latex"] or r["question_text"],
+        "text": _breaks(r["question_latex"] or r["question_text"]),
         "scheme": scheme_rows(r["ms_latex"] or r["ms_text"]) if r["syllabus"] in CIE else None,
-        "solution": None if r["syllabus"] in CIE else (r["ms_latex"] or r["ms_text"]),
+        "solution": None if r["syllabus"] in CIE else _breaks(r["ms_latex"] or r["ms_text"]),
         "answer": r["answer"],
         "options": json.loads(r["option_texts"]) if r["option_texts"] else None,
         "explanation": expl,

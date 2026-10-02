@@ -60,7 +60,9 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/text/fix_ms_prefix.py     把 parse_ms_ocr.py 错放到下一题开头的 ms_latex 移回原题
             pipeline/text/split_parts.py       题干与评分细则按小问切开,写 part_data(分值、主题、任务类型)
             pipeline/ocr/drop_partial_ms_ocr.py OCR 评分细则缺小问时改用文本层(111 题,多为 9618 卷 2 第 8 题)
-            pipeline/ocr/apply_ms_fixes.py     重放按原页人工更正的评分细则(ms_fixes.jsonl)
+            pipeline/text/check_latex.py       找出 KaTeX 无法渲染的公式(评分细则按单元格,需 node)
+            pipeline/ocr/latex_fix_batches.py  子 agent 对照原页更正这些公式(plan / verify / apply),写入 ms_fixes.jsonl
+            pipeline/ocr/apply_ms_fixes.py     重放按原页人工更正的评分细则与题干公式(ms_fixes.jsonl)
             pipeline/split/ms_total_from_ocr.py 只有 OCR 细则的题(35 题)从 ms_latex 读小计,写 ms_total / totals_agree
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
@@ -87,6 +89,9 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 - `rebuild_text.py` 在 `rebuild_ms.py` 之前:后者按题面分值判定 `totals_agree`。
 - `split_parts.py` 读 `marks_parts` 与 `topic_parts`,须在第 10 步标签写回之后运行;
   标签或题干改动后重跑一次,导出才会用到新的小问数据。
+- 评分细则每行为 `答案  |  评分代码  |  说明`,列之间是两侧各两个空格的竖线(`lib/scheme.py`);
+  公式中的竖线不带这样的空格。单元格内换行存为 `<br>`,由 `fix_newlines.py` 写入,页面与导出负责显示。
+- `apply_ms_fixes.py` 之后重跑 `split_parts.py`,小问数据才会用到更正后的文本。
 - `drop_partial_ms_ocr.py` 在 OCR 评分细则合并(`merge_ms_ocr.py`)之后、`split_parts.py`
   之前运行,否则小问拿到的是被截断的细则。
 - `explain_batches.py plan` 读 `part_data`,须在 `split_parts.py` 之后;小问标签变化后,

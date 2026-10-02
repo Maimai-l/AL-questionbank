@@ -4,7 +4,8 @@
     python3 pipeline/ocr/apply_ms_fixes.py [--write]
 
 Each line is {"id", "column", "find", "replace", "why"}: the text `find` in
-that column is replaced, checked against the scheme's page image. Lines whose
+that column (ms_latex, ms_text or question_latex) is replaced, checked against
+the page image. latex_fix_batches.py appends the formula corrections. Lines whose
 `find` no longer occurs (already applied, or the scheme was re-OCR'd) are
 reported and skipped. Run after merge_ms_ocr.py, before split_parts.py.
 """
@@ -26,7 +27,7 @@ def main():
     done = 0
     for line in open(FIXES):
         f = json.loads(line)
-        assert f["column"] in ("ms_latex", "ms_text")
+        assert f["column"] in ("ms_latex", "ms_text", "question_latex")
         text = con.execute(f"SELECT {f['column']} FROM questions WHERE id=?",
                            (f["id"],)).fetchone()[0] or ""
         if f["find"] not in text:

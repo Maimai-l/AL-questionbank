@@ -92,7 +92,7 @@
 | 题组 | 名称;有序的题目 ID 列表;来源(查询、手选或导入);创建时间 | `paths.WORK` |
 | 题目卷 | 由题组生成的 PDF;题组内容变化后重新生成 | `paths.WORK` |
 | 书写板 | 一份题目卷对应一块白板;笔迹以矢量保存,与题目卷 PDF 分开存放 | `paths.WORK` |
-| 模板 | 一个模板文件(第 7 节) | 内置模板在仓库 `app/templates/`;用户模板在 `paths.WORK/templates/` |
+| 模板 | 一个模板文件(第 7 节) | 内置模板在仓库 `manager/templates/`;用户模板在 `paths.WORK/templates/` |
 
 `paths.WORK` 中的内容不进 `data/`,不随 `sync.py` 推送。
 
@@ -275,6 +275,11 @@
 | `summary` | 布尔 | `true`、`false` | `true` | 是否附 `summary.md`:题组的题目一览表 |
 | `prompt_file` | 文本 | 文件名 | `README.md` | 说明文字在压缩包中的文件名 |
 
+压缩包中每道题的文件名固定:`question.png`(题图)、`question.md`(题干文字)、`mark_scheme.md`
+(评分细则,CIE 为 Answer | Mark | Guidance 三列表格)、`explanation.md`(详解)。`layout: flat` 时以
+`filename` 的结果加下划线作前缀。没有评分细则或详解的题不生成对应文件。作答 PDF 取自
+`paths.WORK/answers/<题组 ID>.pdf`(F5 写入),不存在时不放入。`manifest.json` 的格式为 `alevel-export/v1`。
+
 ### 7.3 占位符
 
 | 占位符 | 含义 | 示例 |
@@ -283,8 +288,8 @@
 | `{count}` | 题数 | `8` |
 | `{total_marks}` | 总分 | `64` |
 | `{papers}` | 涉及的试卷,以顿号分隔 | `9709/32/M/J/23、9709/31/O/N/22` |
-| `{date}` | 生成日期 | `2026-10-02` |
-| `{question_table}` | 题目一览表(Markdown 表格):序号、试卷代码、题号、分值、小问、主题、文件 | |
+| `{date}` | 题组的创建日期(使重复导出的结果相同) | `2026-10-02` |
+| `{question_table}` | 题目一览表(Markdown 表格):序号、试卷代码、题号、分值、主题 | |
 | `{file_tree}` | 压缩包的目录结构 | |
 | `{index}` | 题目序号,从 1 开始;`{index:02}` 补足两位 | `03` |
 | `{paper_code}` | 试卷代码,斜线换成连字符 | `9709-12-MJ-23` |
