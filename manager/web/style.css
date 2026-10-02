@@ -244,3 +244,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .op-n { min-width: 56px; text-align: right; color: var(--color-text-secondary); white-space: nowrap; }
 /* a row clicked with the mouse is focused for the arrow keys but shows no focus ring (SelTable) */
 .sel-tbl tbody[data-pointer] tr:focus-visible td { box-shadow: none; }
+
+/* a list item's "more" button follows the item's colours (ink or yellow when selected) */
+.li .trail .btn--ghost { --btn-fg: var(--li-fg); --btn-bg-h: color-mix(in srgb, var(--li-fg) 12%, transparent); --btn-bg-a: color-mix(in srgb, var(--li-fg) 20%, transparent); }
+.li .trail { margin-right: -12px; }

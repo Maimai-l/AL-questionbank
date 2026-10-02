@@ -37,8 +37,13 @@
     s.maxHeight = Math.min(320, up ? above : below) + 'px';
     const m = menu.getBoundingClientRect();   // a transformed ancestor (a dialog) moves the origin
     const toRight = menu.parentElement.classList.contains('more-dd');   // a "more" menu opens toward the page, under its button
-    const left = Math.max(8, Math.min(toRight ? r.right - m.width : r.left, innerWidth - m.width - 8));
-    const top = up ? r.top - 4 - m.height : r.bottom + 4;
+    const li = menu.closest('.li');            // a list item's menu: outside the list, level with the item
+    const box = li && li.closest('.list').getBoundingClientRect();
+    const left = li ? Math.min(box.right + 8, innerWidth - m.width - 8)
+      : Math.max(8, Math.min(toRight ? r.right - m.width : r.left, innerWidth - m.width - 8));
+    const top = li ? Math.max(8, Math.min(li.getBoundingClientRect().top, innerHeight - m.height - 8))
+      : up ? r.top - 4 - m.height : r.bottom + 4;
+    if (li) s.maxHeight = '320px';
     s.left = left - m.left + 'px';
     s.top = top - m.top + 'px';
   }
@@ -118,12 +123,15 @@
       document.addEventListener('keydown', key);
       return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', key); };
     }, [open]);
-    return h('div', { ref, className: 'dd more-dd' },
+    const shown = items.filter(Boolean);
+    return h('div', { ref, className: 'dd more-dd', onClick: (e) => e.stopPropagation(), onKeyDown: (e) => e.stopPropagation() },
       h(E.IconButton, { icon: 'i-more', label, variant: 'ghost', size: 'sm', tooltip: open ? undefined : 'below',
         'aria-haspopup': 'menu', 'aria-expanded': open, onClick: () => setOpen(!open) }),
       h('div', { className: 'menu', role: 'menu', hidden: !open },
-        items.filter(Boolean).map((it) => h('button', { key: it.label, type: 'button', role: 'menuitem',
-          className: 'menu-item' + (it.danger ? ' is-danger' : ''), onClick: () => { setOpen(false); it.onClick(); } }, it.label))));
+        shown.map((it, i) => h(React.Fragment, { key: it.label },
+          it.danger && i ? h('div', { className: 'menu-sep', role: 'separator' }) : null,
+          h('button', { type: 'button', role: 'menuitem', className: 'menu-item' + (it.danger ? ' is-danger' : ''),
+            onClick: () => { setOpen(false); it.onClick(); } }, it.label)))));
   }
 
   /** Page actions rendered into the top bar's action slot (App's acts element). */
@@ -539,6 +547,8 @@
   function SetsPage({ sets, current, reloadSets, templates, toast, acts }) {
     const s = sets.find((x) => x.id === current) || sets[0];
     const fileRef = useRef(null);
+    const [renameId, setRenameId] = useState(null);     // 重命名题组 from a list item's menu
+    const [deleting, setDeleting] = useState(null);
     const importFile = (e) => {
       const file = e.target.files[0];
       e.target.value = '';
@@ -566,24 +576,34 @@
         sets.length ? h(E.List, {
           variant: 'two-line', selectable: true, ariaLabel: '题组', value: s ? s.id : undefined,
           onChange: (v) => { location.hash = '#/sets/' + v; },
-          items: sets.map((x) => ({ value: x.id, icon: SOURCE_ICON[x.source] || 'i-list', title: x.name, subtitle: `${x.count} 题 ${x.marks} 分` })),
+          items: sets.map((x) => ({ value: x.id, icon: SOURCE_ICON[x.source] || 'i-list', title: x.name, subtitle: `${x.count} 题 ${x.marks} 分`,
+            trailing: h(MoreMenu, { items: [
+              { label: '重命名题组', onClick: () => { setRenameId(x.id); location.hash = '#/sets/' + x.id; } },
+              { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${x.id}/export`; } },
+              { label: '删除题组', danger: true, onClick: () => setDeleting(x) }] }) })),
         }) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' })),
-      s ? h(SetDetail, { key: s.id, s, reloadSets, templates, toast }) : h('main', { className: 'setmain' }));
+      s ? h(SetDetail, { key: s.id, s, reloadSets, templates, toast, rename: renameId === s.id, onRename: () => setRenameId(null) })
+        : h('main', { className: 'setmain' }),
+      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除题组', confirmLabel: '删除题组', onClose: () => setDeleting(null),
+        onConfirm: () => send('DELETE', '/api/sets/' + deleting.id).then(() => {
+          setDeleting(null); if (s && s.id === deleting.id) location.hash = '#/sets'; reloadSets();
+        }).catch((e) => toast('error', e.message)) },
+      h('p', null, `删除后 ${deleting.name} 将无法恢复。题库中的题目不受影响。`)) : null);
   }
 
   /** A set: a header with its name, how far the work has got and the two actions; the
       practice paper in the middle; its questions on the right. 「打开白板」 is the main
       action until the board has ink, then 「输出」 is. */
-  function SetDetail({ s, reloadSets, templates, toast }) {
+  function SetDetail({ s, reloadSets, templates, toast, rename, onRename }) {
     const [rows, setRows] = useState(null);
     const [selected, setSelected] = useState([]);
     const [renaming, setRenaming] = useState(() => nameNext === s.id);
-    const [deleting, setDeleting] = useState(false);
     const [editing, setEditing] = useState(false);
     const [output, setOutput] = useState(false);
     const [boards, setBoards] = useState(null);
     const [pages, setPages] = useState(null);
     useEffect(() => { if (nameNext === s.id) nameNext = null; }, []);
+    useEffect(() => { if (rename) { setRenaming(true); onRename(); } }, [rename]);
 
     useEffect(() => {
       const exams = [...new Set(s.items.map((q) => (/^\d{4}_/.test(q) ? q.slice(0, 4) : q.split('-')[0])))];
@@ -633,9 +653,7 @@
           h(E.Button, { variant: written ? 'primary' : 'secondary', size: 'md', icon: 'i-box', disabled: !s.count, onClick: () => setOutput(true) }, '输出'),
           h(MoreMenu, { label: '更多操作', items: [
             { label: '打开评分细则', onClick: () => open(`/doc/${s.id}/scheme`, '_blank') },
-            s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null,
-            { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${s.id}/export`; } },
-            { label: '删除题组', danger: true, onClick: () => setDeleting(true) }] }))),
+            s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null] }))),
       !s.count ? h('div', { className: 'sd-empty' }, h(E.EmptyState, { icon: 'i-list', title: '题组中没有题目',
         action: h(E.Button, { variant: 'secondary', size: 'md', onClick: () => { location.hash = '#/query'; } }, '打开查询') }))
         : h('div', { className: 'sd-body' },
@@ -667,10 +685,7 @@
               h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { setEditing(true); setSelected([]); } }, '编辑')),
             h('ol', { className: 'sd-qlist' }, view.map((r) => h('li', { key: r.id },
               h('span', { className: 'n' }, r.n), h('span', { className: 'c' }, `${bank_code(r)} Q${r.q}`), h('span', { className: 'm' }, r.marks, ' 分')))))),
-      output ? h(OutputDialog, { s, templates, written: !!written, toast, onClose: () => setOutput(false) }) : null,
-      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除题组', confirmLabel: '删除题组', onClose: () => setDeleting(false),
-        onConfirm: () => send('DELETE', '/api/sets/' + s.id).then(() => { location.hash = '#/sets'; reloadSets(); }) },
-      h('p', null, `删除后 ${s.name} 将无法恢复。题库中的题目不受影响。`)) : null);
+      output ? h(OutputDialog, { s, templates, written: !!written, toast, onClose: () => setOutput(false) }) : null);
   }
 
   /** 9709/12/M/J/23 for a question row of /api/questions. */
@@ -894,9 +909,11 @@
     const [body, setBody] = useState('');
     const [tab, setTab] = useState('src');
     const [sid, setSid] = useState(sets[0] ? sets[0].id : '');
-    const [deleting, setDeleting] = useState(false);
+    const [deleting, setDeleting] = useState(null);
     const [renaming, setRenaming] = useState(false);
+    const [renameId, setRenameId] = useState(null);     // 重命名模板 from a list item's menu
     const area = useRef(null);
+    useEffect(() => { if (t && renameId === t.id) { setRenaming(true); setRenameId(null); } }, [renameId, t && t.id]);
     useEffect(() => { if (t) { setName(t.name); setSt(t.settings); setBody(t.body); } }, [t && t.id, templates.length]);
     // changes are saved as they are made (built-in templates are read-only)
     useEffect(() => {
@@ -913,7 +930,8 @@
     const go = (id) => { location.hash = '#/templates/' + id; };
     const create = () => send('POST', '/api/templates', { name: '未命名模板', settings: templates[0].settings, body: templates[0].body })
       .then((n) => reloadTemplates().then(() => go(n.id)));
-    const copy = () => send('POST', '/api/templates', { name: name + ' 副本', settings: st, body }).then((n) => reloadTemplates().then(() => go(n.id)));
+    const copy = (x) => send('POST', '/api/templates', { name: x.name + ' 副本', settings: x.settings, body: x.body })
+      .then((n) => reloadTemplates().then(() => go(n.id))).catch((e) => toast('error', e.message));
     const insert = (v) => {
       const el = area.current;
       const a = el ? el.selectionStart : body.length;
@@ -926,13 +944,14 @@
         h(KindTabs, { value: 'export' }),
         h('div', { className: 'setlist-acts' }, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建模板')),
         h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '导出模板', value: t.id, onChange: go,
-          items: templates.map((x) => ({ value: x.id, icon: 'i-doc', title: x.name, subtitle: contents(x.settings) })) })),
+          items: templates.map((x) => ({ value: x.id, icon: 'i-doc', title: x.name, subtitle: contents(x.settings),
+            trailing: h(MoreMenu, { items: [
+              x.builtin ? null : { label: '重命名模板', onClick: () => { setRenameId(x.id); go(x.id); } },
+              { label: '复制模板', onClick: () => copy(x) },
+              x.builtin ? null : { label: '删除模板', danger: true, onClick: () => setDeleting(x) }] }) })) })),
       h('section', { className: 'tpl-opts' },
         h('div', { className: 'title-line' },
-          h(EditableTitle, { value: name, small: true, readOnly: t.builtin, editing: renaming, setEditing: setRenaming, label: '重命名模板', onSave: setName }),
-          h(MoreMenu, { label: '更多操作', items: [
-            { label: '复制模板', onClick: copy },
-            t.builtin ? null : { label: '删除模板', danger: true, onClick: () => setDeleting(true) }] })),
+          h(EditableTitle, { value: name, small: true, readOnly: t.builtin, editing: renaming, setEditing: setRenaming, label: '重命名模板', onSave: setName })),
         t.builtin ? h('p', { className: 'lock-note' }, '内置模板不可修改，复制模板后可修改副本') : null,
         h('div', { className: t.builtin ? 'opts locked' : 'opts' }, h(ExportOptions, { settings: st, onChange: t.builtin ? () => {} : setSt }))),
       st.format === 'pdf' ? h('section', { className: 'tpl-edit' }, h(E.EmptyState, { icon: 'i-doc', title: '没有 README' })) : h('section', { className: 'tpl-edit' },
@@ -948,9 +967,10 @@
         tab === 'src'
           ? h('textarea', { ref: area, className: 'tpl-src', value: body, readOnly: t.builtin, spellCheck: false, onChange: (e) => setBody(e.target.value) })
           : h('div', { className: 'ex-docbody' }, pv ? h(MdView, { text: pv.readme }) : sets.length ? h(E.Loading, null) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' }))),
-      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除模板', confirmLabel: '删除模板', onClose: () => setDeleting(false),
-        onConfirm: () => send('DELETE', '/api/templates/' + t.id).then(() => reloadTemplates()).then(() => go('default')) },
-      h('p', null, `删除后 ${t.name} 将无法恢复。`)) : null);
+      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除模板', confirmLabel: '删除模板', onClose: () => setDeleting(null),
+        onConfirm: () => send('DELETE', '/api/templates/' + deleting.id).then(() => reloadTemplates())
+          .then(() => { if (deleting.id === t.id) go('default'); setDeleting(null); }).catch((e) => toast('error', e.message)) },
+      h('p', null, `删除后 ${deleting.name} 将无法恢复。`)) : null);
   }
 
   // ------------------------------------------------------------------ batch generation (F9)
@@ -1291,31 +1311,46 @@
       two actions, 编辑流程 and 运行流程. */
   function FlowListPage({ current, reloadSets, toast }) {
     const [flows, setFlows] = useState(null);
+    const [renameId, setRenameId] = useState(null);     // 重命名流程 from a list item's menu
+    const [deleting, setDeleting] = useState(null);
     const reload = () => api('/api/flows').then(setFlows);
     useEffect(() => { reload(); }, []);
+    const go = (id) => { location.hash = '#/templates/flows/' + id; };
     const create = () => send('POST', '/api/flows', { name: '未命名流程', nodes: [], links: [] })
       .then((n) => { location.hash = '#/flows/' + n.id; }).catch((e) => toast('error', e.message));
+    const copy = (x) => api('/api/flows/' + x.id).then((g) => send('POST', '/api/flows', { ...g, name: g.name + ' 副本', builtin: undefined, summary: undefined }))
+      .then((n) => reload().then(() => go(n.id))).catch((e) => toast('error', e.message));
     const f = flows && (flows.find((x) => x.id === current) || flows[0]);
     return h('div', { className: 'dm-row tplpage' },
       h('aside', { className: 'tpl-list' },
         h(KindTabs, { value: 'flow' }),
         h('div', { className: 'setlist-acts' }, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-plus', onClick: create }, '新建流程')),
         !flows ? h(E.Loading, null) : flows.length ? h(E.List, { variant: 'two-line', selectable: true, ariaLabel: '流程', value: f && f.id,
-          onChange: (v) => { location.hash = '#/templates/flows/' + v; },
-          items: flows.map((x) => ({ value: x.id, icon: 'i-grid', title: x.name, subtitle: x.summary })) })
+          onChange: go,
+          items: flows.map((x) => ({ value: x.id, icon: 'i-grid', title: x.name, subtitle: x.summary,
+            trailing: h(MoreMenu, { items: [
+              x.builtin ? null : { label: '重命名流程', onClick: () => { setRenameId(x.id); go(x.id); } },
+              { label: '复制流程', onClick: () => copy(x) },
+              x.builtin ? null : { label: '删除流程', danger: true, onClick: () => setDeleting(x) }] }) })) })
           : h(E.EmptyState, { icon: 'i-grid', title: '没有流程' })),
-      f ? h(FlowOverview, { key: f.id, fid: f.id, reload, reloadSets, toast })
-        : h('main', { className: 'setmain empty-main' }, flows ? h(E.EmptyState, { icon: 'i-grid', title: '没有流程' }) : null));
+      f ? h(FlowOverview, { key: f.id, fid: f.id, reload, reloadSets, toast, rename: renameId === f.id, onRename: () => setRenameId(null) })
+        : h('main', { className: 'setmain empty-main' }, flows ? h(E.EmptyState, { icon: 'i-grid', title: '没有流程' }) : null),
+      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(null),
+        onConfirm: () => send('DELETE', '/api/flows/' + deleting.id).then(() => reload())
+          .then(() => { if (f && f.id === deleting.id) location.hash = '#/templates/flows'; setDeleting(null); })
+          .catch((e) => toast('error', e.message)) },
+      h('p', null, `删除后 ${deleting.name} 将无法恢复。`)) : null);
   }
 
-  function FlowOverview({ fid, reload, reloadSets, toast }) {
+  function FlowOverview({ fid, reload, reloadSets, toast, rename, onRename }) {
     const [g, setG] = useState(null);
     const [run, setRun] = useState(null);
     const [running, setRunning] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+    const [renaming, setRenaming] = useState(false);
     const [cat, setCat] = useState(null);
     useEffect(() => { api('/api/flows/' + fid).then(setG).catch(() => setG(false)); }, [fid]);
     useEffect(() => { api('/api/flows/catalog').then(setCat); }, []);
+    useEffect(() => { if (rename && g) { setRenaming(true); onRename(); } }, [rename, !!g]);
     if (g === false) return h('main', { className: 'setmain empty-main' }, h(E.EmptyState, { icon: 'i-doc', title: '流程不存在' }));
     if (!g) return h('main', { className: 'setmain' }, h(E.Loading, null));
     const doRun = () => {
@@ -1323,21 +1358,18 @@
       send('POST', `/api/flows/${g.id}/run`, g).then((r) => { setRun(r); reloadSets(); })
         .catch((e) => toast('error', e.message)).finally(() => setRunning(false));
     };
-    const copy = () => send('POST', '/api/flows', { ...g, name: g.name + ' 副本', builtin: undefined })
-      .then((n) => reload().then(() => { location.hash = '#/templates/flows/' + n.id; })).catch((e) => toast('error', e.message));
+    const saveName = (name) => send('PUT', '/api/flows/' + g.id, { ...g, name })
+      .then((n) => { setG({ ...g, name: n.name }); reload(); }).catch((e) => toast('error', e.message));
     const failed = run && failure(run, (id) => { const n = g.nodes.find((x) => x.id === id); return n && (cat ? cat.nodes[n.type].label : n.type); });
     const conds = (g.summary || '').split('、').filter(Boolean);
     const makes = g.nodes.filter((n) => FLOW_OUT[n.type]).map((n) => FLOW_OUT[n.type]);
     return h('main', { className: 'setmain fo' },
       h('header', { className: 'fo-head' },
         h('div', { className: 'page-head dm-grow' },
-          h('h1', { className: 'page-title' }, g.name),
+          h(EditableTitle, { value: g.name, readOnly: g.builtin, editing: renaming, setEditing: setRenaming, label: '重命名流程', onSave: saveName }),
           h('div', { className: 'dm-meta' }, h('span', null, `${g.nodes.length} 个节点`), g.created ? h('span', null, g.created) : null)),
         h(E.Button, { variant: 'primary', size: 'md', onClick: () => { location.hash = '#/flows/' + g.id; } }, '编辑流程'),
-        h(E.Button, { variant: 'primary', size: 'md', disabled: running, loading: running, onClick: doRun }, '运行流程'),
-        h(MoreMenu, { label: '更多操作', items: [
-          { label: '复制流程', onClick: copy },
-          g.builtin ? null : { label: '删除流程', danger: true, onClick: () => setDeleting(true) }] })),
+        h(E.Button, { variant: 'primary', size: 'md', disabled: running, loading: running, onClick: doRun }, '运行流程')),
       h('section', { className: 'fo-sec' },
         h('h2', { className: 'fs-lead fo-title' }, '条件'),
         conds.length ? h('ul', { className: 'fo-items' }, conds.map((c, i) => h('li', { key: i }, c))) : h('span', { className: 'empty-note' }, '没有条件')),
@@ -1348,11 +1380,7 @@
           : run ? h(React.Fragment, null,
             h('div', { className: 'dm-meta' }, h('span', null, run.ran), h('span', null, `${run.outputs.length} 项输出`)),
             h(FlowOutputs, { fid: g.id, outputs: run.outputs }))
-          : makes.length ? h('ul', { className: 'fo-items' }, makes.map((m, i) => h('li', { key: i }, m))) : h('span', { className: 'empty-note' }, '没有输出')),
-      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(false),
-        onConfirm: () => send('DELETE', '/api/flows/' + g.id).then(() => reload()).then(() => { location.hash = '#/templates/flows'; })
-          .catch((e) => toast('error', e.message)) },
-      h('p', null, `删除后 ${g.name} 将无法恢复。`)) : null);
+          : makes.length ? h('ul', { className: 'fo-items' }, makes.map((m, i) => h('li', { key: i }, m))) : h('span', { className: 'empty-note' }, '没有输出')));
   }
 
   function KindTabs({ value }) {
