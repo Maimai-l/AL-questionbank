@@ -17,7 +17,15 @@
 
 ## 待办
 
-按优先级排列。
+按优先级排列。用户安排(2026-10-03):BMAT 不刷题,暂不处理(第 1、3 项中的 BMAT 部分);TMUA 留到以后。
+
+### 0. 9618 详解与小问标签不一致(34 题)
+
+9618 卷 1–3 的 874 题详解(`explanation`)写于全量审校之前。审校后有 34 题的小问标签变了
+(如 `1`、`2`、`3` 改成了 `a`、`b`、`c`),这 34 题的详解按旧标签挂在小问上,页面上可能对不上。
+查找:比较 `explanation.parts[].label` 与 `part_data.parts[].label`;修复:用
+`pipeline/explain/explain_batches.py` 对这 34 题重做。其余 840 题标签一致,但评分细则在审校中有改动,
+个别详解的得分点可能与新细则有出入。
 
 ### 1. BMAT 共用材料缺失(系统性问题)
 
@@ -80,3 +88,16 @@ python3 sync.py push -m "<说明>"
 ```
 
 然后提交 `pipeline/text/text_fixes.jsonl`。
+
+## 不在仓库里的内容
+
+云端沙盒中还有 `raw/`(约 1.7 GB)与 `exports/`(约 460 MB),按约定不进仓库,容器回收后会消失:
+
+| 内容 | 位置 | 丢失后的影响 |
+|---|---|---|
+| 原卷与评分细则 PDF | `raw/pdf`、`raw/ms`、`raw/bank` | 无:已复制到 data 分支的 `papers/` |
+| 入学考逐页 OCR | `raw/bank_ocr`(574 MB) | 只有从头重新切分入学考时才需要,可用 `ocr_bank.py` 重新识别(要调用 OCR 接口) |
+| 审校批次与子 agent 结果 | `raw/text_fix`、`raw/latex_fix` 等 | 无:通过检查的更正都记在 `text_fixes.jsonl`、`ms_fixes.jsonl` |
+| 9618 详解批次 | `raw/explain_9618` | 无:结果已写入数据库(data 分支);重做时重新生成批次 |
+| 入学考抽查批次 | `raw/adm_check` | 无:结果存在 `spot_check_results.json` |
+| 导出 ZIP | `exports/` | 无:由 `pipeline/export/` 的脚本重新生成 |
