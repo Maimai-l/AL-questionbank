@@ -1,5 +1,6 @@
 """The settings page (docs/data-manager.md, section 6): the practice paper's footer and the
-colour scheme, one JSON file in paths.WORK. The paper's layout is fixed (docs/ui-text.md 4.8)."""
+colour scheme, and the answer space a practice paper leaves by default (an export may choose
+another), one JSON file in paths.WORK."""
 import json
 import os
 
@@ -11,6 +12,7 @@ DEFAULTS = {
     "footer_code": True,        #         paper code and question number
     "footer_page": True,        #         page number
     "theme": "system",          # system | light | dark
+    "space": 3,                 # the practice paper's answer space by default, 0 (紧凑) to 4 (宽松): paper.SPACE
 }
 
 
@@ -25,6 +27,7 @@ def load():
 def save(changes):
     s = load()
     s.update({k: v for k, v in changes.items() if k in DEFAULTS and type(v) is type(DEFAULTS[k])})
+    s["space"] = max(0, min(4, s["space"]))
     os.makedirs(paths.WORK, exist_ok=True)
     with open(PATH, "w", encoding="utf-8") as f:
         json.dump(s, f, ensure_ascii=False, indent=1)

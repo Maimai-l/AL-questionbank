@@ -1011,6 +1011,8 @@
 
   /** 输出: a template (the presets), adjusted for this once if needed, and the files it makes. */
   function OutputDialog({ s, templates, written, toast, onClose }) {
+    const [space, setSpace] = useState(null);           // 版面 for this output; first the settings page's default
+    useEffect(() => { api('/api/settings').then((o) => setSpace((v) => (v == null ? o.space : v))); }, []);
     const start = written ? '3-model' : '1-paper';
     const [tid, setTid] = useState(templates.some((t) => t.id === start) ? start : templates[0].id);
     const t = templates.find((x) => x.id === tid) || templates[0];
@@ -1018,8 +1020,8 @@
     const [tuning, setTuning] = useState(false);
     const [busy, setBusy] = useState(false);
     useEffect(() => { setSt(t.settings); }, [tid]);
-    const body = { settings: st, body: t.body };
-    const pv = usePreview(s, st, t.body);
+    const body = { settings: st, body: t.body, space };
+    const pv = usePreview(s, st, t.body, space);
 
     const IMG = ['image', 'image_with_space', 'text'];
     const has = {
@@ -1030,6 +1032,8 @@
     };
     const pdf = st.format === 'pdf';
     const images = st.format === 'images';
+    // the practice paper is in this output: 版面 applies
+    const laidOut = pdf ? st.answers !== 'written_pdf' : st.documents.includes('question_paper');
     const toggle = (k) => {
       const on = !has[k];
       if (!on && ((k === 'q' && !has.ink) || (k === 'ink' && !has.q))) return;   // something must show the questions
@@ -1053,6 +1057,7 @@
     return h(E.Dialog, { open: true, title: '输出', onClose: busy ? () => {} : onClose, footer },
       h('div', { className: 'op' },
         h(E.Select, { label: '模板', value: tid, onChange: setTid, options: templates.map((x) => ({ value: x.id, label: x.name })) }),
+        laidOut && space != null ? h(SpaceSlider, { value: space, onChange: setSpace }) : null,
         tuning ? h('div', { className: 'op-tune' },
           h('fieldset', { className: 'opt-group ex' }, h('legend', null, '格式'),
             h(E.SegmentedControl, { ariaLabel: '格式', value: pdf ? 'pdf' : 'zip', onChange: (v) => setSt({ ...st, format: v }), options: FORMATS })),
@@ -1172,14 +1177,14 @@
     return h('article', { className: 'md-view' }, out);
   }
 
-  function usePreview(s, st, body) {
+  function usePreview(s, st, body, space) {
     const [pv, setPv] = useState(null);
     useEffect(() => {
       if (!s || !st) return undefined;
-      const t = setTimeout(() => send('POST', `/api/sets/${s.id}/zip/preview`, { settings: st, body }).then(setPv)
+      const t = setTimeout(() => send('POST', `/api/sets/${s.id}/zip/preview`, { settings: st, body, space }).then(setPv)
         .catch((e) => setPv({ error: e.message, files: [], size: 0, readme: '', manifest: '' })), 200);
       return () => clearTimeout(t);
-    }, [s && s.id, s && s.items.join(), JSON.stringify(st), body]);
+    }, [s && s.id, s && s.items.join(), JSON.stringify(st), body, space]);
     return pv;
   }
 
@@ -1789,14 +1794,31 @@
       onChange: (v) => { location.hash = v === 'flow' ? '#/templates/flows' : '#/templates'; } });
   }
 
+  /** 版面 (docs/ui-text.md 4.8): the practice paper's answer space, five steps from 紧凑 to
+      宽松; the fourth is the original paper's answer space. */
+  function SpaceSlider({ value, onChange }) {
+    return h('fieldset', { className: 'opt-group ex space' }, h('legend', null, '版面'),
+      h('input', { type: 'range', min: 0, max: 4, step: 1, value, 'aria-label': '版面', 'aria-valuetext': ['紧凑', '较紧凑', '适中', '原卷', '宽松'][value],
+        style: { '--at': `${value * 25}%` }, onChange: (e) => onChange(+e.target.value) }),
+      h('div', { className: 'space-ticks', 'aria-hidden': 'true' }, [0, 1, 2, 3, 4].map((n) => h('i', { key: n, className: n <= value ? 'on' : '' }))),
+      h('div', { className: 'space-ends', 'aria-hidden': 'true' }, h('span', null, '紧凑'), h('span', { className: 'orig' }, '原卷'), h('span', null, '宽松')));
+  }
+
   /** Settings: the options on the left, a practice paper of the first set that has
       questions on the right, redrawn as the footer options change. */
   function SettingsPage({ sets }) {
     const [o, setO] = useState(null);
     const [shown, setShown] = useState(null);           // {bits, pages}: the preview on screen
     useEffect(() => { api('/api/settings').then(setO); }, []);
+    const loaded = useRef(null);
+    useEffect(() => {
+      if (!o) return undefined;
+      if (!loaded.current) { loaded.current = JSON.stringify(o); return undefined; }
+      const t = setTimeout(() => send('PUT', '/api/settings', o), 300);
+      return () => clearTimeout(t);
+    }, [o && JSON.stringify(o)]);
     const sample = sets.find((x) => x.count);
-    const foot = o ? [o.footer_name, o.footer_code, o.footer_page].map(Number).join('') : '';
+    const foot = o ? [o.footer_name, o.footer_code, o.footer_page].map(Number).join('') + o.space : '';
     // the preview of the new options replaces the old one only when its pages have loaded
     useEffect(() => {
       if (!o || !sample) return undefined;
@@ -1807,10 +1829,15 @@
       return () => { live = false; };
     }, [foot, sample && sample.id]);
     if (!o) return h(E.Loading, null);
-    const put = (k, v) => send('PUT', '/api/settings', { [k]: v }).then((n) => { setO(n); if (k === 'theme') applyTheme(v); });
+    // the page follows the choice at once; the settings are saved once the choices settle
+    const put = (k, v) => {
+      setO((cur) => ({ ...cur, [k]: v }));
+      if (k === 'theme') applyTheme(v);
+    };
     const box = (key, label) => h(E.Checkbox, { checked: o[key], onChange: () => put(key, !o[key]) }, label);
     return h(React.Fragment, null,
       h('section', { className: 'st-opts' },
+        h(SpaceSlider, { value: o.space, onChange: (v) => put('space', v) }),
         h('fieldset', { className: 'opt-group ex' }, h('legend', null, '页脚显示'),
           box('footer_name', '题组名称'), box('footer_code', '试卷代码与题号'), box('footer_page', '页码')),
         h('fieldset', { className: 'opt-group ex' }, h('legend', null, '配色'),

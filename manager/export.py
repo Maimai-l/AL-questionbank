@@ -148,7 +148,7 @@ def plan(s, settings, body):
             top.append(("explanation.html", docs.explanation(s).encode()))
         elif d == "question_paper":
             try:
-                top.append((PAPER_NAME, paper.build(s)))
+                top.append((PAPER_NAME, paper.build(s, space=settings.get("space"))))
             except paper.EmptyPaper:
                 pass
     if settings.get("format") == "images":
@@ -222,7 +222,7 @@ def single_pdf(s, settings):
     ans = answer_pdf(s) if settings["answers"] == "written_pdf" else None
     if ans:
         return ans, f"{base} {settings['answer_filename']}.pdf"
-    return paper.build(s), base + ".pdf"
+    return paper.build(s, space=settings.get("space")), base + ".pdf"
 
 
 def _size(c):
