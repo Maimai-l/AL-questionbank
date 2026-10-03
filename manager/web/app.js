@@ -310,8 +310,14 @@
     };
   }
 
-  function QueryPage({ metas, search, clearSearch, sets, reloadSets, toast }) {
+  function QueryPage({ metas, sets, reloadSets, toast }) {
     const [exam, setExam] = useState('9709');
+    // the search field above the table: it searches as one types (after a pause); Escape or
+    // the clear button empties it
+    const [text, setText] = useState('');
+    const [search, setSearch] = useState('');
+    useEffect(() => { const t = setTimeout(() => setSearch(text.trim()), 250); return () => clearTimeout(t); }, [text]);
+    const clearSearch = () => { setText(''); setSearch(''); };
     const meta = metas.find((m) => m.exam === exam);
     const [rowsByExam, setRowsByExam] = useState({});
     const [f, setF] = useState(() => defaults(meta));
@@ -416,11 +422,13 @@
         taskItems.length ? h(Facet, { title: '小问类型', items: taskItems, picked: tasks, onChange: (s) => setF({ ...f, tasks: s }) }) : null),
       h('main', { className: 'dm-results' },
         h('div', { className: 'headline' },
-          h('span', null, `${view.length} 题`), h('span', null, `${sum(rows)} 分`),
-          search ? h('button', { type: 'button', className: 'search-chip', onClick: clearSearch, 'aria-label': '清除搜索' },
-            h(E.Icon, { name: 'i-search', size: 'sm' }), h('span', null, search), h(E.Icon, { name: 'i-close', size: 'sm' })) : null),
+          h('span', null, `${view.length} 题`), h('span', null, `${sum(rows)} 分`)),
         h('div', { className: 'selbar' },
-          h('div', { className: 'dm-meta', style: { flexGrow: 1 } },
+          h('div', { className: 'q-search' },
+            h(E.TextField, { 'aria-label': '搜索题目', placeholder: '搜索', icon: 'i-search', size: 'sm', value: text,
+              onChange: (e) => setText(e.target.value), onKeyDown: (e) => { if (e.key === 'Escape') clearSearch(); } }),
+            text ? h(E.IconButton, { icon: 'i-close', label: '清除搜索', variant: 'ghost', size: 'sm', onClick: clearSearch }) : null),
+          h('div', { className: 'dm-meta', style: { flexGrow: 1, justifyContent: 'flex-end' } },
             h('span', null, '已选 ', h('b', null, picked.length), ' 题'), h('span', null, h('b', null, sum(picked)), ' 分')),
           h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => setAdding(true) }, '加入题组')),
         h('div', { className: 'dm-tablebox' },
@@ -1552,20 +1560,8 @@
     try { localStorage.setItem('dm-theme', t); } catch (e) {}
     const light = t === 'light' || (t === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
     document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
-    windowTheme();
   }
 
-  // in the window (manage.py window) the title bar takes the top bar's colour (macOS)
-  function windowTheme() {
-    if (!bridge()) return;
-    const probe = document.createElement('div');
-    probe.style.color = 'var(--color-bg-page)';
-    document.body.appendChild(probe);
-    const rgb = (getComputedStyle(probe).color.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-    probe.remove();
-    if (rgb.length === 3) bridge().theme(rgb, document.documentElement.getAttribute('data-theme') === 'dark', theme === 'system');
-  }
-  addEventListener('pywebviewready', windowTheme);
   matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (theme === 'system') applyTheme('system'); });
 
   // ------------------------------------------------------------------ shell
@@ -1575,11 +1571,6 @@
     const toast = E.useToast();
     const [metas, setMetas] = useState(null);
     const [sets, setSets] = useState([]);
-    const [search, setSearch] = useState('');
-    // The top bar's search field reports only Enter; it searches as one types (after a
-    // pause), and Escape or the chip beside the result count clears it.
-    const searchBox = () => document.querySelector('.dm-col > .topbar .search input');
-    const clearSearch = useCallback(() => { const el = searchBox(); if (el) el.value = ''; setSearch(''); }, []);
     const [templates, setTemplates] = useState([]);
     const [flowTitle, setFlowTitle] = useState('');
     const [acts, setActs] = useState(null);        // the top bar's action slot, for the pages' actions
@@ -1608,17 +1599,6 @@
     };
     const navFocus = (e) => { if (e.target.matches(':focus-visible')) setNavOpen(true); };
     const navBlur = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) navClose(); };
-    useEffect(() => {
-      const el = searchBox();
-      if (!el) return;
-      el.value = search;
-      let t = 0;
-      const typed = () => { clearTimeout(t); t = setTimeout(() => setSearch(el.value.trim()), 250); };
-      const key = (e) => { if (e.key === 'Escape') { clearTimeout(t); clearSearch(); } };
-      el.addEventListener('input', typed);
-      el.addEventListener('keydown', key);
-      return () => { clearTimeout(t); el.removeEventListener('input', typed); el.removeEventListener('keydown', key); };
-    }, [page, !!metas]);
     const nav = [
       { value: 'query', label: '查询', icon: 'i-search', href: '#/query' },
       { value: 'sets', label: '题组', icon: 'i-list', href: '#/sets' },
@@ -1636,7 +1616,7 @@
     else if (page === 'templates') {
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast }) : h(E.Loading, null);
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage, { sets }));
-    else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
+    else if (page === 'query') body = h(QueryPage, { metas, sets, reloadSets, toast });
     else body = null;
     const SUB = { board: '白板' };
     const title = page === 'sets' && SUB[sub] ? SUB[sub] : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');
@@ -1654,7 +1634,6 @@
           crumbs: page === 'sets' && SUB[sub] && cur
             ? [{ label: '题组', href: '#/sets/' + arg }, { label: cur.name, href: '#/sets/' + arg }, { label: SUB[sub] }]
             : page === 'flows' ? [{ label: '模板', href: '#/templates' }, { label: '批量生成', href: '#/templates/flows/' + arg }] : undefined,
-          search: page === 'query' ? '搜索' : undefined, onSearch: setSearch,
           actions: h('div', { ref: setActs, className: 'dm-acts' }) }),
         body));
   }

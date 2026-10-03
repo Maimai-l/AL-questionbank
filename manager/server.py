@@ -448,9 +448,10 @@ async def revalidate(request, handler):
 
 async def watch_bank(app):
     """Every minute: when the bank changed, run the automatic flows (flow.auto_run), once
-    per bank version."""
+    per bank version. First the search's word list is built (bank._words)."""
     async def loop():
         run, tried = asyncio.get_running_loop().run_in_executor, None
+        await run(None, bank._words)         # the search's word list, ready before the first search
         while True:
             try:
                 version = await run(None, flow.bank_version)

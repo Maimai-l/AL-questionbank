@@ -16,6 +16,10 @@
     if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
     else if (matchMedia('(prefers-color-scheme: light)').matches) document.documentElement.setAttribute('data-theme', 'light');
   } catch (e) {}
+  // In the window on macOS (manage.py window) the page also fills the title bar: the
+  // shell leaves its height free for the window buttons, the loader covers it too.
+  var tb = /[?&]titlebar=(\d+)/.exec(location.search);
+  if (tb) document.documentElement.style.setProperty('--titlebar', tb[1] + 'px');
 </script>
 </head>
 <body>

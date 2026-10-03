@@ -2,7 +2,9 @@
 import json
 import os
 import re
+import sqlite3
 import struct
+import threading
 import unicodedata
 
 from lib import db, paths, scheme
@@ -233,6 +235,43 @@ def paper_pdf(r):
     return None
 
 
+_vocab = (None, [])
+_vocab_lock = threading.Lock()
+
+
+def _words():
+    """Every word of the indexed text with the form the index stores it in (porter):
+    [(integration, integr), ...]; built once per database file."""
+    global _vocab
+    with _vocab_lock:
+        stamp = os.path.getmtime(paths.DB)
+        if _vocab[0] != stamp:
+            m = sqlite3.connect(":memory:")
+            m.execute("CREATE VIRTUAL TABLE w USING fts5(t, tokenize='unicode61')")
+            m.execute("CREATE VIRTUAL TABLE wv USING fts5vocab(w, 'row')")
+            m.executemany("INSERT INTO w VALUES (?)", ((" ".join(x or "" for x in r),) for r in
+                                                       db.connect().execute("SELECT question_text, ms_text, topic_name FROM q_fts")))
+            words = [r[0] for r in m.execute("SELECT term FROM wv")]
+            m.execute("CREATE VIRTUAL TABLE s USING fts5(t, tokenize='porter unicode61')")
+            m.execute("CREATE VIRTUAL TABLE sv USING fts5vocab(s, 'instance')")
+            m.executemany("INSERT INTO s(rowid, t) VALUES (?, ?)", enumerate(words))
+            stems = dict(m.execute("SELECT doc, term FROM sv"))
+            _vocab = (stamp, [(w, stems.get(i, w)) for i, w in enumerate(words)])
+        return _vocab[1]
+
+
+def _shorter_stems(prefix):
+    """Words that reach stored forms shorter than a typed beginning: integrat begins
+    integration, stored as integr, which "integrat"* does not reach. The query takes a
+    whole word for each such form (integrate), as FTS5 stems query words too."""
+    p = prefix.lower()
+    out = {}
+    for w, st in _words():
+        if w.startswith(p) and w != p and not st.startswith(p) and st not in out:
+            out[st] = w
+    return sorted(out.values())[:20]
+
+
 def fts_query(text):
     """What the search box holds as an FTS5 query: every word must occur (as a word or
     the start of one), "quoted words" as a phrase, OR between two terms for either.
@@ -249,7 +288,10 @@ def fts_query(text):
                 terms.append("OR")
         else:
             words = re.findall(r"\w+", word)     # x-axis, 10.5: the parts in a row
-            if words:
+            extra = _shorter_stems(words[0]) if len(words) == 1 and len(words[0]) >= 3 else []
+            if extra:
+                terms.append("(" + " OR ".join([f'"{words[0]}"*'] + [f'"{x}"' for x in extra]) + ")")
+            elif words:
                 terms.append('"' + " ".join(words) + '"*')
     while terms and terms[-1] == "OR":
         terms.pop()

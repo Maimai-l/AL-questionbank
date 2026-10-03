@@ -49,7 +49,6 @@ class Bridge:
 
     def __init__(self, base):
         self.base = base
-        self._window = None                  # set once the window exists (an underscore: not offered to the page)
 
     def open(self, path):
         """A page the browser opens in a new tab (the question paper, a reading document)."""
@@ -62,28 +61,26 @@ class Bridge:
         subprocess.run(cmd, input=text.encode("utf-16" if os.name == "nt" else "utf-8"), check=True)
         return True
 
-    def theme(self, rgb, dark, system=False):
-        """The page's top bar colour and light or dark: the title bar takes them, so it reads as
-        part of the top bar (macOS; elsewhere the system title bar stays). With the theme 自动
-        (system) the window keeps following the system's appearance."""
-        if sys.platform != "darwin" or not self._window or not self._window.native:
-            return
-        import AppKit
-        from PyObjCTools import AppHelper
 
-        def apply():
-            w = self._window.native
-            color = AppKit.NSColor.colorWithSRGBRed_green_blue_alpha_(*(c / 255 for c in rgb[:3]), 1.0)
-            w.setTitlebarAppearsTransparent_(True)
-            w.setTitleVisibility_(AppKit.NSWindowTitleHidden)
-            w.setBackgroundColor_(color)
-            # pywebview paints the title bar view with the system colour; it takes the page's
-            bar = w.contentView().superview().subviews().lastObject()
-            if bar is not None and bar.respondsToSelector_("setBackgroundColor:"):
-                bar.setBackgroundColor_(color)
-            w.setAppearance_(None if system else AppKit.NSAppearance.appearanceNamed_(
-                AppKit.NSAppearanceNameDarkAqua if dark else AppKit.NSAppearanceNameAqua))
-        AppHelper.callAfter(apply)
+TITLEBAR = 28                            # macOS title bar height in points: the page leaves it free for the window buttons
+
+
+def _full_size(window):
+    """macOS: the page also fills the title bar, which keeps only the window buttons, so
+    the top bar and the opening loader reach the top edge of the window."""
+    import AppKit
+    from PyObjCTools import AppHelper
+
+    def apply():
+        w = window.native
+        w.setStyleMask_(w.styleMask() | getattr(AppKit, "NSWindowStyleMaskFullSizeContentView", 1 << 15))
+        w.setTitlebarAppearsTransparent_(True)
+        w.setTitleVisibility_(AppKit.NSWindowTitleHidden)
+        # pywebview paints the title bar with the system colour; it is left clear
+        bar = w.contentView().superview().subviews().lastObject()
+        if bar is not None and bar.respondsToSelector_("setBackgroundColor:"):
+            bar.setBackgroundColor_(AppKit.NSColor.clearColor())
+    AppHelper.callAfter(apply)
 
 
 def window(port):
@@ -102,9 +99,13 @@ def window(port):
     base = f"http://localhost:{port}"
     print(f"数据管理页 {__version__}: {base}/(窗口关闭后停止;iPad 白板外壳的来源填 @qb-manage)")
     webview.settings["ALLOW_DOWNLOADS"] = True
-    bridge = Bridge(base)
-    bridge._window = webview.create_window("AL 题库", base + "/", width=1440, height=900, min_size=(1280, 800),
-                                           js_api=bridge)
+    mac = sys.platform == "darwin"
+    # the page leaves the title bar's height free (index.html, ?titlebar=); #141414 is the
+    # opening loader's colour, shown until the page draws
+    w = webview.create_window("AL 题库", base + (f"/?titlebar={TITLEBAR}" if mac else "/"), width=1440, height=900,
+                              min_size=(1280, 800), background_color="#141414", js_api=Bridge(base))
+    if mac:
+        w.events.before_show += lambda: _full_size(w)
     # private_mode=False keeps the page's own settings (the theme) between launches
     webview.start(private_mode=False, storage_path=os.path.join(paths.WORK, "webview"))
     if stop:

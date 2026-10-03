@@ -8,6 +8,12 @@ html, body { height: 100%; overflow: hidden; }
 #root { height: 100%; overflow-x: auto; overflow-y: hidden; }
 body { margin: 0; background: var(--color-bg-page); color: var(--color-text-primary); font-family: var(--font-body); }
 .dm-shell { height: 100%; min-width: 1280px; display: flex; overflow: hidden; }
+/* --titlebar: in the macOS window (index.html) the page also fills the title bar; the
+   sidebar and the column below the top bar each start that much lower, their backgrounds
+   reach the top edge */
+.dm-col { box-sizing: border-box; padding-top: var(--titlebar, 0px); }
+.dm-nav .sn-head, .dm-nav .sn-list { transform: translateY(var(--titlebar, 0px)); }
+.toast-stack { top: calc(64px + var(--titlebar, 0px)); }
 /* the page loader (index.html): the whole window until the page is ready */
 .dm-boot { position: fixed; inset: 0; z-index: 1000; background: #141414; }
 .dm-boot.is-leaving { background: transparent; pointer-events: none; }
@@ -65,11 +71,9 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .dm-results { flex-grow: 1; min-width: 0; padding: var(--pad); display: flex; flex-direction: column; gap: var(--sib); }
 .headline { display: flex; align-items: baseline; gap: var(--sib); min-height: 40px; margin-bottom: calc(var(--head) - var(--sib)); }   /* title area to toolbar */
 .headline > span { font: 700 28px/1.25 var(--font-bold); font-variant-numeric: tabular-nums; }
-.search-chip { align-self: center; display: inline-flex; align-items: center; gap: var(--el); max-width: 320px; height: 32px; padding: 0 var(--sub);
-  border: 1px solid var(--color-border-strong); border-radius: 16px; background: var(--color-bg-surface); color: var(--color-text-primary); font: 13px var(--font-body); cursor: pointer; }
-.search-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-text-primary); font-size: 13px; }
-.search-chip:hover { background: var(--color-state-hover); }
-.selbar { display: flex; align-items: center; gap: var(--sib); height: 40px; padding: 0 var(--el) 0 var(--sib); background: var(--color-bg-surface); border-radius: 4px; }
+.q-search { display: flex; align-items: center; gap: var(--txt); width: 360px; flex: none; }
+.q-search > :first-child { flex-grow: 1; }
+.selbar { display: flex; align-items: center; gap: var(--sib); height: 40px; padding: 0 var(--el); background: var(--color-bg-surface); border-radius: 4px; }
 .dm-tablebox { flex-grow: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: var(--sib); }
 /* the columns with a width keep it; the text column (the start of the question) takes the rest */
 .sel-tbl { table-layout: fixed; }
