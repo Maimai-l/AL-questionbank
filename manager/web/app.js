@@ -1795,24 +1795,24 @@
       onChange: (v) => { location.hash = v === 'flow' ? '#/templates/flows' : '#/templates'; } });
   }
 
-  /** 版面 (docs/ui-text.md 4.8): the practice paper's answer space, five steps from 紧凑 to
-      宽松, the fourth the original paper's answer space: five segments in a row, filled up
-      to the step chosen. A click picks a step; the arrow keys, Home and End move it. */
+  /** 版面 (docs/ui-text.md 4.8): the practice paper's answer space, four steps from 紧凑 to
+      原卷 (the original paper's answer space): four segments in a row, filled up to the
+      step chosen. A click picks a step; the arrow keys, Home and End move it. */
   function SpaceSlider({ value, onChange }) {
-    const NAMES = ['紧凑', '原卷答题区的四分之一', '原卷答题区的一半', '原卷', '宽松'];
+    const NAMES = ['紧凑', '原卷答题区的四分之一', '原卷答题区的一半', '原卷'];
     const key = (e) => {
-      const to = { ArrowLeft: value - 1, ArrowDown: value - 1, ArrowRight: value + 1, ArrowUp: value + 1, Home: 0, End: 4 }[e.key];
+      const to = { ArrowLeft: value - 1, ArrowDown: value - 1, ArrowRight: value + 1, ArrowUp: value + 1, Home: 0, End: 3 }[e.key];
       if (to === undefined) return;
       e.preventDefault();
-      onChange(Math.max(0, Math.min(4, to)));
+      onChange(Math.max(0, Math.min(3, to)));
     };
     return h('fieldset', { className: 'opt-group ex space' }, h('legend', null, '版面'),
-      h('div', { className: 'space-bar', role: 'slider', tabIndex: 0, 'aria-label': '版面', 'aria-valuemin': 0, 'aria-valuemax': 4,
+      h('div', { className: 'space-bar', role: 'slider', tabIndex: 0, 'aria-label': '版面', 'aria-valuemin': 0, 'aria-valuemax': 3,
         'aria-valuenow': value, 'aria-valuetext': NAMES[value], onKeyDown: key },
-        [0, 1, 2, 3, 4].map((n) => h('button', { key: n, type: 'button', tabIndex: -1, className: 'space-cell' + (n <= value ? ' on' : ''),
+        [0, 1, 2, 3].map((n) => h('button', { key: n, type: 'button', tabIndex: -1, className: 'space-cell' + (n <= value ? ' on' : ''),
           'aria-label': NAMES[n], onClick: () => onChange(n) }, h('i')))),
       h('div', { className: 'space-ends', 'aria-hidden': 'true' },
-        h('span', null, '紧凑'), h('span'), h('span'), h('span', null, '原卷'), h('span', null, '宽松')));
+        h('span', null, '紧凑'), h('span', null, '原卷')));
   }
 
   /** Settings: the options on the left, a practice paper of the first set that has

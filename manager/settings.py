@@ -12,22 +12,24 @@ DEFAULTS = {
     "footer_code": True,        #         paper code and question number
     "footer_page": True,        #         page number
     "theme": "system",          # system | light | dark
-    "space": 3,                 # the practice paper's answer space by default, 0 (紧凑) to 4 (宽松): paper.SPACE
+    "space": 3,                 # the practice paper's answer space by default, 0 (紧凑) to 3 (原卷): paper.SPACE
 }
 
 
 def load():
     try:
         with open(PATH, encoding="utf-8") as f:
-            return {**DEFAULTS, **{k: v for k, v in json.load(f).items() if k in DEFAULTS}}
+            s = {**DEFAULTS, **{k: v for k, v in json.load(f).items() if k in DEFAULTS}}
     except (OSError, ValueError):
         return dict(DEFAULTS)
+    if not isinstance(s["space"], int) or not 0 <= s["space"] <= 3:   # 宽松 (4) was a step once
+        s["space"] = 3 if isinstance(s["space"], int) and s["space"] > 3 else DEFAULTS["space"]
+    return s
 
 
 def save(changes):
     s = load()
     s.update({k: v for k, v in changes.items() if k in DEFAULTS and type(v) is type(DEFAULTS[k])})
-    s["space"] = max(0, min(4, s["space"]))
     os.makedirs(paths.WORK, exist_ok=True)
     with open(PATH, "w", encoding="utf-8") as f:
         json.dump(s, f, ensure_ascii=False, indent=1)

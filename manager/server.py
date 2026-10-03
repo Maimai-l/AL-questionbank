@@ -25,7 +25,7 @@ sets and later outputs live in paths.WORK.
   /api/settings/preview/<key>[/<n>.png]    the settings page's preview: footer options and 版面 ("1013")
   /api/templates         GET list, POST create {name, settings, body}
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
-  /api/sets/<id>/zip/preview  POST {template} or {settings, body}, and space (版面, 0-4): files, sizes, README (F7)
+  /api/sets/<id>/zip/preview  POST {template} or {settings, body}, and space (版面, 0-3): files, sizes, README (F7)
   /api/sets/<id>/output       POST the same: one PDF or a ZIP, by the template's format (the set page's 输出)
   /api/sets/<id>/board   POST: open (make) the writing board for the set's question paper (F5)
   /api/sets/<id>/boards  GET the set's boards with their stroke counts
@@ -225,7 +225,7 @@ def _preview(key):
     code, page; 版面 3). The first questions of the first set that has some, each key
     cached apart, so changing an option only reads a file built before."""
     sample = next((x for x in sets.all_sets() if x["items"]), None)
-    if not sample or not re.fullmatch(r"[01]{3}[0-4]", key):
+    if not sample or not re.fullmatch(r"[01]{3}[0-3]", key):
         return None
     s = {"id": "preview" + key[:3], "name": sample["name"], "items": sample["items"][:PREVIEW]}
     return paper.build(s, footer={k: b == "1" for k, b in zip(FOOTER, key)}, space=int(key[3]))
@@ -241,7 +241,7 @@ async def settings_preview(request):
     if not path:
         raise web.HTTPNotFound()
     # the keys one click away (another footer option, another 版面), ready for that click
-    near = [f"{n:03b}{bits[3]}" for n in range(8)] + [bits[:3] + str(n) for n in range(5)]
+    near = [f"{n:03b}{bits[3]}" for n in range(8)] + [bits[:3] + str(n) for n in range(4)]
     for other in dict.fromkeys(near):
         if other != bits:
             loop.run_in_executor(None, _preview, other)
@@ -303,7 +303,7 @@ async def _export_args(request):
         args = s, templates.clean(b.get("settings")), b.get("body", "")
     # 版面 is the output's own choice, not the template's: the settings page's default unless
     # the dialog sends another (0 紧凑 .. 4 宽松)
-    if isinstance(b.get("space"), int) and 0 <= b["space"] <= 4:
+    if isinstance(b.get("space"), int) and 0 <= b["space"] <= 3:
         args = s, {**args[1], "space": b["space"]}, args[2]
     if args[1]["answers"] == "written_pdf":       # the annotated copy as the ink is now
         await board.refresh_answers(request.app[HUB], s)

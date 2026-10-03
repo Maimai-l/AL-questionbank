@@ -1,9 +1,9 @@
 """Practice papers (docs/data-manager.md, F4; layout in docs/ui-text.md 4.8): a set laid
 out on A4 as a PDF, one layout for every exam, its answer space set by 版面 (SPACE).
 
-- 版面 runs from 紧凑 (0) to 宽松 (4): the questions alone; a quarter, a half or all of
-  the original paper's answer space below each; all of it and lines down to the page
-  bottom. The settings page holds the default; an export may choose another.
+- 版面 runs from 紧凑 (0) to 原卷 (3): the questions alone; a quarter, a half or all of
+  the original paper's answer space below each. The settings page holds the default; an
+  export may choose another.
 - At the original amount, a set that is exactly one whole paper, in order, is the
   original PDF from data/papers/ (unless the paper needs answer lines, below).
 - Questions run on from top to bottom in the set's order, 24 pt apart (12 pt with no
@@ -11,8 +11,8 @@ out on A4 as a PDF, one layout for every exam, its answer space set by 版面 (S
   page; only a question taller than a whole page is cut: in its answer space where it
   can be, else at the whitest row near the page bottom; it continues overleaf.
 - CIE questions use the crop with the paper's answer space; the space is the rows the
-  question crop leaves out and the dotted lines between parts, found in the picture. Papers answered in a separate
-  answer booklet (9709 June 2026 papers 12 and 32) have none: ruled lines are added
+  question crop leaves out and the dotted lines between parts, found in the picture.
+- Papers answered in a separate answer booklet (9709 June 2026 papers 12 and 32) have none: ruled lines are added
   8 pt below the question, two per mark at the original amount, 24 pt apart.
 - Admissions questions, answered by a letter, get blank space to work in instead.
 - The footer holds the set name, paper code and question numbers, and page number,
@@ -40,7 +40,7 @@ LINES_GAP = 8.0                          # between a question and its added answ
 LINE = 24.0                              # ruled answer lines
 FOOT = 24.0                              # footer baseline above the paper's lower edge
 CACHE = os.path.join(paths.WORK, "papers")
-VERSION = 9                              # part of the cache key: raise when the layout changes
+VERSION = 10                             # part of the cache key: raise when the layout changes
 FONT = "china-s"
 LATIN = "helv"
 CJK = re.compile(r"([\u2e80-\u9fff\u3000-\u303f\uff00-\uffef]+)")
@@ -131,9 +131,9 @@ def _cut_row(gray, start, end):
     return start + int(white[-1]) + 1
 
 
-# The answer space a question gets, from 紧凑 (0) to 宽松 (4): the share of the original
-# paper's answer space kept below the question. 3 is the original; 4 adds lines below it.
-SPACE = [0, 1 / 4, 1 / 2, 1, 1.5]
+# The answer space a question gets, from 紧凑 (0) to 原卷 (3): the share of the original
+# paper's answer space kept below the question.
+SPACE = [0, 1 / 4, 1 / 2, 1]
 SPACE_DEFAULT = 3
 GAP_TIGHT = 12.0                         # between questions with no answer space
 LINES, BLANK = "lines", "blank"          # answer space in a page's items: ruled, or left blank
@@ -242,13 +242,12 @@ WORK_AREA = 192.0                        # an admissions question's blank workin
 
 
 def _block(r, space):
-    """A question as laid out: (grey rows, which of them are answer space, space below,
-    more space that only fills the rest of the page, ruled; heights in points; ruled: the
-    space has answer lines, else it is blank). CIE questions keep a share of each stretch
+    """A question as laid out: (grey rows, which of them are answer space, space below in
+    points, ruled: the space has answer lines, else it is blank). CIE questions keep a share of each stretch
     of their original answer space, each part's (cut at a white row, between its lines),
     every part's text kept whole; papers answered in a booklet get lines, two per mark at
     the original amount; admissions questions, answered by a letter, get blank space to
-    work in. Space past the original never starts a page of its own."""
+    work in."""
     share = SPACE[space]
     q = paths.resolve(r["image"])
     if not q:
@@ -259,19 +258,18 @@ def _block(r, space):
     if not cie or booklet(r):
         px = _grey(q)
         if share == 0:
-            return px, None, 0, 0, False
+            return px, None, 0, False
         each = 2 * (r["marks"] or 1) * LINE if cie else WORK_AREA
-        return px, None, lines_of(each * min(share, 1)), lines_of(each * max(share - 1, 0)), cie
+        return px, None, lines_of(each * share), cie
     # the crop with the space after the last part (when the paper has any there), and in
     # it the space: the rows the question crop leaves out, and the lines between parts
     qx = _grey(q)
     px = _grey(a) if a else qx
     free = (_space_rows(qx, px) if a else np.zeros(px.shape[0], dtype=bool)) | _ruled_rows(px)
     if share == 0:
-        return px[~free], None, 0, 0, False
-    if share >= 1:
-        scale = (A4[0] - 2 * SIDE) / px.shape[1]
-        return px, free, 0, lines_of((share - 1) * int(free.sum()) * scale), True
+        return px[~free], None, 0, False
+    if share == 1:
+        return px, free, 0, True
     keep = np.ones(px.shape[0], dtype=bool)  # each stretch of space: its first share, ended at a white row
     edges = np.flatnonzero(np.diff(np.concatenate([[0], free.astype(np.int8), [0]])))
     for start, end in zip(edges[::2], edges[1::2]):
@@ -280,7 +278,7 @@ def _block(r, space):
         if upto > start:
             upto = _cut_row(px, max(start, upto - int(n * 0.15)), upto + 1)
         keep[upto:end] = False
-    return px[keep], free[keep], 0, 0, True
+    return px[keep], free[keep], 0, True
 
 
 def layout(rows, space=SPACE_DEFAULT):
@@ -303,7 +301,7 @@ def layout(rows, space=SPACE_DEFAULT):
         b = _block(r, space)
         if not b:
             continue
-        px, free, lines, more, ruled = b
+        px, free, lines, ruled = b
         mark = LINES if ruled else BLANK
         pieces = _slices(px, width, room, room, free)
         height = pieces[0][1] if len(pieces) == 1 else room + 1
@@ -329,11 +327,6 @@ def layout(rows, space=SPACE_DEFAULT):
                 pages[-1].append((mark, y, band, r["id"], code, r["q"]))
                 y += band
                 lines -= band
-        band = min(more, (TOP + room - y - (0 if lines else LINES_GAP)) // LINE * LINE)
-        if band >= LINE:                     # more lines: as many as the page still holds
-            y += 0 if lines else LINES_GAP
-            pages[-1].append((mark, y, band, r["id"], code, r["q"]))
-            y += band
     return [p for p in pages if p]
 
 
@@ -395,10 +388,10 @@ class EmptyPaper(ValueError):
 def build(s, footer=None, space=None):
     """Path of the set's question paper PDF, building it if the cache is stale. Raises
     EmptyPaper when there is nothing to lay out. footer: footer options in place of the
-    saved ones (the settings page's preview); space: the answer space, 0 to 4 (SPACE), in
+    saved ones (the settings page's preview); space: the answer space, 0 to 3 (SPACE), in
     place of the saved default (an export's own choice)."""
     opts = {**settings.load(), **(footer or {})}
-    space = opts["space"] if space is None else max(0, min(4, int(space)))
+    space = opts["space"] if space is None else max(0, min(len(SPACE) - 1, int(space)))
     rows = _rows(s["items"])
 
     def stamp(r):                        # rebuilt when a crop is redone
