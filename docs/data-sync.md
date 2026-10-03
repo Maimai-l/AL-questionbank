@@ -41,7 +41,11 @@ python3 sync.py pull --gc       # 同上,并清理旧版本占用的本地磁盘
 python3 sync.py pull --no-auto  # 取回后不运行自动流程(manage.py auto,题库有更新时写 exports/chapters/)
 python3 sync.py status          # 当前版本与本地改动
 python3 sync.py push -m "说明"  # 提交 data/ 的改动并覆盖远程 data 分支
+python3 sync.py pin NAME        # 给 data/ 当前版本打标签 data-NAME 并推送(本地运行;云端不能推送标签)
+python3 sync.py pull --ref NAME # 取回标签 data-NAME 的那一版;update 同样可加 --ref
 ```
+
+`data` 分支只保留一个提交,旧版本只有打了标签才会保留。稳定分支的用法见 [guide.md](guide.md) 第 7 节。
 
 `push` 使用 `--force-with-lease`,并在推送前检查远程版本是否仍是上次 `pull` 的
 版本。若远程已被别处更新,`push` 会中止,避免覆盖对方的结果。
