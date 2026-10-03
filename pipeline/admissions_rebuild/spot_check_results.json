@@ -1,0 +1,943 @@
+[
+ {
+  "id": "BMAT-2003-S1-q15",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2003-S1-q16",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2003-S1-q22",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2003-S1-q28",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2003-S1-q39",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "(题干只有第39题本身)",
+    "should": "缺少题图中 Questions 36 to 40 的共用背景段落(四段:Welsh Annals 的年份、455 AD 对应 year 9、Gildas 生于 Badon 之年并在 43 岁时著书、Maelgwn 仍在世),没有它无法作答"
+   }
+  ],
+  "text": "Questions 36 to 40 refer to the following information:\n\nThe dates of two of the battles supposedly fought by the semi-legendary King Arthur have caused confusion because there are inconsistencies in the early manuscripts.\n\nThe Welsh Annals give the Battle of Badon as “year 72” and the Battle of Camlann as “year 93”. They also record the death of King Maelgwn of Gwynedd as “year 103”. There is definite evidence from the calculation of the dates of Easter that “year 9” in the Welsh Annals coincides with 455 AD in our modern dating system.\n\nThe dark age historian, Gildas, records these battles without any mention of Arthur. Records indicate that Gildas was born in the year of the battle of Badon and wrote his book “On the Ruin and Conquest of Britain” when he was 43.\n\nHowever, Maelgwn was still alive when Gildas wrote his book, which is inconsistent with the other dates given by Gildas and the Welsh Annals.\n\n39 The Welsh Annals’ date for the death of King Maelgwn is confirmed from other sources. If this, and Gildas, are correct but the Welsh Annals are wrong on the dates of Badon and Camlann, what is the latest possible date for the Battle of Badon?",
+  "options": null
+ },
+ {
+  "id": "BMAT-2004-S1-q1",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2004-S1-q23",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "(题干无表格与引言)",
+    "should": "缺少题图中的引言段落和整张按性别、年龄分组的累计盐摄入量表(含 Mean、Number in survey 行),该题需要表中的人数分布才能作答"
+   }
+  ],
+  "text": "Questions 20 to 23 refer to the following information:\n\nThe table below shows the results of a survey into salt intake as estimated by measuring urinary sodium levels. The results are expressed cumulatively. The recommended maximum daily intake of salt is 6 grams.\n\nDaily salt consumption estimated from total urinary sodium by sex and age, 2000/01, Great Britain\n\n| Salt consumption (grams per day) | MEN 19-24 cum % | MEN 25-34 cum % | MEN 35-49 cum % | MEN 50-64 cum % | MEN All cum % | WOMEN 19-24 cum % | WOMEN 25-34 cum % | WOMEN 35-49 cum % | WOMEN 50-64 cum % | WOMEN All cum % |\n|---|---|---|---|---|---|---|---|---|---|---|\n| 3 or less | - | 5 | 2 | 5 | 4 | 4 | 6 | 5 | 7 | 6 |\n| 6 or less | 2 | 20 | 13 | 18 | 15 | 17 | 29 | 31 | 38 | 31 |\n| 9 or less | 37 | 34 | 39 | 42 | 39 | 66 | 59 | 68 | 69 | 66 |\n| 12 or less | 60 | 57 | 58 | 65 | 60 | 84 | 81 | 85 | 91 | 86 |\n| 15 or less | 81 | 73 | 80 | 83 | 79 | 90 | 92 | 96 | 96 | 95 |\n| 18 or less | 100 | 89 | 91 | 91 | 91 | 92 | 97 | 100 | 99 | 98 |\n| Mean | 11.0 | 11.4 | 11.1 | 10.5 | 11.0 | 9.1 | 8.7 | 8.0 | 7.5 | 8.1 |\n| Number in survey | 62 | 152 | 170 | 183 | 567 | 60 | 129 | 203 | 187 | 580 |\n\nNotes: Respondents who reported making a full 24-hour urine collection.\nSource: Office for National Statistics (2003) The National Diet and Nutrition survey: adults aged 19 to 64 years. Volume 3. Vitamin and mineral intake and urinary analysis, The Stationery Office: London.\n\n23 The percentages shown in the 'All' columns are calculated as the total number of men or women in the survey with less than each estimated salt intake expressed as a percent of the total sample. If these percentages were to be used as estimates for 19-64 year-olds in the population, which one of the following is a plausible explanation as to why the figures might be biased?\n\nA The figures are expressed cumulatively instead of showing the actual values.\n\nB The numbers in the survey are not evenly distributed across the age range.\n\nC The total salt intake of each group is given by the number in the group multiplied by the salt intake.\n\nD The age ranges vary from 5 years to 15 years.\n\nE There are no figures for people under 19 or over 64.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2004-S1-q33",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "(题干无背景段落)",
+    "should": "题干提到 paragraph 3 的数据,但缺少 Questions 32 to 35 的共用背景文章(第3段给出 75%/45%、83%/40% 的比例),无法作答;题图本身只含第33题,段落在原卷第16页"
+   }
+  ],
+  "text": "Questions 32 to 35 refer to the following information:\n\nIn the United States, the number of serious auto accidents is declining. Countrywide, between 1980 and 1993, auto accident fatalities fell from 51,091 to 40,115, and property claims per 100 insured vehicles fell from 4.94 to 4.00, a decrease of 19 per cent. Credit for this remarkable improvement must go to the efforts of federal and state regulators to reduce automobile accidents and increase passenger safety. Laws mandating the wearing of seatbelts, the installation of airbags, a more robust construction of the car body, enhanced vehicle safety standards, better road design, and campaigns against drunk driving have all helped.\n\nDespite these impressive improvements in road safety, however, Americans now make more claims for bodily injury, referred to as BI. Between 1980 and 1993, the number of BI claims per 100 insured vehicles rose 33 per cent to 29.3, and the likelihood of a BI claim being filed in an accident that involved a property damage claim rose 64 per cent in the same time period.\n\nThe ‘whippies’, as the insurance industry calls whiplash claimants, account for this huge increase in BI claims. For the purpose of insurance statistics, whiplash is recorded as \"sprains and strains,\" and since these sprains and strains nearly all involve the neck and the back, it is reasonable to equate them with whiplash. From 1987 to 1992, claims in the US for sprains and strains increased in proportion to other injuries. In 1987, 75 per cent of BI claims were for sprains and strains, and 45 per cent for \"all other injuries.\" By 1992 sprains and strains had risen to 83 per cent, and all other injuries had fallen to 40 per cent. This trend is no isolated oddity, for similar changes have happened elsewhere. In Japan annual collision deaths peaked at 4900 in 1993 and fell to little over 4200 by 1997, while over the same period the number of whiplash claims rose from 228,000 to 252,000.\n\n[Source: Whiplash and other useful injuries, Andrew Malleson. McGill Queens University Press, Montreal. p 254.]\n\n33 The data concerning the proportions of different BI claims in paragraph 3 would be puzzling without which one of the following explanations?\n\nA Whiplash accounted for most of the injuries classified as strains and sprains.\n\nB Some of the claims were for sprains and strains along with other injuries.\n\nC Not all of the claims made to insurance companies were for genuine injuries.\n\nD The number of minor injuries has risen in contrast with number of fatal accidents.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2004-S1-q35",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "(题干无背景段落)",
+    "should": "缺少题图中 Questions 32 to 35 的共用背景文章(三段加出处),题干所指的 BI 索赔趋势异常无从得知"
+   }
+  ],
+  "text": "Questions 32 to 35 refer to the following information:\n\nIn the United States, the number of serious auto accidents is declining. Countrywide, between 1980 and 1993, auto accident fatalities fell from 51,091 to 40,115, and property claims per 100 insured vehicles fell from 4.94 to 4.00, a decrease of 19 per cent. Credit for this remarkable improvement must go to the efforts of federal and state regulators to reduce automobile accidents and increase passenger safety. Laws mandating the wearing of seatbelts, the installation of airbags, a more robust construction of the car body, enhanced vehicle safety standards, better road design, and campaigns against drunk driving have all helped.\n\nDespite these impressive improvements in road safety, however, Americans now make more claims for bodily injury, referred to as BI. Between 1980 and 1993, the number of BI claims per 100 insured vehicles rose 33 per cent to 29.3, and the likelihood of a BI claim being filed in an accident that involved a property damage claim rose 64 per cent in the same time period.\n\nThe ‘whippies’, as the insurance industry calls whiplash claimants, account for this huge increase in BI claims. For the purpose of insurance statistics, whiplash is recorded as \"sprains and strains,\" and since these sprains and strains nearly all involve the neck and the back, it is reasonable to equate them with whiplash. From 1987 to 1992, claims in the US for sprains and strains increased in proportion to other injuries. In 1987, 75 per cent of BI claims were for sprains and strains, and 45 per cent for \"all other injuries.\" By 1992 sprains and strains had risen to 83 per cent, and all other injuries had fallen to 40 per cent. This trend is no isolated oddity, for similar changes have happened elsewhere. In Japan annual collision deaths peaked at 4900 in 1993 and fell to little over 4200 by 1997, while over the same period the number of whiplash claims rose from 228,000 to 252,000.\n\n[Source: Whiplash and other useful injuries, Andrew Malleson. McGill Queens University Press, Montreal. p 254.]\n\n35 Which one or more of the following offer some explanation for the apparent anomaly in the trend for bodily injury claims, especially strains and sprains, as against property claims. (Shade all that apply.)\n\nA Doctors are divided in their opinion as to whether or not whiplash is a bona fide condition.\n\nB Many lawyers have introduced a no-win-no-fee service to claimants seeking compensation for personal injury.\n\nC The severity of strains and sprains is difficult to assess whereas damage to a vehicle is directly observable.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2004-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2005-S1-q14",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2005-S1-q15",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2005-S1-q16",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2005-S1-q26",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2005-S1-q35",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "Which of the following is implied by what the author claims in paragraph 3? (passage absent)",
+    "should": "shared passage (paragraph 3) that the question refers to"
+   }
+  ],
+  "text": "Passage (paragraph 3): So what has happened?  Probably the most significant contribution to the popularity of non-traditional therapies has been the gnawing dissatisfaction of patients with a health care system that has become increasingly depersonalized and remote. They complain that all too often, after taking expensive pharmacological treatments, they have simply traded symptoms for side-effects. Even the best doctors are frustrated that combining the art of healing with the science of medicine is getting harder and harder to do. They point out that the time it takes to get to know their patients, to listen, counsel and reassure, is – unfortunately – at a premium. For many, this is the void that alternative medicine appears to be filling.\n\n35 Which of the following is implied by what the author claims in paragraph 3?\n\nA Invasive procedures do not cure diseases but only treat symptoms.\n\nB The best doctors recognise that the right approach would be a mix of alternative and traditional techniques.\n\nC Conventional medicine is too much influenced by the interests of the pharmaceutical companies.\n\nD Doctors' behaviour has influenced the change of attitude towards alternative therapies.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2006-S1-q1",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2006-S1-q21",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "diagram",
+    "now": "Approximately how many female GPs were practising part time in 2004?",
+    "should": "needs data from Figure 1 (female GPs ~12,250 in 2004) and Figure 2 (female part-time ~48.5%), not stated in text"
+   }
+  ],
+  "text": "Figures (from the graphs of GPs in England, 1994-2004): Figure 1 gives the number of GPs (total, male, female); in 2004 there were about 12,250 female GPs. Figure 2 gives the percentage of GPs practising part time; in 2004 about 48.5% of female GPs practised part time.\n\nApproximately how many female GPs were practising part time in 2004?\n\nA 1300\n\nB 3000\n\nC 6000\n\nD 8000\n\nE 16000",
+  "options": null
+ },
+ {
+  "id": "BMAT-2006-S1-q28",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2006-S1-q32",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "data in paragraph three (passage absent)",
+    "should": "shared passage paragraph 3 giving 80% revenue growth to more than $2 billion (£1.2 billion) in Q1 2006"
+   }
+  ],
+  "text": "Passage (paragraph 3): Google, now the dominant online search engine, is making the pace. It snatched a long-term link with AOL Time Warner from under the nose of Microsoft. In the first quarter of 2006 it boosted revenue by 80% to more than $2 billion (£1.2 billion). That represents a lot of advertising, the common revenue all are chasing.\n\n32 Which (one or more) of the following can safely be concluded from the data in paragraph three?\n\nAt the end of 2005 Google's revenue\n\nA could have been less than £650 million.\n\nB must have been at least £660 million.\n\nC was less than £670 million.\n\nD could not have been more than £680 million.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2006-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2007-S1-q13",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2007-S1-q24",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2007-S1-q3",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2007-S1-q31",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2007-S1-q7",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2008-S1-q14",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2008-S1-q26",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2008-S1-q29",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2008-S1-q4",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2008-S1-q9",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "What, from the table, is the incidence of breast cancer in the entire study group...",
+    "should": "题干前缺少共用材料(Questions 8-11 的说明段落与 Association between handedness and incidence of breast cancer 数据表),作答必需"
+   }
+  ],
+  "text": "Questions 8 - 11 refer to the following information:\n\n12,178 women were questioned about their reproductive history, demography, lifestyle and innate hand preference, and their answers were recorded to provide a \"baseline\". The same women were interviewed 16 years later, and the data was used to calculate total person-years lived in the sample.\n\nThe sample comprised 11.6% left-handed women. Mean age at baseline was similar for left and non-left-handed women: 47.4 and 47.0 years respectively. These groups did not differ in anthropometry, socioeconomic status, smoking habits or family history of breast cancer. The only difference was in child bearing: 21.8% of left-handed versus 10.9% of non-left-handed women had borne no children. 426 women from the whole group had breast cancer.\n\nThe non-left-handed group was taken as the reference group. The relative risk for breast cancer in left-handed women compared with non-left-handed women was calculated and was 1.39 overall (see table).\n\nAssociation between handedness and incidence of breast cancer in study participants followed up at 16 years\n\n| Innate handedness | Cases of breast cancer | Estimated person-years lived | Relative risk |\n|---|---|---|---|\n| **Total** |  |  |  |\n| non-left-handed | 361 | 153422 | 1 |\n| left-handed | 65 | 19119 | 1.39 |\n| **Pre-menopausal breast cancer*** |  |  |  |\n| non-left-handed | 57 | 32113 | 1 |\n| left-handed | 15 | 3329 | 2.41 |\n| **Post-menopausal breast cancer*** |  |  |  |\n| non-left-handed | 257 | 127426 | 1 |\n| left-handed | 39 | 17665 | 1.12 |\n| **Body mass index ≤ 25** |  |  |  |\n| non-left-handed | 217 | 95964 | 1 |\n| left-handed | 45 | 11332 | 1.62 |\n| **Body mass index > 25** |  |  |  |\n| non-left-handed | 144 | 57458 | 1 |\n| left-handed | 20 | 7787 | 1.05 |\n| **Had not borne children** |  |  |  |\n| non-left-handed | 61 | 16486 | 1 |\n| left-handed | 9 | 3759 | 0.68 |\n| **Had borne children** |  |  |  |\n| non-left-handed | 300 | 136936 | 1 |\n| left-handed | 56 | 15360 | 1.58 |\n\n\\* in 58 cases information on timing of menopause relative to incidence of breast cancer was not available.\n\n9 What, from the table, is the incidence of breast cancer in the entire study group expressed as cases per 1000 person-years?\n\nA 0.7\n\nB 2.5\n\nC 3.4\n\nD 7.2\n\nE 46.0",
+  "options": null
+ },
+ {
+  "id": "BMAT-2009-S1-q10",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2009-S1-q18",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2009-S1-q27",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2009-S1-q30",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2009-S1-q4",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2010-S1-q14",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2010-S1-q16",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2010-S1-q32",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2010-S1-q34",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2010-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2011-S1-q32",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2011-S1-q34",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "extra",
+    "now": "重复的年份表格;以及不属于第34题的第32题题干 \"32 If the average doctor has 1500 patients...\" 及其 [DIAGRAM]",
+    "should": "只保留一份表格,删去第32题内容"
+   }
+  ],
+  "text": "## Questions 32 - 35 refer to the following information:\n\nThe graph below shows the results of surveys of local medical practices on number of patient consultations in 1995 and 2006. Consultations include face-to-face meetings with both doctors and nurses, telephone consultations and home visits.\n\n[DIAGRAM]\n\nThe overall mean consultation rate (per patient per year) was 3.90 in 1995 and 5.26 in 2006. Findings for all years in the survey are shown below:\n\n| Year | 1995 | 1996 | 1997 | 1998 | 1999 | 2000 | 2001 | 2002 | 2003 | 2004 | 2005 | 2006 |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|\n| Consultation rate per person-year | 3.90 | 4.02 | 4.09 | 4.04 | 4.18 | 4.29 | 4.52 | 4.63 | 4.75 | 5.02 | 5.19 | 5.26 |\n\nThe consultation rate for doctors remained almost constant over the study period with 3.0 consultations per patient-year in 1995 and 3.3 in 2006. The consultation rate for nurses increased from 0.8 consultations per patient-year in 1995 to 1.8 in 2006. The consultation rate for other clinicians increased from 0.1 consultations per patient-year in 1995 to 0.2 in 2006.\n\n34 Which line on the following graph best shows the female/male consultation ratio in 2006?\n\n[DIAGRAM]",
+  "options": null
+ },
+ {
+  "id": "BMAT-2011-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2011-S1-q7",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "extra",
+    "now": "## Questions 8 - 11 refer to the following information: 及其后整段TUC材料与图",
+    "should": "删去,属于第8-11题"
+   }
+  ],
+  "text": "7 An airline has decided to introduce a flight from London, England to St. John's, Antigua. The airline owns a range of aeroplanes as shown in the table below. It needs to decide which one would be best suited to do this flight. The distance travelled between London and St John's is a maximum of 5600 miles; variability is due to different flight paths. A weekly flight would have between 163 and 177 passengers.\n\nWhich plane (A - H) is the most fuel efficient plane per passenger per mile that would be suitable for this flight?\n\n|  | Aeroplane | Number of engines | Maximum Passenger Capacity | Range of miles per journey | Takeoff weight (lbs) | Fuel consumption per mile (gallons) |  |\n|---|---|---|---|---|---|---|---|\n| empty plane | additional per passenger |  |  |  |  |  |  |\n| A | Boeing 737 | 2 | 189 | 6500 | 130,000 | 3.0 | 0.01 |\n| B | Boeing 747 | 4 | 569 | 6500 | 875,000 | 5.6 | 0.01 |\n| C | Boeing 757 | 2 | 239 | 5500 | 220,000 | 4.4 | 0.08 |\n| D | Boeing 777 | 2 | 440 | 8270 | 545,000 | 4.8 | 0.01 |\n| E | Boeing 787 | 2 | 330 | 3050 | 364,000 | 4.5 | 0.01 |\n| F | Saab 2000 | 2 | 58 | 1380 | 50,265 | 2.4 | 0.09 |\n| G | Airbus A-380 | 4 | 853 | 8000 | 1,400,000 | 9.2 | 0.05 |\n| H | Airbus A-320 | 2 | 179 | 6305 | 77,000 | 3.0 | 0.07 |",
+  "options": null
+ },
+ {
+  "id": "BMAT-2011-S1-q8",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "diagram",
+    "now": "On the basis of the above data ... (题干无任何数据)",
+    "should": "补入 Questions 8-11 的材料及柱状图数值(50-59岁 20.6%,60+ 14.3% 等)"
+   }
+  ],
+  "text": "## Questions 8 - 11 refer to the following information:\n\nThe difference between men's and women's pay is still at unacceptable levels, according to recent TUC research. It found that from the age of 18 - and throughout the rest of their working lives - women earn less than men.\n\nIn their 20s, the pay gap for full-timers is a modest 3.3%, but in their 30s women take home 11.2% less than men. And in their 40s - the peak age for discrimination - the gap rises to 22.8%\n\nBar chart: full time gender pay gap, % = 100 x (male pay - female pay) / male pay.\n\n| Age | 16-17 | 18-21 | 22-29 | 30-39 | 40-49 | 50-59 | 60+ |\n|---|---|---|---|---|---|---|---|\n| Gap (%) | -9.7 | 4.4 | 3.3 | 11.2 | 22.8 | 20.6 | 14.3 |\n\nThe TUC said the undervaluing of women in the workplace was partly due to a \"motherhood penalty\". The long hours and intensity of senior positions deterred mothers from seeking promotions for which they were qualified. The TUC said there was direct discrimination against mothers and their choice became limited to jobs that could be combined with looking after children.\n\nThe \"motherhood penalty\" became even more severe for women who switched to part-time work. They were more likely to change employer or occupation, often taking jobs with lower hourly earnings. The hourly earnings of women working part-time were 23.4% less than the equivalent male rate in their 30s, and 41.2% in their 40s.\n\n8 On the basis of the above data which one of the following is a reliable conclusion to draw?\n\nA On average, men's earnings peak before they reach 50.\n\nB Employers are less willing to employ women over 30 than they are to employ women under 30.\n\nC The percentage difference between men's and women's pay more than trebles between the ages of 22 and 30.\n\nD On average, a woman in her 40s or 50s earns less than £0.80 for every £1 earned by a man in that age range.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2012-S1-q24",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2012-S1-q33",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "题干只有 33 题本身",
+    "should": "补上题干引用的 'Are Britain's roads getting safer?' 整篇文章"
+   }
+  ],
+  "text": "## Questions 32 - 35 refer to the following information:\n\n**Are Britain's roads getting safer? By Lucy Wilkins, BBC News**\n\nThe first recorded road death in a motor accident in Britain was in London over 100 years ago. More than a century on, roads may be busier than ever - but are they any safer?\n\nOn 17 August, 1896, a South London housewife entered the history books by being run over. Bridget Driscoll, 44, became the first person recorded to have died in a motor accident in Britain. The 20-year-old driver was a car company worker, and there were reports he had adjusted the engine to increase its maximum speed to 8mph. Ever since that first death - and the first recorded death of a driver 18 months later - the number of vehicles on the roads has multiplied.\n\n**Increasing number of vehicles**\n\nAccording to the Department for Transport (DfT), in 1930 there were only 2.3 million motor vehicles in Great Britain, but more than 7,000 people were killed in road accidents. In contrast nowadays there are more vehicles but fewer deaths - there are 27 million vehicles and 3,180 people were killed in the 12 months to March this year, provisional results show.\n\nThe DfT is meeting its 10-year safety target of cutting the number of road accident deaths and injuries to 40% of the 1994-98 average - 319,928 casualties. Five years into the policy, the statistics show casualties are 33% below the earlier average. In actual numbers, 268,900 people were either injured or killed in the 12 months to this March.\n\n**But are Britain's roads really becoming safer? The statistics paint a confusing picture**\n\nMany road accidents, where there are slight injuries or even more severe ones, bypass police records. This could be because some of the people involved in accidents do not want to tell the police because they are uninsured, unlicensed, or drunk, says head of road safety at the AA Motoring Trust, Andrew Howard. But even if injuries are reported, it does not mean the police will record them. The severity of the injury will also be under-estimated, research in the 1990s suggested.\n\n\"The combined effect of under-reporting, under-recording and misclassification suggests that there may be 2.76 times as many killed or seriously injured casualties than are recorded in the national casualty figures and 1.70 times as many slight casualties,\" the DfT says.\n\nIn June, three Oxford University researchers queried the figures after comparing them to hospital admissions from road accidents. The DfT statistics, from the police and including all hospital admissions, showed a fall from 85.9 people killed or seriously injured per 100,000 in 1996 to 59.4 per 100,000 in 2004. However, hospital admissions were almost unchanged at 90 per 100,000 in 1996 and 91.1 in 2004. They said the disparity was probably due to under-reporting and/or fewer minor injuries.\n\n**Statistical 'utopia'**\n\nPaul Smith, from Safe Speed, said: \"For every 100 accidents reported, there's 180 that aren't reported.\" Cars are safer, paramedics better trained, there are more air ambulances and roads have improved, said Mr Smith. The only factor that has not changed is drivers who \"are getting worse\" in his opinion. He urged the department to focus on educating drivers about their responsibilities, rather than just getting them to drive slower.\n\nBut Mr Howard, from the AA Motoring Trust, is encouraged by the statistics: \"My view, and I would say this is true of most of those involved in road safety, is that the statistics do show the roads are getting safer.\"\n\n33 There is disagreement in the article about whether roads are becoming more or less safe. In addition to the reasons given in the text, which one of the following, if true, would strengthen the case for roads becoming safer?\n\nA The police do not record accidents where no injuries are sustained.\n\nB Cars have become stronger, reducing the chances of injury in an accident.\n\nC The proportion of accidents reported has fallen.\n\nD Hospital reporting of road accidents has become more accurate.\n\nE Hospitals have become better at saving the lives of severe trauma victims.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2012-S1-q5",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2012-S1-q7",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "extra",
+    "now": "## Questions 8 - 11 refer to the following information:",
+    "should": "删去,属于第8-11题的标题"
+   }
+  ],
+  "text": "7 The pattern below is to be used to tile a very large floor. It consists of hexagonal, square and triangular shaped tiles.\n\n![](img_tara/BMAT-2012/img_in_image_box_367_204_878_603.jpg)\n\nIf tiling a sufficiently large area, what ratio of the three shapes of tile is needed?\n\nA 1 hexagon : 2 triangles : 3 squares\n\nB 1 hexagon : 3 triangles : 2 squares\n\nC 1 hexagon : 6 triangles : 6 squares\n\nD 2 hexagons : 7 triangles : 7 squares\n\nE 4 hexagon : 16 triangles : 19 squares",
+  "options": null
+ },
+ {
+  "id": "BMAT-2012-S1-q8",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2013-S1-q10",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2013-S1-q12",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "- is the symbol for the Sun and for Gold. (etc.; the seven astrological symbols are absent)",
+    "should": "☉ is the symbol for the Sun and for Gold. ♃ Jupiter/Tin, ☽ Moon/Silver, ♄ Saturn/Lead, ♀ Venus/Copper, ☿ Mercurys, ♂ Mars/Iron"
+   },
+   {
+    "kind": "wrong",
+    "now": "is the symbol for both Mercury.",
+    "should": "is the symbol for both Mercurys."
+   },
+   {
+    "kind": "missing",
+    "now": "stem starts without question number",
+    "should": "12 Historically, ..."
+   }
+  ],
+  "text": "12 Historically, alchemists associated seven particular metals with the seven bodies of the solar system that are visible to the naked eye. They used the corresponding astrological symbols for these metals. Thus:\n\n☉ is the symbol for the Sun and for Gold.\n\n♃ is the symbol for Jupiter and for Tin.\n\n☽ is the symbol for the Moon and for Silver.\n\n♄ is the symbol for Saturn and for Lead.\n\n♀ is the symbol for Venus and for Copper.\n\n☿ is the symbol for both Mercurys.\n\n♂ is the symbol for Mars and for Iron.\n\nThe card game Alchemy involves identifying pairs of cards that are equivalent to each other. There are 36 pairs in the pack of 72 cards. Each card contains the name of a metal, the name of a heavenly body and a symbol. A pair consists of two cards that have the same three equivalent items in the same order, e.g.:\n\n![](img_tara/BMAT-2013/img_in_image_box_146_529_465_689.jpg)\n\nThese eight cards have just been laid out in front of the players.\n\n![](img_tara/BMAT-2013/img_in_image_box_146_776_256_931.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_356_773_466_932.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_564_774_676_934.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_775_777_884_933.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_147_986_256_1141.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_355_984_466_1141.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_564_984_676_1142.jpg)\n\n![](img_tara/BMAT-2013/img_in_image_box_775_983_884_1141.jpg)\n\nHow many pairs are there in these eight cards?\n\nA 0\n\nB 1\n\nC 2\n\nD 3\n\nE 4",
+  "options": null
+ },
+ {
+  "id": "BMAT-2013-S1-q17",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2013-S1-q22",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2013-S1-q8",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2014-S1-q15",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2014-S1-q18",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "8 Sharps",
+    "should": "1 Clefs, 2 Crotchets, 3 Flats, 4 Keys, 5 Minims, 6 Quavers, 7 Semibreves, 8 Sharps"
+   }
+  ],
+  "text": "18 The draw for the quarter-finals of the Staveland Cup took place last night.\n\nEight balls, numbered from 1 to 8, were drawn, one by one, from a bag. The numbers represented the teams involved, as follows:\n\n1 Clefs\n\n2 Crotchets\n\n3 Flats\n\n4 Keys\n\n5 Minims\n\n6 Quavers\n\n7 Semibreves\n\n8 Sharps\n\nThe first two teams drawn out of the bag will play each other, as will the third and the fourth, the fifth and the sixth, and the last two.\n\nAlthough the balls were drawn out at random, they alternated between even and odd numbers, and there was always a difference of at least 3 between one ball and the next.\n\nThe first number drawn was 6 (Quavers) and the last number drawn was 5 (Minims).\n\nWhich teams will the Quavers and the Minims play in the quarter-finals of the Staveland Cup?\n\nA The Quavers will play the Clefs and the Minims will play the Crotchets.\n\nB The Quavers will play the Clefs and the Minims will play the Sharps.\n\nC The Quavers will play the Flats and the Minims will play the Crotchets.\n\nD The Quavers will play the Flats and the Minims will play the Sharps.",
+  "options": null
+ },
+ {
+  "id": "BMAT-2014-S1-q22",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2014-S1-q34",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "diagram",
+    "now": "(no ferry route map)",
+    "should": "Island map: Kaksi-Yksi, Yksi-Nolla, Kolme-Nolla, Kolme-Nelja, Nelja-Nolla, Nelja-Viisi two-way routes"
+   },
+   {
+    "kind": "missing",
+    "now": "34 Which of the following statements ...",
+    "should": "Preceding shared information for Questions 31-35 (journey times 30/45 min, start times, walking 5-10 min) is absent"
+   }
+  ],
+  "text": "Questions 31 - 35 refer to the following information:\n\nThe diagram below represents all the ferry routes between the islands in the Kuusi group. Routes (each two-way): Kaksi-Yksi, Yksi-Nolla, Kolme-Nolla, Kolme-Nelja, Nelja-Nolla, Nelja-Viisi. [DIAGRAM]\n\nEach ferry runs a shuttle service between two islands. The journeys between the main central island (Nolla) and each of the outer islands take 30 minutes in either direction and all journeys between two of the outer islands take 45 minutes.\n\nAll journeys on each route and in both directions start at 6 am and no journey starts at or after 9 pm:\n\nStart times for routes between Nolla and the outer islands: 6:00 6:45 7:30 8:15 9:00 etc. repeating every 3 hours\n\nStart times for routes between the outer islands: 6:00 7:00 8:00 9:00 etc.\n\nIt takes between 5 and 10 minutes to walk between ferry docking points on all the islands.\n\n34 Which of the following statements is/are true about journeys from Kolme to Yksi, assuming the next available ferry that same day from Nolla is always taken?\n\n1 Journeys from Kolme to Yksi never take less than 1 hour 15 minutes.\n\n2 Journeys from Kolme to Yksi never take longer than 2 hours.\n\nA 1 only\n\nB 2 only\n\nC Both 1 and 2\n\nD Neither 1 nor 2",
+  "options": null
+ },
+ {
+  "id": "BMAT-2014-S1-q5",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "extra",
+    "now": "stray option letter \"D\" between [DIAGRAM] placeholders; only 5 placeholders for floor + 8 tiles with letters A-H missing",
+    "should": "[DIAGRAM] for floor, then A-H each followed by its tile diagram"
+   }
+  ],
+  "text": "5 This is part of a tiled floor in my house, surrounding a space where I have removed a broken tile.\n\nEach tile has a pattern of sixteen smaller squares, three of which are black. On each tile, one of the black squares is a corner square, one is an edge square and one is an inner square. No two black squares touch, either edge to edge or corner to corner.\n\nAlthough I laid the tiles to produce an apparently random pattern, I made sure that no two black squares touched anywhere, either edge to edge or corner to corner.\n\nWhich one of the eight different tiles that are available must I use to replace the broken one? (Tiles may be rotated.)\n\n[DIAGRAM]\n\nA [DIAGRAM]\n\nB [DIAGRAM]\n\nC [DIAGRAM]\n\nD [DIAGRAM]\n\nE [DIAGRAM]\n\nF [DIAGRAM]\n\nG [DIAGRAM]\n\nH [DIAGRAM]",
+  "options": null
+ },
+ {
+  "id": "BMAT-2015-S1-q16",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2015-S1-q24",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2015-S1-q4",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2015-S1-q5",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2015-S1-q9",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "9 In Study 1, how many former prisoners ... (stem starts at the question)",
+    "should": "题图含 Questions 8–11 的共用材料(文章、Study 1 与 Study 2 两张表),题干缺失;Study 1 表数据是作答所需"
+   }
+  ],
+  "text": "Questions 8–11 refer to the following information:\n\nAccording to figures published recently, 44% of criminals leaving prison will reoffend within one year of being released. So if the aim of prison (custodial) sentences is to stop people committing crimes, it really is not working. Short sentences are even worse, with 55% of offenders on short sentences reoffending within a year of leaving prison. And putting kids in prison is least effective of all – 70% of under-18s who receive prison sentences reoffend within 12 months. From a cold look at the statistics, prison does not look like a successful way to reduce crime, especially for young offenders on short-term sentences. So what are the alternatives?\n\nWhilst it is an option only for less serious categories of offence, giving offenders community service orders has been shown to reduce reoffending rates by 6%. This may be seen as a softer option by offenders and by the public, but when people are up in the dock convicted of an indictable offence, they are less likely to end up back in trouble if the judge gives them a community service order rather than a prison sentence.\n\nAnother option that works even better is simply not sending someone to prison and giving them a suspended sentence instead. The figures show that people who get a suspended sentence are 9% less likely to reoffend than someone who committed a similar crime but was then sent to prison.\n\nBut the most effective way of reducing reoffending is getting offenders to meet their victims. Campaigners for restorative justice programmes, where offenders engage with the impact of their crime and often meet their victims, say it can reduce reoffending by up to 27%. However, a government analysis puts the improvement at a more conservative 14%.\n\nThe following studies contain relevant data, adapted from the November 2010 report from the Ministry of Justice, on which the above article was based:\n\nStudy 1\n50 000 former prisoners were tracked for 9 years after being released in 2000, and the number of re-convictions was matched to the time since release. The figures are all cumulative:\n\n| Time elapsed following release | Reoffending rate (%) |\n|---|---|\n| 3 months | 20.0 |\n| 6 months | 30.8 |\n| 9 months | 37.9 |\n| 1 year | 44.0 |\n| 2 years | 55.0 |\n| 5 years | 66.0 |\n| 9 years | 72.0 |\n\nStudy 2\n126 866 convicted criminals were tracked for one year following the end of their sentence, and their reoffending rates were matched to whether they had been given a short custodial sentence (i.e. a prison sentence of less than 12 months) or a non-custodial sentence. (In this study a person was considered to be a reoffender only if he/she had been reconvicted):\n\n|  | Non-custodial sentences | Short custodial sentences |\n|---|---|---|\n| Proportion of offenders who reoffended | 22.0% | 55.0% |\n| Average number of reoffences per reoffender | 2.49 | 4.11 |\n| Average number of reoffences per offender | 0.55 | 2.26 |\n| Number of reoffences | 56 181 | 54 835 |\n| Number of reoffenders | 22 577 | 13 334 |\n| Total number of offenders in cohort | 102 622 | 24 244 |\n\n9 In Study 1, how many former prisoners who had not reoffended within a year of release from prison then reoffended within 5 years of release?\n\nA 2750\n\nB 5500\n\nC 8550\n\nD 11000\n\nE 22000\n\nF 33000",
+  "options": null
+ },
+ {
+  "id": "BMAT-2016-S1-q27",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2016-S1-q32",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2016-S1-q34",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "34 If the only vegetable oil used ...",
+    "should": "题图含 Questions 32–35 的共用材料(Vegetable oils 文章与脂肪酸表:PTDI 500 mg/day、每日 143 g 脂肪中 30% 为植物油、Canola 芥酸 0.6),题干缺失"
+   }
+  ],
+  "text": "Questions 32–35 refer to the following information:\n\n## Vegetable oils in the modern diet\n\nVegetable oils other than olive oil were not introduced in significant amounts into the human diet until the early part of the  $ 20^{th} $ century. Some people believe that, as we are the genetic product of a hunter-gatherer culture, these are not natural to us as they do not match certain balances of nutrients humans had when they fed mainly on such things as grain, berries and animals and most of our fat came from animal carcasses. They go on to argue that there has not been enough time since those days for evolution to have changed the nutritional requirements of humans.\n\nVegetable oils used in cooking, salad oils, margarine and processed foods can supply around 15% of the total daily energy intake in a western diet. This has had the result of raising the dietary ratio of omega-6 to omega-3 fatty acids to its current value of more than fifteen to one. In hunter-gatherer diets, the omega-6/omega-3 ratio was closer to two to one.\n\nHowever, recent research has indicated that there are benefits to the heart from eating fats which have a high polyunsaturate content, as many vegetable oils do. One study has suggested that for every 5% increase in polyunsaturated fat consumption there was a 10% fall in heart disease.\n\nSome key factors which are thought by some to lead to a healthier diet are as follows:\n\n- the ratio of omega-6 to omega-3 fatty acids.\n\n- the erucic acid content: in 2003, Food Standards Australia set a Provisional Tolerable Daily Intake (PTDI) of about 500 mg/day of erucic acid.\n\n- the percentage of polyunsaturates: it is recommended that adults get no more than 11% of their energy from saturated fats. Vegetable oils have an energy content of about 3700 kJ/100g.\n\nThe typical fat consumption of an adult in the EU was estimated in the year 2015 to be 143 grams per day total fat of which 30% was vegetable oils.\n\nThe table below shows the fatty acid composition of a number of common oils.\n\n| Table of Vegetable Oils Units: grams fatty acids per 100 grams oil |  |  |  |  |  |  |  |\n|---|---|---|---|---|---|---|---|\n|  | Fatty Acids | Canola | Coconut | Flaxseed | Mustard | Olive | Sunflower |\n| Saturated | Palmitic Acid | 4.0 | 8.2 | 5.3 | 3.8 | 10.9 | 5.9 |\n| Stearic Acid | 1.8 | 2.8 | 4.1 | 1.1 | 2.0 | 4.5 |  |\n| Other acids | 1.3 | 75.5 |  | 1.4 | 0.6 |  |  |\n|  | Total Saturated | 7.1 | 86.5 | 9.4 | 6.3 | 13.5 | 10.4 |\n| Monounsaturated | Oleic Acid | 56.1 | 5.8 | 20.2 | 11.6 | 72.3 | 19.5 |\n| Erucic Acid | 0.6 |  |  | 41.2 |  |  |  |\n| Other acids | 1.9 |  |  | 6.4 | 1.6 |  |  |\n|  | Total Monounsaturated | 58.6 | 5.8 | 20.2 | 59.2 | 73.9 | 19.5 |\n| Polyunsaturated Omega-6 |  | 20.3 | 1.8 | 12.7 | 15.3 | 9.2 | 65.7 |\n| Polyunsaturated Omega-3 |  | 9.3 | 0.0 | 53.3 | 5.9 | 0.8 | 0.0 |\n|  | Total Polyunsaturated | 29.6 | 1.8 | 66.0 | 21.2 | 10.0 | 65.7 |\n|  | Ratio Omega-6:<br>Omega-3 | 2.2:1 | no<br>Omega-3 | 0.2:1 | 2.6:1 | 11.5:1 | no<br>Omega-3 |\n| TOTAL |  | 95.3 | 94.1 | 95.6 | 86.7 | 97.4 | 95.6 |\n\n34 If the only vegetable oil used by a typical European consumer is canola oil, what is his or her intake of erucic acid as a percentage of the PTDI?\n\nA 26%  \nB 52%  \nC 120%  \nD 172%  \nE 280%",
+  "options": null
+ },
+ {
+  "id": "BMAT-2016-S1-q5",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2016-S1-q7",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2017-S1-q1",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2017-S1-q11",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "(题干从 \"11 Which of the following factors...\" 起,缺少 Questions 8–11 共用的研究说明、数据表、脚注及两段补充说明)",
+    "should": "补入 Questions 8–11 refer to the following information 起的全部材料(研究介绍、12 行数据表、三条脚注、\"All figures are cumulative...\" 段、\"Additional data was collected...\" 段)"
+   }
+  ],
+  "text": "Questions 8–11 refer to the following information.\n\nThe following set of data is from a nine-year study of reoffending and reconviction rates in the UK. The study followed a cohort of 42,721 offenders who were released from prison in 2000 or given a non-custodial sentence in 2000.\n\nReconviction rates, frequency rates, and severity rates for different follow-up periods\n\n| Follow-up period | Reconviction rate¹ | Reconviction frequency rate² | Rate of severe reconvictions³ |\n|---|---|---|---|\n| 3 month | 19.9% | 50.3 | 0.2 |\n| 6 month | 30.8% | 98.9 | 0.4 |\n| 9 month | 37.9% | 142.6 | 0.6 |\n| 1 year | 43.0% | 185.1 | 0.8 |\n| 2 year | 55.2% | 347.5 | 1.6 |\n| 3 year | 61.9% | 498.5 | 2.5 |\n| 4 year | 65.8% | 632.9 | 3.1 |\n| 5 year | 68.4% | 741.7 | 3.8 |\n| 6 year | 70.4% | 833.9 | 4.4 |\n| 7 year | 71.8% | 912.3 | 5.0 |\n| 8 year | 73.0% | 986.4 | 5.5 |\n| 9 year | 74.0% | 1,057.5 | 6.0 |\n\n¹ Reconviction rate: the proportion of offenders who were reconvicted for one offence or more during the follow-up period\n\n² Reconviction frequency rate: the number of offences per 100 offenders in the cohort resulting in a reconviction\n\n³ Rate of severe reconvictions: the number of severe offences (e.g. violence or armed robbery) per 100 offenders\n\nAll figures are cumulative and relate only to offences that resulted in a conviction. No adjustment was made for factors that might account for a decline in the rate of reconvictions over time.\n\nAdditional data was collected on offenders who had served custodial sentences and who were released from prison in 2000. Offenders who received longer sentences (four years and over) formed 2.3 per cent of the cohort. Offenders who received shorter sentences (less than twelve months) formed 24.2 per cent of the cohort, but committed 39 per cent of all offences that led to a conviction in the first year of the follow-up.\n\n11 Which of the following factors might feasibly account for a decline in the year-on-year rate of reconvictions as indicated by the study?\n\n1 substantial numbers of re-offenders being sent to prison\n\n2 normal mortality rate over a decade\n\n3 a deterrent effect created by harsher sentencing\n\nA 1 only\nB 2 only\nC 3 only\nD 1 and 2 only\nE 1 and 3 only\nF 2 and 3 only\nG 1, 2 and 3",
+  "options": null
+ },
+ {
+  "id": "BMAT-2017-S1-q20",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "missing",
+    "now": "(题干只有 \"20 Which of the following is supported...\" 及三条陈述,缺少 Questions 19–22 共用的文章、百分比条形图、受影响论文数表、基因名错误文件数柱状图及后两段正文)",
+    "should": "补入 Questions 19–22 refer to the following information 起的全部材料;图中数值(尤其 2009 与 2011 年的文件数、Nature 与 BMC Bioinformatics 的论文数)是作答依据"
+   }
+  ],
+  "text": "Questions 19–22 refer to the following information.\n\nA fifth of genomics papers between 2005 and 2015 contained errors in spreadsheets\n\nA recent study in the journal Genome Biology looked at papers published in 18 genomics journals between 2005 and 2015, and found spreadsheet-related errors in 20% of articles that provided supplementary data alongside their text. Although the quality of the papers was not necessarily affected, such errors can create complications for other scientists trying to replicate or build on previous work. The charts and the table below summarise the findings.\n\n% of papers with spreadsheet errors, 2005–2015 (horizontal bar chart; values read from the chart, approximate):\n\n| Journal | % of papers |\n|---|---|\n| Nature | 31 |\n| Genes Dev | 28 |\n| Genome Res | 26 |\n| Genome Biol | 24 |\n| Nature Genet | 24 |\n| Nucleic Acids Res | 21.5 |\n| BMC Genomics | 19.5 |\n| OVERALL AVERAGE | 19 |\n| RNA | 19 |\n| PLoS Comput Biol | 18.5 |\n| PLoS Biol | 17 |\n| PLoS One | 17 |\n| Hum Mol Genet | 16 |\n| Science | 15.5 |\n| BMC Bioinformatics | 14 |\n| Bioinformatics | 9 |\n| Genome Biol Evol | 8 |\n| DNA Res | 7 |\n| Mol Biol Evol | 5 |\n\nNumber of papers affected per journal, 2005–2015\n\n| Journal title | No. of papers affected |\n|---|---|\n| PLoS One | 170 |\n| BMC Genomics | 158 |\n| Genome Res | 68 |\n| Nucleic Acids Res | 67 |\n| Genome Biol | 63 |\n| Genes Dev | 55 |\n| Hum Mol Genet | 27 |\n| Nature | 23 |\n| BMC Bioinformatics | 21 |\n| RNA | 15 |\n| Nature Genet | 9 |\n| Bioinformatics | 6 |\n| PLoS Comput Biol | 6 |\n| PLoS Biol | 5 |\n| Mol Biol Evol | 4 |\n| Science | 3 |\n| Genome Biol Evol | 2 |\n| DNA Res | 2 |\n| Total | 704 |\n\nSupplementary files with gene name errors (bar chart of No. of files by year; values read from the chart, approximate):\n\n| Year | No. of files |\n|---|---|\n| 2005 | 5 |\n| 2006 | 15 |\n| 2007 | 61 |\n| 2008 | 57 |\n| 2009 | 48 |\n| 2010 | 78 |\n| 2011 | 102 |\n| 2012 | 120 |\n| 2013 | 147 |\n| 2014 | 180 |\n| 2015 | 170 |\n\nThe syntax of genomics makes it particularly difficult for off-the-shelf software to digest. For example, spreadsheets often mistake gene symbols for dates. The authors found that Microsoft Excel would often interpret 'SEPT2', which corresponds to the gene Septin 2, as 'September 2nd'. Such hiccups can be quickly resolved, but they are easy to overlook.\n\nThe paper's most worrying finding is that mistakes seem to be proliferating. The authors found that the number of genomics papers packaged with error-ridden spreadsheets increased by 20% a year over the period, far above the 10% annual growth rate in the number of genomics papers published. If we extrapolate current trends indefinitely into the future, soon every spreadsheet attached to a genetics paper will have an error.\n\n20 Which of the following is supported by the information given?\n\n1 In 2015, at least half of the journals observed published a paper whose supplementary files contained spreadsheet errors.\n\n2 In 2011, the number of files with gene name errors was more than twice as high as in 2009.\n\n3 During the observed period, Nature published twice as many papers with spreadsheet errors as BMC Bioinformatics.\n\nA 1 only\nB 2 only\nC 3 only\nD 1 and 2 only\nE 1 and 3 only\nF 2 and 3 only\nG 1, 2 and 3",
+  "options": null
+ },
+ {
+  "id": "BMAT-2017-S1-q25",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2017-S1-q26",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2018-S1-q18",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2018-S1-q30",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2018-S1-q4",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2018-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2018-S1-q8",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2019-S1-q20",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "diagram",
+    "now": "题干只有问句和折线图,未含 Questions 19–22 共用的说明文字、Figure 1 和 Figure 2 销量表",
+    "should": "需补入共用材料,尤其是 Figure 2 中 Mirror 各年销量,才能判断哪条线是 Mirror"
+   }
+  ],
+  "text": "Questions 19–22 refer to the following information.\n\nNational daily newspapers\n\nThe sales of national daily papers in the UK reached a peak in the mid-1950s. Since then there has been a gradual decline in sales. The availability of multimedia news platforms has accelerated this decline in the 21st century, and by the close of 2014, no UK newspaper had daily sales exceeding two million.\n\nDespite this decline, there is no denying the enormous power the national newspapers still have to influence public opinion. No papers have done this on a bigger scale than Rupert Murdoch's Sun and the Mail under Paul Dacre. And no issue has ever demonstrated it more clearly than the divisive issue of Brexit.\n\nDacre became editor at the Mail in 1992 and resigned in 2018 (Figure 1 relates to his time in charge). Before and during the 2016 referendum – on leaving or remaining in the European Union – the Mail openly backed the Leave campaign, along with the Express, Star, Sun, and Telegraph. The combined daily sales of these brands was over 4 million, dwarfing those of the four Remain-supporting papers. No surprise, therefore, that the majority of the UK population was persuaded to vote Leave.\n\nFigure 1: Percentage change in national daily newspaper sales, 1992-2018\n\nMirror -80; Express -76; Guardian -68; Telegraph -63; Sun -57; Star -51; FT -35; Mail -20; Times +14\n\nFigure 2: Average daily sales of the nine national daily papers\n\n| title | 2018 | 2017 | 2016 | 2015 | 2010 | 2005 | 2000 |\n|---|---|---|---|---|---|---|---|\n| Times | 440 558 | 451 261 | 404 155 | 396 621 | 508 250 | 686 327 | 726 349 |\n| Mail | 1 343 142 | 1 511 357 | 1 589 471 | 1 688 727 | 2 120 347 | 2 409 121 | 2 353 915 |\n| FT | 189 579 | 188 924 | 198 237 | 219 444 | 390 315 | 422 519 | 435 478 |\n| Star | 391 998 | 443 452 | 470 369 | 425 246 | 779 376 | 861 825 | 502 647 |\n| Sun | 1 545 594 | 1 666 715 | 1 787 096 | 1 978 702 | 3 006 565 | 3 382 509 | 3 557 336 |\n| Telegraph | 385 346 | 472 258 | 472 033 | 494 675 | 691 128 | 920 745 | 1 039 749 |\n| Guardian | 137 839 | 156 756 | 164 163 | 185 429 | 302 285 | 376 816 | 401 560 |\n| Express | 364 721 | 392 526 | 408 700 | 457 914 | 674 640 | 949 238 | 1 050 846 |\n| Mirror | 583 192 | 724 888 | 809 147 | 922 235 | 1 218 425 | 1 748 327 | 2 270 543 |\n| Totals | 5 381 969 | 6 008 137 | 6 303 371 | 6 768 993 | 9 691 331 | 11 757 427 | 12 338 423 |\n\n20 The following unlabelled graph compares the daily sales of five of the nine national daily papers between 1995 and 2015. Which of the five lines 1-5 corresponds to the data for the Mirror?\n\n![](img_tara/BMAT-2019/img_in_chart_box_387_558_868_861.jpg)\n\nA line 1\n\nB line 2\n\nC line 3\n\nD line 4\n\nE line 5",
+  "options": null
+ },
+ {
+  "id": "BMAT-2019-S1-q24",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2019-S1-q4",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2019-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2019-S1-q7",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2020-S1-q11",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2020-S1-q26",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "diagram",
+    "now": "题干未写出两个饼图的数值",
+    "should": "图中标注:ineligible 20%、eligible 80%;remain 40%、leave 60%"
+   }
+  ],
+  "text": "26 The diagrams below relate to a recent referendum in Bolandia about whether the country should remain a member of, or leave, the Continental Union.\n\npopulation's eligibility to vote\n\n![](img_tara/BMAT-2020/img_in_chart_box_168_758_577_966.jpg)\n\n(pie chart: ineligible 20%, eligible 80%)\n\ndistribution of votes\n\n![](img_tara/BMAT-2020/img_in_chart_box_688_759_1064_966.jpg)\n\n(pie chart: remain 40%, leave 60%)\n\nTwo-thirds of those eligible to vote did so.\n\nWhat proportion of the total population voted for leaving the Continental Union?\n\nA 32%\n\nB 37%\n\nC 40%\n\nD 48%\n\nE 53%",
+  "options": null
+ },
+ {
+  "id": "BMAT-2020-S1-q28",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "diagram",
+    "now": "题干未写出图中折叠处的标注",
+    "should": "图中标注折叠凸起部分宽 3 cm、高 3 cm,另有重叠 5 cm、总长 75 cm"
+   }
+  ],
+  "text": "28 Two identical rectangular pieces of paper are arranged to overlap each other by 5 cm. One of the rectangles has been folded to make the structure below (not to scale). The length of the whole arrangement is 75 cm. In the diagram, the fold forms a raised section 3 cm wide and 3 cm high.\n\n![](img_tara/BMAT-2020/img_in_image_box_168_920_1073_1138.jpg)\n\nWhat is the length of one of the pieces of paper?\n\nA 40.0cm\n\nB 41.5cm\n\nC 43.0cm\n\nD 44.5cm\n\nE 45.5cm",
+  "options": null
+ },
+ {
+  "id": "BMAT-2020-S1-q5",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2020-S1-q9",
+  "ok": false,
+  "issues": [
+   {
+    "kind": "options",
+    "now": "A tanned skin shows that you have been out in the sun...",
+    "should": "A 选项正文以 \"A tanned skin\" 开头,OCR 把正文首词 A 当作字母吞掉了"
+   }
+  ],
+  "text": "9 A high unemployment level is an indicator of a weak economy. Unemployment levels in Malaysia are low, so the economy must be strong.\n\nWhich one of the following most closely parallels the reasoning used in the above argument?\n\nA A tanned skin shows that you have been out in the sun. You have a pale skin, so you have not been sunbathing.\n\nB It takes hours of work to keep your garden tidy. Your garden is tidy, so you must have spent a long time working in it.\n\nC More crowded roads lead to more traffic accidents. There has been an increase in traffic accidents, therefore the roads must be more crowded.\n\nD Drinking strong coffee raises the heart rate. You do not have a raised heart rate, therefore you have not been drinking strong coffee.\n\nE Only violins made in 18th century Cremona produce a very good sound. That violin makes a very good sound, so it must be Cremonese.",
+  "options": {
+   "A": "A tanned skin shows that you have been out in the sun. You have a pale skin, so you have not been sunbathing.",
+   "B": "It takes hours of work to keep your garden tidy. Your garden is tidy, so you must have spent a long time working in it.",
+   "C": "More crowded roads lead to more traffic accidents. There has been an increase in traffic accidents, therefore the roads must be more crowded.",
+   "D": "Drinking strong coffee raises the heart rate. You do not have a raised heart rate, therefore you have not been drinking strong coffee.",
+   "E": "Only violins made in 18th century Cremona produce a very good sound. That violin makes a very good sound, so it must be Cremonese."
+  }
+ },
+ {
+  "id": "BMAT-2021-S1-q15",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2021-S1-q2",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2021-S1-q24",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2021-S1-q6",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2021-S1-q7",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2022-S1-q13",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2022-S1-q25",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2022-S1-q5",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2022-S1-q8",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2022-S1-q9",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2023-S1-q15",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2023-S1-q18",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2023-S1-q20",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2023-S1-q30",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "BMAT-2023-S1-q4",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "TSA-2008-S1-q1",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "TSA-2008-S1-q14",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "TSA-2008-S1-q35",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "TSA-2008-S1-q40",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ },
+ {
+  "id": "TSA-2008-S1-q43",
+  "ok": true,
+  "issues": [],
+  "text": null,
+  "options": null
+ }
+]
