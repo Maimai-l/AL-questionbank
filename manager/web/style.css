@@ -319,11 +319,12 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .sp-recent .rec:hover { background: var(--color-state-hover); }
 .sp-recent .rec span:last-child { margin-left: auto; font-size: 12px; color: var(--color-text-tertiary); }
 /* a long topic name wraps inside its menu item instead of over the next one */
-.dd .menu .menu-item { height: auto; min-height: 32px; line-height: 1.4; padding-top: 6px; padding-bottom: 6px; }
+.dd .menu .menu-item { flex-shrink: 0; height: auto; min-height: 32px; line-height: 1.4; padding-top: 6px; padding-bottom: 6px; }
 
-/* MultiPick: the field, then the chosen ones as tags */
-.mpick { display: flex; flex-direction: column; gap: var(--el); }
-.mpick .dd { width: 100%; }
-.mpick .menu { right: auto; width: max(100%, 360px); }
-.mpick-tags { display: flex; flex-wrap: wrap; gap: var(--txt); }
-.mpick-tags .tag { max-width: 100%; }
+/* MultiPick: the chosen ones as pills inside the field, on one line */
+.mpick { width: 100%; }
+.mpick .select.has-pills { padding-left: 4px; }
+.mpick .pills { flex: 1; min-width: 0; display: flex; gap: var(--txt); overflow: hidden; white-space: nowrap; }
+.mpick .pills .tag { flex: none; padding: 0 8px; border-radius: var(--radius-full); }
+.mpick .pills .tag .rm { border-radius: 50%; }
+.mpick .menu { right: auto; width: max(100%, 400px); }

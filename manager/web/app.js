@@ -544,10 +544,11 @@
       words(f.any).join(' OR '), ...words(f.none).map((w) => '-' + w.replace(/^-/, ''))].filter(Boolean).join(' ');
   }
 
-  /** Several of many choices in a narrow column: the field, as tall as the others, says how
-      many are chosen; the chosen ones are tags below it, each with its own remove button.
-      The menu is the design system's (.dd .menu, as its MultiSelect). */
-  function MultiPick({ options, value, onChange, placeholder, unit, ariaLabel }) {
+  /** Several of many choices in a narrow column, the field as tall as the others: the chosen
+      ones are pills inside it, by their short name (9709 1.1, the full name on hover); two
+      fit, past two the first one and +n. The menu (the design system's .dd .menu) has the
+      full names. */
+  function MultiPick({ options, value, onChange, placeholder, short, ariaLabel }) {
     const [open, setOpen] = useState(false);
     const ref = useRef(null);
     useEffect(() => {
@@ -560,16 +561,21 @@
     }, [open]);
     const label = (v) => (options.find((o) => o.value === v) || { label: v }).label;
     const flip = (v) => onChange(value.includes(v) ? value.filter((x) => x !== v) : value.concat([v]));
-    return h('div', { className: 'mpick' },
-      h('div', { ref, className: 'dd' },
-        h('div', { className: 'input input--sm select', role: 'combobox', tabIndex: 0, 'aria-expanded': open, 'aria-label': ariaLabel,
-          onClick: () => setOpen(!open), onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } } },
-          h('span', { className: 'val' + (value.length ? '' : ' ph') }, value.length ? `已选 ${value.length} ${unit}` : placeholder),
-          h(E.Icon, { name: 'i-tri-d', className: 'tri' })),
-        h('div', { className: 'menu', role: 'listbox', 'aria-multiselectable': 'true', hidden: !open },
-          options.map((o) => h('button', { key: o.value, type: 'button', className: 'menu-item', role: 'option',
-            'aria-selected': value.includes(o.value), onClick: () => flip(o.value) }, o.label, h(E.Icon, { name: 'i-check', className: 'ok' }))))),
-      value.length ? h('div', { className: 'mpick-tags' }, value.map((v) => h(E.Tag, { key: v, size: 'sm', onRemove: () => flip(v) }, label(v)))) : null);
+    const fit = value.length <= 2 ? 2 : 1;     // two pills fit the column's field; past two, one and +n
+    const rest = value.length - fit;
+    return h('div', { ref, className: 'dd mpick' },
+      h('div', { className: 'input input--sm select' + (value.length ? ' has-pills' : ''), role: 'combobox', tabIndex: 0, 'aria-expanded': open, 'aria-label': ariaLabel,
+        onClick: (e) => { if (!e.target.closest('.rm')) setOpen(!open); },
+        onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } } },
+        value.length ? h('span', { className: 'pills' },
+          value.slice(0, fit).map((v) => h('span', { key: v, className: 'tag tag--sm', title: label(v) }, short(v),
+            h('button', { type: 'button', className: 'rm', 'aria-label': '移除 ' + label(v), onClick: () => flip(v) }, h(E.Icon, { name: 'i-close' })))),
+          rest > 0 ? h('span', { className: 'tag tag--sm', title: value.slice(fit).map(label).join('\n') }, `+${rest}`) : null)
+          : h('span', { className: 'val ph' }, placeholder),
+        h(E.Icon, { name: 'i-tri-d', className: 'tri' })),
+      h('div', { className: 'menu', role: 'listbox', 'aria-multiselectable': 'true', hidden: !open },
+        options.map((o) => h('button', { key: o.value, type: 'button', className: 'menu-item', role: 'option',
+          'aria-selected': value.includes(o.value), onClick: () => flip(o.value) }, o.label, h(E.Icon, { name: 'i-check', className: 'ok' })))));
   }
 
   const FIELDS_AT = [['stem', '题干'], ['ms', '评分细则'], ['ex', '详解'], ['topic', '主题名']];
@@ -667,7 +673,8 @@
             h(E.Checkbox, { checked: exams.has(e), onChange: () => toggle(exams, setExams, e) }, e),
             h('span', { className: 'fx-n' }, res ? counts[e] || 0 : ''))))),
         h('section', { className: 'sec' }, head('主题'),
-          h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', unit: '个主题', options: topicOptions, value: topics, onChange: setTopics })),
+          h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', options: topicOptions, value: topics, onChange: setTopics,
+            short: (v) => v.replace(':', ' ') })),
         h('section', { className: 'sec' }, head('年份'),
           h('div', { className: 'years' },
             h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: yearOpts, value: String(years[0]), onChange: (v) => setYears([+v, Math.max(+v, years[1])]) }),
