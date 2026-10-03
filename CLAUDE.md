@@ -23,6 +23,7 @@
 
 ## 文档
 
+- `docs/guide.md`:给用户的使用手册(安装、同步、命令、稳定分支)
 - `docs/status.md`:数据现状与待办,接手时先读
 - `docs/pipeline.md`:执行顺序、脚本索引、已知问题
 - `docs/data-sync.md`:data 分支

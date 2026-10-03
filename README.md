@@ -101,6 +101,7 @@ data/                 data 分支的 worktree(不属于 main)
 
 ## 文档
 
+- [docs/guide.md](docs/guide.md):使用手册:安装、同步、页面与命令、个人数据、稳定分支
 - [docs/status.md](docs/status.md):数据现状与待办,接手时先读
 - [docs/pipeline.md](docs/pipeline.md):流水线各阶段、执行顺序与脚本索引
 - [docs/data-sync.md](docs/data-sync.md):`data` 分支的结构与同步方式
