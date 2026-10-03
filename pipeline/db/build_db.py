@@ -5,7 +5,6 @@
 """
 import importlib, json, os, sqlite3, sys
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 

@@ -15,7 +15,6 @@ A crisp bitmap of the same page is a different, easier problem.
 """
 import json, os, re, sys, tempfile
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/ —— 直接跑脚本时也 import 得到包
 from lib import paths

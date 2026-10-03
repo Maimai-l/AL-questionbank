@@ -26,7 +26,6 @@ from it.
 """
 import json, os, re, sqlite3, sys
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths
@@ -252,11 +251,11 @@ def index_folder(db, folder, syllabus, components=None, book=None):
     print(f"{book}: {len(rows)} 章入索引\n")
     print(f"{'章':<4}{'标题':<34}{'词数':>7}{'主题':>7}  {'覆盖':>5}  可疑的 learning outcome")
     for r in rows:
-        no, title, words, topic, tname, cov = r[3], r[4], r[8], r[9], r[10], r[17]
+        no, title, words, topic, cov = r[3], r[4], r[8], r[9], r[17]
         weak = json.loads(r[16])
         print(f"{no or '?':<4}{title[:32]:<34}{words:>7}{(topic or '?'):>7}  "
               f"{(f'{cov:.0%}' if cov is not None else '  -'):>5}  "
-              f"{len(weak)} 条" + (f" ← 看一下" if weak else ""))
+              f"{len(weak)} 条" + (" ← 看一下" if weak else ""))
     con.close()
 
 

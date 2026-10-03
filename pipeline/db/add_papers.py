@@ -25,7 +25,7 @@ finish  after the OCR (ocr.py -> apply_reocr.py; ocr_ms.py -> parse_ms_ocr.py
 Dry run by default. Then run the rest of the chain on the whole table as usual
 (rebuild_text.py, rebuild_ms.py, split_parts.py, build_site.py).
 """
-import argparse, json, os, sqlite3, sys, tempfile
+import argparse, json, os, sys, tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
@@ -122,7 +122,7 @@ def add(a):
         ms_by_subject.setdefault(f[:4], []).extend(ms)
     n = sum(len(v) for v in by_subject.values())
     print(f"切出 {n} 题:" + ",".join(f"{s} {len(v)}" for s, v in sorted(by_subject.items())))
-    print(f"评分细则:" + ",".join(f"{s} {len(v)} 题" for s, v in sorted(ms_by_subject.items())))
+    print("评分细则:" + ",".join(f"{s} {len(v)} 题" for s, v in sorted(ms_by_subject.items())))
     for s in short:
         print("  题数过少:", s)
     if not a.write:

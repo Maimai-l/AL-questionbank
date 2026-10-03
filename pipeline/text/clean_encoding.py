@@ -16,7 +16,7 @@ Greek is deliberately *not* suspect: α, θ, π, λ are ordinary maths.
 """
 import re, sqlite3, sys
 
-import os, sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths

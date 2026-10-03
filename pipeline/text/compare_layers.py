@@ -27,7 +27,6 @@ because a metric that disagrees with your eyes is a metric to distrust.
 """
 import os, re, sys
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from pipeline.text.audit_text import orphan_ratio, degenerate
@@ -142,8 +141,8 @@ def main(root, samples=6, out="compare.md"):
             f.write("\n")
             for fn, a, b, w, why in r["samples"]:
                 f.write(f"### {fn} — 判 {w}({why})\n\n")
-                f.write(f"| | 字符 | 词 | 等号/公式 | LaTeX | 表 | 图 | 孤立单字 |\n"
-                        f"|---|---|---|---|---|---|---|---|\n")
+                f.write("| | 字符 | 词 | 等号/公式 | LaTeX | 表 | 图 | 孤立单字 |\n"
+                        "|---|---|---|---|---|---|---|---|\n")
                 for nm, s in (("文本层", a), ("OCR", b)):
                     f.write(f"| {nm} | {s['chars']} | {s['words']} | {s['eq']} | "
                             f"{s['latex']} | {s['tables']} | {s['imgs']} | "

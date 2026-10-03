@@ -8,7 +8,6 @@ re-read question by question by a model; this applies the result and records
 """
 import glob, importlib, json, os, sys
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 

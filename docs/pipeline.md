@@ -139,7 +139,7 @@ python3 pipeline/export/build_site.py       # 8. 出页面
 用不变量校验结果。改判结果写入 `retag_tmua.json` 与 `retag_tara.json`,不要直接改
 `questions_adm.json`,后者在重跑时会被覆盖。
 
-`spot_check.py` 是入学考抽查:每份试卷按固定种子抽题(默认 5 题),子 agent 对照题图核对题干、
+`spot_check.py` 是入学考抽查:每份试卷按固定种子抽题(默认 5 题,`--exam` 限定考试,`--run` 另存一组),子 agent 对照题图核对题干、
 选项与答案字母,结果写在 `raw/adm_check/out/`;`report` 按试卷与考试统计有错的题与错误类型,
 用来决定哪些试卷要整份重新转录。
 

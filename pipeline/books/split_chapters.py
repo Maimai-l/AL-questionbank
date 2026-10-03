@@ -24,7 +24,6 @@ numbers must be 1-based PDF pages.
 """
 import json, os, re, shutil, sys
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths
@@ -312,7 +311,7 @@ def main(pdf, md_dir, out_dir, prefix=None, level=None, table=None,
               f"最晚 p{missing[-1]})。")
         if len(missing) > len(wanted) * 0.3:
             print("    缺得太多,合出来的章节一定是残的。")
-            print(f"    先补 OCR:python3 ocr_books.py <pdf目录> <pages目录>")
+            print("    先补 OCR:python3 ocr_books.py <pdf目录> <pages目录>")
             sys.exit(1)
 
     os.makedirs(out_dir, exist_ok=True)

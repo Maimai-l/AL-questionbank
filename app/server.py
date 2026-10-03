@@ -25,7 +25,6 @@ when 2.0 arrives. The boards and attempts live in paths.WORK, outside data/.
 """
 import json
 import os
-import re
 import struct
 
 from aiohttp import web

@@ -16,7 +16,7 @@ there it becomes <br>, as in a Markdown table; the pages and exports render it.
 """
 import re, sqlite3, sys
 
-import os, sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths, scheme

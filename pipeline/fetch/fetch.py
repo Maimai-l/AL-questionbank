@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 """Download CAIE 9709 question papers + mark schemes."""
-import os, sys, time
+import os, sys
 from concurrent.futures import ThreadPoolExecutor
 import urllib.request
 
 BASE = "https://dynamicpapers.com/wp-content/uploads/2015/09/"
-import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/
 from lib import paths
