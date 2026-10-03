@@ -28,6 +28,11 @@
 - `docs/data-sync.md`:data 分支
 - `docs/network.md`:需要访问的站点。新增外部来源时必须更新此表和 `docs/allowed-domains.txt`(白名单,一行一个域名)
 
+## 测试
+
+- 修改 `manager/` 或 `manage.py` 后运行 `python3 -m unittest discover tests`,全部通过后再提交。
+  新增页面或流程时在 `tests/test_manager.py`(接口)与 `tests/test_pages.py`(浏览器)中补上对应的流程。
+
 ## 协作约定
 
 - 用户在多伦多(`America/Toronto`)。用量按 5 小时窗口轮换，2026-10-02 起窗口在多伦多时间 17:30 重置，之后的窗口起点为

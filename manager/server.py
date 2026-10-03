@@ -302,7 +302,7 @@ async def _export_args(request):
     else:
         args = s, templates.clean(b.get("settings")), b.get("body", "")
     # 版面 is the output's own choice, not the template's: the settings page's default unless
-    # the dialog sends another (0 紧凑 .. 4 宽松)
+    # the dialog sends another (0 紧凑 .. 3 宽松)
     if isinstance(b.get("space"), int) and 0 <= b["space"] <= 3:
         args = s, {**args[1], "space": b["space"]}, args[2]
     if args[1]["answers"] == "written_pdf":       # the annotated copy as the ink is now

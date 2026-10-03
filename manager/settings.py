@@ -16,20 +16,25 @@ DEFAULTS = {
 }
 
 
+def _space(v):
+    """版面 as a step 0..3; past the last (a fifth step, 4, was once) is the last."""
+    return max(0, min(3, v)) if type(v) is int else DEFAULTS["space"]
+
+
 def load():
     try:
         with open(PATH, encoding="utf-8") as f:
             s = {**DEFAULTS, **{k: v for k, v in json.load(f).items() if k in DEFAULTS}}
     except (OSError, ValueError):
         return dict(DEFAULTS)
-    if not isinstance(s["space"], int) or not 0 <= s["space"] <= 3:   # a fifth step (4) was once
-        s["space"] = 3 if isinstance(s["space"], int) and s["space"] > 3 else DEFAULTS["space"]
+    s["space"] = _space(s["space"])
     return s
 
 
 def save(changes):
     s = load()
     s.update({k: v for k, v in changes.items() if k in DEFAULTS and type(v) is type(DEFAULTS[k])})
+    s["space"] = _space(s["space"])
     os.makedirs(paths.WORK, exist_ok=True)
     with open(PATH, "w", encoding="utf-8") as f:
         json.dump(s, f, ensure_ascii=False, indent=1)

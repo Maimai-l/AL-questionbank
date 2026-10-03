@@ -26,5 +26,10 @@
 
 分期:`docs/data-manager.md` 第 10 节的五个阶段均已实现。
 
-测试:`python3 -m unittest discover tests`(读取 `data/`,只写临时目录;约 40 秒)。覆盖页面与接口能否打开、
-设置页预览的各档、搜索、练习卷各档页数与「紧凑」不留答题线、超过 115 页的题组建白板并在末页写入与导出。
+测试:`python3 -m unittest discover tests`(读取 `data/`,只写临时目录;约 2 分钟)。
+
+| 文件 | 内容 |
+|---|---|
+| `tests/test_manager.py` | 各页面向服务器发出的请求，按使用顺序:查询页(各考试、题目详情、加入题组)、搜索页(各条件、各种写法)、题组(新建、改名、排序、移出、导出与导入 JSON、删除、练习卷、阅读文档、各模板与格式的输出)、白板(超过 115 页的题组建板、末页写入、导出带笔迹)、模板与流程(新建、修改、运行、删除，内置的不可改)、设置(保存、范围检查、各档预览);练习卷各档页数与「紧凑」不留答题线 |
+| `tests/test_pages.py` | 在浏览器(Playwright)中按顺序操作每个页面的主要流程，出现脚本错误、失败的请求或错误提示即不通过。需要 `pip install playwright && playwright install chromium`,未安装时跳过;`QB_CHROMIUM` 可指定 Chromium |
+| `tests/support.py` | 临时目录(`QB_WORK`、`CAIE_EXPORTS`)与取题 |
