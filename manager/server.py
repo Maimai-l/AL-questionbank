@@ -22,6 +22,7 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>/paper/<n>.png  a page of it
   /doc/<id>/scheme, /doc/<id>/explanation   reading documents (F6); ?download=1 to save
   /api/settings          GET, PUT {footer_*, theme}
+  /api/settings/preview/<bits>[/<n>.png]   the settings page's preview for footer options bits ("101")
   /api/templates         GET list, POST create {name, settings, body}
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
   /api/sets/<id>/zip/preview  POST {template} or {settings, body}: files, sizes, README (F7)
@@ -40,6 +41,7 @@ sets and later outputs live in paths.WORK.
   /ws, /inksync/         ink sync and its front end (manager/vendor/inksync, from white-board)
 """
 import os
+import re
 
 from aiohttp import web
 
@@ -212,6 +214,48 @@ async def settings_get(request):
 
 async def settings_put(request):
     return web.json_response(settings.save(await request.json()))
+
+
+FOOTER = ("footer_name", "footer_code", "footer_page")
+PREVIEW = 6                                  # questions in the settings page's preview: two pages
+
+
+def _preview(bits):
+    """The settings page's preview with the footer options in bits ("101": name, no code,
+    page): the first questions of the first set that has some, each combination cached
+    apart, so changing an option only reads a file built before."""
+    sample = next((x for x in sets.all_sets() if x["items"]), None)
+    if not sample or not re.fullmatch(r"[01]{3}", bits):
+        return None
+    s = {"id": "preview" + bits, "name": sample["name"], "items": sample["items"][:PREVIEW]}
+    return paper.build(s, footer={k: b == "1" for k, b in zip(FOOTER, bits)})
+
+
+async def settings_preview(request):
+    loop = asyncio.get_running_loop()
+    bits = request.match_info["bits"]
+    try:
+        path = await loop.run_in_executor(None, _preview, bits)
+    except paper.EmptyPaper:
+        path = None
+    if not path:
+        raise web.HTTPNotFound()
+    for other in (f"{n:03b}" for n in range(8)):  # the other combinations, ready for the next click
+        if other != bits:
+            loop.run_in_executor(None, _preview, other)
+    return web.json_response({"pages": min(2, paper.page_count(path))})
+
+
+async def settings_preview_page(request):
+    try:
+        path = await asyncio.get_running_loop().run_in_executor(None, _preview, request.match_info["bits"])
+    except paper.EmptyPaper:
+        path = None
+    n = int(request.match_info["n"])
+    if not path or not 0 <= n < min(2, paper.page_count(path)):
+        raise web.HTTPNotFound()
+    png = await asyncio.get_running_loop().run_in_executor(None, paper.page_png, path, n)
+    return web.Response(body=png, content_type="image/png")
 
 
 async def template_list(request):
@@ -523,6 +567,8 @@ def make_app():
     app.router.add_delete(r"/api/templates/{tid}", template_delete)
     app.router.add_get("/api/settings", settings_get)
     app.router.add_put("/api/settings", settings_put)
+    app.router.add_get(r"/api/settings/preview/{bits}", settings_preview)
+    app.router.add_get(r"/api/settings/preview/{bits}/{n:\d+}.png", settings_preview_page)
     app.router.add_get(r"/q/{path:.+}", image)
     app.router.add_get(r"/paper/{qid}", original)
     app.router.add_static("/static/", WEB)

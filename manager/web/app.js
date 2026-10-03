@@ -294,7 +294,7 @@
           onChange: () => onChange(all ? new Set() : new Set(items.map((i) => i.value))),
         }, title),
         h('span', { className: 'fx-n' }, `${items.filter((i) => picked.has(i.value)).length} / ${items.length}`)),
-      h('div', { className: grid ? 'fx-grid' : null }, items.map((i) => h('div', { className: 'fx-row', key: i.value },
+      h('div', { className: grid ? 'fx-grid' : null }, items.map((i) => h('div', { className: 'fx-row' + (i.zero ? ' is-zero' : ''), key: i.value },
         h(E.Checkbox, { checked: picked.has(i.value), onChange: () => toggle(i.value) }, i.label),
         h('span', { className: 'fx-n' }, i.n)))));
   }
@@ -653,9 +653,10 @@
     const taskOptions = Object.keys((res && res.tasks) || {}).sort((a, b) => Object.keys(TASK).indexOf(a) - Object.keys(TASK).indexOf(b));
     const yearOpts = allYears.map((y) => ({ value: String(y), label: String(y) }));
     const counts = (res && res.counts) || {};
+    const papers = (res && res.papers) || {};
     const rows = (res && res.rows) || [];
     const picked = rows.filter((r) => selected.includes(r.id));
-    const moreSet = comps !== null || tasks !== null || expl !== 'any';
+    const moreSet = tasks !== null || expl !== 'any';
 
     const head = (t, extra) => h('div', { className: 'fx-head' }, h('span', { className: 'sec-t' }, t), extra || null);
     const field = (label, k) => h('div', { className: 'kw' }, h('label', null, label),
@@ -664,14 +665,11 @@
     const allOn = exams.size === allExams.length;
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'dm-cond sp-left', 'aria-label': '高级搜索' },
-        h('section', null,
-          h('div', { className: 'fx-head' },
-            h(E.Checkbox, { checked: allOn, indeterminate: exams.size > 0 && !allOn,
-              onChange: () => setExams(allOn ? new Set() : new Set(allExams)) }, '考试'),
-            h('span', { className: 'fx-n' }, `${exams.size} / ${allExams.length}`)),
-          h('div', { className: 'fx-grid' }, allExams.map((e) => h('div', { key: e, className: 'fx-row' + (res && !counts[e] ? ' is-zero' : '') },
-            h(E.Checkbox, { checked: exams.has(e), onChange: () => toggle(exams, setExams, e) }, e),
-            h('span', { className: 'fx-n' }, res ? counts[e] || 0 : ''))))),
+        h(Facet, { title: '考试', grid: true, picked: exams, onChange: setExams,
+          items: allExams.map((e) => ({ value: e, label: e, n: res ? counts[e] || 0 : '', zero: res && !counts[e] })) }),
+        h(Facet, { title: '试卷', grid: true, picked: new Set(comps || compOptions.map((c) => c[0])),
+          onChange: (set) => setComps(set.size === compOptions.length ? null : [...set]),
+          items: compOptions.map(([v, label]) => ({ value: v, label, n: res ? papers[v] || 0 : '', zero: res && !papers[v] })) }),
         h('section', { className: 'sec' }, head('主题'),
           h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', options: topicOptions, value: topics, onChange: setTopics,
             short: (v) => v.replace(':', ' ') })),
@@ -684,29 +682,18 @@
         h('section', { className: 'sec' }, head('关键词'),
           field('包含全部词语', 'all'), field('包含完整短语', 'phrase'), field('包含任一词语', 'any'), field('不包含词语', 'none')),
         h('section', { className: 'sec' }, head('查找位置'),
-          h('div', { className: 'adv-checks' }, FIELDS_AT.map(([k, label]) => h(E.Checkbox, { key: k, checked: cols.has(k),
-            onChange: () => { if (!(cols.has(k) && cols.size === 1)) toggle(cols, setCols, k); } }, label)))),
+          h('div', { className: 'fx-grid' }, FIELDS_AT.map(([k, label]) => h('div', { key: k, className: 'fx-row' }, h(E.Checkbox, { checked: cols.has(k),
+            onChange: () => { if (!(cols.has(k) && cols.size === 1)) toggle(cols, setCols, k); } }, label))))),
+        h('hr', { className: 'sp-hr' }),
         h('section', { className: 'sec' },
           h('button', { type: 'button', className: 'more-h', 'aria-expanded': more, onClick: () => setMore(!more) },
             h(E.Icon, { name: more ? 'i-chev-d' : 'i-chev-r', size: 'sm' }), h('span', null, '更多条件'),
             more ? null : h('span', { className: 'more-s' }, moreSet ? '已设置' : '不限')),
-          more ? h('div', { className: 'more-b' },
-            head('试卷'), h('div', { className: 'adv-checks' }, compOptions.map(([v, label]) => h(E.Checkbox, { key: v,
-              checked: !comps || comps.includes(v), onChange: () => {
-                const cur = comps || compOptions.map((c) => c[0]);
-                const next = cur.includes(v) ? cur.filter((x) => x !== v) : cur.concat([v]);
-                setComps(next.length === compOptions.length ? null : next);
-              } }, label))),
-            taskOptions.length ? head('小问类型') : null,
-            taskOptions.length ? h('div', { className: 'adv-checks' }, taskOptions.map((t) => h(E.Checkbox, { key: t,
-              checked: !tasks || tasks.includes(t), onChange: () => {
-                const cur = tasks || taskOptions;
-                const next = cur.includes(t) ? cur.filter((x) => x !== t) : cur.concat([t]);
-                setTasks(next.length === taskOptions.length ? null : next);
-              } }, TASK[t] || t))) : null,
-            head('详解'),
-            h(E.SegmentedControl, { ariaLabel: '详解', value: expl, onChange: setExpl,
-              options: [{ value: 'any', label: '不限' }, { value: 'y', label: '有详解' }, { value: 'n', label: '无详解' }] })) : null)),
+          more && taskOptions.length ? h(Facet, { title: '小问类型', grid: true, picked: new Set(tasks || taskOptions),
+            onChange: (set) => setTasks(set.size === taskOptions.length ? null : [...set]),
+            items: taskOptions.map((t) => ({ value: t, label: TASK[t] || t, n: res.tasks[t] })) }) : null,
+          more ? h(E.Select, { label: '详解', size: 'sm', value: expl, onChange: setExpl,
+            options: [{ value: 'any', label: '不限' }, { value: 'y', label: '有详解' }, { value: 'n', label: '无详解' }] }) : null)),
       h('main', { className: 'sp-main' },
         h('div', { className: 'sp-box' },
           h(E.TextField, { 'aria-label': '搜索', placeholder: '搜索', icon: 'i-search', value: text, onChange: (e) => setText(e.target.value),
@@ -1806,13 +1793,18 @@
       questions on the right, redrawn as the footer options change. */
   function SettingsPage({ sets }) {
     const [o, setO] = useState(null);
-    const [pages, setPages] = useState(null);
+    const [shown, setShown] = useState(null);           // {bits, pages}: the preview on screen
     useEffect(() => { api('/api/settings').then(setO); }, []);
     const sample = sets.find((x) => x.count);
     const foot = o ? [o.footer_name, o.footer_code, o.footer_page].map(Number).join('') : '';
+    // the preview of the new options replaces the old one only when its pages have loaded
     useEffect(() => {
-      setPages(null);
-      if (o && sample) api(`/api/sets/${sample.id}/paper`).then((p) => setPages(p.pages)).catch(() => setPages(0));
+      if (!o || !sample) return undefined;
+      let live = true;
+      api(`/api/settings/preview/${foot}`).then((p) => Promise.all(Array.from({ length: p.pages }, (_, n) => new Promise((ok) => {
+        const img = new Image(); img.onload = img.onerror = ok; img.src = `/api/settings/preview/${foot}/${n}.png`;
+      }))).then(() => { if (live) setShown({ bits: foot, pages: p.pages }); })).catch(() => { if (live) setShown({ bits: foot, pages: 0 }); });
+      return () => { live = false; };
     }, [foot, sample && sample.id]);
     if (!o) return h(E.Loading, null);
     const put = (k, v) => send('PUT', '/api/settings', { [k]: v }).then((n) => { setO(n); if (k === 'theme') applyTheme(v); });
@@ -1827,9 +1819,9 @@
       h('section', { className: 'st-preview' },
         h('h2', { className: 'fs-lead st-title' }, '练习卷预览'),
         !sample ? h(E.EmptyState, { icon: 'i-list', title: '没有题组' })
-          : pages == null ? h(E.Loading, { label: '正在生成练习卷' })
-          : h('div', { className: 'sd-sheets' }, Array.from({ length: Math.min(pages, 2) }, (_, n) =>
-            h('img', { key: n + foot, className: 'sheet', src: `/api/sets/${sample.id}/paper/${n}.png?f=${foot}`, alt: `第 ${n + 1} 页` })))));
+          : !shown ? h(E.Loading, { label: '正在生成练习卷' })
+          : h('div', { className: 'sd-sheets' }, Array.from({ length: shown.pages }, (_, n) =>
+            h('img', { key: n, className: 'sheet', src: `/api/settings/preview/${shown.bits}/${n}.png`, alt: `第 ${n + 1} 页` })))));
   }
 
   let theme = 'system';

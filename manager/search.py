@@ -2,9 +2,10 @@
 with its own columns, kept in paths.WORK/search.db and rebuilt when the bank changes.
 
 Columns: stem (the question text), ms (the mark scheme), both as LaTeX where there is some, ex (the
-explanation, its text flattened) and topic (the topic name). Words are stored by their
-porter stem, as in the bank's own index (q_fts); a typed beginning shorter than a stem's
-word (integrat) is completed with the words that begin with it (words table).
+explanation, its text flattened) and topic (the topic name). Words are stored as they are,
+not stemmed: porter makes integration, integral and integrity one word. A typed word finds
+the words that begin with it and its other forms: the words of the same stem that share a
+letter past it (integrate, integration, integrated; words table).
 
 What the search box takes (and the four keyword fields on the left write):
     integration parts        every word, as a word or the start of one
@@ -23,7 +24,7 @@ from lib import paths
 from manager import bank
 
 INDEX = os.path.join(paths.WORK, "search.db")
-VERSION = 2                              # part of the stamp: raise when the index changes
+VERSION = 3                              # part of the stamp: raise when the index changes
 COLS = ["stem", "ms", "ex", "topic"]
 _lock = threading.Lock()
 _ready = None                            # the stamp of the index this process checked
@@ -55,7 +56,7 @@ def _build(path):
     src.row_factory = sqlite3.Row
     con = sqlite3.connect(path)
     con.executescript("""
-        CREATE VIRTUAL TABLE f USING fts5(stem, ms, ex, topic, tokenize='porter unicode61');
+        CREATE VIRTUAL TABLE f USING fts5(stem, ms, ex, topic, tokenize='unicode61');
         CREATE TABLE docs(rowid INTEGER PRIMARY KEY, id TEXT, exam TEXT, code TEXT, component TEXT, paper TEXT,
                           year INT, month INT, q INT, marks INT, topic TEXT, topic_name TEXT, tasks TEXT, expl INT);
         CREATE TABLE words(w TEXT PRIMARY KEY, st TEXT);
@@ -74,11 +75,9 @@ def _build(path):
                          r["marks"], r["topic"] or "", t["topic_name"] or "", json.dumps(r["tasks"]), int(r["explanation"])))
             con.execute("INSERT INTO f(rowid, stem, ms, ex, topic) VALUES (?,?,?,?,?)",
                         (n, t["stem"] or "", t["ms_text"] or "", _explanation(t["explanation"]), t["topic_name"] or ""))
-    # every word with its stored form, for typed beginnings
+    # every word with its porter stem: the forms of a typed word (words)
     con.executescript("""
-        CREATE VIRTUAL TABLE plain USING fts5(t, tokenize='unicode61');
-        INSERT INTO plain SELECT stem || ' ' || ms || ' ' || ex || ' ' || topic FROM f;
-        CREATE VIRTUAL TABLE pv USING fts5vocab(plain, 'row');
+        CREATE VIRTUAL TABLE pv USING fts5vocab(f, 'row');
         CREATE VIRTUAL TABLE s USING fts5(t, tokenize='porter unicode61');
         CREATE VIRTUAL TABLE sv USING fts5vocab(s, 'instance');
     """)
@@ -86,7 +85,8 @@ def _build(path):
     con.executemany("INSERT INTO s(rowid, t) VALUES (?, ?)", enumerate(words))
     stems = dict(con.execute("SELECT doc, term FROM sv"))
     con.executemany("INSERT INTO words VALUES (?, ?)", ((w, stems.get(i, w)) for i, w in enumerate(words)))
-    con.executescript("DROP TABLE sv; DROP TABLE s; DROP TABLE pv; DROP TABLE plain;")
+    con.executescript("DROP TABLE sv; DROP TABLE s; DROP TABLE pv;")
+    con.execute("CREATE INDEX words_st ON words(st)")
     con.execute("INSERT INTO meta VALUES (?)", (_stamp(),))
     con.commit()
     con.execute("VACUUM")
@@ -158,20 +158,33 @@ def tokens(text):
     return out
 
 
+ENDINGS = {"", "s", "es", "e", "ed", "d", "ing", "er", "ers", "ly"}
+
+
+def forms(con, w):
+    """Other forms of a whole typed word: the words of its stem that share at least one letter
+    past the stem (integration: integrate, integrated; integrity shares only integr), or
+    that are the same base with another ending (vectors: vector; solve: solving). A
+    beginning (integrat) needs none: its prefix finds every word it begins."""
+    row = con.execute("SELECT st FROM words WHERE w = ?", (w,)).fetchone()
+    if not row:
+        return []
+    st = row[0]
+    lcp = lambda a, b: next((i for i, (x, y) in enumerate(zip(a, b)) if x != y), min(len(a), len(b)))
+    def form(v):
+        n = lcp(v, w)
+        # past the stem (integrate, integration), or the same base with another ending
+        # (vectors, vector; sorted, sorting; solve, solving)
+        return not v.startswith(w) and (n > len(st) or (w[n:] in ENDINGS and v[n:] in ENDINGS))
+    return sorted(v for (v,) in con.execute("SELECT w FROM words WHERE st = ?", (st,)) if form(v))[:20]
+
+
 def _word(con, words):
     """One typed word (or the parts of x-axis in a row) as an FTS5 term."""
     if len(words) > 1:
         return '"' + " ".join(words) + '"*'
     w = words[0].lower()
-    extra = []
-    if len(w) >= 3:                          # integrat: also the words whose stem is shorter than it
-        seen = set()
-        for word, st in con.execute("SELECT w, st FROM words WHERE w > ? AND w < ? ORDER BY w", (w, w + "￿")):
-            if not st.startswith(w) and st not in seen:
-                seen.add(st)
-                extra.append(word)
-            if len(extra) == 20:
-                break
+    extra = forms(con, w) if len(w) >= 4 else []
     return "(" + " OR ".join([f'"{w}"*'] + [f'"{x}"' for x in extra]) + ")" if extra else f'"{w}"*'
 
 
@@ -204,12 +217,10 @@ def terms(con, text):
             continue
         if kind == "phrase":
             out.append(r"\b" + r"\s+".join(re.escape(w) for w in words) + r"\b")
-            continue
-        w = words[0].lower() if len(words) == 1 else None
-        if w:
-            row = con.execute("SELECT st FROM words WHERE w = ?", (w,)).fetchone()
-            st = row[0] if row and len(row[0]) < len(w) else w
-            out.append(r"\b" + re.escape(st) + r"\w*")
+        elif len(words) == 1:
+            w = words[0].lower()
+            alts = [re.escape(w) + r"\w*"] + [re.escape(x) + r"\b" for x in (forms(con, w) if len(w) >= 4 else [])]
+            out.append(r"\b(?:" + "|".join(alts) + ")")
         else:
             out.append(r"\b" + r"\W".join(re.escape(x) for x in words) + r"\w*")
     return out
@@ -251,8 +262,8 @@ def _snippet(text, width=90):
 def find(p, limit=200):
     """The page's search: p = {q, exams, topics ["9709:3.5"], from, to, mmin, mmax, cols,
     comps, tasks, expl ("any" | "y" | "n"), sort ("rel" | "year")}. Returns the count and
-    marks of every match, the matches per exam (whatever exams are chosen), the tasks of
-    the matches, the first `limit` rows with their snippets, and the terms to mark."""
+    the matches per exam (whatever exams are chosen) and per paper (whatever papers are
+    chosen), the tasks of the matches, the first `limit` rows with their snippets, and the terms to mark."""
     con = connect()
     text = (p.get("q") or "").strip()
     code = paper_code(text)
@@ -271,7 +282,7 @@ def find(p, limit=200):
     else:
         pos, neg = fts(con, text)
         if not pos and not neg:
-            return {"total": 0, "marks": 0, "counts": {}, "tasks": {}, "rows": [], "terms": []}
+            return {"total": 0, "counts": {}, "papers": {}, "tasks": {}, "rows": [], "terms": []}
         cols = [c for c in p.get("cols") or COLS if c in COLS] or COLS
         scope = (lambda e: e) if len(cols) == len(COLS) else (lambda e: "{" + " ".join(cols) + "} : (" + e + ")")
         if pos:
@@ -284,9 +295,6 @@ def find(p, limit=200):
             if str(p.get(key, "")).strip():
                 where.append(f"d.{col} {op} ?")
                 args.append(float(p[key]))
-        if p.get("comps") is not None:
-            where.append(f"d.component IN ({','.join('?' * len(p['comps']))})" if p["comps"] else "0")
-            args += [str(c) for c in p["comps"]]
         if p.get("expl") in ("y", "n"):
             where.append("d.expl = ?")
             args.append(int(p["expl"] == "y"))
@@ -312,6 +320,12 @@ def find(p, limit=200):
         counts[r["exam"]] = counts.get(r["exam"], 0) + 1
     if (not code or not code[0]) and p.get("exams") is not None:
         rows = [r for r in rows if r["exam"] in p["exams"]]
+    papers = {}                              # matches per paper, whatever papers are chosen
+    for r in rows:
+        papers[r["component"]] = papers.get(r["component"], 0) + 1
+    if not code and p.get("comps") is not None:
+        want = {str(c) for c in p["comps"]}
+        rows = [r for r in rows if r["component"] in want]
     if p.get("sort") == "year":
         rows.sort(key=lambda r: (-r["year"], -r["month"], r["code"], r["q"]))
     else:
@@ -329,5 +343,5 @@ def find(p, limit=200):
             snips[h[0]] = [[c, s] for c, s in zip(COLS[:3], (_snippet(x or "") for x in h[1:4])) if s]
     out = [{"id": r["id"], "exam": r["exam"], "code": r["code"], "q": r["q"], "marks": r["marks"], "year": r["year"],
             "topic": r["topic"], "topic_name": r["topic_name"], "snippets": snips.get(r["rowid"], [])} for r in page]
-    return {"total": len(rows), "marks": sum(r["marks"] or 0 for r in rows), "counts": counts, "tasks": task_counts,
+    return {"total": len(rows), "counts": counts, "papers": papers, "tasks": task_counts,
             "rows": out, "terms": terms(con, text) if not code else []}

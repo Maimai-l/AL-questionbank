@@ -65,9 +65,34 @@ class Bridge:
 TITLEBAR = 28                            # macOS title bar height in points: the page leaves it free for the window buttons
 
 
+_strip = None
+
+
+def _drag_strip():
+    """A clear view over the title bar's height that moves the window: with the page under
+    the title bar, the view under the pointer there is the web view, which does not let a
+    press move the window. A double click zooms, as on a title bar."""
+    global _strip
+    if _strip is None:
+        import AppKit
+
+        class QBDragStrip(AppKit.NSView):
+            def mouseDownCanMoveWindow(self):
+                return True
+
+            def mouseDown_(self, event):
+                if event.clickCount() == 2:
+                    self.window().performZoom_(self)
+                else:
+                    self.window().performWindowDragWithEvent_(event)
+        _strip = QBDragStrip
+    return _strip
+
+
 def _full_size(window):
     """macOS: the page also fills the title bar, which keeps only the window buttons, so
-    the top bar and the opening loader reach the top edge of the window."""
+    the top bar and the opening loader reach the top edge of the window; a strip over that
+    height (_drag_strip) still moves the window."""
     import AppKit
     from PyObjCTools import AppHelper
 
@@ -76,10 +101,18 @@ def _full_size(window):
         w.setStyleMask_(w.styleMask() | getattr(AppKit, "NSWindowStyleMaskFullSizeContentView", 1 << 15))
         w.setTitlebarAppearsTransparent_(True)
         w.setTitleVisibility_(AppKit.NSWindowTitleHidden)
+        frame = w.contentView().superview()           # the window's frame view: content, then the title bar
+        bar = frame.subviews().lastObject()
         # pywebview paints the title bar with the system colour; it is left clear
-        bar = w.contentView().superview().subviews().lastObject()
         if bar is not None and bar.respondsToSelector_("setBackgroundColor:"):
             bar.setBackgroundColor_(AppKit.NSColor.clearColor())
+        size = frame.bounds().size
+        flipped = frame.isFlipped()
+        strip = _drag_strip().alloc().initWithFrame_(
+            AppKit.NSMakeRect(0, 0 if flipped else size.height - TITLEBAR, size.width, TITLEBAR))
+        strip.setAutoresizingMask_(AppKit.NSViewWidthSizable | (AppKit.NSViewMaxYMargin if flipped else AppKit.NSViewMinYMargin))
+        # above the page, below the title bar's buttons
+        frame.addSubview_positioned_relativeTo_(strip, AppKit.NSWindowAbove, w.contentView())
     AppHelper.callAfter(apply)
 
 

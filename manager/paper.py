@@ -18,6 +18,7 @@ import hashlib
 import json
 import os
 import re
+import threading
 import zlib
 
 import numpy as np
@@ -243,10 +244,11 @@ class EmptyPaper(ValueError):
     """The set has no question that can be laid out (no questions, or none with a crop)."""
 
 
-def build(s):
+def build(s, footer=None):
     """Path of the set's question paper PDF, building it if the cache is stale. Raises
-    EmptyPaper when there is nothing to lay out."""
-    opts = settings.load()
+    EmptyPaper when there is nothing to lay out. footer: footer options in place of the
+    saved ones (the settings page's preview)."""
+    opts = {**settings.load(), **(footer or {})}
     rows = _rows(s["items"])
 
     def stamp(r):                        # rebuilt when a crop is redone
@@ -287,7 +289,8 @@ def build(s):
                     page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), xref=_image(doc, px))
             _footer(page, n, len(pages), s["name"], [(None, None) + tuple(it[3:]) for it in items], opts)
             fonts.update((f[4], f[0]) for f in page.get_fonts())
-    tmp = f"{out}.{os.getpid()}.tmp"       # written whole, then put in place: never a half-written PDF
+    tmp = f"{out}.{os.getpid()}.{threading.get_ident()}.tmp"   # written whole, then put in place: never a half-written PDF;
+                                                                # per thread, as two requests may build the same paper
     doc.save(tmp, garbage=3, deflate=True)
     os.replace(tmp, out)
     return out
