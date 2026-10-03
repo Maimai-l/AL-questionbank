@@ -20,7 +20,6 @@
   const TASK = { find: '求解', calculate: '计算', explain: '解释', prove: '证明', sketch: '草绘', draw: '作图',
     hypothesis_test: '检验', logic: '逻辑', write_code: '编程', complete_code: '补全', trace: '追踪', test: '测试',
     sql: 'SQL', assembly: '汇编', other: '其他' };
-  const sum = (rows) => rows.reduce((a, r) => a + (r.marks || 0), 0);
 
   // Dropdown menus (the design system's .dd .menu) sit in the scrolling panels, which
   // clip them. An open menu is taken out of the flow (position: fixed), as wide as its
@@ -422,14 +421,14 @@
         taskItems.length ? h(Facet, { title: '小问类型', items: taskItems, picked: tasks, onChange: (s) => setF({ ...f, tasks: s }) }) : null),
       h('main', { className: 'dm-results' },
         h('div', { className: 'headline' },
-          h('span', null, `${view.length} 题`), h('span', null, `${sum(rows)} 分`)),
+          h('span', null, `${view.length} 题`)),
         h('div', { className: 'selbar' },
           h('div', { className: 'q-search' },
             h(E.TextField, { 'aria-label': '搜索题目', placeholder: '搜索', icon: 'i-search', size: 'sm', value: text,
               onChange: (e) => setText(e.target.value), onKeyDown: (e) => { if (e.key === 'Escape') clearSearch(); } }),
             text ? h(E.IconButton, { icon: 'i-close', label: '清除搜索', variant: 'ghost', size: 'sm', onClick: clearSearch }) : null),
           h('div', { className: 'dm-meta', style: { flexGrow: 1, justifyContent: 'flex-end' } },
-            h('span', null, '已选 ', h('b', null, picked.length), ' 题'), h('span', null, h('b', null, sum(picked)), ' 分')),
+            h('span', null, '已选 ', h('b', null, picked.length), ' 题')),
           h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => setAdding(true) }, '加入题组')),
         h('div', { className: 'dm-tablebox' },
           allRows.length ? h(SelTable, {
@@ -441,7 +440,6 @@
               { key: 'paper', label: '卷号', kind: 'id', width: 64 },
               { key: 'qn', label: '题号', kind: 'id', width: 64, sortValue: (r) => r.q },
               { key: 'stem', label: '题干', kind: 'text', sortable: false },
-              { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 80 },
             ].filter((c) => c.kind !== 'id' || c.key === 'qn' || view.length < 2 || view.some((r) => r[c.key] !== view[0][c.key])),
           }) : h(E.Loading, { label: '正在读取题目' }),
           allRows.length && !view.length ? h(E.EmptyState, { icon: 'i-search', title: '没有符合条件的题目' }) : null)),
@@ -546,6 +544,34 @@
       words(f.any).join(' OR '), ...words(f.none).map((w) => '-' + w.replace(/^-/, ''))].filter(Boolean).join(' ');
   }
 
+  /** Several of many choices in a narrow column: the field, as tall as the others, says how
+      many are chosen; the chosen ones are tags below it, each with its own remove button.
+      The menu is the design system's (.dd .menu, as its MultiSelect). */
+  function MultiPick({ options, value, onChange, placeholder, unit, ariaLabel }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef(null);
+    useEffect(() => {
+      if (!open) return undefined;
+      const away = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+      const key = (e) => { if (e.key === 'Escape') setOpen(false); };
+      document.addEventListener('pointerdown', away);
+      document.addEventListener('keydown', key);
+      return () => { document.removeEventListener('pointerdown', away); document.removeEventListener('keydown', key); };
+    }, [open]);
+    const label = (v) => (options.find((o) => o.value === v) || { label: v }).label;
+    const flip = (v) => onChange(value.includes(v) ? value.filter((x) => x !== v) : value.concat([v]));
+    return h('div', { className: 'mpick' },
+      h('div', { ref, className: 'dd' },
+        h('div', { className: 'input input--sm select', role: 'combobox', tabIndex: 0, 'aria-expanded': open, 'aria-label': ariaLabel,
+          onClick: () => setOpen(!open), onKeyDown: (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(!open); } } },
+          h('span', { className: 'val' + (value.length ? '' : ' ph') }, value.length ? `已选 ${value.length} ${unit}` : placeholder),
+          h(E.Icon, { name: 'i-tri-d', className: 'tri' })),
+        h('div', { className: 'menu', role: 'listbox', 'aria-multiselectable': 'true', hidden: !open },
+          options.map((o) => h('button', { key: o.value, type: 'button', className: 'menu-item', role: 'option',
+            'aria-selected': value.includes(o.value), onClick: () => flip(o.value) }, o.label, h(E.Icon, { name: 'i-check', className: 'ok' }))))),
+      value.length ? h('div', { className: 'mpick-tags' }, value.map((v) => h(E.Tag, { key: v, size: 'sm', onRemove: () => flip(v) }, label(v)))) : null);
+  }
+
   const FIELDS_AT = [['stem', '题干'], ['ms', '评分细则'], ['ex', '详解'], ['topic', '主题名']];
   const FIELD_NAME = Object.fromEntries(FIELDS_AT);
   const RECENT = 'dm-search-recent';
@@ -641,7 +667,7 @@
             h(E.Checkbox, { checked: exams.has(e), onChange: () => toggle(exams, setExams, e) }, e),
             h('span', { className: 'fx-n' }, res ? counts[e] || 0 : ''))))),
         h('section', { className: 'sec' }, head('主题'),
-          h(E.MultiSelect, { ariaLabel: '主题', placeholder: '全部主题', maxTags: 2, options: topicOptions, value: topics, onChange: setTopics })),
+          h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', unit: '个主题', options: topicOptions, value: topics, onChange: setTopics })),
         h('section', { className: 'sec' }, head('年份'),
           h('div', { className: 'years' },
             h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: yearOpts, value: String(years[0]), onChange: (v) => setYears([+v, Math.max(+v, years[1])]) }),
@@ -686,13 +712,13 @@
             : h(E.EmptyState, { icon: 'i-search', title: '未搜索' }))
         : !res ? h(E.Loading, null)
         : h(React.Fragment, null,
-          h('div', { className: 'headline' + (busy ? ' is-busy' : '') }, h('span', null, `${res.total} 题`), h('span', null, `${res.marks} 分`)),
+          h('div', { className: 'headline' + (busy ? ' is-busy' : '') }, h('span', null, `${res.total} 题`)),
           h('div', { className: 'selbar' },
             h(E.Checkbox, { checked: rows.length > 0 && picked.length === rows.length, indeterminate: picked.length > 0 && picked.length < rows.length,
               onChange: () => setSelected(picked.length === rows.length ? [] : rows.map((r) => r.id)) }, '全选'),
             h(E.SegmentedControl, { ariaLabel: '排序', value: sort, onChange: setSort, options: [{ value: 'rel', label: '相关度' }, { value: 'year', label: '年份' }] }),
             h('div', { className: 'dm-meta', style: { flexGrow: 1, justifyContent: 'flex-end' } },
-              h('span', null, '已选 ', h('b', null, picked.length), ' 题'), h('span', null, h('b', null, sum(picked)), ' 分')),
+              h('span', null, '已选 ', h('b', null, picked.length), ' 题')),
             h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => { remember(); setAdding(true); } }, '加入题组')),
           rows.length ? h('div', { className: 'sp-list' },
             rows.map((r) => h('div', { key: r.id, className: 'hit' + (r.id === focus ? ' is-focus' : ''), onClick: (e) => { if (!e.target.closest('.check')) { setFocus(r.id); remember(); } } },
@@ -700,7 +726,6 @@
                 onChange: () => setSelected(selected.includes(r.id) ? selected.filter((x) => x !== r.id) : selected.concat([r.id])) }),
               h('div', { className: 'hit-h' }, h('span', { className: 'hit-code' }, `${r.code} Q${r.q}`),
                 r.topic ? h('span', { className: 'hit-meta' }, `${r.topic} ${r.topic_name}`) : null),
-              h('span', { className: 'hit-m' }, `${r.marks} 分`),
               r.snippets.length ? h('dl', { className: 'hit-s' }, r.snippets.map(([c, t]) => [
                 h('dt', { key: c + 'k' }, FIELD_NAME[c]), h(Snippet, { key: c + 'v', text: t })])) : null)),
             res.total > rows.length ? h('p', { className: 'empty-note sp-more' }, `仅列出前 ${rows.length} 题`) : null)
@@ -739,7 +764,6 @@
           d.paper_pdf ? act('i-doc', '打开原卷', () => openTab(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`)) : null),
         h('div', { className: 'tags' },
           d.topic ? h(E.Tag, { size: 'sm' }, `${d.topic} ${d.topic_name}`) : null,
-          h(E.Tag, { size: 'sm' }, `${d.marks} 分`),
           d.diagram ? h(E.Tag, { size: 'sm' }, '含图') : null)),
       h('div', { className: 'detail-media' },
         img ? h('div', { className: 'qimg' }, h('img', { src: img.src, alt: `第 ${d.q} 题题目截图` })) : null),
@@ -831,7 +855,7 @@
         sets.length ? h(E.List, {
           variant: 'two-line', selectable: true, ariaLabel: '题组', value: s ? s.id : undefined,
           onChange: (v) => { location.hash = '#/sets/' + v; },
-          items: sets.map((x) => ({ value: x.id, icon: SOURCE_ICON[x.source] || 'i-list', title: x.name, subtitle: `${x.count} 题 ${x.marks} 分`,
+          items: sets.map((x) => ({ value: x.id, icon: SOURCE_ICON[x.source] || 'i-list', title: x.name, subtitle: `${x.count} 题`,
             trailing: h(MoreMenu, { label: '更多操作', tip: false, items: [
               { label: '重命名', onClick: () => { setRenameId(x.id); location.hash = '#/sets/' + x.id; } },
               { label: '复制题组', onClick: () => send('POST', '/api/sets', { name: x.name + ' 副本', items: x.items, source: x.source })
@@ -902,7 +926,7 @@
         h('div', { className: 'page-head' },
           h(EditableTitle, { value: s.name, editing: renaming, setEditing: setRenaming, label: '重命名题组', onSave: (name) => save({ name }) }),
           h('div', { className: 'dm-meta' },
-            h('span', null, h('b', null, s.count), ' 题'), h('span', null, h('b', null, s.marks), ' 分'),
+            h('span', null, h('b', null, s.count), ' 题'),
             boards ? h('span', null, written ? `已作答，最后书写 ${written.updated}` : '未作答') : null)),
         h('div', { className: 'sd-acts' },
           h(E.Button, { variant: written ? 'secondary' : 'primary', size: 'md', disabled: !ready, onClick: openBoard }, '打开白板'),
@@ -929,7 +953,6 @@
                   { key: 'season', label: '考季', kind: 'id', width: 72, sortable: false },
                   { key: 'paper', label: '卷号', kind: 'id', width: 64, sortable: false },
                   { key: 'qn', label: '题号', kind: 'id', sortable: false },
-                  { key: 'marks', label: '分值', kind: 'number', unit: '分', width: 80, sortable: false },
                 ],
               })))
             : h('main', { className: 'sd-paper' }, pages == null ? h(E.Loading, { label: '正在生成练习卷' })
@@ -940,7 +963,7 @@
               h('h2', { className: 'fs-lead panel-title' }, '题目'),
               h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { setEditing(true); setSelected([]); } }, '编辑')),
             h('ol', { className: 'sd-qlist' }, view.map((r) => h('li', { key: r.id },
-              h('span', { className: 'n' }, r.n), h('span', { className: 'c' }, `${r.code} Q${r.q}`), h('span', { className: 'm' }, r.marks, ' 分')))))),
+              h('span', { className: 'n' }, r.n), h('span', { className: 'c' }, `${r.code} Q${r.q}`)))))),
       output ? h(OutputDialog, { s, templates, written: !!written, toast, onClose: () => setOutput(false) }) : null);
   }
 
@@ -1687,8 +1710,8 @@
       shown ? h('div', { className: 'sum' },
         h('div', { className: 'dm-meta' }, shown.shape === 'group'
           ? [h('span', { key: 'a' }, h('b', null, shown.count), ' 组'), h('span', { key: 'b' }, h('b', null, shown.items), shown.type === 'q' ? ' 题' : ' 条')]
-          : [h('span', { key: 'a' }, h('b', null, shown.count), shown.type === 'q' ? ' 题' : ' 条')].concat(shown.marks != null ? [h('span', { key: 'b' }, h('b', null, shown.marks), ' 分')] : [])),
-        h('div', { className: 'res' }, shown.rows.map((r, i) => h(React.Fragment, { key: i }, h('span', null, r[0]), h('b', null, r[1] === '' ? '' : r[1]))))) : null,
+          : [h('span', { key: 'a' }, h('b', null, shown.count), shown.type === 'q' ? ' 题' : ' 条')]),
+        h('div', { className: 'res' }, shown.rows.map((r, i) => h(React.Fragment, { key: i }, h('span', null, r[0]))))) : null,
       outputs.length ? h('div', { className: 'sum' }, outputs.map((o, i) => h('div', { key: i, className: 'dm-meta' }, h('span', null, o.name), o.meta.map((m, j) => h('span', { key: j }, m))))) : null);
   }
 
@@ -1848,8 +1871,8 @@
     const navFocus = (e) => { if (e.target.matches(':focus-visible')) setNavOpen(true); };
     const navBlur = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) navClose(); };
     const nav = [
-      { value: 'query', label: '查询', icon: 'i-search', href: '#/query' },
-      { value: 'search', label: '搜索', icon: 'i-filter', href: '#/search' },
+      { value: 'query', label: '查询', icon: 'i-filter', href: '#/query' },
+      { value: 'search', label: '搜索', icon: 'i-search', href: '#/search' },
       { value: 'sets', label: '题组', icon: 'i-list', href: '#/sets' },
       { value: 'templates', label: '模板', icon: 'i-doc', href: '#/templates' },
     ];
