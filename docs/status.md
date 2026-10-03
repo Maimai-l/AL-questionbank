@@ -27,9 +27,21 @@
 做法:在 `merge_admissions.py`(或单独的脚本)中按「Questions X to Y refer to」找到每组的说明段与材料,
 复制到同组各题题干的开头,重新入库。只改代码,不需要子 agent。TSA 若有同类分组,一并处理。
 
-### 2. 应用抽查中改好的 25 题
+### 2. TMUA 错误率高,需要整体核对
 
-`pipeline/admissions_rebuild/spot_check_results.json` 是入学考抽查的结果(110 题,25 题有错)。
+每份 TMUA 卷抽 2 题,36 题中 8 题有错(约 22%);TSA 抽 32 题只有 1 题有错。TMUA 的错误有:
+- 漏掉题干开头的句子:TMUA-2023-P1-q12、TMUA-2023-P2-q3;
+- 漏掉方程标号 (*):TMUA-2023-P2-q6;
+- 选项中的 ≤ 写成 <:TMUA-2020-P2-q1;
+- 选项没有拆进 option_texts:TMUA-2019-P2-q18(缺 H)、TMUA-2020-P1-q8(B–F 为空);
+- 题干句子重复:TMUA-2020-P2-q18;字符错误:TMUA-2018-P1-q11。
+
+TMUA 共 360 题,数学内容直接影响作答,建议按剑桥三科的做法逐题对照原卷重写(约 36 批)。
+已改:TMUA-2016-P1-q1 选项 A 的 `\angle` 识别错误(记在 `text_fixes.json`,数据库已改)。
+
+### 3. 应用抽查中改好的题
+
+`pipeline/admissions_rebuild/spot_check_results.json` 是入学考抽查的结果(178 题,34 题有错,`run` 字段区分两次抽样)。
 有错的题已经写出改正后的完整题干(`text`)与选项(`options`)。做完第 1 项后,把其中仍然需要的改正
 写进 `pipeline/admissions_rebuild/text_fixes.json`(格式见该文件的 `_说明`),再运行 `merge_admissions.py`。
 
@@ -39,18 +51,16 @@
 - 选项开头的单词 A 被当成选项字母:BMAT-2020-S1-q9;
 - 字词错误:BMAT-2013-S1-q12。
 
-### 3. 入学考抽查未做完
-
-已抽 110 题(BMAT 105、TSA 5),TMUA 未抽。继续时:
+### 4. 再次抽查的方法
 
 ```
-python3 pipeline/admissions_rebuild/spot_check.py plan --per-paper 2   # 重新抽样会覆盖 raw/adm_check/
-python3 pipeline/admissions_rebuild/spot_check.py report
+python3 pipeline/admissions_rebuild/spot_check.py plan --exam TMUA --per-paper 2 --run NAME --seed 7
+python3 pipeline/admissions_rebuild/spot_check.py report --run NAME
 ```
 
-每批交给一个 general-purpose 子 agent;按 `report` 的结果决定哪些试卷整份重新转录(`page_batches.py`)。
+每批交给一个 general-purpose 子 agent。换一个 `--seed` 才会抽到不同的题。
 
-### 4. 需要人看一眼的更正
+### 5. 需要人看一眼的更正
 
 - 9618_w24_23_q04:评分细则备选代码原本有逻辑错误,子 agent 改了代码结构(内层循环前先置 FALSE、删去 ELSE)。
 - 9709_w22_31_q05:评分细则中未定义的 `v` 改成了 `u²/w`,属于记号更正。

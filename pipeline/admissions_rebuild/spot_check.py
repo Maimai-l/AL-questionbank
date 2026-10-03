@@ -2,9 +2,12 @@
 """Spot check of the admissions questions (TMUA / TSA / BMAT) against their page images,
 through sub-agents, to decide which papers need their transcription redone.
 
-    python3 pipeline/admissions_rebuild/spot_check.py plan [--per-paper 5] [--size 10] [--seed 2026]
+    python3 pipeline/admissions_rebuild/spot_check.py plan [--exam TMUA TSA] [--per-paper 5] [--size 10] [--seed 2026] [--run NAME]
     python3 pipeline/admissions_rebuild/spot_check.py verify raw/adm_check/out/batch_01.json
-    python3 pipeline/admissions_rebuild/spot_check.py report
+    python3 pipeline/admissions_rebuild/spot_check.py report [--run NAME]
+
+--run puts a sample in raw/adm_check/NAME/ instead of raw/adm_check/, so a second sample
+does not overwrite the first.
 
 plan    draws the same --per-paper questions from every paper (fixed seed) and writes one
         prompt per batch, raw/adm_check/batch_NN.md. A sub-agent writes
@@ -26,8 +29,14 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 from lib import db, paths  # noqa: E402
 
-WORK = os.path.join(paths.RAW, "adm_check")
-OUT = os.path.join(WORK, "out")
+BASE = os.path.join(paths.RAW, "adm_check")
+WORK = OUT = None
+
+
+def use(run):
+    global WORK, OUT
+    WORK = os.path.join(BASE, run) if run else BASE
+    OUT = os.path.join(WORK, "out")
 KINDS = {
     "missing": "漏掉句子、段落、表格或图中的文字",
     "extra": "混入了其他题的内容、页眉页脚或乱码",
@@ -88,9 +97,10 @@ def text_of(r):
     return r["question_latex"] or r["question_text"] or ""
 
 
-def sample(con, per, seed):
+def sample(con, per, seed, exams):
     papers = collections.defaultdict(list)
-    for r in con.execute("SELECT * FROM questions WHERE syllabus IN ('TMUA', 'TSA', 'BMAT') ORDER BY id"):
+    marks = ", ".join("?" * len(exams))
+    for r in con.execute(f"SELECT * FROM questions WHERE syllabus IN ({marks}) ORDER BY id", exams):
         papers[r["qp_pdf"]].append(r)
     rng = random.Random(seed)
     rows = []
@@ -103,7 +113,7 @@ def sample(con, per, seed):
 def plan(a):
     os.makedirs(OUT, exist_ok=True)
     con = db.connect()
-    rows = sample(con, a.per_paper, a.seed)
+    rows = sample(con, a.per_paper, a.seed, a.exam)
     kinds = "、".join(f"`{k}`({v})" for k, v in KINDS.items())
     for n, b in enumerate(range(0, len(rows), a.size), 1):
         out = rel(os.path.join(OUT, f"batch_{n:02d}.json"))
@@ -125,7 +135,8 @@ def plan(a):
 
 
 def batch_ids(path):
-    md = os.path.join(WORK, os.path.basename(path).replace(".json", ".md"))
+    md = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(path))),
+                      os.path.basename(path).replace(".json", ".md"))
     return [line[4:].strip() for line in open(md, encoding="utf-8") if line.startswith("### ")]
 
 
@@ -198,12 +209,17 @@ def main():
     p.add_argument("--per-paper", type=int, default=5)
     p.add_argument("--size", type=int, default=10)
     p.add_argument("--seed", type=int, default=2026)
+    p.add_argument("--exam", nargs="+", default=["TMUA", "TSA", "BMAT"], choices=["TMUA", "TSA", "BMAT"])
+    p.add_argument("--run")
     p.set_defaults(fn=plan)
     p = sub.add_parser("verify")
     p.add_argument("file")
     p.set_defaults(fn=verify)
-    sub.add_parser("report").set_defaults(fn=report)
+    p = sub.add_parser("report")
+    p.add_argument("--run")
+    p.set_defaults(fn=report)
     a = ap.parse_args()
+    use(getattr(a, "run", None))
     a.fn(a)
 
 
