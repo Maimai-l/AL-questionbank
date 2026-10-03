@@ -1796,10 +1796,10 @@
   }
 
   /** 版面 (docs/ui-text.md 4.8): the practice paper's answer space, four steps from 紧凑 to
-      原卷 (the original paper's answer space): four segments in a row, filled up to the
+      宽松 (the original paper's answer space): four segments in a row, filled up to the
       step chosen. A click picks a step; the arrow keys, Home and End move it. */
   function SpaceSlider({ value, onChange }) {
-    const NAMES = ['紧凑', '原卷答题区的四分之一', '原卷答题区的一半', '原卷'];
+    const NAMES = ['紧凑', '原卷答题区的四分之一', '原卷答题区的一半', '宽松，即原卷答题区'];
     const key = (e) => {
       const to = { ArrowLeft: value - 1, ArrowDown: value - 1, ArrowRight: value + 1, ArrowUp: value + 1, Home: 0, End: 3 }[e.key];
       if (to === undefined) return;
@@ -1812,7 +1812,7 @@
         [0, 1, 2, 3].map((n) => h('button', { key: n, type: 'button', tabIndex: -1, className: 'space-cell' + (n <= value ? ' on' : ''),
           'aria-label': NAMES[n], onClick: () => onChange(n) }, h('i')))),
       h('div', { className: 'space-ends', 'aria-hidden': 'true' },
-        h('span', null, '紧凑'), h('span', null, '原卷')));
+        h('span', null, '紧凑'), h('span', null, '宽松')));
   }
 
   /** Settings: the options on the left, a practice paper of the first set that has

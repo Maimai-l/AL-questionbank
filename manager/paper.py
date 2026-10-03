@@ -1,7 +1,7 @@
 """Practice papers (docs/data-manager.md, F4; layout in docs/ui-text.md 4.8): a set laid
 out on A4 as a PDF, one layout for every exam, its answer space set by 版面 (SPACE).
 
-- 版面 runs from 紧凑 (0) to 原卷 (3): the questions alone; a quarter, a half or all of
+- 版面 runs from 紧凑 (0) to 宽松 (3): the questions alone; a quarter, a half or all of
   the original paper's answer space below each. The settings page holds the default; an
   export may choose another.
 - At the original amount, a set that is exactly one whole paper, in order, is the
@@ -131,7 +131,7 @@ def _cut_row(gray, start, end):
     return start + int(white[-1]) + 1
 
 
-# The answer space a question gets, from 紧凑 (0) to 原卷 (3): the share of the original
+# The answer space a question gets, from 紧凑 (0) to 宽松 (3, the original): the share of the original
 # paper's answer space kept below the question.
 SPACE = [0, 1 / 4, 1 / 2, 1]
 SPACE_DEFAULT = 3

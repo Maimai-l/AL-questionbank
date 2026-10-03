@@ -321,11 +321,14 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 /* a long topic name wraps inside its menu item instead of over the next one */
 .dd .menu .menu-item { flex-shrink: 0; height: auto; min-height: 32px; line-height: 1.4; padding-top: 6px; padding-bottom: 6px; }
 
-/* MultiPick: the chosen ones as pills inside the field, on one line */
+/* MultiPick: the chosen ones as pills inside the field, on one line; the field is 32 high
+   whether or not any are chosen, and each pill sits 4 px from its edge all round, so the
+   pill's ends follow the field's (radius 16 outside, 12 inside) */
 .mpick { width: 100%; }
-.mpick .select.has-pills { padding-left: 4px; }
-.mpick .pills { flex: 1; min-width: 0; display: flex; gap: var(--txt); overflow: hidden; white-space: nowrap; }
-.mpick .pills .tag { flex: none; padding: 0 8px; border-radius: var(--radius-full); }
+.mpick .select { --h: 32px; height: 32px; }
+.mpick .select.has-pills { padding-left: 3px; }
+.mpick .pills { flex: 1; min-width: 0; display: flex; gap: 4px; overflow: hidden; white-space: nowrap; }
+.mpick .pills .tag { flex: none; height: 24px; padding: 0 8px; border-radius: var(--radius-full); }
 .mpick .pills .tag .rm { border-radius: 50%; }
 .mpick .menu { right: auto; width: max(100%, 400px); }
 
