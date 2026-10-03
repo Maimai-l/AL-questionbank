@@ -327,7 +327,8 @@
     const allRows = rowsByExam[exam] || [];
 
     useEffect(() => {
-      if (!rowsByExam[exam]) api('/api/questions?exam=' + exam).then((r) => setRowsByExam((o) => ({ ...o, [exam]: r })));
+      // the first list is drawn once the loader has finished (index.html, dmBoot.after)
+      if (!rowsByExam[exam]) api('/api/questions?exam=' + exam).then((r) => afterBoot(() => setRowsByExam((o) => ({ ...o, [exam]: r }))));
     }, [exam]);
     useEffect(() => {
       if (!search) { setHits(null); return; }
@@ -1860,6 +1861,8 @@
           : h('div', { className: 'sd-sheets' }, Array.from({ length: shown.pages }, (_, n) =>
             h('img', { key: n, className: 'sheet', src: `/api/settings/preview/${shown.bits}/${n}.png`, alt: `第 ${n + 1} 页` })))));
   }
+
+  const afterBoot = (f) => (window.dmBoot ? dmBoot.after(f) : f());
 
   let theme = 'system';
   function applyTheme(t) {

@@ -511,8 +511,12 @@ async def watch_bank(app):
     per bank version. First the searches' word list and index are built."""
     async def loop():
         run, tried = asyncio.get_running_loop().run_in_executor, None
-        await run(None, bank._words)         # the query page's word list and the search page's index,
-        await run(None, search_page.connect)  # ready before the first search
+        # The query page's word list and the search page's index, ready before the first
+        # search (both are also built on first use). A few seconds after start, so that this
+        # work, which holds the interpreter, does not slow the first page's own requests.
+        await asyncio.sleep(5)
+        await run(None, bank._words)
+        await run(None, search_page.connect)
         while True:
             try:
                 version = await run(None, flow.bank_version)
