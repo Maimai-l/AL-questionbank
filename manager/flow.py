@@ -59,6 +59,7 @@ NODES = {
     "export": {"cat": "输出", "label": "导出", "ins": [("题目", ("q",)), ("附件", ("f",))], "outs": []},
     "newset": {"cat": "输出", "label": "新建题组", "ins": [("题目", ("q",))], "outs": []},
     "paper": {"cat": "输出", "label": "练习卷", "ins": [("题目", ("q",))], "outs": []},
+    "chapters": {"cat": "输出", "label": "章节包", "ins": [("分组", ("q",))], "outs": []},
 }
 
 
@@ -83,7 +84,8 @@ def question_records(exam):
                     "paper": str(r["paper"]), "year": r["year"], "season": r["month"], "q": r["q"],
                     "position": r["position"], "marks": r["marks"] or 0, "parts": r["parts"] or 0,
                     "topic": r["topic"] or "", "topic_name": names.get(r["topic"]) or "", "subtopic": r["subtopic"] or "",
-                    "diagram": bool(r["diagram"]), "explained": bool(r["explanation"])})
+                    "diagram": bool(r["diagram"]), "explained": bool(r["explanation"]),
+                    "topics": r["topics"]})
     return out
 
 
@@ -270,7 +272,10 @@ def node_join(p, ins):
     _field(right["type"], rf)
     by = {}
     for r in right["items"]:
-        by.setdefault(str(r.get(rf)), []).append(r)
+        # by topic, a question goes with every topic one of its parts is on (as the
+        # chapter export does), not only its main topic
+        for k in (r.get("topics") or [r.get(rf)]) if rf == "topic" else [r.get(rf)]:
+            by.setdefault(str(k), []).append(r)
     return [grp(right["type"], [{"name": l["label"], "key": l["id"], "items": by.get(str(l.get(lf)), [])}
                                 for l in left["items"]])]
 
@@ -388,7 +393,35 @@ def out_paper(g, node, ins, outdir):
 
 RUN = {"bank": node_bank, "book": node_book, "set": node_set, "filter": node_filter, "sort": node_sort,
        "take": node_take, "group": node_group, "merge": node_merge, "join": node_join}
-MAKE = {"export": out_export, "newset": out_newset, "paper": out_paper}
+def out_chapters(g, node, ins, outdir):
+    """Chapter packages, as pipeline/export/export_all_chapters.py writes them, for the
+    groups of a join with a textbook's chapters: one ZIP per chapter, in
+    exports/chapters/<book>/, replacing the archive of the same name."""
+    from pipeline.export import export_all_chapters as chap
+    v = ins[0]
+    if v["shape"] != "group":
+        raise FlowError("章节包节点的输入须为按章节的分组")
+    con = db.connect()
+    by = {c["id"]: c for c in chap.chapters_of(con)}
+    if any(x["key"] not in by for x in v["groups"]):
+        raise FlowError("章节包节点的输入须为教材章节的分组")
+    out, books = [], {}
+    for x in v["groups"]:
+        c = by[x["key"]]
+        path = chap.chapter_path(c)
+        chap.write_chapter(con, c, path, ids=[r["id"] for r in x["items"]])
+        b = books.setdefault(path.parent, {"files": 0, "questions": 0, "size": 0})
+        b["files"] += 1
+        b["questions"] += len(x["items"])
+        b["size"] += path.stat().st_size
+    for folder, b in books.items():
+        size = f"{b['size'] / 1048576:.1f} MB" if b["size"] >= 1048576 else f"{max(1, round(b['size'] / 1024))} KB"
+        out.append({"node": node["id"], "kind": "folder", "name": os.path.relpath(folder, os.path.dirname(paths.EXPORTS)),
+                    "meta": [f"{b['files']} 个文件", f"{b['questions']} 题", size]})
+    return out
+
+
+MAKE = {"export": out_export, "newset": out_newset, "paper": out_paper, "chapters": out_chapters}
 
 
 # ------------------------------------------------------------------ graph

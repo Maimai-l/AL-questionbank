@@ -12,6 +12,7 @@ Environment overrides, for running against a copy without moving anything:
     CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img_adm/ img_tara/
     QB_WORK         what practising produces: handwriting boards, attempts
                     (default: qb-work/ next to the project folder)
+    CAIE_EXPORTS    distribution ZIPs (default: exports/ next to the project folder)
 """
 import os
 
@@ -24,7 +25,9 @@ DB = os.environ.get("CAIE_DB") or os.path.join(DATA, "caie.db")
 BOOKS = os.path.join(DATA, "books")
 PAPERS = os.path.join(DATA, "papers")   # original question papers and mark schemes, named as questions.qp_pdf / ms_pdf
 ASSETS = os.path.join(ROOT, "assets")        # page sources: html + vendor/
-EXPORTS = os.path.join(ROOT, "exports")      # distribution ZIPs, not tracked
+# distribution ZIPs (exports/chapters/... and the question-bank packages), not tracked:
+# exports/ next to the project folder, like qb-work/
+EXPORTS = os.environ.get("CAIE_EXPORTS") or os.path.join(os.path.dirname(ROOT), "exports")
 RAW = os.environ.get("CAIE_RAW") or os.path.join(ROOT, "raw")  # pipeline inputs: PDFs, OCR
 SYLLABUS = os.path.join(ROOT, "syllabus.json")
 

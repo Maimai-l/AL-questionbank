@@ -156,12 +156,12 @@ python3 -m pipeline.books.chapters coverage
 
 ## 导出分发包(pipeline/export/)
 
-| 脚本 | 产出(写入 `exports/`,不跟踪) |
+| 脚本 | 产出(写入项目文件夹旁的 `exports/`,与 `qb-work/` 并列,不跟踪;`CAIE_EXPORTS` 可改位置) |
 |---|---|
 | `build_site.py` | `data/` 下的 data.js、textbooks.js 与页面 |
 | `export_web.py` | `data/data.js`,可单独运行 |
 | `export_textbooks.py` | `data/textbooks.js`,可单独运行 |
-| `export_all_chapters.py` | 每章一个 ZIP,含章节正文、同主题真题、题图与评分细则;只有部分小问属于本章的题,只给这些小问及其评分细则(`part_data`)。`--syllabus`、`--chapter` 限定范围,`--no-images` 不含任何图片,文件名以 `_no_images` 结尾 |
+| `export_all_chapters.py` | 每章一个 ZIP,含章节正文、同主题真题、题图与评分细则;只有部分小问属于本章的题,只给这些小问及其评分细则(`part_data`)。教材插图中的 JPEG 以质量 75 重新压缩(更小时才替换,文件名不变)。数据管理页批量生成的「章节包」节点用同一函数 `write_chapter()` 写同样的 ZIP。`--syllabus`、`--chapter` 限定范围,`--no-images` 不含任何图片,文件名以 `_no_images` 结尾 |
 | `export_admissions_banks.py` | TMUA 包与 TARA(TSA 加 BMAT)包 |
 | `export_9709_p1.py` | 9709 P1 文本包与图片包 |
 | `export_curated_hard_papers.py` | 六套人工精选难卷 |

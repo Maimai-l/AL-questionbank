@@ -44,6 +44,15 @@ def stem(text, n=120):
     return re.sub(r"^\d{1,2}\s+(?=\S)", "", t)[:n]
 
 
+def _part_topics(part_data):
+    """Topics of the parts, when the parts are tagged separately."""
+    try:
+        parts = json.loads(part_data or "{}").get("parts", [])
+    except ValueError:
+        return []
+    return [p["topic"] for p in parts if p.get("topic")]
+
+
 def _tasks(part_data):
     if not part_data:
         return []
@@ -78,6 +87,7 @@ def rows(exam):
             "topic": r["topic"], "subtopic": r["subtopic"], "stem": stem(r["qtext"]),
             "tasks": _tasks(r["part_data"]),
             "diagram": bool(r["has_diagram"]), "explanation": bool(r["has_expl"]),
+            "topics": sorted({t for t in [r["topic"]] + _part_topics(r["part_data"]) if t}),
         })
     return out
 

@@ -1008,6 +1008,7 @@
       case 'export': return `模板：${((templates.find((t) => t.id === (p.template || 'default')) || {}).name) || ''}`;
       case 'newset': return `名称：${flowName || ''}`;
       case 'paper': return '';
+      case 'chapters': return '保存到：exports/chapters';
       default: return '';
     }
   }
@@ -1283,7 +1284,8 @@
     return h('div', { className: 'fo-list' }, outputs.map((o, i) => h('div', { key: i, className: 'fo-row' },
       h('span', { className: 'fo-name' }, o.name),
       h('div', { className: 'dm-meta' }, o.meta.map((m, j) => h('span', { key: j }, m))),
-      o.kind === 'set'
+      o.kind === 'folder' ? null
+        : o.kind === 'set'
         ? act('i-arrow-r', '打开题组', () => { location.hash = '#/sets/' + o.set; })
         : act(o.kind === 'zip' ? 'i-box' : 'i-doc', o.kind === 'zip' ? '下载 ZIP' : '下载 PDF',
           () => download(`/api/flows/${fid}/out/${o.file}?name=${encodeURIComponent(o.name)}`)))));
