@@ -2,7 +2,7 @@
 """Rewrite CAIE question text and mark schemes against the original pages, through
 sub-agents, and keep the result as replayable corrections.
 
-    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--component 3] [--size 10] [--out run1] [--skip-done] [ID ...]
+    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--component 3] [--size 10] [--out run1] [--skip-done] [--focus diagrams] [ID ...]
     python3 pipeline/text/fix_batches.py verify raw/text_fix/run1/out/batch_01.json
     python3 pipeline/text/fix_batches.py apply [--write]
 
@@ -45,6 +45,24 @@ PAGES = os.path.join(WORK, "pages")
 FIXES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "text_fixes.jsonl")
 WORD = re.compile(r"[A-Za-z]{4,}")
 
+FOCUS = """## 本批是图示复核
+
+这些题已经按下文的规则审校过一轮,文本格式、分值、字词都已核对。本批**只复核图示的文字描述**:题干中的 `Diagram:`
+段落,以及评分细则中描述示例图、答案草图的 `Diagram:` 段落。逐题打开题图和评分细则原页,逐项核对:
+
+1. 图中**标出的**数值、坐标、长度、角度、标签、刻度,文字里必须一字不差;漏写的补上,写错的改正。
+2. 图中**没有标出、要从网格读取**的值:对着网格线仔细读,读得准的写出;读不准的不要写具体数,
+   改为描述位置(如「在 x = 1 与 x = 2 之间」)。凡是读取所得的数,前面写 approximately 或写明「读自网格」。
+   不要写出图上不存在、只是推算出来的点。
+3. 曲线与草图:形状、经过的标注点、与坐标轴的交点、极值点、渐近线、阴影区域、各段的位置关系,要与原图一致;
+   原图没有表现的特征不要写。
+4. 图示以外的文字原则上不动;只有看到明显与原图不符之处才一并改正,并在 `why` 里写明。
+5. 图示描述全部正确时,该项写 `null`。改动时照常写出**完整**的新文本。
+
+`why` 里写明核对了哪几幅图、改了哪些值。
+
+"""
+
 TASK = """# 题干与评分细则更正批次 {n}
 
 题库的题干与评分细则来自 OCR,有大段丢失、乱码、串题,图示只剩 `[DIAGRAM]`。不带图片的导出只给读者这些文本,
@@ -64,7 +82,8 @@ TASK = """# 题干与评分细则更正批次 {n}
 3. 答题横线、空白答题框不写;需要填写的表格写成 Markdown 表格,空格留空;需要补全的代码或伪代码中的空位写成 `………`。
 4. 表格写成 Markdown 表格(`| A | B |`)。代码与伪代码放进 ``` 代码块,保留原图的缩进与换行。
 5. 公式用 LaTeX,放在 `$...$` 中;编程语言、伪代码、SQL 里的符号照原样写,不要改成 LaTeX。
-   金额等处的美元符号一律写成 `\$`(如 `\$1.75`),不要用 `\char36`、`\textdollar` 等写法。
+   金额等处的美元符号写成只含 `\$` 的公式 `$\$$`(如 `$\$$1.75`);紧接着就是公式时并进同一个公式(如 `$\$x$`)。
+   KaTeX 会把公式外的 `\$` 当作公式的起点,所以不要单独写 `\$`,也不要用 `\char36`、`\textdollar`。
 6. **图示要写成文字**(不要留 `[DIAGRAM]`)。在图的位置写一行 `Diagram:`,接着用以下方式之一写出图中全部信息:
    - 逻辑电路:每个门写成一行表达式,如 `P = A XOR B`,并写出输出 `X = …`;
    - 寄存器、比特位、方框中的数:按顺序写出,如 `ACC: 0 1 1 0 0 1 0 1`;
@@ -120,6 +139,13 @@ def mcol(r):
     return "ms_latex" if r["ms_latex"] else "ms_text"
 
 
+def ms_name(r):
+    """The mark scheme's file. ms_pdf is set by split_ms.py, which reads no row of
+    some schemes (9709_s26_ms_13 and 35 other questions); the file is still there,
+    named after the question paper."""
+    return r["ms_pdf"] or (r["qp_pdf"] or "").replace("_qp_", "_ms_") or None
+
+
 def rel(p):
     return os.path.relpath(p, paths.ROOT)
 
@@ -129,7 +155,7 @@ def render(path, pages, stem):
     with pymupdf.open(path) as doc:
         for n in pages:
             f = os.path.join(PAGES, f"{stem}_p{n + 1}.png")
-            if not os.path.exists(f):
+            if not os.path.exists(f) or not os.path.getsize(f):   # an interrupted render leaves an empty file
                 doc[n].get_pixmap(dpi=110, colorspace=pymupdf.csGRAY).save(f)
             out.append(f)
     return out
@@ -155,17 +181,21 @@ def plan(a):
         n += 1
         out = rel(os.path.join(out_dir, "out", f"batch_{n:02d}.json"))
         text = [TASK.format(n=n, out=out)]
+        if a.focus == "diagrams":
+            text[0] = text[0].replace("## 每题的材料", FOCUS + "## 每题的材料", 1)
         for r in rows[b:b + a.size]:
             crop = paths.resolve(r["image"])
-            ms = _pdf(r["ms_pdf"], "ms")
+            ms = _pdf(ms_name(r), "ms")
             pages = []
             if ms:
                 with pymupdf.open(ms) as d:
-                    pages = render(ms, scheme_pages(d, r["q"]), os.path.splitext(os.path.basename(r["ms_pdf"]))[0])
+                    pages = render(ms, scheme_pages(d, r["q"]), os.path.splitext(os.path.basename(ms))[0])
+            # some schemes have no text layer to find the question by (9709_s26_ms_22, _23, _25, _55)
+            where = f"未能定位,请用 pdftoppm 从 {rel(ms)} 渲染,按左列题号找到本题" if ms else "无"
             tariffs = json.loads(r["marks_parts"] or "[]")
             text.append(
                 f"\n### {r['id']}({bank.paper_code(r)} 第 {r['q']} 题,共 {r['marks']} 分;各小问分值 {tariffs})\n\n"
-                f"题图:{rel(crop) if crop else '无'}\n评分细则原页:{', '.join(rel(p) for p in pages) or '无'}\n"
+                f"题图:{rel(crop) if crop else '无'}\n评分细则原页:{', '.join(rel(p) for p in pages) or where}\n"
                 f"\nPDF 文本层:\n\n````\n{r['question_text'] or ''}\n````\n"
                 f"\n当前题干({qcol(r)}):\n\n````\n{r[qcol(r)] or ''}\n````\n"
                 f"\n当前评分细则({mcol(r)}):\n\n````\n{r[mcol(r)] or ''}\n````\n")
@@ -202,6 +232,12 @@ def check_scheme(text, marks):
     return problems
 
 
+# Questions whose PDF text layer is too garbled to compare with, checked by hand.
+LAYER_EXEMPT = {
+    "9709_s24_31_q04": "the text layer reads every θ as i",
+}
+
+
 def check_question(text, r):
     problems = []
     if "[DIAGRAM]" in text:
@@ -219,6 +255,8 @@ def check_question(text, r):
                 lowest += 1
         if lowest != len(tariffs):
             problems.append(f"最低一级小问 {lowest} 个,原卷分值 {len(tariffs)} 个({tariffs})")
+    if r["id"] in LAYER_EXEMPT:
+        return problems
     layer_text = re.sub(r"(?m)^.*(©|UCLES|Cambridge University Press).*$", "", r["question_text"] or "")   # page footer
     layer = [w.lower() for w in WORD.findall(layer_text)]
     if layer:
@@ -327,6 +365,7 @@ def main():
     p.add_argument("--size", type=int, default=10)
     p.add_argument("--out", default="run1")
     p.add_argument("--skip-done", action="store_true", help="leave out questions already in text_fixes.jsonl")
+    p.add_argument("--focus", choices=["diagrams"], help="a second pass that checks only the Diagram: descriptions")
     p.set_defaults(fn=plan)
     p = sub.add_parser("verify")
     p.add_argument("file")
