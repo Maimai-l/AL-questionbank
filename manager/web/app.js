@@ -471,12 +471,260 @@
         target === 'new' ? h(E.TextField, { label: '名称', value: title, onChange: (e) => setTitle(e.target.value) }) : null));
   }
 
+  // ------------------------------------------------------------------ search page
+
+  /** Marks every match of the patterns in the element's text, formulas left out. */
+  function markWords(root, patterns) {
+    const re = new RegExp(patterns.join('|'), 'gi');
+    const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.parentElement.closest('.katex, mark') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) });
+    const nodes = [];
+    while (walk.nextNode()) nodes.push(walk.currentNode);
+    nodes.forEach((n) => {
+      const t = n.nodeValue;
+      re.lastIndex = 0;
+      if (!re.test(t)) return;
+      re.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let at = 0, m;
+      while ((m = re.exec(t))) {
+        if (!m[0]) { re.lastIndex++; continue; }
+        frag.appendChild(document.createTextNode(t.slice(at, m.index)));
+        const k = document.createElement('mark'); k.textContent = m[0]; frag.appendChild(k);
+        at = m.index + m[0].length;
+      }
+      frag.appendChild(document.createTextNode(t.slice(at)));
+      n.parentNode.replaceChild(frag, n);
+    });
+  }
+
+  /** A snippet from /api/find: \x01..\x02 around matches, formulas in $..$ drawn. */
+  function Snippet({ text }) {
+    const ref = useRef(null);
+    useEffect(() => {
+      const el = ref.current;
+      if (!el) return;
+      const esc = (x) => x.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      // a mark inside a formula would break it: there the formula stays unmarked
+      el.innerHTML = text.split(/((?<!\\)\$[^$]*\$)/).map((part, i) => (i % 2 ? esc(part.replace(/[\x01\x02]/g, ''))
+        : esc(part).replace(/\x01/g, '<mark>').replace(/\x02/g, '</mark>'))).join('');
+      if (window.renderMathInElement) window.renderMathInElement(el, { delimiters: [{ left: '$', right: '$', display: false }], throwOnError: false });
+    }, [text]);
+    return h('dd', { ref });
+  }
+
+  // The box's text and the four keyword fields are one query: the fields are read from
+  // the text and, when edited, write it again.
+  function queryTokens(text) {
+    const out = [];
+    const re = /"([^"]*)"?|(\S+)/g;
+    let m;
+    while ((m = re.exec(text))) {
+      if (m[1] !== undefined) { if (m[1].trim()) out.push(['phrase', m[1].trim()]); }
+      else if (m[2] === 'OR') out.push(['or']);
+      else if (m[2].length > 1 && m[2][0] === '-') out.push(['not', m[2].slice(1)]);
+      else out.push(['word', m[2]]);
+    }
+    return out;
+  }
+  function readQuery(text) {
+    const f = { all: [], phrase: [], any: [], none: [] };
+    const t = queryTokens(text);
+    t.forEach((x, i) => {
+      if (x[0] === 'or') return;
+      const ored = (t[i - 1] && t[i - 1][0] === 'or') || (t[i + 1] && t[i + 1][0] === 'or');
+      if (x[0] === 'not') f.none.push(x[1]);
+      else if (ored) f.any.push(x[0] === 'phrase' ? `"${x[1]}"` : x[1]);
+      else if (x[0] === 'phrase') f.phrase.push(x[1]);
+      else f.all.push(x[1]);
+    });
+    return { all: f.all.join(' '), phrase: f.phrase.join(' '), any: f.any.join(' '), none: f.none.join(' ') };
+  }
+  function writeQuery(f) {
+    const words = (s) => (s || '').trim().split(/\s+/).filter(Boolean);
+    return [...words(f.all), f.phrase.trim() ? `"${f.phrase.trim().replace(/"/g, '')}"` : '',
+      words(f.any).join(' OR '), ...words(f.none).map((w) => '-' + w.replace(/^-/, ''))].filter(Boolean).join(' ');
+  }
+
+  const FIELDS_AT = [['stem', '题干'], ['ms', '评分细则'], ['ex', '详解'], ['topic', '主题名']];
+  const FIELD_NAME = Object.fromEntries(FIELDS_AT);
+  const RECENT = 'dm-search-recent';
+  const recentList = () => { try { return JSON.parse(localStorage.getItem(RECENT)) || []; } catch (e) { return []; } };
+
+  /** The search page (docs/data-manager.md, 搜索): every exam at once; the left column is
+      the advanced search, the box above the results its keywords. */
+  function SearchPage({ metas, sets, reloadSets, toast }) {
+    const allExams = metas.map((m) => m.exam);
+    const allYears = [...new Set(metas.flatMap((m) => m.years))].sort();
+    const [text, setText] = useState('');
+    const [q, setQ] = useState('');                       // the text searched (after a pause)
+    const [exams, setExams] = useState(() => new Set(allExams));
+    const [topics, setTopics] = useState([]);
+    const [years, setYears] = useState([allYears[0], allYears[allYears.length - 1]]);
+    const [cols, setCols] = useState(() => new Set(FIELDS_AT.map((x) => x[0])));
+    const [more, setMore] = useState(false);
+    const [comps, setComps] = useState(null);             // null: every paper
+    const [tasks, setTasks] = useState(null);             // null: every task type
+    const [expl, setExpl] = useState('any');
+    const [sort, setSort] = useState('rel');
+    const [res, setRes] = useState(null);
+    const [busy, setBusy] = useState(false);
+    const [selected, setSelected] = useState([]);
+    const [focus, setFocus] = useState(null);
+    const [adding, setAdding] = useState(false);
+    const [recent, setRecent] = useState(recentList);
+
+    useEffect(() => { const t = setTimeout(() => setQ(text.trim()), 250); return () => clearTimeout(t); }, [text]);
+    const conds = { q, exams: [...exams], topics, from: years[0], to: years[1], cols: [...cols], comps, tasks, expl, sort };
+    const key = JSON.stringify(conds);
+    useEffect(() => {
+      if (!q) { setRes(null); return undefined; }
+      let live = true;
+      setBusy(true);
+      send('POST', '/api/find', conds).then((r) => { if (live) { setRes(r); setBusy(false); } })
+        .catch((e) => { if (live) { setBusy(false); toast('error', e.message); } });
+      return () => { live = false; };
+    }, [key]);
+    useEffect(() => { setSelected([]); }, [key]);
+    useEffect(() => { setFocus(res && res.rows.length ? res.rows[0].id : null); }, [res]);
+
+    // a search is kept in 最近搜索 when it is used: Enter, a result opened, 加入题组
+    const want = useRef(null);
+    const keep = (query, n) => {
+      const list = [{ q: query, n }].concat(recentList().filter((x) => x.q !== query)).slice(0, 8);
+      setRecent(list);
+      try { localStorage.setItem(RECENT, JSON.stringify(list)); } catch (e) {}
+    };
+    const remember = () => {
+      const now = text.trim();
+      if (!now) return;
+      if (res && q === now && !busy) keep(now, res.total); else want.current = now;
+    };
+    useEffect(() => { if (res && !busy && want.current === q) { want.current = null; keep(q, res.total); } }, [res, busy]);
+    const kw = readQuery(text);
+    const setKw = (k, v) => setText(writeQuery({ ...kw, [k]: v }));
+    const toggle = (set, setter, v) => { const n = new Set(set); n.has(v) ? n.delete(v) : n.add(v); setter(n); };
+
+    // the topics of the chosen exams; a topic stays chosen only while its exam is
+    const topicOptions = metas.filter((m) => exams.has(m.exam)).flatMap((m) => {
+      const seen = new Set();
+      return m.topics.filter((t) => !seen.has(t.value) && seen.add(t.value))
+        .map((t) => ({ value: `${m.exam}:${t.value}`, label: `${m.exam} · ${t.label}` }));
+    });
+    useEffect(() => { setTopics((ts) => ts.filter((t) => exams.has(t.split(':')[0]))); }, [[...exams].join()]);
+    // the papers of the chosen exams; a number named differently by two exams takes the CIE name (Paper 1)
+    const compNames = new Map();
+    metas.filter((m) => exams.has(m.exam)).sort((a, b) => b.cie - a.cie)
+      .forEach((m) => m.components.forEach((c) => { if (!compNames.has(c.value)) compNames.set(c.value, c.label); }));
+    const compOptions = [...compNames.entries()]
+      .sort((a, b) => String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }));
+    const taskOptions = Object.keys((res && res.tasks) || {}).sort((a, b) => Object.keys(TASK).indexOf(a) - Object.keys(TASK).indexOf(b));
+    const yearOpts = allYears.map((y) => ({ value: String(y), label: String(y) }));
+    const counts = (res && res.counts) || {};
+    const rows = (res && res.rows) || [];
+    const picked = rows.filter((r) => selected.includes(r.id));
+    const moreSet = comps !== null || tasks !== null || expl !== 'any';
+
+    const head = (t, extra) => h('div', { className: 'fx-head' }, h('span', { className: 'sec-t' }, t), extra || null);
+    const field = (label, k) => h('div', { className: 'kw' }, h('label', null, label),
+      h(E.TextField, { 'aria-label': label, size: 'sm', value: kw[k], onChange: (e) => setKw(k, e.target.value),
+        onKeyDown: (e) => { if (e.key === 'Enter') remember(); } }));
+    const allOn = exams.size === allExams.length;
+    return h('div', { className: 'dm-row' },
+      h('aside', { className: 'dm-cond sp-left', 'aria-label': '高级搜索' },
+        h('section', null,
+          h('div', { className: 'fx-head' },
+            h(E.Checkbox, { checked: allOn, indeterminate: exams.size > 0 && !allOn,
+              onChange: () => setExams(allOn ? new Set() : new Set(allExams)) }, '考试'),
+            h('span', { className: 'fx-n' }, `${exams.size} / ${allExams.length}`)),
+          h('div', { className: 'fx-grid' }, allExams.map((e) => h('div', { key: e, className: 'fx-row' + (res && !counts[e] ? ' is-zero' : '') },
+            h(E.Checkbox, { checked: exams.has(e), onChange: () => toggle(exams, setExams, e) }, e),
+            h('span', { className: 'fx-n' }, res ? counts[e] || 0 : ''))))),
+        h('section', { className: 'sec' }, head('主题'),
+          h(E.MultiSelect, { ariaLabel: '主题', placeholder: '全部主题', maxTags: 2, options: topicOptions, value: topics, onChange: setTopics })),
+        h('section', { className: 'sec' }, head('年份'),
+          h('div', { className: 'years' },
+            h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: yearOpts, value: String(years[0]), onChange: (v) => setYears([+v, Math.max(+v, years[1])]) }),
+            h('span', null, '至'),
+            h(E.Select, { ariaLabel: '结束年份', size: 'sm', options: yearOpts, value: String(years[1]), onChange: (v) => setYears([Math.min(+v, years[0]), +v]) }))),
+        h('hr', { className: 'sp-hr' }),
+        h('section', { className: 'sec' }, head('关键词'),
+          field('包含全部词语', 'all'), field('包含完整短语', 'phrase'), field('包含任一词语', 'any'), field('不包含词语', 'none')),
+        h('section', { className: 'sec' }, head('查找位置'),
+          h('div', { className: 'adv-checks' }, FIELDS_AT.map(([k, label]) => h(E.Checkbox, { key: k, checked: cols.has(k),
+            onChange: () => { if (!(cols.has(k) && cols.size === 1)) toggle(cols, setCols, k); } }, label)))),
+        h('section', { className: 'sec' },
+          h('button', { type: 'button', className: 'more-h', 'aria-expanded': more, onClick: () => setMore(!more) },
+            h(E.Icon, { name: more ? 'i-chev-d' : 'i-chev-r', size: 'sm' }), h('span', null, '更多条件'),
+            more ? null : h('span', { className: 'more-s' }, moreSet ? '已设置' : '不限')),
+          more ? h('div', { className: 'more-b' },
+            head('试卷'), h('div', { className: 'adv-checks' }, compOptions.map(([v, label]) => h(E.Checkbox, { key: v,
+              checked: !comps || comps.includes(v), onChange: () => {
+                const cur = comps || compOptions.map((c) => c[0]);
+                const next = cur.includes(v) ? cur.filter((x) => x !== v) : cur.concat([v]);
+                setComps(next.length === compOptions.length ? null : next);
+              } }, label))),
+            taskOptions.length ? head('小问类型') : null,
+            taskOptions.length ? h('div', { className: 'adv-checks' }, taskOptions.map((t) => h(E.Checkbox, { key: t,
+              checked: !tasks || tasks.includes(t), onChange: () => {
+                const cur = tasks || taskOptions;
+                const next = cur.includes(t) ? cur.filter((x) => x !== t) : cur.concat([t]);
+                setTasks(next.length === taskOptions.length ? null : next);
+              } }, TASK[t] || t))) : null,
+            head('详解'),
+            h(E.SegmentedControl, { ariaLabel: '详解', value: expl, onChange: setExpl,
+              options: [{ value: 'any', label: '不限' }, { value: 'y', label: '有详解' }, { value: 'n', label: '无详解' }] })) : null)),
+      h('main', { className: 'sp-main' },
+        h('div', { className: 'sp-box' },
+          h(E.TextField, { 'aria-label': '搜索', placeholder: '搜索', icon: 'i-search', value: text, onChange: (e) => setText(e.target.value),
+            onKeyDown: (e) => { if (e.key === 'Escape') setText(''); if (e.key === 'Enter') remember(); } }),
+          text ? h(E.IconButton, { icon: 'i-close', label: '清除搜索', variant: 'ghost', size: 'sm', onClick: () => setText('') }) : null),
+        !q ? h('div', { className: 'sp-recent' },
+          recent.length ? h('h3', null, '最近搜索') : null,
+          recent.length ? recent.map((x) => h('button', { type: 'button', className: 'rec', key: x.q, onClick: () => setText(x.q) },
+            h(E.Icon, { name: 'i-search', size: 'sm' }), h('span', null, x.q), h('span', null, `${x.n} 题`)))
+            : h(E.EmptyState, { icon: 'i-search', title: '未搜索' }))
+        : !res ? h(E.Loading, null)
+        : h(React.Fragment, null,
+          h('div', { className: 'headline' + (busy ? ' is-busy' : '') }, h('span', null, `${res.total} 题`), h('span', null, `${res.marks} 分`)),
+          h('div', { className: 'selbar' },
+            h(E.Checkbox, { checked: rows.length > 0 && picked.length === rows.length, indeterminate: picked.length > 0 && picked.length < rows.length,
+              onChange: () => setSelected(picked.length === rows.length ? [] : rows.map((r) => r.id)) }, '全选'),
+            h(E.SegmentedControl, { ariaLabel: '排序', value: sort, onChange: setSort, options: [{ value: 'rel', label: '相关度' }, { value: 'year', label: '年份' }] }),
+            h('div', { className: 'dm-meta', style: { flexGrow: 1, justifyContent: 'flex-end' } },
+              h('span', null, '已选 ', h('b', null, picked.length), ' 题'), h('span', null, h('b', null, sum(picked)), ' 分')),
+            h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => { remember(); setAdding(true); } }, '加入题组')),
+          rows.length ? h('div', { className: 'sp-list' },
+            rows.map((r) => h('div', { key: r.id, className: 'hit' + (r.id === focus ? ' is-focus' : ''), onClick: (e) => { if (!e.target.closest('.check')) { setFocus(r.id); remember(); } } },
+              h(E.Checkbox, { checked: selected.includes(r.id), ariaLabel: `选择 ${r.code} Q${r.q}`,
+                onChange: () => setSelected(selected.includes(r.id) ? selected.filter((x) => x !== r.id) : selected.concat([r.id])) }),
+              h('div', { className: 'hit-h' }, h('span', { className: 'hit-code' }, `${r.code} Q${r.q}`),
+                r.topic ? h('span', { className: 'hit-meta' }, `${r.topic} ${r.topic_name}`) : null),
+              h('span', { className: 'hit-m' }, `${r.marks} 分`),
+              r.snippets.length ? h('dl', { className: 'hit-s' }, r.snippets.map(([c, t]) => [
+                h('dt', { key: c + 'k' }, FIELD_NAME[c]), h(Snippet, { key: c + 'v', text: t })])) : null)),
+            res.total > rows.length ? h('p', { className: 'empty-note sp-more' }, `仅列出前 ${rows.length} 题`) : null)
+            : h(E.EmptyState, { icon: 'i-search', title: '没有符合条件的题目' }))),
+      h(Detail, { qid: focus, marks: res && res.terms }),
+      adding ? h(AddDialog, {
+        sets, toast, ids: picked.map((r) => r.id), name: q, source: 'query',
+        onClose: () => setAdding(false), onDone: () => { setAdding(false); reloadSets(); },
+      }) : null);
+  }
+
   // ------------------------------------------------------------------ detail panel
 
-  function Detail({ qid }) {
+  function Detail({ qid, marks }) {
     const [d, setD] = useState(null);
     const [tab, setTab] = useState('ms');
+    const body = useRef(null);
     useEffect(() => { setD(null); setTab('ms'); if (qid) api('/api/question/' + qid).then(setD); }, [qid]);
+    // the search page's words, marked in what the panel shows (after the formulas are drawn)
+    useEffect(() => {
+      if (!marks || !marks.length || !body.current) return undefined;
+      const t = setTimeout(() => { if (body.current) markWords(body.current, marks); }, 50);
+      return () => clearTimeout(t);
+    }, [d, tab, marks && marks.join('|')]);
     if (!qid) return h('aside', { className: 'detail' },
       h('div', { className: 'detail-body' }, h(E.EmptyState, { icon: 'i-list', title: '未选择题目' })));
     if (!d) return h('aside', { className: 'detail' }, h('div', { className: 'detail-body' }, h(E.Loading, null)));
@@ -497,7 +745,7 @@
         img ? h('div', { className: 'qimg' }, h('img', { src: img.src, alt: `第 ${d.q} 题题目截图` })) : null),
       h('div', { className: 'detail-tabs' },
         h(E.Tabs, { variant: 'line', items: tabs, value: tab, onChange: setTab, ariaLabel: '题目资料' })),
-      h('div', { className: 'detail-body' },
+      h('div', { className: 'detail-body', ref: body },
         tab === 'ms' ? (d.scheme ? h(Scheme, { rows: d.scheme }) : h(Markdown, { text: d.solution })) : null,
         tab === 'text' ? h(Tex, { tag: 'div', className: 'dm-prose', text: d.text }) : null,
         tab === 'ex' && hasEx ? d.explanation.parts.map((p, i) => h(ExPart, { key: i, p })) : null));
@@ -1579,7 +1827,7 @@
     const reloadTemplates = useCallback(() => api('/api/templates').then(setTemplates), []);
     useEffect(() => { api('/api/meta').then(setMetas); reloadSets(); reloadTemplates(); api('/api/settings').then((o) => applyTheme(o.theme)); }, []);
 
-    const PAGES = ['query', 'sets', 'templates', 'flows', 'settings'];
+    const PAGES = ['query', 'search', 'sets', 'templates', 'flows', 'settings'];
     const page = hash.split('/')[1] || 'query';
     const [, , arg, sub, subArg] = hash.split('/');
     // an address that names no page goes to the query page
@@ -1601,10 +1849,11 @@
     const navBlur = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) navClose(); };
     const nav = [
       { value: 'query', label: '查询', icon: 'i-search', href: '#/query' },
+      { value: 'search', label: '搜索', icon: 'i-filter', href: '#/search' },
       { value: 'sets', label: '题组', icon: 'i-list', href: '#/sets' },
       { value: 'templates', label: '模板', icon: 'i-doc', href: '#/templates' },
     ];
-    const titles = { query: '查询', sets: '题组', templates: '模板', settings: '设置' };
+    const titles = { query: '查询', search: '搜索', sets: '题组', templates: '模板', settings: '设置' };
     const cur = page === 'sets' ? sets.find((x) => x.id === arg) : null;
     let body;
     if (!metas) body = null;
@@ -1617,6 +1866,7 @@
       body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast }) : h(E.Loading, null);
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage, { sets }));
     else if (page === 'query') body = h(QueryPage, { metas, sets, reloadSets, toast });
+    else if (page === 'search') body = h(SearchPage, { metas, sets, reloadSets, toast });
     else body = null;
     const SUB = { board: '白板' };
     const title = page === 'sets' && SUB[sub] ? SUB[sub] : page === 'flows' ? (flowTitle || '批量生成') : (titles[page] || '查询');

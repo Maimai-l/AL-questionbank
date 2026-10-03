@@ -6,6 +6,7 @@
 | 文件 | 内容 |
 |---|---|
 | `server.py` | aiohttp 服务:页面、题图、原卷、`/api/*` |
+| `search.py` | 搜索页:自建全文索引(`paths.WORK/search.db`)、查询解析、命中片段 |
 | `bank.py` | 题库的只读视图:查询表格的行、条件栏的计数、单题详情(评分细则逐行拆分) |
 | `sets.py` | 题组:`paths.SETS` 下每组一个 JSON;与模型交换用 `alevel-question-set/v1` |
 | `paper.py` | 练习卷 PDF(F4),缓存在 `paths.WORK/papers/` |

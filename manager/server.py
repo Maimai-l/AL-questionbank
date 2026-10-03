@@ -11,7 +11,8 @@ sets and later outputs live in paths.WORK.
   /paper/<qid>           the original question paper PDF, opened at the question's page
   /api/meta              exams, papers, topics, years with counts
   /api/questions?exam=   every question of one exam (the query filters in the page)
-  /api/search?exam=&q=   ids whose text or mark scheme matches
+  /api/search?exam=&q=   ids whose text or mark scheme matches (the query page)
+  /api/find              POST the search page's conditions: matches with snippets (manager/search.py)
   /api/question/<id>     one question: images, mark scheme rows, text, explanation
   /api/sets              GET list, POST create {name, items, source}
   /api/sets/<id>         GET, PATCH {name, items, add}, DELETE
@@ -48,6 +49,7 @@ import threading
 import urllib.parse
 
 from manager import __version__, bank, board, docs, export, flow, paper, sets, settings, templates
+from manager import search as search_page   # the module; search() below is the query page's handler
 from manager.vendor.inksync import DefaultPolicy, FileStorage, Hub, mount, serve_sdk
 from manager.vendor.inksync.netinfo import advertise
 
@@ -94,6 +96,14 @@ async def questions(request):
 async def search(request):
     q = request.query
     return web.json_response(bank.search(q.get("exam", "9709"), q.get("q", "")))
+
+
+async def find(request):
+    p = await request.json()
+    try:
+        return web.json_response(await asyncio.get_running_loop().run_in_executor(None, search_page.find, p))
+    except (ValueError, TypeError) as e:
+        raise web.HTTPBadRequest(text=str(e))
 
 
 async def question(request):
@@ -448,10 +458,11 @@ async def revalidate(request, handler):
 
 async def watch_bank(app):
     """Every minute: when the bank changed, run the automatic flows (flow.auto_run), once
-    per bank version. First the search's word list is built (bank._words)."""
+    per bank version. First the searches' word list and index are built."""
     async def loop():
         run, tried = asyncio.get_running_loop().run_in_executor, None
-        await run(None, bank._words)         # the search's word list, ready before the first search
+        await run(None, bank._words)         # the query page's word list and the search page's index,
+        await run(None, search_page.connect)  # ready before the first search
         while True:
             try:
                 version = await run(None, flow.bank_version)
@@ -476,6 +487,7 @@ def make_app():
     app.router.add_get("/api/questions", questions)
     app.router.add_get("/api/search", search)
     app.router.add_get(r"/api/question/{qid}", question)
+    app.router.add_post("/api/find", find)
     app.router.add_get("/api/sets", set_list)
     app.router.add_post("/api/sets", set_create)
     app.router.add_post("/api/sets/import", set_import)
