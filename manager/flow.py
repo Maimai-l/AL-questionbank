@@ -34,16 +34,20 @@ BOOKS = {
     "9231": "9231 Further Mathematics", "9618": "9618 Computer Science",
 }
 
-# fields: key, label, kind (num | text | bool)
-QFIELDS = [("exam", "考试", "text"), ("component", "试卷", "num"), ("paper", "卷号", "text"),
-           ("year", "年份", "num"), ("season", "考季", "num"), ("q", "题号", "num"),
+# fields: key, label, kind. The kind decides a filter condition (docs/data-manager.md):
+#   num   a range, {field, min, max}, either end may be blank        年份 ≥ 2021, 分值 8–12
+#   enum  one of the values in the data, {field, op: = | ≠, value}   试卷 = 3
+#   text  {field, value}: contains, ignoring case                    标题 包含 integr
+#   bool  {field, value: true | false}, shown by the two labels      含图 / 不含图
+QFIELDS = [("exam", "考试", "enum"), ("component", "试卷", "enum"), ("paper", "卷号", "enum"),
+           ("year", "年份", "num"), ("season", "考季", "enum"), ("q", "题号", "num"),
            ("position", "卷内位置", "num"), ("marks", "分值", "num"), ("parts", "小问数", "num"),
-           ("topic", "主题", "text"), ("subtopic", "子主题", "text"),
+           ("topic", "主题", "enum"), ("subtopic", "子主题", "enum"),
            ("diagram", "含图", "bool"), ("explained", "有详解", "bool")]
-CFIELDS = [("book", "教材", "text"), ("chapter", "章号", "num"), ("title", "标题", "text"), ("topic", "主题", "text")]
+CFIELDS = [("book", "教材", "enum"), ("chapter", "章号", "num"), ("title", "标题", "text"), ("topic", "主题", "enum")]
 FFIELDS = [("name", "文件名", "text")]
 FIELDS = {"q": QFIELDS, "c": CFIELDS, "f": FFIELDS}
-OPS = ["=", "≠", "≥", "≤", "包含"]
+BOOL = {"diagram": ("含图", "不含图"), "explained": ("有详解", "无详解")}
 
 # node types: category, label, inputs [(label, accepted record types or None for any)], outputs
 # [(label, record type or "same")], shapes: "list" (round port) or "group" (square port)
@@ -150,22 +154,68 @@ def _num(v):
         return None
 
 
-def _test(rec, kind, key, op, value):
-    have = rec.get(key)
-    if kind == "bool":
-        want = str(value).strip() in ("是", "1", "true", "True")
-        return (have == want) if op == "=" else (have != want) if op == "≠" else False
+def _text(v):
+    """A value as the filter and the groups compare it: 3 for 3.0, 是/否 for booleans."""
+    if isinstance(v, bool):
+        return "是" if v else "否"
+    if isinstance(v, float) and v.is_integer():
+        v = int(v)
+    return str(v).strip() if v not in (None, "") else ""
+
+
+def cond(c, kind):
+    """A filter condition in its kind's shape (the comment at FIELDS), also from the older
+    {field, op, value} with op one of = ≠ ≥ ≤ 包含; None while it is incomplete."""
+    f, op, v = c.get("field"), c.get("op"), c.get("value")
     if kind == "num":
-        a, b = _num(have), _num(value)
-        if a is None or b is None:
-            return False
-        return {"=": a == b, "≠": a != b, "≥": a >= b, "≤": a <= b, "包含": str(value) in str(have)}[op]
-    a, b = str(have or "").lower(), str(value).strip().lower()
-    return {"=": a == b, "≠": a != b, "≥": a >= b, "≤": a <= b, "包含": b in a}[op]
+        lo, hi = c.get("min"), c.get("max")
+        if "min" not in c and "max" not in c and _text(v):
+            lo, hi = (v, None) if op == "≥" else (None, v) if op == "≤" else (v, v) if op == "=" else (None, None)
+        lo, hi = _text(lo), _text(hi)
+        return {"field": f, "min": lo, "max": hi} if lo or hi else None
+    if kind == "bool":
+        if isinstance(v, str):
+            v = v.strip() in ("是", "1", "true", "True")
+            if op == "≠":
+                v = not v
+        return {"field": f, "value": bool(v)}
+    if not _text(v):
+        return None
+    if kind == "enum":
+        return {"field": f, "op": "≠" if op == "≠" else "=", "value": _text(v)}
+    return {"field": f, "value": _text(v)}
+
+
+def _test(rec, kind, c):
+    have = rec.get(c["field"])
+    if kind == "num":
+        a = _num(have)
+        lo, hi = _num(c["min"]), _num(c["max"])
+        return a is not None and (lo is None or a >= lo) and (hi is None or a <= hi)
+    if kind == "bool":
+        return bool(have) == c["value"]
+    if kind == "enum":
+        return (_text(have).lower() == c["value"].lower()) == (c["op"] == "=")
+    return c["value"].lower() in str(have or "").lower()
+
+
+def cond_text(c, kind, label):
+    """A condition as the node, the flow list and the overview write it."""
+    if kind == "bool":
+        return BOOL.get(c["field"], (label, "非" + label))[0 if c["value"] else 1]
+    if kind == "num":
+        lo, hi = c["min"], c["max"]
+        if lo and hi:
+            return f"{label} = {lo}" if _num(lo) == _num(hi) else f"{label} {lo}–{hi}"
+        return f"{label} ≥ {lo}" if lo else f"{label} ≤ {hi}"
+    if kind == "enum":
+        value = c["value"] + (" 月" if c["field"] == "season" else "")
+        return f"{label} {c['op']} {value}"
+    return f"{label} 包含 {c['value']}"
 
 
 def _sort_key(kind):
-    if kind == "num":
+    if kind in ("num", "enum"):
         return lambda r, k: (_num(r.get(k)) is None, _num(r.get(k)) or 0)
     return lambda r, k: str(r.get(k) or "")
 
@@ -202,10 +252,14 @@ def node_set(p, ins):
 
 def node_filter(p, ins):
     v = ins[0]
-    conds = [c for c in p.get("conds") or [] if c.get("field") and c.get("op") in OPS and str(c.get("value", "")).strip() != ""]
-    kinds = [_field(v["type"], c["field"]) for c in conds]
-    return [per_list(v, lambda items, _: [r for r in items
-                                          if all(_test(r, k, c["field"], c["op"], c["value"]) for c, k in zip(conds, kinds))])]
+    conds = []
+    for c in p.get("conds") or []:
+        if c.get("field"):
+            kind = _field(v["type"], c["field"])
+            c = cond(c, kind)
+            if c:
+                conds.append((c, kind))
+    return [per_list(v, lambda items, _: [r for r in items if all(_test(r, k, c) for c, k in conds)])]
 
 
 def node_sort(p, ins):
@@ -232,11 +286,7 @@ def node_take(p, ins):
 
 
 def _group_name(value):
-    if isinstance(value, bool):
-        return "是" if value else "否"
-    if isinstance(value, float) and value.is_integer():
-        value = int(value)
-    return str(value) if value not in (None, "") else "无"
+    return _text(value) or "无"
 
 
 def node_group(p, ins):
@@ -251,7 +301,7 @@ def node_group(p, ins):
         by.setdefault(k, []).append(r)
         if key == "topic" and r.get("topic_name"):
             label[k] = f"{k} {r['topic_name']}"
-    names = sorted(by, key=(lambda n: (_num(n) is None, _num(n) or 0, n)) if kind == "num" else str)
+    names = sorted(by, key=(lambda n: (_num(n) is None, _num(n) or 0, n)) if kind in ("num", "enum") else str)
     return [grp(v["type"], [{"name": label.get(n, n), "key": n, "items": by[n]} for n in names])]
 
 
@@ -503,18 +553,37 @@ def evaluate(g, make=False):
     return {"values": values, "errors": errors, "outputs": outputs}
 
 
+def _values(t, items):
+    """The values of each enum field in the records, [[value, label]] sorted: the choices of
+    a filter condition fed by them."""
+    out = {}
+    for key, _, kind in FIELDS[t]:
+        if kind != "enum":
+            continue
+        seen = {}
+        for r in items:
+            v = _text(r.get(key))
+            if v and v not in seen:
+                seen[v] = (f"{v} {r['topic_name']}" if key == "topic" and r.get("topic_name") else
+                           f"{v} 月" if key == "season" else BOOKS.get(v, v) if key == "book" else v)
+        out[key] = [[v, seen[v]] for v in sorted(seen, key=lambda n: (_num(n) is None, _num(n) or 0, n))]
+    return out
+
+
 def _summary(v, limit=40):
-    """What the page shows for one value: counts and the first rows."""
+    """What the page shows for one value: counts, the first rows and the enum fields' values."""
     if v is None:
         return None
     marks = lambda items: sum(r.get("marks") or 0 for r in items)
     if v["shape"] == "list":
         rows = [[r["label"], r.get("marks") if v["type"] == "q" else ""] for r in v["items"][:limit]]
         return {"shape": "list", "type": v["type"], "count": len(v["items"]),
-                "marks": marks(v["items"]) if v["type"] == "q" else None, "rows": rows}
+                "marks": marks(v["items"]) if v["type"] == "q" else None, "rows": rows,
+                "values": _values(v["type"], v["items"])}
     total = sum(len(x["items"]) for x in v["groups"])
     return {"shape": "group", "type": v["type"], "count": len(v["groups"]), "items": total,
-            "rows": [[x["name"], len(x["items"])] for x in v["groups"][:limit]]}
+            "rows": [[x["name"], len(x["items"])] for x in v["groups"][:limit]],
+            "values": _values(v["type"], [r for x in v["groups"] for r in x["items"]])}
 
 
 def _size(path):
@@ -552,10 +621,23 @@ def _path(fid):
     return os.path.join(paths.FLOWS, fid + ".json")
 
 
+def _upgrade(c):
+    """A filter condition saved as {field, op, value} (op = ≠ ≥ ≤ 包含), in its kind's shape;
+    an incomplete one stays, empty, for the editor."""
+    kind = next((k for f in FIELDS.values() for key, _, k in f if key == c.get("field")), None)
+    if not kind or ("op" not in c and kind != "bool") or (kind == "enum" and c.get("op") in ("=", "≠")):
+        return c
+    return cond(c, kind) or {"field": c["field"], **({"min": "", "max": ""} if kind == "num" else
+                                                    {"op": "=", "value": ""} if kind == "enum" else {"value": ""})}
+
+
 def _read(path, builtin):
     with open(path, encoding="utf-8") as f:
         g = json.load(f)
     g["builtin"] = builtin
+    for n in g.get("nodes", []):
+        if n.get("type") == "filter":
+            n.setdefault("params", {})["conds"] = [_upgrade(c) for c in n["params"].get("conds") or []]
     return g
 
 
@@ -563,14 +645,18 @@ def summary(g):
     """One line for the flow list and the overview: the book, the conditions and the limit,
     joined by ，(试卷 = 1，年份 ≥ 2021，每组 2 题)."""
     labels = {k: label for f in FIELDS.values() for k, label, _ in f}
+    kinds = {k: kind for f in FIELDS.values() for k, _, kind in f}
     parts, grouped = [], False
     for n in g.get("nodes", []):
         p = n.get("params") or {}
         if n["type"] == "book":
             parts.append("教材：" + BOOKS.get(p.get("book"), p.get("book", "")))
         elif n["type"] == "filter":
-            parts += [f"{labels.get(c['field'], c['field'])} {c['op']} {c['value']}" for c in p.get("conds", [])
-                      if c.get("field") and str(c.get("value", "")).strip()]
+            for c in p.get("conds", []):
+                kind = kinds.get(c.get("field"))
+                c = cond(c, kind) if kind else None
+                if c:
+                    parts.append(cond_text(c, kind, labels[c["field"]]))
         elif n["type"] in ("group", "join"):
             grouped = True
         elif n["type"] == "take":
@@ -708,5 +794,5 @@ def catalog():
     return {"nodes": {k: {"cat": v["cat"], "label": v["label"], "ins": [x[0] for x in v["ins"]],
                           "outs": [[x[0], x[2]] for x in v["outs"]]} for k, v in NODES.items()},
             "fields": {t: [[k, label, kind] for k, label, kind in f] for t, f in FIELDS.items()},
-            "ops": OPS, "exams": EXAMS,
+            "bool": BOOL, "exams": EXAMS,
             "books": [{"value": k, "label": v, "pdf": bool(textbook_pdf(k))} for k, v in BOOKS.items()]}

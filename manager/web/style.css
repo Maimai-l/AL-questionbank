@@ -183,8 +183,10 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .nd-p { padding: var(--el) var(--sub); border-top: 1px solid var(--color-border-subtle); color: var(--color-text-primary); line-height: 1.5; }
 .outs { flex: none; display: flex; flex-direction: column; gap: var(--el); padding: var(--pad); border-top: 1px solid var(--color-border-subtle); background: var(--color-bg-page); max-height: 40%; overflow-y: auto; }
 .fl-insp { width: 288px; flex: none; border-left: 1px solid var(--color-border-subtle); background: var(--color-bg-surface); padding: var(--pad); box-sizing: border-box; display: flex; flex-direction: column; gap: var(--sib); overflow-y: auto; }
-.cond { display: grid; grid-template-columns: 72px minmax(0, 1fr) 28px; grid-template-areas: "f f d" "o v ."; gap: var(--el); align-items: center; padding-bottom: var(--el); border-bottom: 1px solid var(--color-border-subtle); }
-.cond-f { grid-area: f; } .cond-d { grid-area: d; } .cond-o { grid-area: o; } .cond-v { grid-area: v; }
+.cond { display: grid; grid-template-columns: minmax(0, 1fr) 28px; grid-template-areas: "f d" "v ."; gap: var(--el); align-items: center; padding-bottom: var(--el); border-bottom: 1px solid var(--color-border-subtle); }
+.cond-f { grid-area: f; } .cond-d { grid-area: d; } .cond-v { grid-area: v; min-width: 0; }
+.cond-e { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: var(--el); align-items: center; }
+.cond-op { font-size: 13px; color: var(--color-text-secondary); }
 .sum { display: flex; flex-direction: column; gap: var(--sub); padding-top: var(--sib); border-top: 1px solid var(--color-border-subtle); }
 .res { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--el) var(--sub); font-size: 12px; color: var(--color-text-secondary); }
 .res b { font-weight: 400; color: var(--color-text-primary); text-align: right; font-variant-numeric: tabular-nums; }

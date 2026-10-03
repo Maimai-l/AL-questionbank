@@ -26,13 +26,13 @@
      },
      {
       "field": "position",
-      "op": "≥",
-      "value": "0.67"
+      "min": "0.67",
+      "max": ""
      },
      {
       "field": "marks",
-      "op": "≥",
-      "value": "8"
+      "min": "8",
+      "max": ""
      }
     ]
    }

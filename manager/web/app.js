@@ -991,6 +991,25 @@
   const portY = (n, i) => n.y + HEAD + ROW * i + ROW / 2;
   const nodeRows = (cat, n) => Math.max(cat.nodes[n.type].ins.length, cat.nodes[n.type].outs.length);
   const fieldLabel = (cat, t, k) => ((cat.fields[t] || []).find((f) => f[0] === k) || [k, k])[1];
+  const fieldKind = (cat, t, k) => ((cat.fields[t] || []).find((f) => f[0] === k) || [])[2];
+  // a filter condition by the field's kind (manager/flow.py FIELDS): num a range, enum one value,
+  // text 包含, bool one of the two labels (含图 / 不含图)
+  function blankCond(cat, t, field) {
+    const k = fieldKind(cat, t, field);
+    return k === 'num' ? { field, min: '', max: '' } : k === 'enum' ? { field, op: '=', value: '' } : k === 'bool' ? { field, value: true } : { field, value: '' };
+  }
+  function condText(cat, t, c) {
+    const k = fieldKind(cat, t, c.field), L = fieldLabel(cat, t, c.field), s = (v) => String(v ?? '').trim();
+    if (k === 'bool') return (cat.bool[c.field] || [L, '非' + L])[c.value === false ? 1 : 0];
+    if (k === 'num') {
+      const lo = s(c.min), hi = s(c.max);
+      if (lo && hi) return Number(lo) === Number(hi) ? `${L} = ${lo}` : `${L} ${lo}–${hi}`;
+      return lo ? `${L} ≥ ${lo}` : hi ? `${L} ≤ ${hi}` : null;
+    }
+    if (!s(c.value)) return null;
+    if (k === 'enum') return `${L} ${c.op === '≠' ? '≠' : '='} ${s(c.value)}${c.field === 'season' ? ' 月' : ''}`;
+    return `${L} 包含 ${s(c.value)}`;
+  }
 
   function paramText(cat, n, inType, inShape, templates, sets, flowName) {
     const p = n.params || {};
@@ -999,7 +1018,7 @@
       case 'bank': return `考试：${p.exam === '*' ? '全部' : p.exam || '9709'}`;
       case 'book': return `教材：${((cat.books.find((b) => b.value === p.book) || {}).label) || p.book || ''}`;
       case 'set': return `题组：${((sets.find((s) => s.id === p.set) || {}).name) || ''}`;
-      case 'filter': return (p.conds || []).filter((c) => c.field && String(c.value || '').trim()).map((c) => `${F(c.field)} ${c.op} ${c.value}`);
+      case 'filter': return (p.conds || []).map((c) => c.field && condText(cat, inType || 'q', c)).filter(Boolean);
       case 'sort': return p.by === 'random' ? ['依据：随机', `种子：${p.seed ?? 1}`] : `依据：${F(p.field || 'marks')}${p.desc ? '降序' : '升序'}`;
       case 'take': return `${inShape === 'group' ? '每组条数' : '条数'}：${p.n ?? 10}`;
       case 'group': return `依据：${F(p.field || 'topic')}`;
@@ -1111,6 +1130,8 @@
     const [running, setRunning] = useState(false);
     const [sel, setSel] = useState(null);         // {node} or {link: index}
     const [drag, setDrag] = useState(null);       // a wire being drawn: {from, x, y}
+    const [dialog, setDialog] = useState(null);   // 'rename' | 'delete'
+    const [name, setName] = useState('');
     const box = useRef(null);
     const nid = useRef(1);
 
@@ -1122,7 +1143,7 @@
       if (!g || g.builtin) return undefined;
       const text = JSON.stringify(g);
       if (text === saved) return undefined;
-      const save = () => { clearTimeout(tm); pending.current = null; send('PUT', '/api/flows/' + g.id, g).then(() => setSaved(text)).catch((e) => toast('error', e.message)); };
+      const save = () => { clearTimeout(tm); pending.current = null; return send('PUT', '/api/flows/' + g.id, g).then(() => setSaved(text)).catch((e) => toast('error', e.message)); };
       const tm = setTimeout(save, 800);
       pending.current = save;
       return () => { clearTimeout(tm); };
@@ -1173,7 +1194,7 @@
       const x = (el ? el.scrollLeft : 0) + 32 + (g.nodes.length % 4) * 24;
       const y = (el ? el.scrollTop : 0) + 32 + (g.nodes.length % 4) * 24;
       const id = 'n' + nid.current++;
-      const params = { bank: { exam: '9709' }, book: { book: '9709_p1' }, filter: { conds: [{ field: 'year', op: '≥', value: '' }] },
+      const params = { bank: { exam: '9709' }, book: { book: '9709_p1' }, filter: { conds: [{ field: 'year', min: '', max: '' }] },
         sort: { by: 'field', field: 'marks', desc: true }, take: { n: 10 }, group: { field: 'topic' },
         join: { left: 'topic', right: 'topic' }, export: { template: 'default' }, chapters: { book: '*' },
         set: { set: sets[0] ? sets[0].id : '' } }[type] || {};
@@ -1228,6 +1249,12 @@
 
     const outputs = (run && run.outputs) || [];
     const failed = run && failure(run, (id) => byId[id] && cat.nodes[byId[id].type].label);
+    const overview = '#/templates/flows/' + g.id;
+    // 完成: the change still waiting is saved before the overview opens
+    const done = () => Promise.resolve(pending.current && pending.current()).then(() => { location.hash = overview; });
+    const copy = () => send('POST', '/api/flows', { ...g, name: g.name + ' 副本', builtin: undefined, summary: undefined })
+      .then((n) => { location.hash = '#/flows/' + n.id; }).catch((e) => toast('error', e.message));
+    const saveState = g.builtin ? null : JSON.stringify(g) === saved ? '已保存' : '正在保存';
     return h('div', { className: 'dm-row flowpage' + (g.builtin ? ' is-locked' : '') },
       h('aside', { className: 'fl-pal' },
         ['来源', '处理', '输出'].map((c) => h(React.Fragment, { key: c },
@@ -1237,10 +1264,17 @@
       h('main', { className: 'fl-main' },
         h('div', { className: 'fl-bar' },
           failed ? h('div', { className: 'dm-grow' }, h(E.Banner, { type: 'error', title: failed }))
-            : h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
-              h('span', { key: 't' }, run.ran), h('span', { key: 'n' }, `${outputs.length} 项输出`)] : null),
+            : h('div', { className: 'dm-meta', style: { flexGrow: 1 } },
+              saveState ? h('span', null, saveState) : null,
+              run ? h('span', null, `${run.ran} 运行，${outputs.length} 项输出`) : null),
           act('i-copy', '复制 JSON', () => copyFlow(g, toast)),
-          h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程')),
+          h(MoreMenu, { label: '更多操作', items: [
+            g.builtin ? null : { label: '重命名', onClick: () => { setName(g.name); setDialog('rename'); } },
+            { label: '复制流程', onClick: copy },
+            { label: '下载 JSON', onClick: () => saveFlow(g) },
+            g.builtin ? null : { label: '删除流程', danger: true, onClick: () => setDialog('delete') }] }),
+          h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程'),
+          h(E.Button, { variant: 'secondary', size: 'sm', onClick: done }, '完成')),
         h('div', { className: 'fl', ref: box, onPointerDown: (e) => {
           if (e.target !== box.current && !e.target.classList.contains('fl-in') && e.target.tagName !== 'svg') return;
           // dragging the empty canvas pans it (a touch screen has no other way to scroll it)
@@ -1271,12 +1305,25 @@
           : sel && sel.node && byId[sel.node]
           ? h(Inspector, { cat, n: byId[sel.node], inV: inOf(sel.node, 0), in2: inOf(sel.node, 1), out: outOf(sel.node, 0),
             error: errors[sel.node], update, templates, sets, onDelete: del, locked: g.builtin, outputs: outputs.filter((o) => o.node === sel.node) })
-          : h(FlowProps, { g, setG, onDeleted: () => { location.hash = '#/templates/flows'; } , toast })));
+          : h(E.EmptyState, { icon: 'i-grid', title: '未选择节点' })),
+      dialog === 'rename' ? h(E.Dialog, { open: true, title: '重命名流程', confirmLabel: '重命名', onClose: () => setDialog(null),
+        onConfirm: () => { if (name.trim()) setG({ ...g, name: name.trim() }); } },
+      h(E.TextField, { label: '名称', size: 'sm', value: name, autoFocus: true, onChange: (e) => setName(e.target.value) })) : null,
+      dialog === 'delete' ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDialog(null),
+        onConfirm: () => { pending.current = null; send('DELETE', '/api/flows/' + g.id).then(() => { location.hash = '#/templates/flows'; }).catch((e) => toast('error', e.message)); } },
+      h('p', null, `删除后 ${g.name} 将无法恢复。`)) : null);
   }
 
   /** A flow as JSON, as it is saved: its name, nodes and links. */
   const flowJson = (g) => JSON.stringify({ name: g.name,
     nodes: g.nodes.map(({ id, type, x, y, params }) => ({ id, type, x, y, params })), links: g.links }, null, 1);
+  const saveFlow = (g) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([flowJson(g)], { type: 'application/json' }));
+    a.download = g.name + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
   const copyFlow = (g, toast) => {
     try {
       navigator.clipboard.writeText(flowJson(g)).then(() => toast('success', 'JSON 已复制'), () => toast('error', 'JSON 无法复制'));
@@ -1301,19 +1348,6 @@
           () => download(`/api/flows/${fid}/out/${o.file}?name=${encodeURIComponent(o.name)}`)))));
   }
 
-  function FlowProps({ g, setG, onDeleted, toast }) {
-    const [deleting, setDeleting] = useState(false);
-    return h(React.Fragment, null,
-      h('div', { className: 'panel-row' },
-        h('h2', { className: 'fs-lead panel-title' }, '流程'),
-        g.builtin ? null : act('i-trash', '删除流程', () => setDeleting(true))),
-      g.builtin ? h('p', { className: 'lock-note' }, '内置流程不可修改，在流程列表中复制流程后可修改副本') : null,
-      h(E.TextField, { label: '名称', size: 'sm', value: g.name, disabled: g.builtin, onChange: (e) => setG({ ...g, name: e.target.value }) }),
-      deleting ? h(E.Dialog, { open: true, danger: true, title: '删除流程', confirmLabel: '删除流程', onClose: () => setDeleting(false),
-        onConfirm: () => send('DELETE', '/api/flows/' + g.id).then(onDeleted).catch((e) => toast('error', e.message)) },
-      h('p', null, `删除后 ${g.name} 将无法恢复。`)) : null);
-  }
-
   function Inspector({ cat, n, inV, in2, out, error, update, templates, sets, onDelete, outputs, locked }) {
     const spec = cat.nodes[n.type];
     const p = n.params || {};
@@ -1329,16 +1363,34 @@
     if (n.type === 'set') body = sel('题组', p.set || '', sets.map((s) => ({ value: s.id, label: s.name })), (v) => update(n.id, { set: v }));
     if (n.type === 'filter') {
       const conds = p.conds || [];
-      const put = (i, patch) => update(n.id, { conds: conds.map((c, j) => (j === i ? { ...c, ...patch } : c)) });
+      const put = (i, c) => update(n.id, { conds: conds.map((x, j) => (j === i ? c : x)) });
+      const vals = (inV && inV.values) || {};
+      const row = (c, i) => {
+        const k = fieldKind(cat, t, c.field);
+        const tf = (label, key) => h(E.TextField, { 'aria-label': label, placeholder: label, size: 'sm', value: String(c[key] ?? ''), onChange: (e) => put(i, { ...c, [key]: e.target.value }) });
+        if (k === 'num') return h('div', { className: 'years' }, tf('最小', 'min'), h('span', null, '至'), tf('最大', 'max'));
+        if (k === 'bool') {
+          const [yes, no] = cat.bool[c.field] || ['是', '否'];
+          return h(E.SegmentedControl, { ariaLabel: fieldLabel(cat, t, c.field), value: c.value === false ? 'no' : 'yes', onChange: (v) => put(i, { ...c, value: v === 'yes' }),
+            options: [{ value: 'yes', label: yes }, { value: 'no', label: no }] });
+        }
+        if (k === 'enum') {
+          const opts = (vals[c.field] || []).map(([v, label]) => ({ value: v, label }));
+          if (c.value && !opts.some((o) => o.value === String(c.value))) opts.unshift({ value: String(c.value), label: String(c.value) });
+          return h('div', { className: 'cond-e' },
+            h(E.Select, { ariaLabel: '是否', size: 'sm', value: c.op === '≠' ? '≠' : '=', options: [{ value: '=', label: '是' }, { value: '≠', label: '不是' }], onChange: (v) => put(i, { ...c, op: v }) }),
+            h(E.Select, { ariaLabel: fieldLabel(cat, t, c.field), placeholder: '未选择', size: 'sm', value: String(c.value ?? ''), options: opts, onChange: (v) => put(i, { ...c, value: v }) }));
+        }
+        return h('div', { className: 'cond-e' }, h('span', { className: 'cond-op' }, '包含'), tf('文字', 'value'));
+      };
       body = h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
         h('div', { className: 'panel-row' },
           h('span', { className: 'fs-small panel-title' }, '条件'),
-          act('i-plus', '添加条件', () => update(n.id, { conds: conds.concat([{ field: fields[0] ? fields[0].value : 'year', op: '=', value: '' }]) }))),
+          act('i-plus', '添加条件', () => update(n.id, { conds: conds.concat([blankCond(cat, t, fields[0] ? fields[0].value : 'year')]) }))),
         conds.map((c, i) => h('div', { key: i, className: 'cond' },
-          h('div', { className: 'cond-f' }, h(E.Select, { ariaLabel: '字段', size: 'sm', value: c.field, options: fields, onChange: (v) => put(i, { field: v }) })),
+          h('div', { className: 'cond-f' }, h(E.Select, { ariaLabel: '字段', size: 'sm', value: c.field, options: fields, onChange: (v) => put(i, blankCond(cat, t, v)) })),
           h('div', { className: 'cond-d' }, h(E.IconButton, { icon: 'i-close', label: '删除条件', variant: 'ghost', size: 'sm', onClick: () => update(n.id, { conds: conds.filter((_, j) => j !== i) }) })),
-          h('div', { className: 'cond-o' }, h(E.Select, { ariaLabel: '运算符', size: 'sm', value: c.op, options: cat.ops.map((o) => ({ value: o, label: o })), onChange: (v) => put(i, { op: v }) })),
-          h('div', { className: 'cond-v' }, h(E.TextField, { 'aria-label': '值', size: 'sm', value: String(c.value ?? ''), onChange: (e) => put(i, { value: e.target.value }) })))));
+          h('div', { className: 'cond-v' }, row(c, i)))));
     }
     if (n.type === 'sort') {
       body = h(React.Fragment, null,
