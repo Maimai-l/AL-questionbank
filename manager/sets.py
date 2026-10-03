@@ -94,15 +94,16 @@ def export(s):
 
 
 def parse_import(data):
-    """Question ids from an alevel-question-set/v1 document (or a bare list)."""
+    """Question ids from an alevel-question-set/v1 document (or a bare list). The set it
+    makes is named 导入 and the date (docs/ui-text.md 3.2), not by the document's title."""
     if isinstance(data, list):
-        return [str(q) for q in data], None
+        return [str(q) for q in data]
     if data.get("schema") != SCHEMA:
         raise ValueError("文件不是 alevel-question-set/v1 格式")
     ids = []
     for item in data.get("items", []):
         ids += [str(q) for q in item.get("question_ids", [])]
-    return ids, data.get("title")
+    return ids
 
 
 def import_name():

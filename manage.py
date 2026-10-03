@@ -4,7 +4,7 @@
     python3 manage.py                 起数据管理页并打开浏览器,局域网可访问
     python3 manage.py --port 8910 --no-open
     python3 manage.py window          在独立窗口中打开(pywebview);manage.command 可在访达中双击
-    python3 manage.py auto            题库更新后运行自动流程(按教材章节分组);题库没变时不运行
+    python3 manage.py auto            题库更新后运行自动流程(全部 章节包,写入 exports/chapters/);题库没变时不运行
     python3 manage.py auto --force    不论题库是否更新都运行
 
 sync.py pull 取回新数据后会运行 auto;数据管理页运行期间每分钟检查一次题库是否更新。
@@ -66,7 +66,7 @@ class Bridge:
 TITLEBAR = 28                            # macOS title bar height in points: the page leaves it free for the window buttons
 
 
-_monitor = None
+_monitor = None                          # the event monitor, kept for the life of the window
 
 
 def _title_bar_drag(w):
@@ -174,10 +174,8 @@ def window(port):
 
 def auto(force):
     from manager import flow
-    r = flow.auto_run(force=force, log=print)
-    if r is None:
-        print("题库没有更新,自动流程不需要运行")
-    elif any(x["errors"] for x in r.values()):
+    r = flow.auto_run(force=force, log=print)     # it says why when nothing ran
+    if r is not None and any(x["errors"] for x in r.values()):
         sys.exit(1)
 
 

@@ -247,6 +247,28 @@ class Board(Api):
                             {"settings": {"format": "zip", "answers": "written_pdf"}, "body": ""})
         self.assertTrue(any("批注" in n for n in zipfile.ZipFile(io.BytesIO(await r.read())).namelist()))
 
+    async def test_whole_paper_labels_follow_layout(self):
+        """A whole paper is the original PDF only at 宽松; at another step the board's page
+        labels come from the layout, one per page."""
+        import pymupdf
+        from manager import bank, paper, settings
+        from manager.server import HUB
+        rows = sorted((r for r in bank.rows("9709") if r["code"] == "9709/32/O/N/24"), key=lambda r: int(r["q"]))
+        sid = await self.make_set([r["id"] for r in rows])
+        self.assertTrue(paper.original_pdf(paper._rows([r["id"] for r in rows])))
+        before = settings.load()["space"]
+        try:
+            for space in (0, 3):
+                settings.save({"space": space})
+                bid = (await self.json("POST", f"/api/sets/{sid}/board"))["id"]
+                meta = self.client.app[HUB].board_meta(bid)
+                with pymupdf.open(os.path.join(paths.BOARDS, "papers", bid + ".pdf")) as d:
+                    self.assertEqual(len(meta["data"]["labels"]), d.page_count, space)
+                if space == 0:                       # laid out again: the last page ends with the last question
+                    self.assertTrue(meta["data"]["labels"][-1].endswith(f"Q{rows[-1]['q']}"), meta["data"]["labels"])
+        finally:
+            settings.save({"space": before})
+
 
 @NEED
 class TemplatesPage(Api):
@@ -321,6 +343,12 @@ class FlowsPage(Api):
         await self.call("GET", f"/api/flows/{g['id']}/out/..%2Fx", status=404)
         await self.json("DELETE", f"/api/flows/{g['id']}")
         await self.call("GET", f"/api/flows/{g['id']}", status=404)
+
+    def test_season_is_written_as_the_papers_write_it(self):
+        from manager import flow
+        g = {"nodes": [{"id": "f", "type": "filter", "params": {"conds": [{"field": "season", "op": "=", "value": "6"}]}}]}
+        self.assertIn("考季 = M/J", flow.summary(g))
+        self.assertNotIn("月", flow.summary(g))
 
     async def test_builtin_is_copied_not_changed(self):
         flows = await self.json("GET", "/api/flows")

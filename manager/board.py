@@ -3,7 +3,7 @@
 A board (stored in paths.BOARDS) is white-board's document board: the pages of a question paper laid out top
 to bottom (manager/whiteboard/docs.py), ink stored as vectors by inksync and synced
 between the Mac and the iPad. One board per version of a set's question paper: its
-id is the paper's cache name (<set id>-<key>, manager/paper.py), and the paper is
+id is the paper's cache name (<set id>-s<版面>-<key>, manager/paper.py), and the paper is
 copied next to the board when the board is made, so later changes to the set leave
 the board and its pages as they were.
 
@@ -88,13 +88,14 @@ def _labels(s, path):
         for code, q in pairs:
             by.setdefault(code, []).append(f"Q{q}")
         return " ".join(f"{c} {' '.join(dict.fromkeys(qs))}" for c, qs in by.items())
-    if paper.original_pdf(rows):
+    space = settings.load()["space"]
+    if space == paper.SPACE_DEFAULT and paper.original_pdf(rows):   # as paper.build: the original only at 宽松
         by = {}
         for r in rows:
             for n in json.loads(r["qp_pages"] or "[]"):
                 by.setdefault(n - 1, []).append((bank.paper_code(r), r["q"]))
         return [label(by.get(i, [])) for i in range(paper.page_count(path))]
-    return [label([(it[4], it[5]) for it in items]) for items in paper.layout(rows, settings.load()["space"])]
+    return [label([(it[4], it[5]) for it in items]) for items in paper.layout(rows, space)]
 
 
 async def open_for(hub, s):

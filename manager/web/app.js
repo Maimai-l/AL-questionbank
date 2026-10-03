@@ -1,5 +1,5 @@
 /* 题库数据管理 (docs/data-manager.md). React without a build step: h = createElement.
-   Pages: #/query, #/sets/<id>[/board/<board>], #/templates/<id>, #/templates/flows[/<id>], #/flows/<id>, #/settings. */
+   Pages: #/query, #/search, #/sets/<id>[/board/<board>], #/templates/<id>, #/templates/flows[/<id>], #/flows/<id>, #/settings. */
 (function () {
   'use strict';
   const { useState, useEffect, useMemo, useRef, useCallback } = React;
@@ -412,7 +412,7 @@
       h('aside', { className: 'dm-cond', 'aria-label': '查询条件' },
         h(E.Select, { label: '考试', options: exams, value: exam, onChange: changeExam }),
         h(Facet, { title: '试卷', items: compItems, picked: f.components, onChange: setComponents, grid: meta.components.length > 2 }),
-        h('section', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
+        h('section', { style: { display: 'flex', flexDirection: 'column', gap: 'var(--el)' } },
           h('div', { className: 'fx-head' }, h('span', { className: 'fs-small', style: { fontFamily: 'var(--font-medium)' } }, '年份')),
           h('div', { className: 'years' },
             h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: years, value: String(f.from), onChange: (v) => setF({ ...f, from: +v }) }),
@@ -1292,7 +1292,7 @@
       return lo ? `${L} ≥ ${lo}` : hi ? `${L} ≤ ${hi}` : null;
     }
     if (!s(c.value)) return null;
-    if (k === 'enum') return `${L} ${c.op === '≠' ? '≠' : '='} ${s(c.value)}${c.field === 'season' ? ' 月' : ''}`;
+    if (k === 'enum') return `${L} ${c.op === '≠' ? '≠' : '='} ${c.field === 'season' ? SEASON[s(c.value)] || s(c.value) : s(c.value)}`;
     return `${L} 包含 ${s(c.value)}`;
   }
 
@@ -1585,7 +1585,7 @@
               h('h2', { className: 'fs-lead panel-title' }, '连线'),
               g.builtin ? null : act('i-trash', '删除连线', del)),
             h('div', { className: 'dm-meta' },
-              h('span', null, cat.nodes[byId[g.links[sel.link].from[0]].type].label), h('span', null, '→'),
+              h('span', null, cat.nodes[byId[g.links[sel.link].from[0]].type].label), h(E.Icon, { name: 'i-arrow-r', size: 'sm' }),
               h('span', null, cat.nodes[byId[g.links[sel.link].to[0]].type].label)))
           : sel && sel.node && byId[sel.node]
           ? h(Inspector, { cat, n: byId[sel.node], inV: inOf(sel.node, 0), in2: inOf(sel.node, 1), out: outOf(sel.node, 0),
@@ -1668,7 +1668,7 @@
         }
         return h('div', { className: 'cond-e' }, h('span', { className: 'cond-op' }, '包含'), tf('文字', 'value'));
       };
-      body = h('div', { style: { display: 'flex', flexDirection: 'column', gap: 8 } },
+      body = h('div', { style: { display: 'flex', flexDirection: 'column', gap: 'var(--el)' } },
         h('div', { className: 'panel-row' },
           h('span', { className: 'fs-small panel-title' }, '条件'),
           act('i-plus', '添加条件', () => update(n.id, { conds: conds.concat([blankCond(cat, t, fields[0] ? fields[0].value : 'year')]) }))),

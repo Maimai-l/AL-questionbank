@@ -1,11 +1,13 @@
 """The data manager's server (docs/data-manager.md). Read-only on the bank; question
-sets and later outputs live in paths.WORK.
+sets, templates, flows, boards and outputs live in paths.WORK.
 
     python3 manage.py [--port 8910]          in the browser
     python3 manage.py window [--port 8910]   in a window of its own (pywebview)
 
-  /                      the page (manager/web/)
-  /ds/                   ENDFIELD React: React, component bundle, tokens, fonts
+  /                      the page (manager/web/index.html)
+  /static/               the page's scripts and styles (manager/web/); /static/ds/: ENDFIELD React,
+                         component bundle, tokens, fonts
+  /board/                the writing page's own files (manager/web/board/)
   /vendor/               KaTeX (assets/vendor/)
   /q/<imgdir>/<file>     question crops from data/
   /paper/<qid>           the original question paper PDF, opened at the question's page
@@ -21,7 +23,7 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>/paper   {pages}: the practice paper (F4), built on demand
   /api/sets/<id>/paper/<n>.png  a page of it
   /doc/<id>/scheme, /doc/<id>/explanation   reading documents (F6); ?download=1 to save
-  /api/settings          GET, PUT {footer_*, theme}
+  /api/settings          GET, PUT {footer_*, theme, space}
   /api/settings/preview/<key>[/<n>.png]    the settings page's preview: footer options and 版面 ("1013")
   /api/templates         GET list, POST create {name, settings, body}
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
@@ -29,12 +31,14 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>/output       POST the same: one PDF or a ZIP, by the template's format (the set page's 输出)
   /api/sets/<id>/board   POST: open (make) the writing board for the set's question paper (F5)
   /api/sets/<id>/boards  GET the set's boards with their stroke counts
+  /api/boards/current    the board the Mac opened last (the iPad follows it)
   /api/boards/<id>/page/<n>?w=   a page of a board's paper
   /api/boards/<id>/export     POST {name, scheme, explanation}: the paper with the ink (PDF, or ZIP)
   /api/flows            GET list, POST save as new {graph}; /api/flows/catalog: node types and fields (F9)
   /api/flows/<id>        GET, PUT save, DELETE (built-in graphs are read-only: saving makes a copy)
   /api/flows/eval        POST {graph}: every port's count and the node details, no outputs
   /api/flows/<id>/run    POST {graph}: the same, and the output nodes make their files and sets
+  /api/flows/<id>/last   the last run: {ran, errors, outputs}
   /api/flows/<id>/out/<file>?name=   a file a run made
   /write/<board id>      the writing page (white-board's toolbar and pen tray, manager/web/board/); makes it current
   /ipad                  the iPad shell's page: the writing page following the current board, or a wait
@@ -72,19 +76,9 @@ IMG_DIRS = {"img9709", "img9231", "img9618", "img_adm", "img_tara",
 
 
 def _set_view(s):
-    """A set with the numbers the page shows next to its name."""
-    rows = {}
-    if s["items"]:
-        from lib import db
-        con = db.connect()
-        ids = s["items"]
-        for i in range(0, len(ids), 500):
-            chunk = ids[i:i + 500]
-            for r in con.execute(f"SELECT id, marks FROM questions WHERE id IN "
-                                 f"({','.join('?' * len(chunk))})", chunk):
-                rows[r["id"]] = r["marks"] or 0
-    return {**s, "count": len(s["items"]), "marks": sum(rows.values()),
-            "missing": [q for q in s["items"] if q not in rows], "docs": docs.counts(s)}
+    """A set with what the page shows next to its name: its question count, and which
+    reading documents it has."""
+    return {**s, "count": len(s["items"]), "docs": docs.counts(s)}
 
 
 async def meta(request):
@@ -163,7 +157,7 @@ async def set_export(request):
 
 async def set_import(request):
     try:
-        ids, title = sets.parse_import(await request.json())
+        ids = sets.parse_import(await request.json())
     except (ValueError, AttributeError) as e:
         raise web.HTTPBadRequest(text=str(e) or "文件无法读取")
     known = bank.exists(ids)

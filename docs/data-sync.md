@@ -49,7 +49,7 @@ python3 sync.py push -m "说明"  # 提交 data/ 的改动并覆盖远程 data �
 ## 修改数据后的标准步骤(云端)
 
 ```bash
-python3 sync.py pull
+python3 sync.py pull --no-auto              # 云端不写 exports/,不运行自动流程
 # …运行流水线,写入 data/caie.db 或题图…
 python3 pipeline/export/build_site.py       # 修改数据库后必须执行,否则页面读到旧数据
 python3 sync.py push -m "重裁 9709 题图"

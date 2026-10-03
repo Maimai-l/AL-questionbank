@@ -31,7 +31,8 @@
 ## 测试
 
 - 修改 `manager/` 或 `manage.py` 后运行 `python3 -m unittest discover tests`,全部通过后再提交。
-  新增页面或流程时在 `tests/test_manager.py`(接口)与 `tests/test_pages.py`(浏览器)中补上对应的流程。
+  新增页面或流程时在 `tests/test_manager.py`(接口)与 `tests/test_pages.py`(浏览器)中补上对应的流程;
+  `manage.py` 的窗口代码对应 `tests/test_window.py`。发布记录在 `docs/releases/`。
 
 ## 协作约定
 

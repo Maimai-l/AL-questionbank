@@ -6,8 +6,9 @@ Records are questions ("q"), chapters ("c") or files ("f", the chapter PDFs). A 
 works on a list, fed with groups, works on each group and keeps the groups.
 
 evaluate() works out every node's outputs without side effects (the counts by the ports and
-the details beside the canvas); run() also makes what the output nodes make: ZIPs, question
-practice papers (files under paths.FLOWS/out/<graph id>/) and question sets. Random order is seeded:
+the details beside the canvas); evaluate(make=True), through view(), also makes what the
+output nodes make: ZIPs, practice papers (files under paths.FLOWS/out/<graph id>/), question
+sets and chapter packages (exports/chapters/). Random order is seeded:
 the same graph, bank and seed give the same result.
 """
 import hashlib
@@ -27,6 +28,7 @@ from manager import bank, export, paper, sets, templates
 
 BUILTIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flows")
 OUT = os.path.join(paths.FLOWS, "out")
+SEASON = {"3": "F/M", "6": "M/J", "11": "O/N"}     # 考季 as the papers write it (docs/ui-text.md)
 EXAMS = ["9709", "9231", "9618", "TMUA", "TSA", "BMAT"]
 BOOKS = {
     "9709_p1": "9709 Pure Mathematics 1", "9709_p23": "9709 Pure Mathematics 2 & 3",
@@ -209,7 +211,7 @@ def cond_text(c, kind, label):
             return f"{label} = {lo}" if _num(lo) == _num(hi) else f"{label} {lo}–{hi}"
         return f"{label} ≥ {lo}" if lo else f"{label} ≤ {hi}"
     if kind == "enum":
-        value = c["value"] + (" 月" if c["field"] == "season" else "")
+        value = SEASON.get(c["value"], c["value"]) if c["field"] == "season" else c["value"]
         return f"{label} {c['op']} {value}"
     return f"{label} 包含 {c['value']}"
 
@@ -413,7 +415,7 @@ def out_export(g, node, ins, outdir):
     return [{"node": node["id"], "kind": "zip", "name": name, "file": os.path.basename(path), "meta": meta}]
 
 
-# the names the built-in flows had before the naming rule (docs/ui-text.md §4.4): their sets
+# the names the built-in flows had before the naming rule (docs/ui-text.md §2.4): their sets
 # carry no flow id yet and are found by the old name
 FORMER = {"example-shuffle": "Paper 1 每主题随机 2 题", "example-hard": "Paper 3 后段高分题"}
 
@@ -565,7 +567,7 @@ def _values(t, items):
             v = _text(r.get(key))
             if v and v not in seen:
                 seen[v] = (f"{v} {r['topic_name']}" if key == "topic" and r.get("topic_name") else
-                           f"{v} 月" if key == "season" else BOOKS.get(v, v) if key == "book" else v)
+                           SEASON.get(v, v) if key == "season" else BOOKS.get(v, v) if key == "book" else v)
         out[key] = [[v, seen[v]] for v in sorted(seen, key=lambda n: (_num(n) is None, _num(n) or 0, n))]
     return out
 
@@ -574,12 +576,9 @@ def _summary(v, limit=40):
     """What the page shows for one value: counts, the first rows and the enum fields' values."""
     if v is None:
         return None
-    marks = lambda items: sum(r.get("marks") or 0 for r in items)
     if v["shape"] == "list":
-        rows = [[r["label"], r.get("marks") if v["type"] == "q" else ""] for r in v["items"][:limit]]
         return {"shape": "list", "type": v["type"], "count": len(v["items"]),
-                "marks": marks(v["items"]) if v["type"] == "q" else None, "rows": rows,
-                "values": _values(v["type"], v["items"])}
+                "rows": [[r["label"]] for r in v["items"][:limit]], "values": _values(v["type"], v["items"])}
     total = sum(len(x["items"]) for x in v["groups"])
     return {"shape": "group", "type": v["type"], "count": len(v["groups"]), "items": total,
             "rows": [[x["name"], len(x["items"])] for x in v["groups"][:limit]],
@@ -757,6 +756,7 @@ def auto_run(force=False, log=lambda line: None):
     except (OSError, ValueError, AttributeError):
         last = None
     if last == version and not force:
+        log("题库没有更新，自动流程不需要运行")
         return None
     os.makedirs(OUT, exist_ok=True)
     lock = AUTO + ".lock"
@@ -764,6 +764,7 @@ def auto_run(force=False, log=lambda line: None):
         os.close(os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
     except FileExistsError:
         if time.time() - os.path.getmtime(lock) < 3600:
+            log("另一进程正在运行自动流程")
             return None
         os.utime(lock)                       # left by a run that died an hour ago or more
     try:
