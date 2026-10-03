@@ -10,7 +10,8 @@ out on A4 as a PDF, one layout for every exam, its answer space set by 版面 (S
   answer space). A question that does not fit in the rest of the page starts the next
   page; only a question taller than a whole page is cut: in its answer space where it
   can be, else at the whitest row near the page bottom; it continues overleaf.
-- CIE questions use the crop with the paper's answer space. Papers answered in a separate
+- CIE questions use the crop with the paper's answer space; the space is the rows the
+  question crop leaves out and the dotted lines between parts, found in the picture. Papers answered in a separate
   answer booklet (9709 June 2026 papers 12 and 32) have none: ruled lines are added
   8 pt below the question, two per mark at the original amount, 24 pt apart.
 - Admissions questions, answered by a letter, get blank space to work in instead.
@@ -39,7 +40,7 @@ LINES_GAP = 8.0                          # between a question and its added answ
 LINE = 24.0                              # ruled answer lines
 FOOT = 24.0                              # footer baseline above the paper's lower edge
 CACHE = os.path.join(paths.WORK, "papers")
-VERSION = 7                              # part of the cache key: raise when the layout changes
+VERSION = 9                              # part of the cache key: raise when the layout changes
 FONT = "china-s"
 LATIN = "helv"
 CJK = re.compile(r"([\u2e80-\u9fff\u3000-\u303f\uff00-\uffef]+)")
@@ -193,6 +194,50 @@ def _space_rows(q, a):
     return free
 
 
+def _ruled_rows(px):
+    """Which rows are written answer lines: stretches of dotted lines with only white
+    between them, from a little above the first line to the last. A question crop keeps
+    the lines between its parts (the crop runs on from part to part); only the space
+    after the last part is left out of it, so the lines must be found in the picture.
+    A dotted line is a band at most 3 rows thick (and a fainter row at either edge),
+    white above and below, of many short marks across at least half the width."""
+    h, w = px.shape
+    dark = px < 200
+    edges = np.diff(np.pad(dark.astype(np.int8), ((0, 0), (1, 1))), axis=1)
+    band = np.zeros(h, dtype=bool)
+    for y in np.flatnonzero((edges == 1).sum(1) >= max(40, w // 20)):
+        starts, ends = np.flatnonzero(edges[y] == 1), np.flatnonzero(edges[y] == -1)
+        band[y] = (ends - starts).max() <= 5 and ends[-1] - starts[0] >= w / 2
+    blank = dark.sum(1) <= 2
+    lines = []                               # (top, bottom) of each dotted line
+    e = np.flatnonzero(np.diff(np.concatenate([[0], band.astype(np.int8), [0]])))
+    count = dark.sum(1)
+    for a, b in zip(e[::2], e[1::2]):
+        if b - a > 3:
+            continue
+        faint = count[a:b].min() // 4         # a row of the dots' soft edge counts as the line's
+        if a > 0 and 2 < count[a - 1] <= faint:
+            a -= 1
+        if b < h and 2 < count[b] <= faint:
+            b += 1
+        if a >= 4 and b + 4 <= h and blank[a - 4:a].all() and blank[b:b + 4].all():
+            lines.append((a, b))
+    out = np.zeros(h, dtype=bool)
+    i = 0
+    while i < len(lines):
+        j = i                                # the lines of one stretch: only white between them
+        while j + 1 < len(lines) and blank[lines[j][1]:lines[j + 1][0]].all():
+            j += 1
+        top, bottom = lines[i][0], lines[j][1]
+        step = (bottom - top) // (j - i) if j > i else 40
+        above = top
+        while above > 0 and blank[above - 1] and top - above < step // 2:
+            above -= 1
+        out[above:min(h, bottom + 2)] = True
+        i = j + 1
+    return out
+
+
 WORK_AREA = 192.0                        # an admissions question's blank working space at the original amount
 
 
@@ -211,15 +256,19 @@ def _block(r, space):
     cie = r["syllabus"] in bank.CIE
     a = paths.answer_space(r["image"]) if cie and not booklet(r) else None
     lines_of = lambda pt: pt // LINE * LINE
-    if not a or share == 0:
+    if not cie or booklet(r):
         px = _grey(q)
         if share == 0:
             return px, None, 0, 0, False
         each = 2 * (r["marks"] or 1) * LINE if cie else WORK_AREA
         return px, None, lines_of(each * min(share, 1)), lines_of(each * max(share - 1, 0)), cie
-    px = _grey(a)
+    # the crop with the space after the last part (when the paper has any there), and in
+    # it the space: the rows the question crop leaves out, and the lines between parts
     qx = _grey(q)
-    free = _space_rows(qx, px)
+    px = _grey(a) if a else qx
+    free = (_space_rows(qx, px) if a else np.zeros(px.shape[0], dtype=bool)) | _ruled_rows(px)
+    if share == 0:
+        return px[~free], None, 0, 0, False
     if share >= 1:
         scale = (A4[0] - 2 * SIDE) / px.shape[1]
         return px, free, 0, lines_of((share - 1) * int(free.sum()) * scale), True
