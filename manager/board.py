@@ -24,8 +24,22 @@ import zipfile
 import pymupdf
 
 from lib import paths
-from manager import bank, docs as reading, export, paper
+from manager import bank, docs as reading, export, paper, settings
+from manager.vendor.inksync import models as ink
 from manager.whiteboard import docs
+
+# inksync bounds a board at 100000 pt, about 115 A4 pages; a big set's paper runs longer
+# (157 questions at 宽松: 304 pages). The bounds only guard against nonsense, nothing in
+# inksync or its front end depends on them, and the copy in vendor/ is left as copied
+# (vendor/README.md), so they are raised here, to as many pages as a board has layers.
+ink.MAX_CANVAS = max(ink.MAX_CANVAS, ink.MAX_LAYERS * (paper.A4[1] + docs.PAGE_GAP))
+# the board's own fields (data) hold each page's size and question label: 16 KB is about
+# 300 pages; raised the same way, to what a board of MAX_LAYERS pages needs
+ink.MAX_DATA_BYTES = max(ink.MAX_DATA_BYTES, 256 * 1024)
+
+
+class TooLong(ValueError):
+    """The paper has more pages than a board holds."""
 
 ROOT = paths.BOARDS
 PDFS = os.path.join(ROOT, "papers")
@@ -80,7 +94,7 @@ def _labels(s, path):
             for n in json.loads(r["qp_pages"] or "[]"):
                 by.setdefault(n - 1, []).append((bank.paper_code(r), r["q"]))
         return [label(by.get(i, [])) for i in range(paper.page_count(path))]
-    return [label([(it[4], it[5]) for it in items]) for items in paper.layout(rows)]
+    return [label([(it[4], it[5]) for it in items]) for items in paper.layout(rows, settings.load()["space"])]
 
 
 async def open_for(hub, s):
@@ -93,6 +107,9 @@ async def open_for(hub, s):
     os.makedirs(PDFS, exist_ok=True)
     shutil.copyfile(path, pdf_of(bid))
     pages = docs.probe(pdf_of(bid))
+    if len(pages) > ink.MAX_LAYERS:
+        os.remove(pdf_of(bid))
+        raise TooLong(f"练习卷共 {len(pages)} 页，超过白板上限 {ink.MAX_LAYERS} 页")
     labels = await loop.run_in_executor(None, _labels, s, path)
     await hub.create_board(bid, {
         "name": s["name"][:64],

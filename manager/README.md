@@ -25,3 +25,6 @@
 `web/ds/fixes.css` 补上 Sidebar 线条图标的描边设置;设计系统修好后删除。
 
 分期:`docs/data-manager.md` 第 10 节的五个阶段均已实现。
+
+测试:`python3 -m unittest discover tests`(读取 `data/`,只写临时目录;约 40 秒)。覆盖页面与接口能否打开、
+设置页预览的各档、搜索、练习卷各档页数与「紧凑」不留答题线、超过 115 页的题组建白板并在末页写入与导出。

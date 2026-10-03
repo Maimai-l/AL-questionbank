@@ -338,7 +338,7 @@ async def board_open(request):
         raise web.HTTPBadRequest(text="题组中没有题目")
     try:
         bid = await board.open_for(request.app[HUB], s)
-    except paper.EmptyPaper as e:
+    except (paper.EmptyPaper, board.TooLong) as e:
         raise web.HTTPBadRequest(text=str(e))
     await board.follow(request.app[HUB], bid)
     return web.json_response({"id": bid})

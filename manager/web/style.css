@@ -230,7 +230,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .sd-body { flex: 1 1 0; min-height: 0; display: flex; }
 .sd-paper { flex: 1 1 0; min-width: 0; overflow: auto; padding: var(--pad); background: var(--color-bg-muted); }
 .sd-sheets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sib); align-items: start; }
-.sd-sheets .sheet { width: 100%; }
+.sd-sheets .sheet { width: 100%; aspect-ratio: 595 / 842; }   /* an A4 box before the picture loads, so lazy loading fetches only the pages in view */
 .sd-edit { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: var(--sib); padding: var(--pad); }
 .sd-empty { padding: var(--pad); }
 .sd-qs { width: 320px; flex: none; border-left: 1px solid var(--color-border-subtle); padding: var(--pad); box-sizing: border-box; overflow-y: auto; display: flex; flex-direction: column; gap: var(--sub); }
