@@ -338,7 +338,9 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .space input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%;
   background: var(--color-checked); border: 2px solid var(--color-text-primary); box-sizing: border-box; }
 .space input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--color-checked); border: 2px solid var(--color-text-primary); box-sizing: border-box; }
-.space input[type=range]:focus-visible { outline: 2px solid var(--color-focus-ring); outline-offset: 4px; border-radius: 4px; }
+.space input[type=range]:focus { outline: none; }
+.space input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--color-focus-ring); }
+.space input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--color-focus-ring); }
 .space-ticks { display: flex; justify-content: space-between; padding: 0 7px; margin-top: calc(-1 * var(--txt)); }
 .space-ticks i { width: 4px; height: 4px; border-radius: 50%; background: var(--color-border-control); }
 .space-ticks i.on { background: var(--color-text-primary); }
