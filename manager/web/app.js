@@ -480,7 +480,7 @@
       h('div', { className: 'detail-head' },
         h('div', { className: 'detail-title' },
           h('h2', null, h('span', null, d.code), h('span', null, 'Q' + d.q)),
-          d.paper_pdf ? act('i-doc', '打开原卷', () => open(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`, '_blank')) : null),
+          d.paper_pdf ? act('i-doc', '打开原卷', () => openTab(`/paper/${d.id}#page=${(d.pages[0] || 0) + 1}`)) : null),
         h('div', { className: 'tags' },
           d.topic ? h(E.Tag, { size: 'sm' }, `${d.topic} ${d.topic_name}`) : null,
           h(E.Tag, { size: 'sm' }, `${d.marks} 分`),
@@ -652,9 +652,9 @@
           h(E.Button, { variant: written ? 'secondary' : 'primary', size: 'md', disabled: !ready, onClick: openBoard }, '打开白板'),
           h(E.Button, { variant: written ? 'primary' : 'secondary', size: 'md', icon: 'i-box', disabled: !s.count || !templates.length, onClick: () => setOutput(true) }, '输出'),
           h(MoreMenu, { label: '更多操作', items: [
-            { label: '打开评分细则', onClick: () => open(`/doc/${s.id}/scheme`, '_blank') },
-            s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null,
-            { label: '导出 JSON', onClick: () => { location.href = `/api/sets/${s.id}/export`; } }] }))),
+            { label: '打开评分细则', onClick: () => openTab(`/doc/${s.id}/scheme`) },
+            s.docs.explanation ? { label: '打开详解', onClick: () => openTab(`/doc/${s.id}/explanation`) } : null,
+            { label: '导出 JSON', onClick: () => download(`/api/sets/${s.id}/export`) }] }))),
       !s.count ? h('div', { className: 'sd-empty' }, h(E.EmptyState, { icon: 'i-list', title: '题组中没有题目' }))
         : h('div', { className: 'sd-body' },
           editing
@@ -689,6 +689,12 @@
   }
 
 
+  // in the window (manage.py window) there are no tabs: the system browser opens the page,
+  // and the clipboard is the window's when the page's own is refused
+  const bridge = () => window.pywebview && window.pywebview.api;
+  const openTab = (path) => (bridge() ? bridge().open(path) : open(path, '_blank'));
+  const copyText = (text) => (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+    .catch(() => (bridge() ? bridge().copy(text) : Promise.reject()));
   const download = (url) => { const a = document.createElement('a'); a.href = url; a.download = ''; document.body.appendChild(a); a.click(); a.remove(); };
 
   /** POST, then save the file the server sends. Resolves true when it was saved. */
@@ -1326,7 +1332,7 @@
   };
   const copyFlow = (g, toast) => {
     try {
-      navigator.clipboard.writeText(flowJson(g)).then(() => toast('success', 'JSON 已复制'), () => toast('error', 'JSON 无法复制'));
+      copyText(flowJson(g)).then(() => toast('success', 'JSON 已复制'), () => toast('error', 'JSON 无法复制'));
     } catch (e) { toast('error', 'JSON 无法复制'); }
   };
 

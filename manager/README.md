@@ -1,6 +1,6 @@
 # manager/
 
-题库数据管理页(需求见 `docs/data-manager.md`,设计稿见该文件第 8 节):`python3 manage.py`(默认端口 8910,
+题库数据管理页(需求见 `docs/data-manager.md`,设计稿见该文件第 8 节):`python3 manage.py`(默认端口 8910;`python3 manage.py window` 在 pywebview 窗口中打开,
 监听局域网,iPad 只通过白板外壳访问 `/ipad`)。对 `data/caie.db` 只读;题组等存放在 `paths.WORK`。
 
 | 文件 | 内容 |

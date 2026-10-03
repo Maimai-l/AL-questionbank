@@ -1,7 +1,8 @@
 """The data manager's server (docs/data-manager.md). Read-only on the bank; question
 sets and later outputs live in paths.WORK.
 
-    python3 manage.py [--port 8910]
+    python3 manage.py [--port 8910]          in the browser
+    python3 manage.py window [--port 8910]   in a window of its own (pywebview)
 
   /                      the page (manager/web/)
   /ds/                   ENDFIELD React: React, component bundle, tokens, fonts
@@ -43,6 +44,7 @@ from aiohttp import web
 
 from lib import paths
 import asyncio
+import threading
 import urllib.parse
 
 from manager import __version__, bank, board, docs, export, flow, paper, sets, settings, templates
@@ -521,9 +523,28 @@ def make_app():
     return app
 
 
+def _app(port):
+    app = make_app()
+    advertise(app, port=port, source="qb-manage", path="/ipad")   # the iPad shell opens /ipad (@qb-manage; app/ is @qb)
+    return app
+
+
 def run(port=8910, host="0.0.0.0"):
     print(f"数据管理页 {__version__}: http://localhost:{port}/(在电脑的浏览器中打开;iPad 只用白板外壳,来源填 @qb-manage)\n"
           f"题组: {paths.SETS}\n按 Ctrl-C 停止")
-    app = make_app()
-    advertise(app, port=port, source="qb-manage", path="/ipad")   # the iPad shell opens /ipad (@qb-manage; app/ is @qb)
-    web.run_app(app, host=host, port=port, print=None)
+    web.run_app(_app(port), host=host, port=port, print=None)
+
+
+def start(port=8910, host="0.0.0.0"):
+    """The same server on a thread of its own, for the window (manage.py window). Returns
+    stop(), which closes it as Ctrl-C would; an automatic run in progress finishes first."""
+    loop = asyncio.new_event_loop()
+    runner = web.AppRunner(_app(port))
+    loop.run_until_complete(runner.setup())
+    loop.run_until_complete(web.TCPSite(runner, host, port).start())
+    threading.Thread(target=loop.run_forever, daemon=True).start()
+
+    def stop():
+        asyncio.run_coroutine_threadsafe(runner.cleanup(), loop).result(30)
+        loop.call_soon_threadsafe(loop.stop)
+    return stop
