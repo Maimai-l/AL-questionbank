@@ -3,6 +3,7 @@
 
     python3 sync.py update          更新代码(当前分支,只快进)并取回最新数据:日常只用这一条
     python3 sync.py pull            取回最新的数据库、题图、教材与页面到 data/
+                                    题库有更新时随后运行自动流程(manage.py auto);--no-auto 不运行
     python3 sync.py status          data/ 当前是哪个版本,有没有本地改动
     python3 sync.py push -m "说明"  把 data/ 的改动推上去(云端流水线用)
 
@@ -34,7 +35,7 @@ def dirty():
     return git("status", "--porcelain", cwd=DATA, capture=True)
 
 
-def pull(force=False, gc=False):
+def pull(force=False, gc=False, auto=True):
     git("fetch", REMOTE, f"+refs/heads/{BRANCH}:refs/remotes/{REMOTE}/{BRANCH}")
     if not is_worktree():
         if os.path.exists(DATA) and os.listdir(DATA):
@@ -52,9 +53,13 @@ def pull(force=False, gc=False):
         git("reflog", "expire", "--expire=now", "--all")
         git("gc", "--prune=now", "--quiet")
     status()
+    if auto:
+        # 题库更新后运行自动流程;缺少依赖等失败只提示,数据已经取回
+        if subprocess.run([sys.executable, os.path.join(ROOT, "manage.py"), "auto"]).returncode:
+            print("自动流程没有完成。之后运行 python3 manage.py auto 重试")
 
 
-def update(force=False):
+def update(force=False, auto=True):
     """The code (the checked-out branch, fast-forward only), then the data."""
     branch = git("rev-parse", "--abbrev-ref", "HEAD", capture=True)
     if git("status", "--porcelain", "--untracked-files=no", capture=True):
@@ -63,7 +68,7 @@ def update(force=False):
     git("fetch", REMOTE, f"+refs/heads/{branch}:refs/remotes/{REMOTE}/{branch}")
     git("merge", "--ff-only", f"{REMOTE}/{branch}")
     print(f"代码: {branch} {git('log', '-1', '--format=%h %s', capture=True)}")
-    pull(force=force)
+    pull(force=force, auto=auto)
 
 
 def status():
@@ -100,17 +105,19 @@ def main():
     sub = p.add_subparsers(dest="cmd", required=True)
     up = sub.add_parser("update")
     up.add_argument("--force", action="store_true")
+    up.add_argument("--no-auto", action="store_true", help="不运行自动流程")
     pl = sub.add_parser("pull")
     pl.add_argument("--force", action="store_true", help="覆盖 data/ 里的本地改动")
     pl.add_argument("--gc", action="store_true", help="取回后清理旧版本占用的磁盘")
+    pl.add_argument("--no-auto", action="store_true", help="不运行自动流程")
     sub.add_parser("status")
     ps = sub.add_parser("push")
     ps.add_argument("-m", "--message", required=True)
     a = p.parse_args()
     if a.cmd == "update":
-        update(a.force)
+        update(a.force, not a.no_auto)
     elif a.cmd == "pull":
-        pull(a.force, a.gc)
+        pull(a.force, a.gc, not a.no_auto)
     elif a.cmd == "status":
         status()
     else:

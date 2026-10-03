@@ -46,6 +46,14 @@ python3 sync.py pull
 打开 `data/practice.html` 刷题,打开 `data/textbook.html` 看教材。两个页面均可离线使用。
 
 `data/` 在本地是只读副本。`sync.py pull` 会覆盖其中的改动,有未提交改动时会先拒绝执行。
+题库有更新时,`sync.py pull` 随后运行自动流程,把章节包写到 `exports/chapters/`。
+
+## 数据管理页
+
+```bash
+python3 manage.py                                     # 查询、题组、导出、批量生成,局域网可访问
+python3 manage.py auto                                # 题库更新后运行自动流程(题库没变时不运行)
+```
 
 ## 命令行
 

@@ -3,7 +3,7 @@
 ## 数据位置
 
 - 代码在 `main` 分支。数据库、题图、教材与页面在 `data/`,它是 `data` 分支的
-  git worktree。会话开始时运行 `python3 sync.py pull` 取回数据。
+  git worktree。会话开始时运行 `python3 sync.py pull --no-auto` 取回数据(云端不需要写 `exports/`)。
 - 修改 `data/` 后:先运行 `python3 pipeline/export/build_site.py`,再运行
   `python3 sync.py push -m "<说明>"`。`data` 分支始终只有一个提交,push 会改写它。
 - 不要把 `data/`、`raw/`、`exports/` 下的任何文件提交到 `main`。

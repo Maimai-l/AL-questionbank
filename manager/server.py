@@ -1,7 +1,7 @@
 """The data manager's server (docs/data-manager.md). Read-only on the bank; question
 sets and later outputs live in paths.WORK.
 
-    python3 qb.py manage [--port 8910]
+    python3 manage.py [--port 8910]
 
   /                      the page (manager/web/)
   /ds/                   ENDFIELD React: React, component bundle, tokens, fonts
@@ -444,8 +444,30 @@ async def revalidate(request, handler):
     return resp
 
 
+async def watch_bank(app):
+    """Every minute: when the bank changed, run the automatic flows (flow.auto_run), once
+    per bank version."""
+    async def loop():
+        run, tried = asyncio.get_running_loop().run_in_executor, None
+        while True:
+            try:
+                version = await run(None, flow.bank_version)
+                if version != tried:
+                    tried = version
+                    r = await run(None, flow.auto_run)
+                    if r is not None:
+                        print("题库已更新，自动流程已运行" + ("，有错误" if any(x["errors"] for x in r.values()) else ""))
+            except Exception as e:           # the page keeps working when a run fails
+                print(f"自动流程未运行：{e}")
+            await asyncio.sleep(60)
+    task = asyncio.create_task(loop())
+    yield
+    task.cancel()
+
+
 def make_app():
     app = web.Application(middlewares=[revalidate])
+    app.cleanup_ctx.append(watch_bank)
     app.router.add_get("/", index)
     app.router.add_get("/api/meta", meta)
     app.router.add_get("/api/questions", questions)

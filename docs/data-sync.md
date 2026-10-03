@@ -38,6 +38,7 @@
 python3 sync.py update          # 日常更新:代码(当前分支,只快进)加数据
 python3 sync.py pull            # 只取回最新数据到 data/;首次运行时创建 worktree
 python3 sync.py pull --gc       # 同上,并清理旧版本占用的本地磁盘
+python3 sync.py pull --no-auto  # 取回后不运行自动流程(manage.py auto,题库有更新时写 exports/chapters/)
 python3 sync.py status          # 当前版本与本地改动
 python3 sync.py push -m "说明"  # 提交 data/ 的改动并覆盖远程 data 分支
 ```

@@ -1,7 +1,9 @@
 """Question sets (docs/data-manager.md, F3): one JSON file each in paths.SETS.
 
-    {"id", "name", "source": "query" | "paper" | "import" | "manual",
+    {"id", "name", "source": "query" | "paper" | "import" | "manual" | "flow",
      "created": "YYYY-MM-DD HH:MM", "items": [question ids, in order]}
+
+A set a flow made also has "flow" (the flow id) and "part" (the group name, "" for a list).
 
 Exchange format with the model is `alevel-question-set/v1` (docs/INTEGRATION.md).
 """

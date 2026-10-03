@@ -15,6 +15,7 @@ import json
 import os
 import random
 import re
+import subprocess
 import time
 import uuid
 import zipfile
@@ -362,15 +363,27 @@ def out_export(g, node, ins, outdir):
     return [{"node": node["id"], "kind": "zip", "name": name, "file": os.path.basename(path), "meta": meta}]
 
 
+# the names the built-in flows had before the naming rule (docs/ui-text.md §4.4): their sets
+# carry no flow id yet and are found by the old name
+FORMER = {"example-shuffle": "Paper 1 每主题随机 2 题", "example-hard": "Paper 3 后段高分题"}
+
+
 def out_newset(g, node, ins, outdir):
+    """One set per list or group, kept by flow and group: a later run, also after the flow
+    was renamed, updates the same set."""
     v = ins[0]
     base = g["name"].strip()
-    parts = [(base, v["items"])] if v["shape"] == "list" else [(f"{base} {x['name']}", x["items"]) for x in v["groups"]]
+    parts = [("", base, v["items"])] if v["shape"] == "list" else \
+        [(x["name"], f"{base} {x['name']}", x["items"]) for x in v["groups"]]
+    former = FORMER.get(g["id"])
     out = []
-    for name, items in parts:
+    for part, name, items in parts:
         ids = list(dict.fromkeys(r["id"] for r in items))
-        old = next((s for s in sets.all_sets() if s["name"] == name and s.get("source") == "flow"), None)
-        s = sets.update(old["id"], items=ids) if old else sets.create(name, ids, "flow")
+        mine = [s for s in sets.all_sets() if s.get("source") == "flow"]
+        old = next((s for s in mine if (s.get("flow"), s.get("part", "")) == (g["id"], part)), None) or \
+            next((s for s in mine if not s.get("flow") and s["name"] in (name, former and f"{former} {part}".strip())), None)
+        s = sets.update(old["id"], name=name, items=ids) if old else sets.create(name, ids, "flow")
+        s = sets.save(dict(s, flow=g["id"], part=part))
         out.append({"node": node["id"], "kind": "set", "name": s["name"], "set": s["id"], "meta": ["题组", f"{len(ids)} 题"]})
     return out
 
@@ -564,6 +577,8 @@ def summary(g):
             parts.append(f"{'每组' if grouped else '前'} {p.get('n', 10)} 题")
         elif n["type"] == "chapters":
             parts.append("教材：" + ("全部" if (p.get("book") or ALL) == ALL else BOOKS.get(p["book"], p["book"])))
+    if g.get("auto") and g.get("builtin"):
+        parts.append("题库更新后自动运行")
     return "，".join(dict.fromkeys(x for x in parts if x))
 
 
@@ -623,6 +638,69 @@ def output_file(fid, name):
     except KeyError:
         return None
     return p if os.path.isfile(p) else None
+
+
+# ------------------------------------------------------------------ automatic runs
+
+AUTO = os.path.join(OUT, "auto.json")        # {version, ran}: the bank version the automatic flows last ran on
+
+
+def bank_version():
+    """The bank's version: the data branch commit when data/ is its worktree (sync.py), else
+    the database file's size and modification time."""
+    if os.path.exists(os.path.join(paths.DATA, ".git")):
+        try:
+            r = subprocess.run(["git", "rev-parse", "HEAD"], cwd=paths.DATA, capture_output=True, text=True, timeout=30)
+            if r.returncode == 0:
+                return r.stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+    st = os.stat(paths.DB)
+    return f"{st.st_size}-{st.st_mtime_ns}"
+
+
+def auto_run(force=False, log=lambda line: None):
+    """Run the built-in flows marked "auto" when the bank changed since they last ran (or
+    always, with force). {flow id: view()} or None when nothing ran: the bank is the same, or
+    another process is running them. The version is kept only when every flow ran cleanly,
+    so a failed run is tried again on the next update check of sync.py or a restart."""
+    version = bank_version()
+    try:
+        with open(AUTO, encoding="utf-8") as f:
+            last = json.load(f).get("version")
+    except (OSError, ValueError, AttributeError):
+        last = None
+    if last == version and not force:
+        return None
+    os.makedirs(OUT, exist_ok=True)
+    lock = AUTO + ".lock"
+    try:
+        os.close(os.open(lock, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+    except FileExistsError:
+        if time.time() - os.path.getmtime(lock) < 3600:
+            return None
+        os.utime(lock)                       # left by a run that died an hour ago or more
+    try:
+        results = {}
+        for g in all_flows():
+            if not (g["builtin"] and g.get("auto")):
+                continue
+            log(f"运行 {g['name']}")
+            try:
+                r = view(g, make=True)
+            except FlowError as e:
+                r = {"errors": {"": str(e)}, "outputs": []}
+            for o in r["outputs"]:
+                log(f"  {o['name']}  {'，'.join(o['meta'])}")
+            for e in r["errors"].values():
+                log(f"  错误：{e}")
+            results[g["id"]] = r
+        if not any(r["errors"] for r in results.values()):
+            with open(AUTO, "w", encoding="utf-8") as f:
+                json.dump({"version": version, "ran": time.strftime("%Y-%m-%d %H:%M")}, f)
+        return results
+    finally:
+        os.remove(lock)
 
 
 def catalog():
