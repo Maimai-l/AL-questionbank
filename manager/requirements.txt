@@ -1,0 +1,11 @@
+# 数据管理页(python3 manage.py)的依赖:pip install -r manager/requirements.txt
+aiohttp>=3.9
+pymupdf>=1.24.3
+numpy>=1.26
+pillow>=10.0
+pyyaml>=6.0
+
+# 以下按需安装
+# pywebview>=6.2      独立窗口(python3 manage.py window、manage.command)
+# zeroconf            在局域网广播服务,iPad 白板外壳可自动发现本机;不装时手动填地址
+# playwright          浏览器测试(tests/test_pages.py),另需 playwright install chromium

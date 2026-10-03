@@ -17,7 +17,8 @@ PIP = {"yaml": "pyyaml", "PIL": "pillow", "webview": "pywebview"}   # module nam
 
 
 def need(e):
-    sys.exit(f"缺少依赖:{e.name}。运行 pip install {PIP.get(e.name, e.name)}")
+    sys.exit(f"缺少依赖:{e.name}。运行 pip install {PIP.get(e.name, e.name)}"
+             "(全部依赖:pip install -r manager/requirements.txt)")
 
 
 def serve(port, open_browser):

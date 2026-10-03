@@ -51,13 +51,15 @@ python3 sync.py pull
 
 ## 数据管理页
 
+依赖:`pip install -r manager/requirements.txt`(可选依赖见该文件)。
+
 ```bash
 python3 manage.py                                     # 查询、题组、导出、批量生成,局域网可访问
 python3 manage.py window                              # 同上,在独立窗口中打开(需要 pip install pywebview)
 python3 manage.py auto                                # 题库更新后运行自动流程(题库没变时不运行)
 ```
 
-macOS 上可以在访达中双击 `manage.command` 打开窗口。
+macOS 上可以在访达中双击 `manage.command` 打开窗口。测试:`python3 -m unittest discover tests`(见 `manager/README.md`)。
 
 ## 命令行
 
