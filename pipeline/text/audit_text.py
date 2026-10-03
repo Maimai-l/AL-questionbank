@@ -25,7 +25,7 @@ OK_SINGLES = set("aAIioxynrtkmspqPQRSTABCDEFGHOXYZuvwzcdefghjlb0123456789")
 # require the repeated unit to be blank, or the run to dominate the text.
 # Whole scripts that cannot appear in an English-language CAIE paper. Greek is
 # excluded on purpose — α, θ, π are ordinary maths.
-import os, sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths

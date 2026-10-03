@@ -8,10 +8,9 @@ than average, so the fix is to slice the crop into overlapping horizontal
 bands, read each separately, and stitch the results: a shorter input never
 enters the loop.
 """
-import json, os, re, sys, threading, time
+import json, os, re, sys, threading
 from concurrent.futures import ThreadPoolExecutor
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from pipeline.ocr import ocr as ocr_mod

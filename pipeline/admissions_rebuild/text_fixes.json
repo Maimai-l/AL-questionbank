@@ -462,5 +462,19 @@
    "H"
   ],
   "note": "识别错字:指数 ex、xx 应为 2x、3x(原卷第 7 页)"
+ },
+ "TMUA-2016-P1-q1": {
+  "text": "It is given that the expansion of $(ax + b)^{3}$ is $8x^{3} - px^{2} + 18x - 3\\sqrt{3}$, where $a, b$ and $p$ are real constants.\n\nWhat is the value of $p$?\n\nA $-12\\sqrt{3}$\n\nB $-6\\sqrt{3}$\n\nC $-4\\sqrt{3}$\n\nD $-\\sqrt{3}$\n\nE $\\sqrt{3}$\n\nF $4\\sqrt{3}$\n\nG $6\\sqrt{3}$\n\nH $12\\sqrt{3}$",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F",
+   "G",
+   "H"
+  ],
+  "note": "选项 A 的 OCR 把负号后的空白识别成 \\angle,原卷为 −12√3"
  }
 }

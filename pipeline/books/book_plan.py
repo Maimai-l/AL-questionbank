@@ -27,7 +27,6 @@ try:
 except ImportError:
     sys.exit("需要 PyMuPDF:  pip install pymupdf")
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 try:

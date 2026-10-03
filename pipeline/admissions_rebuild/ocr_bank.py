@@ -11,10 +11,9 @@ the output mirrors that nesting so TMUA/papers/x.pdf becomes
 
 Resumable per PDF: an output folder whose page count matches is skipped.
 """
-import os, re, sys, threading, time
+import os, sys, threading, time
 from concurrent.futures import ThreadPoolExecutor
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # qb/ —— 直接跑脚本时也 import 得到包
 from lib import paths
