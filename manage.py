@@ -69,6 +69,20 @@ TITLEBAR = 28                            # macOS title bar height in points: the
 _monitor = None                          # the event monitor, kept for the life of the window
 
 
+def _activate(w):
+    """Make the app the active one and its window key. Started from Finder (manage.command)
+    the window can come up in an app that never became active; there a click only asks for
+    the app to be activated and does not reach the page, while a drag (which this file
+    starts itself) still works."""
+    import AppKit
+    app = AppKit.NSApplication.sharedApplication()
+    app.setActivationPolicy_(AppKit.NSApplicationActivationPolicyRegular)
+    AppKit.NSRunningApplication.currentApplication().activateWithOptions_(
+        AppKit.NSApplicationActivateIgnoringOtherApps)
+    app.activateIgnoringOtherApps_(True)
+    w.makeKeyAndOrderFront_(None)
+
+
 def _title_bar_drag(w):
     """Presses in the title bar's height move the window. With the page under the title
     bar, the view under the pointer there is the web view, which does not let a press move
@@ -93,7 +107,11 @@ def _title_bar_drag(w):
         return False
 
     def press(event):
-        if event.window() != w or w.styleMask() & AppKit.NSWindowStyleMaskFullScreen:
+        if event.window() != w:
+            return event
+        if not AppKit.NSApplication.sharedApplication().isActive():
+            _activate(w)                     # the press then reaches the page
+        if w.styleMask() & AppKit.NSWindowStyleMaskFullScreen:
             return event
         point = event.locationInWindow()
         if w.frame().size.height - point.y > TITLEBAR or on_button(point):
@@ -157,7 +175,7 @@ def window(port):
             need(e)
         stop = start(port)
     base = f"http://localhost:{port}"
-    print(f"数据管理页 {__version__}: {base}/(窗口关闭后停止;iPad 白板外壳的来源填 @qb-manage)")
+    print(f"数据管理页 {__version__}: {base}/(窗口关闭后停止;iPad 白板外壳的来源填 @qb-manage)\nPython: {sys.executable}")
     webview.settings["ALLOW_DOWNLOADS"] = True
     mac = sys.platform == "darwin"
     # the page leaves the title bar's height free (index.html, ?titlebar=); #141414 is the
@@ -165,7 +183,10 @@ def window(port):
     w = webview.create_window("AL 题库", base + (f"/?titlebar={TITLEBAR}" if mac else "/"), width=1440, height=900,
                               min_size=(1280, 800), background_color="#141414", js_api=Bridge(base))
     if mac:
+        from PyObjCTools import AppHelper    # PyObjC comes with pywebview on macOS
         w.events.before_show += lambda: _full_size(w)
+        # shown runs on a thread of its own; the app is activated on the main thread
+        w.events.shown += lambda: AppHelper.callAfter(_activate, w.native)
     # private_mode=False keeps the page's own settings (the theme) between launches
     webview.start(private_mode=False, storage_path=os.path.join(paths.WORK, "webview"))
     if stop:

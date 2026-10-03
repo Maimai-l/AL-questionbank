@@ -38,7 +38,12 @@ class Window(unittest.TestCase):
         self.ak = fake_appkit()
         self.cocoa = types.ModuleType("webview.platforms.cocoa")
         self.cocoa.BrowserView = mock.MagicMock()
-        mods = {"AppKit": self.ak, "webview": types.ModuleType("webview"),
+        self.helper = types.ModuleType("PyObjCTools.AppHelper")
+        self.helper.callAfter = lambda f, *a: f(*a)
+        tools = types.ModuleType("PyObjCTools")
+        tools.AppHelper = self.helper
+        mods = {"AppKit": self.ak, "PyObjCTools": tools, "PyObjCTools.AppHelper": self.helper,
+                "webview": types.ModuleType("webview"),
                 "webview.platforms": types.ModuleType("webview.platforms"), "webview.platforms.cocoa": self.cocoa}
         patcher = mock.patch.dict(sys.modules, mods)
         patcher.start()
@@ -94,6 +99,20 @@ class Window(unittest.TestCase):
         self.assertIs(out, e)
         self.native.performWindowDragWithEvent_.assert_not_called()
 
+    def test_press_activates_an_inactive_app(self):
+        """Started from Finder the app may not be active: a press makes it active, its
+        window key, and still reaches the page."""
+        manage._full_size(self.win)
+        app = self.ak.NSApplication.sharedApplication.return_value
+        app.isActive.return_value = True
+        self.press(y=500)
+        self.native.makeKeyAndOrderFront_.assert_not_called()
+        app.isActive.return_value = False
+        e, out = self.press(y=500)
+        self.assertIs(out, e)
+        app.setActivationPolicy_.assert_called_with(self.ak.NSApplicationActivationPolicyRegular)
+        self.native.makeKeyAndOrderFront_.assert_called_once()
+
     def test_double_click_follows_system_setting(self):
         manage._full_size(self.win)
         prefs = self.ak.NSUserDefaults.standardUserDefaults.return_value.stringForKey_
@@ -111,7 +130,13 @@ class Window(unittest.TestCase):
         the title bar's height on macOS, and stops the server when the window closes."""
         webview = sys.modules["webview"]
         webview.settings = {}
-        webview.create_window = mock.MagicMock()
+        class Hook(list):
+            def __iadd__(self, f):
+                self.append(f)
+                return self
+        made = mock.MagicMock()
+        made.events = types.SimpleNamespace(before_show=Hook(), shown=Hook())
+        webview.create_window = mock.MagicMock(return_value=made)
         webview.start = mock.MagicMock()
         stop = mock.MagicMock()
         with mock.patch.object(manage, "_serving", return_value=False), \
@@ -124,6 +149,9 @@ class Window(unittest.TestCase):
         self.assertEqual(url, f"http://localhost:8999/?titlebar={manage.TITLEBAR}")
         self.assertTrue(webview.settings["ALLOW_DOWNLOADS"])
         stop.assert_called_once()
+        self.assertEqual((len(made.events.before_show), len(made.events.shown)), (1, 1))
+        made.events.shown[0]()                       # shown: the app is made active, its window key
+        made.native.makeKeyAndOrderFront_.assert_called_once()
 
 
 if __name__ == "__main__":
