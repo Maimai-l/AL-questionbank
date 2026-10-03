@@ -26,7 +26,6 @@ an honest test rather than a memory check.
 import json, math, os, re, sys
 from collections import Counter, defaultdict
 
-import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths

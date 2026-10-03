@@ -21,7 +21,7 @@ The prose carries the terminology, and the prose is intact.
 """
 import json, re, sys
 
-import os, sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths as project_paths

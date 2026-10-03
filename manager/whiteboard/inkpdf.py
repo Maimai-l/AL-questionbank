@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import math
 import zlib
-from typing import Any, Dict, Iterable, List, Sequence, Set, Tuple
+from typing import Dict, Iterable, List, Sequence, Set, Tuple
 
 from . import freehand
 

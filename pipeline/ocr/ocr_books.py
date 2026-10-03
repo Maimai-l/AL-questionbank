@@ -77,7 +77,7 @@ def pdf_pages(path):
         n = d.page_count
         d.close()
         return n
-    except Exception as e:
+    except Exception:
         return None
 
 
@@ -270,7 +270,7 @@ def do_book(pdf_dir, name, out_dir, redo=False, quiet=False):
     raw = None
     if not redo and os.path.exists(raw_path):
         raw = open(raw_path, encoding="utf-8").read()
-        log(book, f"发现已保存的识别结果,直接用它重建(不重跑 OCR)")
+        log(book, "发现已保存的识别结果,直接用它重建(不重跑 OCR)")
 
     if raw is None:
         jid = submit(src, book)

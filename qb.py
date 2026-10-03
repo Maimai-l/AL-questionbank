@@ -12,7 +12,7 @@
 
 Add --json to any command for machine-readable output.
 """
-import argparse, json, os, sqlite3, sys
+import argparse, json, sqlite3, sys
 
 from lib import paths
 from lib.db import connect

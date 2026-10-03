@@ -9,7 +9,7 @@ names the technique more explicitly than the question does.
 """
 import collections, importlib, json, re, sys
 
-import os, sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 

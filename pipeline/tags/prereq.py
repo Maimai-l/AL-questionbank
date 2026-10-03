@@ -26,7 +26,7 @@ Nothing here is my opinion about what depends on what.
 import json, re, sqlite3, sys
 from collections import Counter, defaultdict
 
-import os, sys
+import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))          # 项目根目录
 from lib import paths

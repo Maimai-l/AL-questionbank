@@ -6,7 +6,7 @@ Question | Answer | Marks | Guidance columns and LaTeX for the mathematics.
 The question label sits in the first cell of a row group, carried across the
 group by `rowspan`, so the parser has to track that to attribute rows.
 """
-import html, json, os, re, sys, collections
+import html, json, re, sys, collections
 from html.parser import HTMLParser
 
 LABEL_RE = re.compile(r"^\s*(\d{1,2})\s*(\([a-z]\))?\s*(\((?:i{1,3}|iv|v)\))?\s*$")

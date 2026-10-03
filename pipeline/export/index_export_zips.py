@@ -6,7 +6,6 @@ import argparse
 import csv
 import io
 import json
-import re
 import sqlite3
 import tempfile
 import zipfile
