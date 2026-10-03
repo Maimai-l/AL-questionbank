@@ -402,7 +402,7 @@ def out_chapters(g, node, ins, outdir):
     """Chapter packages, as pipeline/export/export_all_chapters.py writes them: for every
     chapter of the chosen textbook (or of all of them), the questions it receives that are
     on the chapter's topic, whole or by some of their parts, in one ZIP in
-    exports/chapters/<book>/, replacing the archive of the same name."""
+    exports/chapters/<syllabus>/, replacing the archive of the same name."""
     from pipeline.export import export_all_chapters as chap
     v = ins[0]
     pool = v["items"] if v["shape"] == "list" else [r for x in v["groups"] for r in x["items"]]

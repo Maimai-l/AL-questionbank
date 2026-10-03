@@ -99,14 +99,36 @@ def add_textbook_image(zf: zipfile.ZipFile, source: Path, archive_name: str, add
 
 
 def chapter_stem(chapter, images: bool = True) -> str:
-    """The archive name without .zip: 9709_9709_p1_09_Integration."""
-    stem = f"{chapter['syllabus']}_{safe_name(chapter['book'])}_{chapter['chapter_no']:02d}_{safe_name(chapter['title'])}"
+    """The archive name without .zip: <book>_<two-digit chapter>_<title without its
+    number>, e.g. 9709_p1_09_Integration, 9709_p23_09_Differential_equations,
+    9231_01_Roots_of_polynomial_equations."""
+    title = re.sub(r"^(chapter\s+)?\d+\s+", "", chapter["title"], flags=re.IGNORECASE)
+    stem = f"{safe_name(chapter['book'] or chapter['syllabus'])}_{chapter['chapter_no']:02d}_{safe_name(title)}"
     return stem if images else stem + "_no_images"
 
 
 def chapter_path(chapter, images: bool = True) -> Path:
-    """Where the chapter's archive goes: exports/chapters/<book>/<stem>.zip."""
-    return OUT_DIR / safe_name(chapter["book"] or chapter["syllabus"] or "other") / f"{chapter_stem(chapter, images)}.zip"
+    """Where the chapter's archive goes: one folder per subject,
+    exports/chapters/<syllabus>/<stem>.zip (the four 9709 books share 9709/)."""
+    return OUT_DIR / safe_name(chapter["syllabus"] or "other") / f"{chapter_stem(chapter, images)}.zip"
+
+
+def legacy_path(chapter, images: bool = True) -> Path:
+    """Where earlier versions put the archive: exports/chapters/<book>/<syllabus>_<book>_<NN>_<title>.zip."""
+    stem = f"{chapter['syllabus']}_{safe_name(chapter['book'])}_{chapter['chapter_no']:02d}_{safe_name(chapter['title'])}"
+    return OUT_DIR / safe_name(chapter["book"] or chapter["syllabus"] or "other") / f"{stem if images else stem + '_no_images'}.zip"
+
+
+def remove_legacy(chapter, images: bool = True) -> None:
+    """Remove the chapter's archive from the old layout, and its book folder once empty."""
+    old = legacy_path(chapter, images)
+    if old.is_file() and old != chapter_path(chapter, images):
+        old.unlink()
+    try:
+        if old.parent != OUT_DIR and old.parent.is_dir() and not any(old.parent.iterdir()):
+            old.parent.rmdir()
+    except OSError:
+        pass
 
 
 def chapter_questions(con: sqlite3.Connection, chapter, ids=None) -> list:
@@ -197,6 +219,8 @@ either file from within this extracted folder to keep image links working.
         zf.writestr(f"{package_root}/README.md", readme, compress_type=zipfile.ZIP_DEFLATED)
         zf.writestr(f"{package_root}/manifest.json", json.dumps(chapter_manifest, ensure_ascii=False, indent=2), compress_type=zipfile.ZIP_DEFLATED)
     tmp.replace(out)
+    if out == chapter_path(chapter, images):
+        remove_legacy(chapter, images)
     return chapter_manifest
 
 
