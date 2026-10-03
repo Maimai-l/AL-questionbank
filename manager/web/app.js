@@ -1546,11 +1546,27 @@
             h('img', { key: n + foot, className: 'sheet', src: `/api/sets/${sample.id}/paper/${n}.png?f=${foot}`, alt: `第 ${n + 1} 页` })))));
   }
 
+  let theme = 'system';
   function applyTheme(t) {
+    theme = t;
     try { localStorage.setItem('dm-theme', t); } catch (e) {}
     const light = t === 'light' || (t === 'system' && matchMedia('(prefers-color-scheme: light)').matches);
     document.documentElement.setAttribute('data-theme', light ? 'light' : 'dark');
+    windowTheme();
   }
+
+  // in the window (manage.py window) the title bar takes the top bar's colour (macOS)
+  function windowTheme() {
+    if (!bridge()) return;
+    const probe = document.createElement('div');
+    probe.style.color = 'var(--color-bg-page)';
+    document.body.appendChild(probe);
+    const rgb = (getComputedStyle(probe).color.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+    probe.remove();
+    if (rgb.length === 3) bridge().theme(rgb, document.documentElement.getAttribute('data-theme') === 'dark', theme === 'system');
+  }
+  addEventListener('pywebviewready', windowTheme);
+  matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (theme === 'system') applyTheme('system'); });
 
   // ------------------------------------------------------------------ shell
 

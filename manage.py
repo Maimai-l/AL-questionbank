@@ -49,6 +49,7 @@ class Bridge:
 
     def __init__(self, base):
         self.base = base
+        self._window = None                  # set once the window exists (an underscore: not offered to the page)
 
     def open(self, path):
         """A page the browser opens in a new tab (the question paper, a reading document)."""
@@ -60,6 +61,29 @@ class Bridge:
                else ["xclip", "-selection", "clipboard"])
         subprocess.run(cmd, input=text.encode("utf-16" if os.name == "nt" else "utf-8"), check=True)
         return True
+
+    def theme(self, rgb, dark, system=False):
+        """The page's top bar colour and light or dark: the title bar takes them, so it reads as
+        part of the top bar (macOS; elsewhere the system title bar stays). With the theme 自动
+        (system) the window keeps following the system's appearance."""
+        if sys.platform != "darwin" or not self._window or not self._window.native:
+            return
+        import AppKit
+        from PyObjCTools import AppHelper
+
+        def apply():
+            w = self._window.native
+            color = AppKit.NSColor.colorWithSRGBRed_green_blue_alpha_(*(c / 255 for c in rgb[:3]), 1.0)
+            w.setTitlebarAppearsTransparent_(True)
+            w.setTitleVisibility_(AppKit.NSWindowTitleHidden)
+            w.setBackgroundColor_(color)
+            # pywebview paints the title bar view with the system colour; it takes the page's
+            bar = w.contentView().superview().subviews().lastObject()
+            if bar is not None and bar.respondsToSelector_("setBackgroundColor:"):
+                bar.setBackgroundColor_(color)
+            w.setAppearance_(None if system else AppKit.NSAppearance.appearanceNamed_(
+                AppKit.NSAppearanceNameDarkAqua if dark else AppKit.NSAppearanceNameAqua))
+        AppHelper.callAfter(apply)
 
 
 def window(port):
@@ -78,8 +102,9 @@ def window(port):
     base = f"http://localhost:{port}"
     print(f"数据管理页 {__version__}: {base}/(窗口关闭后停止;iPad 白板外壳的来源填 @qb-manage)")
     webview.settings["ALLOW_DOWNLOADS"] = True
-    webview.create_window("AL 题库", base + "/", width=1440, height=900, min_size=(1280, 800),
-                          js_api=Bridge(base))
+    bridge = Bridge(base)
+    bridge._window = webview.create_window("AL 题库", base + "/", width=1440, height=900, min_size=(1280, 800),
+                                           js_api=bridge)
     # private_mode=False keeps the page's own settings (the theme) between launches
     webview.start(private_mode=False, storage_path=os.path.join(paths.WORK, "webview"))
     if stop:
