@@ -15,10 +15,10 @@ out on A4 as a PDF, one layout for every exam.
 The result is cached in paths.WORK/papers/ under a hash of the set and the settings.
 """
 import hashlib
-import io
 import json
 import os
 import re
+import zlib
 
 import numpy as np
 import pymupdf
@@ -34,7 +34,7 @@ LINES_GAP = 8.0                          # between a question and its added answ
 LINE = 24.0                              # ruled answer lines
 FOOT = 24.0                              # footer baseline above the paper's lower edge
 CACHE = os.path.join(paths.WORK, "papers")
-VERSION = 3                              # part of the cache key: raise when the layout changes
+VERSION = 4                              # part of the cache key: raise when the layout changes
 FONT = "china-s"
 LATIN = "helv"
 CJK = re.compile(r"([\u2e80-\u9fff\u3000-\u303f\uff00-\uffef]+)")
@@ -78,16 +78,31 @@ def whole_paper(rows):
     return bank.paper_pdf(r0)
 
 
-_booklet = {}
+_booklet = None
+BOOKLET = os.path.join(CACHE, "booklet.json")   # {question paper PDF: answered in a booklet}
 
 
 def booklet(r):
-    """True when the paper is answered in a separate answer booklet (no answer space)."""
+    """True when the paper is answered in a separate answer booklet (no answer space). Read
+    from the paper's first page once, then kept in BOOKLET."""
+    global _booklet
+    if _booklet is None:
+        try:
+            with open(BOOKLET, encoding="utf-8") as f:
+                _booklet = json.load(f)
+        except (OSError, ValueError):
+            _booklet = {}
     name = r["qp_pdf"]
     if name not in _booklet:
         p = bank.paper_pdf(r)
-        with pymupdf.open(p) if p else pymupdf.open() as d:
-            _booklet[name] = bool(p) and "answer booklet" in d[0].get_text().lower()
+        if not p:
+            return False                     # not kept: the PDF may be added later
+        with pymupdf.open(p) as d:
+            _booklet[name] = "answer booklet" in d[0].get_text().lower()
+        os.makedirs(CACHE, exist_ok=True)
+        with open(BOOKLET + ".tmp", "w", encoding="utf-8") as f:
+            json.dump(_booklet, f)
+        os.replace(BOOKLET + ".tmp", BOOKLET)
     return _booklet[name]
 
 
@@ -104,17 +119,16 @@ def _cut_row(gray, start, end):
     """Row in [start, end) to cut at: the lowest of the whitest rows."""
     if end <= start:
         return end
-    band = gray[start:end]
+    band = gray[start:end].astype(np.float32)
     mean = band.mean(axis=1)
     white = np.where(mean >= mean.max() - 0.5)[0]
     return start + int(white[-1]) + 1
 
 
 def _slices(path, width_pt, first_room, room):
-    """Cut a crop into pieces that fit: [(png bytes, height in points)]."""
-    im = Image.open(path)
-    gray = np.asarray(im.convert("L"), dtype=np.float32)
-    h, w = gray.shape
+    """Cut a crop into pieces that fit: [(grey rows, height in points)]."""
+    pixels = np.asarray(Image.open(path).convert("L"))
+    h, w = pixels.shape
     scale = width_pt / w
     out, top, fit = [], 0, first_room
     while top < h:
@@ -122,17 +136,14 @@ def _slices(path, width_pt, first_room, room):
         if h - top <= limit:
             end = h
         else:
-            end = _cut_row(gray, top + int(limit * 0.75), top + limit)
-        piece = im.crop((0, top, w, end))
-        buf = io.BytesIO()
-        piece.save(buf, "PNG", optimize=True)
-        out.append((buf.getvalue(), (end - top) * scale))
+            end = _cut_row(pixels, top + int(limit * 0.75), top + limit)
+        out.append((pixels[top:end], (end - top) * scale))
         top, fit = end, room
     return out
 
 
 def layout(rows):
-    """Pages as lists of (png or None for answer lines, y, height, qid, code, q)."""
+    """Pages as lists of (grey rows or None for answer lines, y, height, qid, code, q)."""
     width = A4[0] - 2 * SIDE
     room = A4[1] - TOP - BOTTOM
     pages = [[]]
@@ -159,10 +170,10 @@ def layout(rows):
                 need = height + (LINES_GAP + 3 * LINE if lines else 0)
             if y + need > TOP + room:        # starts the next page rather than being cut
                 new_page()
-        for i, (png, hpt) in enumerate(pieces):
+        for i, (px, hpt) in enumerate(pieces):
             if i:
                 new_page()
-            pages[-1].append((png, y, hpt, r["id"], code, r["q"]))
+            pages[-1].append((px, y, hpt, r["id"], code, r["q"]))
             y += hpt
         if lines:
             y += LINES_GAP
@@ -175,6 +186,30 @@ def layout(rows):
                 y += band
                 lines -= band
     return [p for p in pages if p]
+
+
+def _image(doc, pixels):
+    """The xref of a grey image made from the rows, compressed here once. Inserting a PNG
+    instead makes PyMuPDF decode it and store it raw, and saving then compresses every
+    image again: ten times slower for a long set."""
+    h, w = pixels.shape
+    xref = doc.get_new_xref()
+    doc.update_object(xref, f"<</Type/XObject/Subtype/Image/Width {w}/Height {h}/ColorSpace/DeviceGray/BitsPerComponent 8>>")
+    doc.update_stream(xref, zlib.compress(np.ascontiguousarray(pixels).tobytes(), 6), compress=False)
+    doc.xref_set_key(xref, "Filter", "/FlateDecode")
+    return xref
+
+
+def _font(doc, page, name, xref):
+    """Put a font the document already has into the page's resources: insert_text then
+    uses it instead of adding the CJK font to the file once per page."""
+    kind, value = doc.xref_get_key(page.xref, "Resources")
+    obj, path = (int(value.split()[0]), "Font") if kind == "xref" else (page.xref, "Resources/Font")
+    kind, value = doc.xref_get_key(obj, path)
+    if kind == "xref":                       # the font dictionary is an object of its own
+        doc.xref_set_key(int(value.split()[0]), name, f"{xref} 0 R")
+    else:
+        doc.xref_set_key(obj, f"{path}/{name}", f"{xref} 0 R")
 
 
 def _lines(page, y, h):
@@ -240,14 +275,18 @@ def build(s):
         if not pages:
             raise EmptyPaper("题组中没有可排版的题目")
         width = A4[0] - 2 * SIDE
+        fonts = {}                           # resource name -> xref: one font object for every page
         for n, items in enumerate(pages, 1):
             page = doc.new_page(width=A4[0], height=A4[1])
-            for png, y, hpt, *_ in items:
-                if png is None:
+            for name, xref in fonts.items():
+                _font(doc, page, name, xref)
+            for px, y, hpt, *_ in items:
+                if px is None:
                     _lines(page, y, hpt)
                 else:
-                    page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), stream=png)
+                    page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), xref=_image(doc, px))
             _footer(page, n, len(pages), s["name"], [(None, None) + tuple(it[3:]) for it in items], opts)
+            fonts.update((f[4], f[0]) for f in page.get_fonts())
     tmp = f"{out}.{os.getpid()}.tmp"       # written whole, then put in place: never a half-written PDF
     doc.save(tmp, garbage=3, deflate=True)
     os.replace(tmp, out)
