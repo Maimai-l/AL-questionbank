@@ -996,7 +996,7 @@
     const p = n.params || {};
     const F = (k) => fieldLabel(cat, inType || 'q', k);
     switch (n.type) {
-      case 'bank': return `考试：${p.exam || '9709'}`;
+      case 'bank': return `考试：${p.exam === '*' ? '全部' : p.exam || '9709'}`;
       case 'book': return `教材：${((cat.books.find((b) => b.value === p.book) || {}).label) || p.book || ''}`;
       case 'set': return `题组：${((sets.find((s) => s.id === p.set) || {}).name) || ''}`;
       case 'filter': return (p.conds || []).filter((c) => c.field && String(c.value || '').trim()).map((c) => `${F(c.field)} ${c.op} ${c.value}`);
@@ -1008,7 +1008,7 @@
       case 'export': return `模板：${((templates.find((t) => t.id === (p.template || 'default')) || {}).name) || ''}`;
       case 'newset': return `名称：${flowName || ''}`;
       case 'paper': return '';
-      case 'chapters': return '保存到：exports/chapters';
+      case 'chapters': return [`教材：${!p.book || p.book === '*' ? '全部' : ((cat.books.find((b) => b.value === p.book) || {}).label || p.book)}`, '保存到：exports/chapters'];
       default: return '';
     }
   }
@@ -1175,7 +1175,7 @@
       const id = 'n' + nid.current++;
       const params = { bank: { exam: '9709' }, book: { book: '9709_p1' }, filter: { conds: [{ field: 'year', op: '≥', value: '' }] },
         sort: { by: 'field', field: 'marks', desc: true }, take: { n: 10 }, group: { field: 'topic' },
-        join: { left: 'topic', right: 'topic' }, export: { template: 'default' },
+        join: { left: 'topic', right: 'topic' }, export: { template: 'default' }, chapters: { book: '*' },
         set: { set: sets[0] ? sets[0].id : '' } }[type] || {};
       setG({ ...g, nodes: g.nodes.concat([{ id, type, x: Math.round(x), y: Math.round(y), params }]) });
       setSel({ node: id });
@@ -1239,6 +1239,7 @@
           failed ? h('div', { className: 'dm-grow' }, h(E.Banner, { type: 'error', title: failed }))
             : h('div', { className: 'dm-meta', style: { flexGrow: 1 } }, run ? [
               h('span', { key: 't' }, run.ran), h('span', { key: 'n' }, `${outputs.length} 项输出`)] : null),
+          act('i-copy', '复制 JSON', () => copyFlow(g, toast)),
           h(E.Button, { variant: 'primary', size: 'sm', disabled: running, loading: running, onClick: doRun }, '运行流程')),
         h('div', { className: 'fl', ref: box, onPointerDown: (e) => {
           if (e.target !== box.current && !e.target.classList.contains('fl-in') && e.target.tagName !== 'svg') return;
@@ -1272,6 +1273,15 @@
             error: errors[sel.node], update, templates, sets, onDelete: del, locked: g.builtin, outputs: outputs.filter((o) => o.node === sel.node) })
           : h(FlowProps, { g, setG, onDeleted: () => { location.hash = '#/templates/flows'; } , toast })));
   }
+
+  /** A flow as JSON, as it is saved: its name, nodes and links. */
+  const flowJson = (g) => JSON.stringify({ name: g.name,
+    nodes: g.nodes.map(({ id, type, x, y, params }) => ({ id, type, x, y, params })), links: g.links }, null, 1);
+  const copyFlow = (g, toast) => {
+    try {
+      navigator.clipboard.writeText(flowJson(g)).then(() => toast('success', 'JSON 已复制'), () => toast('error', 'JSON 无法复制'));
+    } catch (e) { toast('error', 'JSON 无法复制'); }
+  };
 
   /** "流程无法运行（节点：原因）" for a run with errors, else null. */
   function failure(run, label) {
@@ -1310,10 +1320,11 @@
     const t = (inV && inV.type) || 'q';
     const fields = (cat.fields[t] || []).map(([v, label]) => ({ value: v, label }));
     // an error about the node's one parameter is shown on that field, others below the fields
-    const fieldErr = error && !/输入/.test(error) && ['bank', 'book', 'set', 'take', 'export'].includes(n.type) ? error : null;
+    const fieldErr = error && !/输入/.test(error) && ['bank', 'book', 'set', 'take', 'export', 'chapters'].includes(n.type) ? error : null;
     const sel = (label, value, options, onChange) => h(E.Select, { label, size: 'sm', value, options, onChange, error: fieldErr || undefined });
     let body = null;
-    if (n.type === 'bank') body = sel('考试', p.exam || '9709', cat.exams.map((e) => ({ value: e, label: e })), (v) => update(n.id, { exam: v }));
+    if (n.type === 'bank') body = sel('考试', p.exam || '9709', [{ value: '*', label: '全部' }].concat(cat.exams.map((e) => ({ value: e, label: e }))), (v) => update(n.id, { exam: v }));
+    if (n.type === 'chapters') body = sel('教材', p.book || '*', [{ value: '*', label: '全部教材' }].concat(cat.books.map((b) => ({ value: b.value, label: b.label }))), (v) => update(n.id, { book: v }));
     if (n.type === 'book') body = sel('教材', p.book || '9709_p1', cat.books.map((b) => ({ value: b.value, label: b.label })), (v) => update(n.id, { book: v }));
     if (n.type === 'set') body = sel('题组', p.set || '', sets.map((s) => ({ value: s.id, label: s.name })), (v) => update(n.id, { set: v }));
     if (n.type === 'filter') {
@@ -1430,7 +1441,8 @@
           h(EditableTitle, { value: g.name, readOnly: g.builtin, editing: renaming, setEditing: setRenaming, label: '重命名流程', onSave: saveName }),
           h('div', { className: 'dm-meta' }, g.summary ? h('span', null, g.summary) : null, last ? h('span', { className: 't' }, last.ran) : null)),
         h(E.Button, { variant: 'primary', size: 'md', icon: 'i-edit', onClick: () => { location.hash = '#/flows/' + g.id; } }, '编辑流程'),
-        h(E.Button, { variant: 'primary', size: 'md', disabled: running, loading: running, onClick: doRun }, '运行流程')),
+        h(E.Button, { variant: 'primary', size: 'md', disabled: running, loading: running, onClick: doRun }, '运行流程'),
+        act('i-copy', '复制 JSON', () => copyFlow(g, toast))),
       h(FlowPreview, { key: g.id, g, cat, templates, sets }),
       h('section', { className: 'fo-sec' },
         h('h2', { className: 'fs-lead fo-title' }, '上次输出'),

@@ -59,7 +59,7 @@ NODES = {
     "export": {"cat": "输出", "label": "导出", "ins": [("题目", ("q",)), ("附件", ("f",))], "outs": []},
     "newset": {"cat": "输出", "label": "新建题组", "ins": [("题目", ("q",))], "outs": []},
     "paper": {"cat": "输出", "label": "练习卷", "ins": [("题目", ("q",))], "outs": []},
-    "chapters": {"cat": "输出", "label": "章节包", "ins": [("分组", ("q",))], "outs": []},
+    "chapters": {"cat": "输出", "label": "章节包", "ins": [("题目", ("q",))], "outs": []},
 }
 
 
@@ -171,8 +171,13 @@ def _sort_key(kind):
 
 # ------------------------------------------------------------------ nodes
 
+ALL = "*"                                  # the bank node's 全部 and the chapter node's 全部教材
+
+
 def node_bank(p, ins):
     exam = p.get("exam") or "9709"
+    if exam == ALL:                          # every exam, one after another
+        return [lst("q", [r for e in EXAMS for r in question_records(e)])]
     if exam not in EXAMS:
         raise FlowError("考试不存在")
     return [lst("q", question_records(exam))]
@@ -394,26 +399,29 @@ def out_paper(g, node, ins, outdir):
 RUN = {"bank": node_bank, "book": node_book, "set": node_set, "filter": node_filter, "sort": node_sort,
        "take": node_take, "group": node_group, "merge": node_merge, "join": node_join}
 def out_chapters(g, node, ins, outdir):
-    """Chapter packages, as pipeline/export/export_all_chapters.py writes them, for the
-    groups of a join with a textbook's chapters: one ZIP per chapter, in
+    """Chapter packages, as pipeline/export/export_all_chapters.py writes them: for every
+    chapter of the chosen textbook (or of all of them), the questions it receives that are
+    on the chapter's topic, whole or by some of their parts, in one ZIP in
     exports/chapters/<book>/, replacing the archive of the same name."""
     from pipeline.export import export_all_chapters as chap
     v = ins[0]
-    if v["shape"] != "group":
-        raise FlowError("章节包节点的输入须为按章节的分组")
+    pool = v["items"] if v["shape"] == "list" else [r for x in v["groups"] for r in x["items"]]
+    ids = {r["id"] for r in pool}
+    book = node["params"].get("book") or ALL
+    if book != ALL and book not in BOOKS:
+        raise FlowError("教材不存在")
     con = db.connect()
-    by = {c["id"]: c for c in chap.chapters_of(con)}
-    if any(x["key"] not in by for x in v["groups"]):
-        raise FlowError("章节包节点的输入须为教材章节的分组")
-    out, books = [], {}
-    for x in v["groups"]:
-        c = by[x["key"]]
+    books = {}
+    for c in chap.chapters_of(con):
+        if book != ALL and c["book"] != book:
+            continue
         path = chap.chapter_path(c)
-        chap.write_chapter(con, c, path, ids=[r["id"] for r in x["items"]])
+        m = chap.write_chapter(con, c, path, ids=ids)
         b = books.setdefault(path.parent, {"files": 0, "questions": 0, "size": 0})
         b["files"] += 1
-        b["questions"] += len(x["items"])
+        b["questions"] += m["questions"]
         b["size"] += path.stat().st_size
+    out = []
     for folder, b in books.items():
         size = f"{b['size'] / 1048576:.1f} MB" if b["size"] >= 1048576 else f"{max(1, round(b['size'] / 1024))} KB"
         out.append({"node": node["id"], "kind": "folder", "name": os.path.relpath(folder, os.path.dirname(paths.EXPORTS)),
@@ -554,6 +562,8 @@ def summary(g):
             grouped = True
         elif n["type"] == "take":
             parts.append(f"{'每组' if grouped else '前'} {p.get('n', 10)} 题")
+        elif n["type"] == "chapters":
+            parts.append("教材：" + ("全部" if (p.get("book") or ALL) == ALL else BOOKS.get(p["book"], p["book"])))
     return "，".join(dict.fromkeys(x for x in parts if x))
 
 

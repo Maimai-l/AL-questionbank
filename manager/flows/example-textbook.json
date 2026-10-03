@@ -4,65 +4,28 @@
  "created": "2026-10-02 10:00",
  "nodes": [
   {
-   "id": "book",
-   "type": "book",
-   "x": 32,
-   "y": 56,
-   "params": {
-    "book": "9709_p1"
-   }
-  },
-  {
    "id": "bank",
    "type": "bank",
    "x": 32,
-   "y": 296,
+   "y": 120,
    "params": {
-    "exam": "9709"
-   }
-  },
-  {
-   "id": "join",
-   "type": "join",
-   "x": 248,
-   "y": 176,
-   "params": {
-    "left": "topic",
-    "right": "topic"
+    "exam": "*"
    }
   },
   {
    "id": "out",
    "type": "chapters",
-   "x": 464,
-   "y": 176,
-   "params": {}
+   "x": 248,
+   "y": 120,
+   "params": {
+    "book": "*"
+   }
   }
  ],
  "links": [
   {
    "from": [
-    "book",
-    0
-   ],
-   "to": [
-    "join",
-    0
-   ]
-  },
-  {
-   "from": [
     "bank",
-    0
-   ],
-   "to": [
-    "join",
-    1
-   ]
-  },
-  {
-   "from": [
-    "join",
     0
    ],
    "to": [
