@@ -110,7 +110,7 @@ def render(path, pages, stem):
     with pymupdf.open(path) as doc:
         for n in pages:
             f = os.path.join(PAGES, f"{stem}_p{n + 1}.png")
-            if not os.path.exists(f):
+            if not os.path.exists(f) or not os.path.getsize(f):   # an interrupted render leaves an empty file
                 doc[n].get_pixmap(dpi=110, colorspace=pymupdf.csGRAY).save(f)
             out.append(f)
     return out

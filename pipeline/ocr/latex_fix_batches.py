@@ -73,29 +73,42 @@ def _pdf(name, sub):
     return None
 
 
+HEADER = re.compile(r"^[Q4]uestion$")   # 9709_s26_ms_13 has no Q in its font: "4uestion"
+
+
 def scheme_pages(doc, q, col=0.13):
-    """Pages of a mark scheme holding question q: from the first page whose left
-    column carries its label to the page where question q+1 starts. Pages before
-    the table (headed "Question") are skipped."""
+    """Pages of a mark scheme holding question q: from the first page whose question
+    column carries its label to the page where question q+1 starts; the last question
+    runs to the end. Pages before the table (headed "Question") are skipped.
+
+    A label counts only when it sits under the "Question" header: numbers in the
+    answer column also start near the left edge (9709_w24_ms_12 p8 has an "8" there,
+    which once put question 8 on pages 8-15 instead of 17-20)."""
     first = last = nxt = None
     lab = re.compile(rf"^{q}(?:\(|$)")
     nlab = re.compile(rf"^{q + 1}(?:\(|$)")
     table = False                        # the cover, notes and abbreviations come first
+    span = None                          # x-range of the header, kept for pages that repeat no header
     for page in doc:
         m = page.rotation_matrix          # word boxes are unrotated; the column is on the page as shown
-        left = [w[4] for w in page.get_text("words") if (pymupdf.Rect(w[:4]) * m).x0 < page.rect.width * col]
-        table = table or "Question" in left
+        words = [(pymupdf.Rect(w[:4]) * m, w[4]) for w in page.get_text("words")]
+        left = [(r, t) for r, t in words if r.x0 < page.rect.width * col]
+        heads = [r for r, t in left if HEADER.match(t)]
+        if heads:
+            table = True
+            span = (min(r.x0 for r in heads) - 4, max(r.x1 for r in heads) + 4)
         if not table:
             continue
-        if any(lab.match(t) for t in left):
+        labels = [t for r, t in left if span[0] <= (r.x0 + r.x1) / 2 <= span[1]]
+        if any(lab.match(t) for t in labels):
             first = page.number if first is None else first
             last = page.number
-        if first is not None and nxt is None and any(nlab.match(t) for t in left):
+        if first is not None and nxt is None and any(nlab.match(t) for t in labels):
             nxt = page.number
     if first is None:                    # some schemes set the question column further in
         return scheme_pages(doc, q, 0.25) if col < 0.25 else []
-    end = max(last, nxt if nxt is not None else last)
-    return list(range(first, min(end, first + 7) + 1))
+    end = nxt if nxt is not None else len(doc) - 1
+    return list(range(first, min(max(end, last), first + 9) + 1))
 
 
 def render(path, pages, stem):
@@ -103,7 +116,7 @@ def render(path, pages, stem):
     with pymupdf.open(path) as doc:
         for n in pages:
             f = os.path.join(PAGES, f"{stem}_p{n + 1}.png")
-            if not os.path.exists(f):
+            if not os.path.exists(f) or not os.path.getsize(f):   # an interrupted render leaves an empty file
                 doc[n].get_pixmap(dpi=110, colorspace=pymupdf.csGRAY).save(f)
             out.append(f)
     return out
