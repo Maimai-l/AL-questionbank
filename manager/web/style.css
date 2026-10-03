@@ -331,10 +331,7 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 
 /* 版面: five segments in a row, filled up to the step chosen */
 .space-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--txt); }
-.space-bar:focus { outline: none; }
-/* keyboard focus: a short line under the current step; the segment itself keeps its size */
-.space-cell { position: relative; }
-.space-bar:focus-visible .space-cell.cur::after { content: ""; position: absolute; left: 0; right: 0; bottom: 2px; height: 2px; border-radius: 1px; background: var(--color-focus-ring); }
+.space-bar:focus, .space-bar:focus-visible { outline: none; }
 .space-cell { height: 24px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; }
 .space-cell i { display: block; width: 100%; height: 6px; border-radius: 3px; background: var(--color-border-subtle); transition: background-color var(--duration-base, .15s) ease; }
 .space-cell:hover i { background: var(--color-border-strong); }

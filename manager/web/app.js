@@ -1808,7 +1808,7 @@
     return h('fieldset', { className: 'opt-group ex space' }, h('legend', null, '版面'),
       h('div', { className: 'space-bar', role: 'slider', tabIndex: 0, 'aria-label': '版面', 'aria-valuemin': 0, 'aria-valuemax': 4,
         'aria-valuenow': value, 'aria-valuetext': NAMES[value], onKeyDown: key },
-        [0, 1, 2, 3, 4].map((n) => h('button', { key: n, type: 'button', tabIndex: -1, className: 'space-cell' + (n <= value ? ' on' : '') + (n === value ? ' cur' : ''),
+        [0, 1, 2, 3, 4].map((n) => h('button', { key: n, type: 'button', tabIndex: -1, className: 'space-cell' + (n <= value ? ' on' : ''),
           'aria-label': NAMES[n], onClick: () => onChange(n) }, h('i')))),
       h('div', { className: 'space-ends', 'aria-hidden': 'true' },
         h('span', null, '紧凑'), h('span'), h('span'), h('span', null, '原卷'), h('span', null, '宽松')));
