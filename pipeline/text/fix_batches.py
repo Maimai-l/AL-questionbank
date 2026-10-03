@@ -2,7 +2,7 @@
 """Rewrite CAIE question text and mark schemes against the original pages, through
 sub-agents, and keep the result as replayable corrections.
 
-    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--component 3] [--size 10] [--out run1] [--skip-done] [--focus diagrams] [ID ...]
+    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--component 3] [--size 10] [--out run1] [--skip-done] [--focus diagrams|errata] [--notes N.json] [ID ...]
     python3 pipeline/text/fix_batches.py verify raw/text_fix/run1/out/batch_01.json
     python3 pipeline/text/fix_batches.py apply [--write]
 
@@ -63,6 +63,21 @@ FOCUS = """## 本批是图示复核
 
 """
 
+ERRATA = """## 本批是原卷错误更正
+
+这些题已经审校过,文本与原页一致。但原卷本身有印刷错误或笔误,上一轮按原页保留了;每题下面的「已知问题」
+是当时的记录。本批**只更正原卷本身的错误**,按下文「原卷本身的错误」一节处理:
+
+1. 逐条核对「已知问题」:先在原页上确认,再通过计算或推导确定正确写法,改正。记录若只是格式说明、
+   或该处其实没有错误、或已经改正,就不改。
+2. 核对时顺带发现同一题里其他原卷错误,一并改正。
+3. 其余文字、格式、评分码、Guidance 一律不动。
+4. 题干与评分细则互相矛盾时,先判断哪一边错:题干与题图一致而答案与之不符,改评分细则;
+   题干本身印错(与题图、答案和评分细则都不符),改题干。
+5. 不需要改的题写 `null`。改动时照常写出**完整**的新文本,`why` 写明原写法、改为什么和依据。
+
+"""
+
 TASK = """# 题干与评分细则更正批次 {n}
 
 题库的题干与评分细则来自 OCR,有大段丢失、乱码、串题,图示只剩 `[DIAGRAM]`。不带图片的导出只给读者这些文本,
@@ -110,6 +125,12 @@ TASK = """# 题干与评分细则更正批次 {n}
    流程图答案按步骤写出。负号写成 `−` 或 `-`,不要写成乱码。
 4. 原页没有的内容不要写。
 
+## 原卷本身的错误
+
+题库要的是正确,不是与原卷逐字一致。原卷(题目卷或评分细则)本身印错的地方:数值算错、符号或指数印错、
+漏项、错别字、评分细则与题干互相矛盾、小计印错,一律改为正确写法,不要照抄。正确写法必须有依据(重新计算、
+按题干推导、按评分码与分值核对),在 `why` 里写明原写法、改为什么和依据。无法确定正确写法时不改,在 `why` 里说明。
+
 ## 输出
 
 把 JSON 数组写到 `{out}`,每题一项:
@@ -120,7 +141,7 @@ TASK = """# 题干与评分细则更正批次 {n}
 
 - `null` 表示当前文本已经完全正确,不需要改。只要有任何与原图不符之处,就写出**完整**的新文本(不是片段)。
 - 写完后运行 `python3 pipeline/text/fix_batches.py verify {out}`,按报告修改,直到输出「全部通过」。
-  报告分值合计不符、小问数不符时,先回到原图核对;确认原图本身如此(例如原卷印刷的小计)时,在 `why` 里写明。
+  报告分值合计不符、小问数不符时,先回到原图核对;原卷印错的小计按评分码与题目分值改正。
 - 只写这一个 JSON 文件,不改数据库,不改其他文件。最后的回复只报告题数、改了题干的题数、改了评分细则的题数。
 
 ## 题目
@@ -176,13 +197,15 @@ def plan(a):
     if a.skip_done and os.path.exists(FIXES):
         done = {json.loads(line)["id"] for line in open(FIXES, encoding="utf-8")}
         rows = [r for r in rows if r["id"] not in done]
+    notes = json.load(open(a.notes, encoding="utf-8")) if a.notes else {}
     n = 0
     for b in range(0, len(rows), a.size):
         n += 1
         out = rel(os.path.join(out_dir, "out", f"batch_{n:02d}.json"))
         text = [TASK.format(n=n, out=out)]
-        if a.focus == "diagrams":
-            text[0] = text[0].replace("## 每题的材料", FOCUS + "## 每题的材料", 1)
+        if a.focus:
+            focus = {"diagrams": FOCUS, "errata": ERRATA}[a.focus]
+            text[0] = text[0].replace("## 每题的材料", focus + "## 每题的材料", 1)
         for r in rows[b:b + a.size]:
             crop = paths.resolve(r["image"])
             ms = _pdf(ms_name(r), "ms")
@@ -196,7 +219,8 @@ def plan(a):
             text.append(
                 f"\n### {r['id']}({bank.paper_code(r)} 第 {r['q']} 题,共 {r['marks']} 分;各小问分值 {tariffs})\n\n"
                 f"题图:{rel(crop) if crop else '无'}\n评分细则原页:{', '.join(rel(p) for p in pages) or where}\n"
-                f"\nPDF 文本层:\n\n````\n{r['question_text'] or ''}\n````\n"
+                + "".join(f"\n已知问题:{x}\n" for x in notes.get(r["id"], []))
+                + f"\nPDF 文本层:\n\n````\n{r['question_text'] or ''}\n````\n"
                 f"\n当前题干({qcol(r)}):\n\n````\n{r[qcol(r)] or ''}\n````\n"
                 f"\n当前评分细则({mcol(r)}):\n\n````\n{r[mcol(r)] or ''}\n````\n")
         with open(os.path.join(out_dir, f"batch_{n:02d}.md"), "w", encoding="utf-8") as f:
@@ -365,7 +389,10 @@ def main():
     p.add_argument("--size", type=int, default=10)
     p.add_argument("--out", default="run1")
     p.add_argument("--skip-done", action="store_true", help="leave out questions already in text_fixes.jsonl")
-    p.add_argument("--focus", choices=["diagrams"], help="a second pass that checks only the Diagram: descriptions")
+    p.add_argument("--focus", choices=["diagrams", "errata"],
+                   help="a second pass: diagrams checks only the Diagram: descriptions, "
+                        "errata corrects errors printed in the original papers")
+    p.add_argument("--notes", help="JSON {id: [note, ...]} shown under each question as 已知问题")
     p.set_defaults(fn=plan)
     p = sub.add_parser("verify")
     p.add_argument("file")

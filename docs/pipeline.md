@@ -64,7 +64,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/ocr/latex_fix_batches.py  子 agent 对照原页更正这些公式(plan / verify / apply),写入 ms_fixes.jsonl
             pipeline/ocr/apply_ms_fixes.py     重放按原页人工更正的评分细则与题干公式(ms_fixes.jsonl)
             pipeline/text/review_batches.py    子 agent 对照题图与细则原页审查题干和评分细则(抽样或全量,只报告)
-            pipeline/text/fix_batches.py       子 agent 对照原图重写题干与评分细则(图示写成文字),写入 text_fixes.jsonl 并重放
+            pipeline/text/fix_batches.py       子 agent 对照原图重写题干与评分细则(图示写成文字),写入 text_fixes.jsonl 并重放;
+                                               --focus diagrams 只复核图示描述,--focus errata 加 --notes 更正原卷本身的错误
             pipeline/split/ms_total_from_ocr.py 只有 OCR 细则的题(35 题)从 ms_latex 读小计,写 ms_total / totals_agree
 10 大纲标签  pipeline/tags/syllabus.py          大纲 PDF → syllabus.json
             pipeline/tags/topic_model.py       用大纲原文给主题打分
@@ -137,6 +138,10 @@ python3 pipeline/export/build_site.py       # 8. 出页面
 `review_batches.py` 负责把需要读图判断的题目分批、生成给 agent 的提示词,并在回收时
 用不变量校验结果。改判结果写入 `retag_tmua.json` 与 `retag_tara.json`,不要直接改
 `questions_adm.json`,后者在重跑时会被覆盖。
+
+`spot_check.py` 是入学考抽查:每份试卷按固定种子抽题(默认 5 题),子 agent 对照题图核对题干、
+选项与答案字母,结果写在 `raw/adm_check/out/`;`report` 按试卷与考试统计有错的题与错误类型,
+用来决定哪些试卷要整份重新转录。
 
 ## 教材线
 
