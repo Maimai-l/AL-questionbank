@@ -149,15 +149,6 @@ def page_png(bid, n, width):
         return page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), colorspace=pymupdf.csGRAY).tobytes("png")
 
 
-def answers_info(s):
-    p = export.answer_pdf(s)
-    if not p:
-        return None
-    with pymupdf.open(p) as d:
-        n = d.page_count
-    return {"updated": time.strftime("%Y-%m-%d %H:%M", time.localtime(os.path.getmtime(p))), "pages": n}
-
-
 async def export_board(hub, s, bid, name, scheme=False, explanation=False):
     """(bytes, file name): the paper with the ink as a PDF, or a ZIP with the reading
     documents when they are asked for. The PDF also becomes the set's answer PDF."""

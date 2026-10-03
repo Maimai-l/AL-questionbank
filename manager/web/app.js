@@ -468,7 +468,7 @@
   function Detail({ qid }) {
     const [d, setD] = useState(null);
     const [tab, setTab] = useState('ms');
-    useEffect(() => { setD(null); if (qid) api('/api/question/' + qid).then(setD); }, [qid]);
+    useEffect(() => { setD(null); setTab('ms'); if (qid) api('/api/question/' + qid).then(setD); }, [qid]);
     if (!qid) return h('aside', { className: 'detail' },
       h('div', { className: 'detail-body' }, h(E.EmptyState, { icon: 'i-list', title: '未选择题目' })));
     if (!d) return h('aside', { className: 'detail' }, h('div', { className: 'detail-body' }, h(E.Loading, null)));
@@ -543,7 +543,7 @@
 
   const SOURCE_ICON = { query: 'i-search', paper: 'i-doc', import: 'i-upload', manual: 'i-list' };
 
-  function SetsPage({ sets, current, reloadSets, templates, toast, acts }) {
+  function SetsPage({ sets, current, reloadSets, templates, toast }) {
     const s = sets.find((x) => x.id === current) || sets[0];
     const fileRef = useRef(null);
     const [renameId, setRenameId] = useState(null);     // 重命名题组 from a list item's menu
@@ -650,7 +650,7 @@
             boards ? h('span', null, written ? `已作答，最后书写 ${written.updated}` : '未作答') : null)),
         h('div', { className: 'sd-acts' },
           h(E.Button, { variant: written ? 'secondary' : 'primary', size: 'md', disabled: !ready, onClick: openBoard }, '打开白板'),
-          h(E.Button, { variant: written ? 'primary' : 'secondary', size: 'md', icon: 'i-box', disabled: !s.count, onClick: () => setOutput(true) }, '输出'),
+          h(E.Button, { variant: written ? 'primary' : 'secondary', size: 'md', icon: 'i-box', disabled: !s.count || !templates.length, onClick: () => setOutput(true) }, '输出'),
           h(MoreMenu, { label: '更多操作', items: [
             { label: '打开评分细则', onClick: () => open(`/doc/${s.id}/scheme`, '_blank') },
             s.docs.explanation ? { label: '打开详解', onClick: () => open(`/doc/${s.id}/explanation`, '_blank') } : null,
@@ -684,17 +684,19 @@
               h('h2', { className: 'fs-lead panel-title' }, '题目'),
               h(E.Button, { variant: 'secondary', size: 'sm', onClick: () => { setEditing(true); setSelected([]); } }, '编辑')),
             h('ol', { className: 'sd-qlist' }, view.map((r) => h('li', { key: r.id },
-              h('span', { className: 'n' }, r.n), h('span', { className: 'c' }, `${bank_code(r)} Q${r.q}`), h('span', { className: 'm' }, r.marks, ' 分')))))),
+              h('span', { className: 'n' }, r.n), h('span', { className: 'c' }, `${r.code} Q${r.q}`), h('span', { className: 'm' }, r.marks, ' 分')))))),
       output ? h(OutputDialog, { s, templates, written: !!written, toast, onClose: () => setOutput(false) }) : null);
   }
 
-  /** 9709/12/M/J/23 for a question row of /api/questions. */
-  const bank_code = (r) => r.code || `${r.exam || ''}/${r.paper}/${SEASON[r.month] || ''}/${String(r.year).slice(2)}`;
 
   const download = (url) => { const a = document.createElement('a'); a.href = url; a.download = ''; document.body.appendChild(a); a.click(); a.remove(); };
 
+  /** POST, then save the file the server sends. Resolves true when it was saved. */
   const fetchFile = (url, body, toast) => fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-    .then((r) => { if (!r.ok) throw new Error(r.statusText); return Promise.all([r.blob(), r.headers.get('Content-Disposition') || '']); })
+    .then((r) => {
+      if (!r.ok) return r.text().then((t) => { throw new Error(t || r.statusText); });
+      return Promise.all([r.blob(), r.headers.get('Content-Disposition') || '']);
+    })
     .then(([b, disp]) => {
       const m = disp.match(/filename\*=UTF-8''([^;]+)/);
       const a = document.createElement('a');
@@ -702,8 +704,9 @@
       a.download = m ? decodeURIComponent(m[1]) : '';
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      return true;
     })
-    .catch((e) => toast('error', e.message));
+    .catch((e) => { toast('error', e.message); return false; });
 
   // what each kind of file in the output is called in the dialog's list
   const FILE_KIND = { 'question.png': '题目截图', 'question.md': '题干文字', 'mark_scheme.md': '评分细则', 'explanation.md': '详解' };
@@ -750,6 +753,7 @@
     const images = st.format === 'images';
     const toggle = (k) => {
       const on = !has[k];
+      if (!on && ((k === 'q' && !has.ink) || (k === 'ink' && !has.q))) return;   // something must show the questions
       const per = st.per_question.filter((x) => x !== { ms: 'mark_scheme', ex: 'explanation' }[k]);
       if (k === 'q') setSt({ ...st, documents: on ? st.documents.concat('question_paper') : st.documents.filter((x) => x !== 'question_paper'),
         per_question: on ? st.per_question : st.per_question.filter((x) => !IMG.includes(x)) });
@@ -759,7 +763,7 @@
     const box = (k, label, disabled) => h(E.Checkbox, { checked: has[k], disabled, onChange: () => toggle(k) }, label);
     const go = () => {
       setBusy(true);
-      fetchFile(`/api/sets/${s.id}/output`, body, toast).then(() => { setBusy(false); onClose(); });
+      fetchFile(`/api/sets/${s.id}/output`, body, toast).then((ok) => { setBusy(false); if (ok) onClose(); });
     };
     const groups = pv ? fileGroups(pv.files) : [];
     // its own footer: the design system's confirm button closes the dialog at once, and the
@@ -780,7 +784,7 @@
           : h('div', null, h(E.Button, { variant: 'secondary', size: 'sm', icon: 'i-sliders', onClick: () => setTuning(true) }, '调整格式与内容')),
         h('div', { className: 'op-files' },
           h('h4', null, pdf ? '文件' : '压缩包内容'),
-          !pv ? h(E.Loading, null) : groups.map((g) => h('div', { key: g.name, className: 'op-file' },
+          !pv ? h(E.Loading, null) : pv.error ? h('span', { className: 'fl-err' }, pv.error) : groups.map((g) => h('div', { key: g.name, className: 'op-file' },
             h(E.Icon, { name: 'i-doc', size: 'sm' }), h('span', { className: 'op-name' }, g.name),
             h('span', { className: 'op-n' }, g.n > 1 ? `${g.n} 个文件` : ''),
             h('span', { className: 'op-n' }, sizeText(g.size)))),
@@ -893,7 +897,8 @@
     const [pv, setPv] = useState(null);
     useEffect(() => {
       if (!s || !st) return undefined;
-      const t = setTimeout(() => send('POST', `/api/sets/${s.id}/zip/preview`, { settings: st, body }).then(setPv).catch(() => setPv(null)), 200);
+      const t = setTimeout(() => send('POST', `/api/sets/${s.id}/zip/preview`, { settings: st, body }).then(setPv)
+        .catch((e) => setPv({ error: e.message, files: [], size: 0, readme: '', manifest: '' })), 200);
       return () => clearTimeout(t);
     }, [s && s.id, s && s.items.join(), JSON.stringify(st), body]);
     return pv;
@@ -904,29 +909,34 @@
     ['{date}', '日期'], ['{question_table}', '题目表'], ['{file_tree}', '目录'],
   ];
 
-  function TemplatesPage({ templates, current, reloadTemplates, sets, toast, acts }) {
+  function TemplatesPage({ templates, current, reloadTemplates, sets, toast }) {
     const t = templates.find((x) => x.id === current) || templates[0];
     const [name, setName] = useState('');
     const [st, setSt] = useState(null);
     const [body, setBody] = useState('');
     const [tab, setTab] = useState('src');
-    const [sid, setSid] = useState(sets[0] ? sets[0].id : '');
+    const firstSet = () => (sets.find((x) => x.count) || sets[0] || {}).id || '';
+    const [sid, setSid] = useState(firstSet);
     const [deleting, setDeleting] = useState(null);
     const [renaming, setRenaming] = useState(false);
     const [renameId, setRenameId] = useState(null);     // 重命名模板 from a list item's menu
     const area = useRef(null);
     useEffect(() => { if (t && renameId === t.id) { setRenaming(true); setRenameId(null); } }, [renameId, t && t.id]);
     useEffect(() => { if (t) { setName(t.name); setSt(t.settings); setBody(t.body); } }, [t && t.id, templates.length]);
-    // changes are saved as they are made (built-in templates are read-only)
+    // changes are saved as they are made (built-in templates are read-only); a change still
+    // waiting is saved at once when another template is opened or the page is left
+    const pending = useRef(null);
     useEffect(() => {
       if (!t || t.builtin || !st) return undefined;
       if (name === t.name && body === t.body && JSON.stringify(st) === JSON.stringify(t.settings)) return undefined;
-      const id = t.id;
-      const tm = setTimeout(() => send('PUT', '/api/templates/' + id, { name, settings: st, body })
-        .then(() => reloadTemplates()).catch((e) => toast('error', e.message)), 600);
-      return () => clearTimeout(tm);
+      const id = t.id, data = { name, settings: st, body };
+      const save = () => { clearTimeout(tm); pending.current = null; send('PUT', '/api/templates/' + id, data).then(() => reloadTemplates()).catch((e) => toast('error', e.message)); };
+      const tm = setTimeout(save, 600);
+      pending.current = save;
+      return () => { clearTimeout(tm); };
     }, [name, body, JSON.stringify(st)]);
-    useEffect(() => { if (!sid && sets[0]) setSid(sets[0].id); }, [sets.length]);
+    useEffect(() => () => { if (pending.current) pending.current(); }, [t && t.id]);
+    useEffect(() => { if (!sid) setSid(firstSet()); }, [sets.length]);
     const pv = usePreview(tab === 'preview' ? sets.find((x) => x.id === sid) : null, st, body);
     if (!t || !st) return h('div', { className: 'dm-row' }, h(E.Loading, null));
     const go = (id) => { location.hash = '#/templates/' + id; };
@@ -968,7 +978,7 @@
               options: sets.map((x) => ({ value: x.id, label: x.name })) }))),
         tab === 'src'
           ? h('textarea', { ref: area, className: 'tpl-src', value: body, readOnly: t.builtin, spellCheck: false, onChange: (e) => setBody(e.target.value) })
-          : h('div', { className: 'ex-docbody' }, pv ? h(MdView, { text: pv.readme }) : sets.length ? h(E.Loading, null) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' }))),
+          : h('div', { className: 'ex-docbody' }, pv && pv.error ? h(E.EmptyState, { icon: 'i-doc', title: pv.error }) : pv ? h(MdView, { text: pv.readme }) : sets.length ? h(E.Loading, null) : h(E.EmptyState, { icon: 'i-list', title: '没有题组' }))),
       deleting ? h(E.Dialog, { open: true, danger: true, title: '删除模板', confirmLabel: '删除模板', onClose: () => setDeleting(null),
         onConfirm: () => send('DELETE', '/api/templates/' + deleting.id).then(() => reloadTemplates())
           .then(() => { if (deleting.id === t.id) go('default'); setDeleting(null); }).catch((e) => toast('error', e.message)) },
@@ -1104,14 +1114,19 @@
     const nid = useRef(1);
 
     useEffect(() => { api('/api/flows/catalog').then(setCat); }, []);
-    // changes are saved as they are made; a built-in flow is saved only as a copy
+    // changes are saved as they are made (built-in flows are read-only); a change still
+    // waiting is saved at once when the page is left
+    const pending = useRef(null);
     useEffect(() => {
       if (!g || g.builtin) return undefined;
       const text = JSON.stringify(g);
       if (text === saved) return undefined;
-      const tm = setTimeout(() => send('PUT', '/api/flows/' + g.id, g).then(() => setSaved(text)).catch((e) => toast('error', e.message)), 800);
-      return () => clearTimeout(tm);
+      const save = () => { clearTimeout(tm); pending.current = null; send('PUT', '/api/flows/' + g.id, g).then(() => setSaved(text)).catch((e) => toast('error', e.message)); };
+      const tm = setTimeout(save, 800);
+      pending.current = save;
+      return () => { clearTimeout(tm); };
     }, [g, saved]);
+    useEffect(() => () => { if (pending.current) pending.current(); }, []);
     useEffect(() => {
       setRun(null); setSel(null);
       api('/api/flows/' + fid).then((x) => {
@@ -1148,7 +1163,6 @@
     const errors = (ev && ev.errors) || {};
     const outOf = (id, i) => (ports[id] || [])[i];
     const inOf = (id, i) => { const l = g.links.find((x) => x.to[0] === id && x.to[1] === i); return l ? outOf(l.from[0], l.from[1]) : null; };
-    const shapeOf = (id, i) => { const o = outOf(id, i); return o ? o.shape : cat.nodes[byId[id].type].outs[i][1]; };
     // a built-in flow can be looked at and run, not changed
     const update = (id, patch) => !g.builtin && setG({ ...g, nodes: g.nodes.map((n) => (n.id === id ? { ...n, params: { ...n.params, ...patch } } : n)) });
 
@@ -1311,7 +1325,7 @@
           h('div', { className: 'cond-f' }, h(E.Select, { ariaLabel: '字段', size: 'sm', value: c.field, options: fields, onChange: (v) => put(i, { field: v }) })),
           h('div', { className: 'cond-d' }, h(E.IconButton, { icon: 'i-close', label: '删除条件', variant: 'ghost', size: 'sm', onClick: () => update(n.id, { conds: conds.filter((_, j) => j !== i) }) })),
           h('div', { className: 'cond-o' }, h(E.Select, { ariaLabel: '运算符', size: 'sm', value: c.op, options: cat.ops.map((o) => ({ value: o, label: o })), onChange: (v) => put(i, { op: v }) })),
-          h('div', { className: 'cond-v' }, h(E.TextField, { ariaLabel: '值', size: 'sm', value: String(c.value ?? ''), onChange: (e) => put(i, { value: e.target.value }) })))));
+          h('div', { className: 'cond-v' }, h(E.TextField, { 'aria-label': '值', size: 'sm', value: String(c.value ?? ''), onChange: (e) => put(i, { value: e.target.value }) })))));
     }
     if (n.type === 'sort') {
       body = h(React.Fragment, null,
@@ -1528,11 +1542,11 @@
     if (!metas) body = null;
     else if (page === 'sets' && sub === 'board') {
       body = cur ? h(BoardPage, { key: subArg, s: cur, bid: subArg, acts }) : h(E.Loading, null);
-    } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast, acts });
+    } else if (page === 'sets') body = h(SetsPage, { sets, current: arg, reloadSets, templates, toast });
     else if (page === 'templates' && arg === 'flows') body = (templates.length ? h(FlowListPage, { current: sub, reloadSets, templates, sets, toast }) : h(E.Loading, null));
     else if (page === 'flows') body = templates.length ? h(FlowPage, { key: arg, fid: arg, templates, sets, reloadSets, toast, onTitle: setFlowTitle }) : h(E.Loading, null);
     else if (page === 'templates') {
-      body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast, acts }) : h(E.Loading, null);
+      body = templates.length ? h(TemplatesPage, { templates, current: arg, reloadTemplates, sets, toast }) : h(E.Loading, null);
     } else if (page === 'settings') body = h('div', { className: 'dm-row' }, h(SettingsPage, { sets }));
     else if (page === 'query') body = h(QueryPage, { metas, search, clearSearch, sets, reloadSets, toast });
     else body = null;

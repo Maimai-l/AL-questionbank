@@ -11,7 +11,6 @@ practice papers (files under paths.FLOWS/out/<graph id>/) and question sets. Ran
 the same graph, bank and seed give the same result.
 """
 import hashlib
-import io
 import json
 import os
 import random
@@ -375,7 +374,10 @@ def out_paper(g, node, ins, outdir):
         if not items:
             continue
         s = _pseudo_set(g, name, list(dict.fromkeys(r["id"] for r in items)), f"{node['id']}/{extra}")
-        src = paper.build(s)
+        try:
+            src = paper.build(s)
+        except paper.EmptyPaper as e:
+            raise FlowError(str(e))
         fname = f"{node['id']}{('-' + extra) if extra else ''}.pdf"
         with open(src, "rb") as fh, open(os.path.join(outdir, fname), "wb") as w:
             w.write(fh.read())
@@ -414,19 +416,21 @@ def evaluate(g, make=False):
     ids = {n["id"] for n in nodes}
     links = [l for l in g.get("links", []) if l["from"][0] in ids and l["to"][0] in ids]
     values, errors, outputs = {}, {}, []
-    outdir = os.path.join(OUT, g["id"]) if make else None
+    order = _order(nodes, links)             # a cycle fails here, before the last run is cleared
+    outdir = out_dir(g["id"]) if make else None
     if make:
         os.makedirs(outdir, exist_ok=True)
         for f in os.listdir(outdir):
             os.remove(os.path.join(outdir, f))
-    for n in _order(nodes, links):
+    for n in order:
         spec = NODES[n["type"]]
         ins = []
         if any(l["to"][0] == n["id"] and l["from"][0] in errors for l in links):
             continue                         # fed by a node that failed: that node shows the error
         for i, (label, accept) in enumerate(spec["ins"]):
             src = next((l["from"] for l in links if l["to"] == [n["id"], i]), None)
-            v = values.get(src[0], [None] * 9)[src[1]] if src else None
+            out = values.get(src[0]) or [] if src else []
+            v = out[src[1]] if src and isinstance(src[1], int) and 0 <= src[1] < len(out) else None
             if v is not None and not _accepts(accept, v):
                 v = None
             ins.append(v)
@@ -472,7 +476,7 @@ def view(g, make=False):
            "errors": r["errors"], "outputs": r["outputs"],
            "ran": time.strftime("%Y-%m-%d %H:%M") if make else None}
     if make:
-        with open(os.path.join(OUT, g["id"], "run.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(out_dir(g["id"]), "run.json"), "w", encoding="utf-8") as f:
             json.dump({k: out[k] for k in ("ran", "errors", "outputs")}, f, ensure_ascii=False)
     return out
 
@@ -480,9 +484,9 @@ def view(g, make=False):
 def last_run(fid):
     """The last run of a flow: {ran, errors, outputs}, or None."""
     try:
-        with open(os.path.join(OUT, os.path.basename(fid), "run.json"), encoding="utf-8") as f:
+        with open(os.path.join(out_dir(fid), "run.json"), encoding="utf-8") as f:
             return json.load(f)
-    except (OSError, ValueError):
+    except (OSError, ValueError, KeyError):
         return None
 
 
@@ -564,8 +568,17 @@ def delete(fid):
     os.remove(_path(fid))
 
 
+def out_dir(fid):
+    """OUT/<flow id>; an id that is not a flow id (a path, ..) is refused with KeyError."""
+    _path(fid)
+    return os.path.join(OUT, fid)
+
+
 def output_file(fid, name):
-    p = os.path.join(OUT, fid, os.path.basename(name))
+    try:
+        p = os.path.join(out_dir(fid), os.path.basename(name))
+    except KeyError:
+        return None
     return p if os.path.isfile(p) else None
 
 

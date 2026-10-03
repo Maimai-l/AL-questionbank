@@ -17,7 +17,7 @@ import zipfile
 
 import pymupdf
 
-from lib import paths, scheme
+from lib import paths
 from manager import bank, docs, paper
 
 ANSWERS = os.path.join(paths.WORK, "answers")      # F5 writes <set id>.pdf here
@@ -147,7 +147,10 @@ def plan(s, settings, body):
         elif d == "explanation":
             top.append(("explanation.html", docs.explanation(s).encode()))
         elif d == "question_paper":
-            top.append((PAPER_NAME, paper.build(s)))
+            try:
+                top.append((PAPER_NAME, paper.build(s)))
+            except paper.EmptyPaper:
+                pass
     if settings.get("format") == "images":
         top = [x for path, c in top for x in (page_images(path, c) if path.endswith(".pdf") else [(path, c)])]
 

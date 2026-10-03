@@ -204,8 +204,13 @@ def _footer(page, n, total, name, items, opts):
         _text(page, A4[0] - SIDE - _width(text, size), y, text, size, color)
 
 
+class EmptyPaper(ValueError):
+    """The set has no question that can be laid out (no questions, or none with a crop)."""
+
+
 def build(s):
-    """Path of the set's question paper PDF, building it if the cache is stale."""
+    """Path of the set's question paper PDF, building it if the cache is stale. Raises
+    EmptyPaper when there is nothing to lay out."""
     opts = settings.load()
     rows = _rows(s["items"])
 
@@ -221,14 +226,19 @@ def build(s):
     if os.path.exists(out):
         return out
     for f in os.listdir(CACHE):
-        if f.startswith(s["id"] + "-"):
-            os.remove(os.path.join(CACHE, f))
+        if f.startswith(s["id"] + "-") and f.endswith(".pdf"):
+            try:
+                os.remove(os.path.join(CACHE, f))
+            except OSError:
+                pass
     original = original_pdf(rows)
     if original:
         doc = pymupdf.open(original)
     else:
         doc = pymupdf.open()
         pages = layout(rows)
+        if not pages:
+            raise EmptyPaper("题组中没有可排版的题目")
         width = A4[0] - 2 * SIDE
         for n, items in enumerate(pages, 1):
             page = doc.new_page(width=A4[0], height=A4[1])
@@ -238,7 +248,9 @@ def build(s):
                 else:
                     page.insert_image(pymupdf.Rect(SIDE, y, SIDE + width, y + hpt), stream=png)
             _footer(page, n, len(pages), s["name"], [(None, None) + tuple(it[3:]) for it in items], opts)
-    doc.save(out, garbage=3, deflate=True)
+    tmp = f"{out}.{os.getpid()}.tmp"       # written whole, then put in place: never a half-written PDF
+    doc.save(tmp, garbage=3, deflate=True)
+    os.replace(tmp, out)
     return out
 
 

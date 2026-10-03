@@ -16,18 +16,16 @@ sets and later outputs live in paths.WORK.
   /api/sets/<id>         GET, PATCH {name, items, add}, DELETE
   /api/sets/<id>/export  alevel-question-set/v1
   /api/sets/import       POST an alevel-question-set/v1 document
-  /api/sets/<id>/paper   {pages, whole}: the question paper (F4), built on demand
-  /api/sets/<id>/paper.pdf, /api/sets/<id>/paper/<n>.png
+  /api/sets/<id>/paper   {pages}: the practice paper (F4), built on demand
+  /api/sets/<id>/paper/<n>.png  a page of it
   /doc/<id>/scheme, /doc/<id>/explanation   reading documents (F6); ?download=1 to save
   /api/settings          GET, PUT {footer_*, theme}
   /api/templates         GET list, POST create {name, settings, body}
   /api/templates/<id>    PUT {name, settings, body}, DELETE (built-in ones are read-only)
   /api/sets/<id>/zip/preview  POST {template} or {settings, body}: files, sizes, README (F7)
-  /api/sets/<id>/zip          POST the same: the ZIP
   /api/sets/<id>/output       POST the same: one PDF or a ZIP, by the template's format (the set page's 输出)
   /api/sets/<id>/board   POST: open (make) the writing board for the set's question paper (F5)
-  /api/sets/<id>/boards  GET the set's boards (with their stroke counts) and its latest answer PDF
-  /api/sets/<id>/answers.pdf  the latest exported answer PDF
+  /api/sets/<id>/boards  GET the set's boards with their stroke counts
   /api/boards/<id>/page/<n>?w=   a page of a board's paper
   /api/boards/<id>/export     POST {name, scheme, explanation}: the paper with the ink (PDF, or ZIP)
   /api/flows            GET list, POST save as new {graph}; /api/flows/catalog: node types and fields (F9)
@@ -39,7 +37,6 @@ sets and later outputs live in paths.WORK.
   /ipad                  the iPad shell's page: the writing page following the current board, or a wait
   /ws, /inksync/         ink sync and its front end (manager/vendor/inksync, from white-board)
 """
-import json
 import os
 
 from aiohttp import web
@@ -110,7 +107,8 @@ async def set_list(request):
 
 async def set_create(request):
     body = await request.json()
-    items = [q for q in body.get("items", []) if q in bank.exists(body.get("items", []))]
+    known = bank.exists(body.get("items", []))
+    items = [q for q in body.get("items", []) if q in known]
     return web.json_response(_set_view(sets.create(body.get("name", ""), items,
                                                    body.get("source", "manual"))))
 
@@ -163,24 +161,22 @@ async def set_import(request):
 
 async def _paper(request):
     s = _get(request.match_info["sid"])
-    return await asyncio.get_running_loop().run_in_executor(None, paper.build, s), s
+    try:
+        return await asyncio.get_running_loop().run_in_executor(None, paper.build, s), s
+    except paper.EmptyPaper as e:
+        raise web.HTTPNotFound(text=str(e))
 
 
 async def paper_info(request):
     path, s = await _paper(request)
-    return web.json_response({"pages": paper.page_count(path), "whole": bool(paper.whole_paper(paper._rows(s["items"])))})
-
-
-async def paper_pdf(request):
-    path, s = await _paper(request)
-    return web.FileResponse(path, headers={
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "inline; filename*=UTF-8''" + urllib.parse.quote(s["name"] + ".pdf")})
+    return web.json_response({"pages": paper.page_count(path)})
 
 
 async def paper_page(request):
     path, s = await _paper(request)
     n = int(request.match_info["n"])
+    if not 0 <= n < paper.page_count(path):
+        raise web.HTTPNotFound()
     png = await asyncio.get_running_loop().run_in_executor(None, paper.page_png, path, n)
     return web.Response(body=png, content_type="image/png", headers={"Cache-Control": "no-cache"})
 
@@ -257,19 +253,15 @@ async def zip_preview(request):
     return web.json_response(await asyncio.get_running_loop().run_in_executor(None, export.preview, *args))
 
 
-async def zip_download(request):
-    args = await _export_args(request)
-    data = await asyncio.get_running_loop().run_in_executor(None, export.zip_bytes, *args)
-    return web.Response(body=data, content_type="application/zip", headers={
-        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(export.zip_name(args[0]))})
-
-
 async def output(request):
     """The set page's 输出: one PDF, or a ZIP, by the template's format."""
     args = await _export_args(request)
     loop = asyncio.get_running_loop()
     if args[1]["format"] == "pdf":
-        path, name = await loop.run_in_executor(None, export.single_pdf, args[0], args[1])
+        try:
+            path, name = await loop.run_in_executor(None, export.single_pdf, args[0], args[1])
+        except paper.EmptyPaper as e:
+            raise web.HTTPBadRequest(text=str(e))
         return web.FileResponse(path, headers={
             "Content-Type": "application/pdf",
             "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(name)})
@@ -282,24 +274,17 @@ async def board_open(request):
     s = _get(request.match_info["sid"])
     if not s["items"]:
         raise web.HTTPBadRequest(text="题组中没有题目")
-    bid = await board.open_for(request.app[HUB], s)
+    try:
+        bid = await board.open_for(request.app[HUB], s)
+    except paper.EmptyPaper as e:
+        raise web.HTTPBadRequest(text=str(e))
     await board.follow(request.app[HUB], bid)
     return web.json_response({"id": bid})
 
 
 async def board_list(request):
     s = _get(request.match_info["sid"])
-    return web.json_response({"boards": await board.boards_with_ink(request.app[HUB], s["id"]), "answers": board.answers_info(s)})
-
-
-async def answers_pdf(request):
-    s = _get(request.match_info["sid"])
-    p = export.answer_pdf(s)
-    if not p:
-        raise web.HTTPNotFound()
-    return web.FileResponse(p, headers={
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "attachment; filename*=UTF-8''" + urllib.parse.quote(s["name"] + " 批注版.pdf")})
+    return web.json_response({"boards": await board.boards_with_ink(request.app[HUB], s["id"])})
 
 
 def _board(request):
@@ -403,6 +388,10 @@ async def flow_eval(request):
 async def flow_run(request):
     g = await request.json()
     g["id"] = request.match_info["fid"]
+    try:
+        flow.get(g["id"])                    # only a flow that exists has an output folder
+    except KeyError:
+        raise web.HTTPNotFound()
     return await _flow_view(g, True)
 
 
@@ -470,15 +459,12 @@ def make_app():
     app.router.add_delete(r"/api/sets/{sid}", set_delete)
     app.router.add_get(r"/api/sets/{sid}/export", set_export)
     app.router.add_get(r"/api/sets/{sid}/paper", paper_info)
-    app.router.add_get(r"/api/sets/{sid}/paper.pdf", paper_pdf)
     app.router.add_get(r"/api/sets/{sid}/paper/{n:\d+}.png", paper_page)
     app.router.add_get(r"/doc/{sid}/{kind}", reading)
     app.router.add_post(r"/api/sets/{sid}/zip/preview", zip_preview)
-    app.router.add_post(r"/api/sets/{sid}/zip", zip_download)
     app.router.add_post(r"/api/sets/{sid}/output", output)
     app.router.add_post(r"/api/sets/{sid}/board", board_open)
     app.router.add_get(r"/api/sets/{sid}/boards", board_list)
-    app.router.add_get(r"/api/sets/{sid}/answers.pdf", answers_pdf)
     app.router.add_get(r"/api/boards/{bid}/page/{n:\d+}", board_page)
     app.router.add_post(r"/api/boards/{bid}/export", board_export)
     app.router.add_get(r"/write/{bid}", write_page)
