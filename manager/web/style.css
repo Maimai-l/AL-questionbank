@@ -329,20 +329,14 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .mpick .pills .tag .rm { border-radius: 50%; }
 .mpick .menu { right: auto; width: max(100%, 400px); }
 
-/* 版面: five steps on a track, the steps up to the value filled */
-.space input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 20px; margin: 0; background: none; cursor: pointer; }
-.space input[type=range]::-webkit-slider-runnable-track { height: 4px; border-radius: 2px;
-  background: linear-gradient(to right, var(--color-text-primary) var(--at), var(--color-border-control) var(--at)); }
-.space input[type=range]::-moz-range-track { height: 4px; border-radius: 2px; background: var(--color-border-control); }
-.space input[type=range]::-moz-range-progress { height: 4px; border-radius: 2px; background: var(--color-text-primary); }
-.space input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7px; border-radius: 50%;
-  background: var(--color-checked); border: 2px solid var(--color-text-primary); box-sizing: border-box; }
-.space input[type=range]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--color-checked); border: 2px solid var(--color-text-primary); box-sizing: border-box; }
-.space input[type=range]:focus { outline: none; }
-.space input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px var(--color-focus-ring); }
-.space input[type=range]:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 3px var(--color-focus-ring); }
-.space-ticks { display: flex; justify-content: space-between; padding: 0 7px; margin-top: calc(-1 * var(--txt)); }
-.space-ticks i { width: 4px; height: 4px; border-radius: 50%; background: var(--color-border-control); }
-.space-ticks i.on { background: var(--color-text-primary); }
-.space-ends { position: relative; display: flex; justify-content: space-between; font-size: 12px; color: var(--color-text-secondary); }
-.space-ends .orig { position: absolute; left: calc(75% - 6px); transform: translateX(-50%); color: var(--color-text-tertiary); }
+/* 版面: five segments in a row, filled up to the step chosen */
+.space-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--txt); }
+.space-bar:focus { outline: none; }
+.space-bar:focus-visible .space-cell.cur i { box-shadow: 0 0 0 2px var(--color-focus-ring); }
+.space-cell { height: 24px; padding: 0; border: 0; background: none; cursor: pointer; display: flex; align-items: center; }
+.space-cell i { display: block; width: 100%; height: 6px; border-radius: 3px; background: var(--color-border-subtle); transition: background-color var(--duration-base, .15s) ease; }
+.space-cell:hover i { background: var(--color-border-strong); }
+.space-cell.on i { background: var(--color-text-primary); }
+.space-ends { display: grid; grid-template-columns: repeat(5, 1fr); gap: var(--txt); font-size: 12px; color: var(--color-text-secondary); }
+.space-ends span:nth-child(4) { text-align: center; }
+.space-ends span:nth-child(5) { text-align: right; }
