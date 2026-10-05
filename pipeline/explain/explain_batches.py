@@ -34,6 +34,8 @@ write 把 accepted.json 写进 questions.explanation(JSON,缺列时新建);
     --notes f.json            复核模式:{题号: 复核原因};批次文件附现有详解与评分细则
                               PDF 路径,agent 对照原件给出更正后的完整详解,结果格式不变,
                               用 write --override 覆盖
+    --recheck                 与 --notes 同用:以当前(已对照原卷核对的)评分细则为准复核,不打开 PDF
+9709、9231 用数学版的写作要求(解题过程写 LaTeX,points 的 mark 写评分码,terms 写公式)。
 """
 import argparse, glob, json, os, re, sys
 
@@ -43,6 +45,42 @@ from lib import db, paths  # noqa: E402
 from pipeline.tags.tag_batches import needs_image  # noqa: E402
 
 KEYS = ("approach", "points", "pitfalls", "answer", "terms")
+
+ANSWER = {
+    "cs": """4. answer:完整参考答案,即一份可以拿满分的作答,Markdown。
+   代码与伪代码题给出完整代码,放在 ``` 代码块中,
+   伪代码遵循 CAIE 9618 伪代码规范(DECLARE、←、ENDIF、ENDWHILE 等)。
+   表格题用 Markdown 表格给出填好的表。
+5. terms:这一问中需要背诵的关键术语,0 至 6 个。每个写
+   term(英文术语,小写,单数)、wording(评分细则认可的定义或得分表述,英文)、
+   topic(大纲小节码,只能从下表选)。纯计算、纯读代码的小问可以为空数组。""",
+    "math": """4. answer:完整参考答案,即一份可以拿满分的解题过程,Markdown。公式写成 LaTeX,
+   放在 $...$ 中(独立成行的式子用 $$...$$,开头与结尾的 $$ 写在同一行,不要跨行)。按评分细则的步骤写,每个得分步骤都要出现;
+   最终答案的形式与精度和细则一致(如三位有效数字、精确值、角度制或弧度制)。
+   证明题写出完整证明;作图题用文字说明图形的关键特征(与坐标轴的交点、渐近线、极值点等)。
+5. terms:这一问用到、需要记住的公式、定理或标准结论,0 至 4 个。每个写
+   term(英文名称,小写,如 "chain rule")、wording(公式或结论本身,LaTeX)、
+   topic(大纲小节码,只能从下表选)。纯代数运算、没有需要记的公式时为空数组。
+   points 的 mark 写评分细则的评分码(如 "M1"、"A1"、"B1"、"DM1"),
+   point 写该步骤需要写出的式子或结论。""",
+}
+
+RECHECK = """以下 {n} 道 {exam} 真题已有详解,但详解写于评分细则全面改写之前。评分细则已逐题对照原卷
+重写并核对过,以下每题给出的「该小问评分细则」是现在的准确版本。
+
+对每一题:
+1. 逐个小问对照现在的评分细则,核对现有详解:得分点(points)的个数、分值与表述是否与细则一致,
+   参考答案(answer)是否能按细则拿满分,常见失分是否仍然成立。
+2. 输出完整详解,格式与字段和现有详解相同(见下方写作要求)。与细则一致的内容原样保留,
+   只改不一致的地方;不要为了改而改。
+3. 需要时用 Read 打开题图核对题面。
+
+写作要求:
+{rules}
+
+题目:
+
+{items}"""
 
 PROMPT = """你要为 {n} 道 {exam} 真题逐个小问写详解,供学生自学与背诵。
 
@@ -58,13 +96,7 @@ PROMPT = """你要为 {n} 道 {exam} 真题逐个小问写详解,供学生自学
    细则中"任选其一"的要点合并为一条并注明可选。
 3. pitfalls:常见失分,1 至 4 条。写具体的错误表述或遗漏,
    不写"注意审题"这类泛泛的话。
-4. answer:完整参考答案,即一份可以拿满分的作答,Markdown。
-   代码与伪代码题给出完整代码,放在 ``` 代码块中,
-   伪代码遵循 CAIE 9618 伪代码规范(DECLARE、←、ENDIF、ENDWHILE 等)。
-   表格题用 Markdown 表格给出填好的表。
-5. terms:这一问中需要背诵的关键术语,0 至 6 个。每个写
-   term(英文术语,小写,单数)、wording(评分细则认可的定义或得分表述,英文)、
-   topic(大纲小节码,只能从下表选)。纯计算、纯读代码的小问可以为空数组。
+{answer_rule}
 
 要求:
 - 小问必须按每题给出的"小问"标签逐个写,标签原样照抄,不增不减;
@@ -199,11 +231,12 @@ def plan(a):
         exam = f"{a.syllabus} Paper {b[0]['component']} ({b[0]['component_name']})"
         body = PROMPT.format(
             n=len(b), exam=exam, name=name, table=table,
+            answer_rule=ANSWER["cs" if a.syllabus == "9618" else "math"],
             result=os.path.abspath(os.path.join(a.out, name + ".result.json")),
             items="\n".join(item_text(r) for r in b))
         if a.notes:                            # review: the same rules, the review task first
             rules, items = body.split("\n\n题目:\n\n", 1)
-            body = REVIEW.format(n=len(b), exam=exam, rules=rules, items=items)
+            body = (RECHECK if a.recheck else REVIEW).format(n=len(b), exam=exam, rules=rules, items=items)
         open(os.path.join(a.out, name + ".prompt.txt"), "w").write(body)
     json.dump({"args": vars(a), "batches": names},
               open(os.path.join(a.out, "plan.json"), "w"), ensure_ascii=False, indent=1)
@@ -295,6 +328,8 @@ def main():
     ap.add_argument("--marks-per-batch", type=int, default=60)
     ap.add_argument("--skip-done", action="store_true")
     ap.add_argument("--notes", help="复核:JSON {题号: 复核原因},只取这些题,附现有详解与细则 PDF")
+    ap.add_argument("--recheck", action="store_true",
+                    help="与 --notes 同用:对照当前(已核对的)评分细则复核现有详解,不打开 PDF")
     ap.add_argument("--override", action="append",
                     help="write:再读这些目录的 accepted.json,同一题以后者为准")
     ap.add_argument("--write", action="store_true")

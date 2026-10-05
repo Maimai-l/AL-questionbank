@@ -6,6 +6,8 @@
                                     题库有更新时随后运行自动流程(manage.py auto);--no-auto 不运行
     python3 sync.py status          data/ 当前是哪个版本,有没有本地改动
     python3 sync.py push -m "说明"  把 data/ 的改动推上去(云端流水线用)
+    python3 sync.py pin NAME        给 data/ 当前的版本打标签 data-NAME 并推到 GitHub,长期保留这一版
+    python3 sync.py pull --ref NAME 取回标签 data-NAME 的那一版,而不是最新版(稳定分支用);update 同样可加 --ref
 
 data/ 是 `data` 分支的 git worktree。这个分支始终只有一个提交:每次 push 都覆盖
 上一版,所以仓库历史不会随数据库和图片的重新生成而增长。代价是 data/ 里不能保留
@@ -35,18 +37,28 @@ def dirty():
     return git("status", "--porcelain", cwd=DATA, capture=True)
 
 
-def pull(force=False, gc=False, auto=True):
+def tag(name):
+    return name if name.startswith("data-") else f"data-{name}"
+
+
+def pull(force=False, gc=False, auto=True, ref=None):
     git("fetch", REMOTE, f"+refs/heads/{BRANCH}:refs/remotes/{REMOTE}/{BRANCH}")
+    target = f"{REMOTE}/{BRANCH}"
+    if ref:                              # a pinned version instead of the newest
+        target = tag(ref)
+        git("fetch", REMOTE, f"+refs/tags/{target}:refs/tags/{target}", check=False)
+        if git("rev-parse", "-q", "--verify", f"refs/tags/{target}", capture=True, check=False) == "":
+            sys.exit(f"找不到标签 {target}。先在有这一版数据的机器上运行 python3 sync.py pin {ref}")
     if not is_worktree():
         if os.path.exists(DATA) and os.listdir(DATA):
             sys.exit(f"{DATA} 已存在且不是 worktree。先把它移走再 pull。")
         git("worktree", "prune")
-        git("worktree", "add", "-B", BRANCH, DATA, f"{REMOTE}/{BRANCH}")
+        git("worktree", "add", "-B", BRANCH, DATA, target)
     else:
         if dirty() and not force:
             sys.exit("data/ 里有未提交的改动,pull 会覆盖它们。\n"
                      "确认不要这些改动就加 --force;要保留就先 push。")
-        git("reset", "--hard", f"{REMOTE}/{BRANCH}", cwd=DATA)
+        git("reset", "--hard", target, cwd=DATA)
         git("clean", "-fd", cwd=DATA)
     if gc:
         # 每次 push 都覆盖旧版本,旧对象只剩 reflog 引用;清掉它们释放磁盘
@@ -59,7 +71,7 @@ def pull(force=False, gc=False, auto=True):
             print("自动流程没有完成。之后运行 python3 manage.py auto 重试")
 
 
-def update(force=False, auto=True):
+def update(force=False, auto=True, ref=None):
     """The code (the checked-out branch, fast-forward only), then the data."""
     branch = git("rev-parse", "--abbrev-ref", "HEAD", capture=True)
     if git("status", "--porcelain", "--untracked-files=no", capture=True):
@@ -68,7 +80,7 @@ def update(force=False, auto=True):
     git("fetch", REMOTE, f"+refs/heads/{branch}:refs/remotes/{REMOTE}/{branch}")
     git("merge", "--ff-only", f"{REMOTE}/{branch}")
     print(f"代码: {branch} {git('log', '-1', '--format=%h %s', capture=True)}")
-    pull(force=force, auto=auto)
+    pull(force=force, auto=auto, ref=ref)
 
 
 def status():
@@ -78,6 +90,20 @@ def status():
     print(git("log", "-1", "--format=data 版本 %h  %ci%n说明: %s", cwd=DATA, capture=True))
     d = dirty()
     print(f"本地改动: {len(d.splitlines())} 个文件" if d else "本地改动: 无")
+
+
+def pin(name):
+    """Tag the data version in data/ and push the tag: the data branch keeps one commit,
+    so an older version survives only through a tag."""
+    if not is_worktree():
+        sys.exit("data/ 不是 worktree,先 python3 sync.py pull")
+    if dirty():
+        sys.exit("data/ 里有未提交的改动,先 push 或 pull 再打标签。")
+    t = tag(name)
+    git("tag", "-f", t, "HEAD", cwd=DATA)
+    git("push", "-f", REMOTE, f"refs/tags/{t}", cwd=DATA)
+    print(f"已打标签 {t}: {git('log', '-1', '--format=%h %s', cwd=DATA, capture=True)}")
+    print(f"之后用 python3 sync.py pull --ref {name} 取回这一版")
 
 
 def push(message):
@@ -106,20 +132,26 @@ def main():
     up = sub.add_parser("update")
     up.add_argument("--force", action="store_true")
     up.add_argument("--no-auto", action="store_true", help="不运行自动流程")
+    up.add_argument("--ref", help="数据取标签 data-REF 的版本(见 pin),不取最新版")
     pl = sub.add_parser("pull")
     pl.add_argument("--force", action="store_true", help="覆盖 data/ 里的本地改动")
     pl.add_argument("--gc", action="store_true", help="取回后清理旧版本占用的磁盘")
     pl.add_argument("--no-auto", action="store_true", help="不运行自动流程")
+    pl.add_argument("--ref", help="取回标签 data-REF 的版本(见 pin),不取最新版")
     sub.add_parser("status")
+    pn = sub.add_parser("pin")
+    pn.add_argument("name", help="标签名,如 stable 或 2026-10-03;实际标签为 data-NAME")
     ps = sub.add_parser("push")
     ps.add_argument("-m", "--message", required=True)
     a = p.parse_args()
     if a.cmd == "update":
-        update(a.force, not a.no_auto)
+        update(a.force, not a.no_auto, a.ref)
     elif a.cmd == "pull":
-        pull(a.force, a.gc, not a.no_auto)
+        pull(a.force, a.gc, not a.no_auto, a.ref)
     elif a.cmd == "status":
         status()
+    elif a.cmd == "pin":
+        pin(a.name)
     else:
         push(a.message)
 
