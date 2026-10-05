@@ -10,7 +10,7 @@ sets, templates, flows, boards and outputs live in paths.WORK.
   /board/                the writing page's own files (manager/web/board/)
   /vendor/               KaTeX (assets/vendor/)
   /q/<imgdir>/<file>     question crops from data/
-  /paper/<qid>           the original question paper PDF, opened at the question's page
+  /paper/<qid>[?kind=ms] the original question paper PDF (opened at the question's page), or its mark scheme
   /api/meta              exams, papers, topics, years with counts
   /api/questions?exam=   every question of one exam (the query filters in the page)
   /api/search?exam=&q=   ids whose text or mark scheme matches (the query page)
@@ -474,10 +474,12 @@ async def image(request):
 
 
 async def original(request):
+    """The question's paper as a PDF: the original question paper, or with ?kind=ms its mark
+    scheme (剑桥考试)."""
     from lib import db
     r = db.connect().execute("SELECT * FROM questions WHERE id = ?",
                              (request.match_info["qid"],)).fetchone()
-    p = bank.paper_pdf(r) if r else None
+    p = (bank.ms_pdf if request.query.get("kind") == "ms" else bank.paper_pdf)(r) if r else None
     if not p:
         raise web.HTTPNotFound()
     return web.FileResponse(p, headers={"Content-Type": "application/pdf"})

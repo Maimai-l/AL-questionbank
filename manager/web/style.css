@@ -71,7 +71,9 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .dm-results { flex-grow: 1; min-width: 0; padding: var(--pad); display: flex; flex-direction: column; gap: var(--sib); }
 .headline { display: flex; align-items: baseline; gap: var(--sib); min-height: 40px; margin-bottom: calc(var(--head) - var(--sib)); }   /* title area to toolbar */
 .headline > span { font: 700 28px/1.25 var(--font-bold); font-variant-numeric: tabular-nums; }
-.q-search { display: flex; align-items: center; gap: var(--txt); width: 360px; flex: none; }
+.q-search { display: flex; align-items: center; gap: var(--txt); flex: 1 1 160px; min-width: 0; max-width: 360px; }
+.selbar .seg { flex: none; }
+.selbar .dm-meta { white-space: nowrap; }
 .q-search > :first-child { flex-grow: 1; }
 .selbar { display: flex; align-items: center; gap: var(--sib); height: 40px; padding: 0 var(--el); background: var(--color-bg-surface); border-radius: 4px; }
 .dm-tablebox { flex-grow: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: var(--sib); }
@@ -346,6 +348,14 @@ body { margin: 0; background: var(--color-bg-page); color: var(--color-text-prim
 .fx-clear:hover { text-decoration: underline; }
 .fx-line { display: flex; flex-wrap: wrap; column-gap: var(--sib); }
 .fx-line .fx-row { flex: 0 0 auto; }
+.fx-list .fx-row .check { flex: 1; min-width: 0; align-items: flex-start; line-height: 1.4; }   /* a long topic name wraps */
 /* MultiPick: a filter field above a long list; a count beside each choice */
 .mpick-find { position: sticky; top: 0; z-index: 1; padding: var(--el); background: var(--color-bg-raised); border-bottom: 1px solid var(--color-border-subtle); }
 .mpick-meta { margin-left: auto; padding-left: var(--el); font-size: 12px; color: var(--color-text-tertiary); white-space: nowrap; }
+
+/* the panel on the right: a paper's or a question's PDFs; a paper's questions */
+.detail-acts { display: flex; flex-wrap: wrap; gap: var(--el); }
+.pp-qs { list-style: none; margin: 0; padding: 0; }
+.pp-qs li { display: grid; grid-template-columns: 48px minmax(0, 1fr); column-gap: var(--el); min-height: 32px; align-items: center; border-bottom: 1px solid var(--color-border-subtle); font-size: 13px; }
+.pp-q { font-family: var(--font-medium); }
+.pp-t { color: var(--color-text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

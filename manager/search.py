@@ -279,13 +279,13 @@ def _lead(text, width=160):
 
 # conditions with a count beside each choice: (request key, record field). Each count is
 # taken with every other condition applied, not its own, so a choice shows what it would add.
-FACETS = (("comps", "component"), ("seasons", "month"), ("variants", "variant"), ("codes", "code"))
+FACETS = (("comps", "component"), ("seasons", "month"), ("variants", "variant"))
 
 
 def find(p, limit=200):
     """The page's search: p = {q, exam ("9709", or "*" for every exam), topics ["9709:3.5"],
-    from, to, comps, seasons [3, 6, 11], variants ["1", "2", "3"], codes ["9709/32/O/N/24"],
-    cols, tasks, expl ("any" | "y" | "n"), sort ("rel" | "year")}; a list where p has none
+    from, to, comps, seasons [3, 6, 11], variants ["1", "2", "3"], cols, tasks,
+    expl ("any" | "y" | "n"), sort ("rel" | "year")}; a list where p has none
     of a condition, or null, sets no limit. Keywords are optional: without them the matches
     are the questions the other conditions leave, by year. Returns the count, the matches
     per exam and per choice of each condition above, the tasks of the matches, the first

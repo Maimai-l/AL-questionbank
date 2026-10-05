@@ -119,6 +119,25 @@ class QueryPage(Api):
         await self.call("GET", "/api/question/nope", status=404)
         await self.call("GET", "/q/../caie.db", status=404)
 
+    async def test_papers(self):
+        """By paper: each paper sat of an exam once, with its question count, the question that
+        opens its PDFs and both PDFs where they are; a mark scheme opens from any question."""
+        from manager import bank
+        for m in await self.json("GET", "/api/meta"):
+            codes = [x["code"] for x in m["papers"]]
+            self.assertEqual(len(codes), len(set(codes)), m["exam"])
+            self.assertEqual(sum(x["n"] for x in m["papers"]), len(bank.rows(m["exam"])), m["exam"])
+        p = next(x for x in (await self.json("GET", "/api/meta"))[0]["papers"] if x["code"] == "9709/32/O/N/24")
+        self.assertTrue(p["qp"] and p["ms"])
+        for kind in ("", "?kind=ms"):
+            r = await self.call("GET", f"/paper/{p['qid']}{kind}")
+            self.assertTrue((await r.read()).startswith(b"%PDF"))
+        d = await self.json("GET", f"/api/question/{p['qid']}")
+        self.assertTrue(d["paper_pdf"] and d["ms_pdf"])
+        tmua = questions("TMUA", "1", 1)[0]
+        self.assertFalse((await self.json("GET", f"/api/question/{tmua}"))["ms_pdf"])
+        await self.call("GET", f"/paper/{tmua}?kind=ms", status=404)
+
     async def test_add_to_set(self):
         """Picked rows go into a new set, then more into it; unknown ids are left out."""
         a, b = questions(n=4)[:2], questions(n=4)[2:]
@@ -142,7 +161,7 @@ class SearchPage(Api):
         exam = await self.find(q="integration", exam="9709")
         self.assertLessEqual(exam["total"], all_["total"])
         for extra in ({"comps": ["3"]}, {"seasons": [11]}, {"variants": ["2"]}, {"from": 2022, "to": 2024},
-                      {"codes": ["9709/32/O/N/24"]}, {"cols": ["stem"]}, {"expl": "y"}, {"expl": "n"},
+                      {"cols": ["stem"]}, {"expl": "y"}, {"expl": "n"},
                       {"sort": "year"}, {"topics": ["9709:3.5"]}):
             r = await self.find(q="integration", exam="9709", **extra)
             self.assertLessEqual(r["total"], exam["total"], extra)
@@ -155,11 +174,12 @@ class SearchPage(Api):
             self.assertIn("total", r, q)
 
     async def test_without_keywords(self):
-        """Without keywords the conditions alone pick the questions: a paper sat lists its
-        questions in order, its start as the line under each; a paper code typed does too."""
+        """Without keywords the conditions alone pick the questions: Paper 3, O/N, variant 2,
+        2024 is one paper sat, listed in order with its start as the line under each; a
+        paper code typed does the same."""
         from manager import bank
         paper = [r for r in bank.rows("9709") if r["code"] == "9709/32/O/N/24"]
-        r = await self.find(exam="9709", codes=["9709/32/O/N/24"])
+        r = await self.find(exam="9709", comps=["3"], seasons=[11], variants=["2"], **{"from": 2024, "to": 2024})
         self.assertEqual(r["total"], len(paper))
         self.assertEqual([x["q"] for x in r["rows"]], sorted(x["q"] for x in paper))
         self.assertTrue(all(x["snippets"] and x["snippets"][0][0] == "stem" for x in r["rows"]))
@@ -171,7 +191,6 @@ class SearchPage(Api):
         r = await self.find(exam="9709", comps=["3"], seasons=[11])
         self.assertGreater(r["facets"]["comps"]["1"], 0)
         self.assertEqual(sum(r["facets"]["variants"].values()), r["total"])
-        self.assertTrue(all(c.split("/")[1].startswith("3") and "/O/N/" in c for c in r["facets"]["codes"]))
 
 
 @NEED

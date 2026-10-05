@@ -151,6 +151,36 @@ class QueryPage(Page):
 
 
 
+class QueryByPaper(Page):
+    def test_find_a_paper(self):
+        """按试卷: typing 32 24 leaves the 2024 Paper 3 variant 2 papers; the one picked shows
+        its questions and opens its question paper and mark scheme; 加入题组 adds it whole."""
+        from manager import bank, sets
+        p = self.page
+        self.go("query")
+        expect(p.locator(".dm-cond input[type=checkbox]:checked")).to_have_count(0)
+        p.locator(".selbar").get_by_text("按试卷", exact=True).click()
+        p.get_by_label("查找试卷").fill("32 24")
+        rows = p.locator("table tbody tr[data-k]")
+        expect(rows).to_have_count(3)
+        p.locator("table tbody tr[data-k='9709/32/O/N/24']").click()
+        n = sum(r["code"] == "9709/32/O/N/24" for r in bank.rows("9709"))
+        expect(p.locator(".pp-qs li")).to_have_count(n)
+        for label in ("打开原卷", "打开评分细则"):
+            with self.ctx.expect_page() as tab:
+                self.button(label).click()
+            tab.value.wait_for_load_state()
+            self.assertIn("/paper/", tab.value.url)
+            tab.value.close()
+        self.button("加入题组").click()
+        dlg = p.get_by_role("dialog")
+        expect(dlg.get_by_label("名称")).to_have_value("9709/32/O/N/24")
+        dlg.get_by_role("button", name="加入题组").click()
+        self.toast_ok()
+        made = [x for x in sets.all_sets() if x["name"] == "9709/32/O/N/24"]
+        self.assertEqual([len(x["items"]) for x in made], [n])
+
+
 class SearchPage(Page):
     def test_defaults(self):
         """One exam to start with (9709 the first time); papers, seasons and variants set no
@@ -164,7 +194,7 @@ class SearchPage(Page):
         expect(p.locator(".hit")).to_have_count(0)
 
     def test_paper_without_keywords(self):
-        """Paper 3, O/N, then one paper sat picked by typing: its questions are listed with no
+        """Paper 3, O/N, variant 2 and 2024 pick one paper sat: its questions are listed with no
         keywords; 清除 lifts a condition."""
         from manager import bank
         p = self.page
@@ -173,12 +203,10 @@ class SearchPage(Page):
         left.locator("label.check", has_text="Paper 3").click()
         left.locator("label.check", has_text="O/N").click()
         expect(p.locator(".hit").first).to_be_visible()
-        picker = left.locator(".mpick").first
-        picker.locator(".select").click()
-        p.keyboard.type("32 24")
-        expect(picker.locator(".menu-item")).to_have_count(1)
-        picker.locator(".menu-item").click()
-        p.mouse.click(1000, 40)
+        left.locator(".sec", has_text="变体").locator("label.check", has_text="2").click()
+        for name in ("起始年份", "结束年份"):
+            left.get_by_label(name).click()
+            p.get_by_role("option", name="2024").click()
         n = sum(r["code"] == "9709/32/O/N/24" for r in bank.rows("9709"))
         expect(head).to_have_text(f"{n} 题")
         left.locator(".sec", has_text="考季").get_by_role("button", name="清除").click()
@@ -196,11 +224,11 @@ class SearchPage(Page):
         n = head.inner_text()
         p.locator(".sp-left label.check", has_text="Paper 3").click()
         expect(head).not_to_have_text(n)
-        p.locator(".sp-left .mpick").nth(1).locator(".select").click()
+        p.locator(".sp-left .mpick .select").click()
         p.keyboard.type("3.5")
-        p.locator(".sp-left .mpick").nth(1).locator(".menu-item").first.click()
+        p.locator(".sp-left .mpick .menu-item").first.click()
         p.mouse.click(1000, 40)
-        expect(p.locator(".sp-left .mpick").nth(1).locator(".tag").first).to_be_visible()
+        expect(p.locator(".sp-left .mpick .tag").first).to_be_visible()
         p.locator(".sp-left .more-h").click()
         p.locator(".sp-main .selbar").get_by_text("年份", exact=True).click()
         hits.first.click()
@@ -212,7 +240,7 @@ class SearchPage(Page):
         dlg.get_by_role("button", name="加入题组").click()
         self.toast_ok()
         p.locator(".sp-box input").fill("")
-        p.locator(".sp-left .mpick").nth(1).locator(".rm").first.click()
+        p.locator(".sp-left .mpick .rm").first.click()
         p.locator(".sp-left").get_by_role("button", name="清除").first.click()
         expect(p.locator(".sp-recent .rec").first).to_be_visible()
         p.locator(".sp-left .select").first.click()

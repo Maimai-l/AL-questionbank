@@ -107,14 +107,21 @@ def meta():
             "AND topic IS NOT NULL GROUP BY component, topic ORDER BY topic", (exam,)).fetchall()
         years = [r[0] for r in con.execute(
             "SELECT DISTINCT year FROM questions WHERE syllabus = ? ORDER BY year", (exam,))]
-        # each paper sat, newest first: the search page's 具体试卷
+        # each paper sat, newest first: the query page's 按试卷
+        # each paper sat: its code, the question that opens its PDFs, and which PDFs are here
         papers = {}
-        for r in con.execute("SELECT syllabus, component, paper, series, year, month, COUNT(*) n "
-                             "FROM questions WHERE syllabus = ? GROUP BY paper, series", (exam,)):
+        for r in con.execute("SELECT syllabus, component, paper, series, year, month, COUNT(*) n, MIN(q) q, "
+                             "qp_pdf, ms_pdf FROM questions WHERE syllabus = ? GROUP BY paper, series", (exam,)):
             x = papers.setdefault(paper_code(r), {
                 "code": paper_code(r), "component": str(r["component"]), "year": r["year"],
-                "month": MONTH.get(r["series"][0], r["month"]) if exam in CIE else r["month"], "n": 0})
+                "month": MONTH.get(r["series"][0], r["month"]) if exam in CIE else r["month"],
+                "variant": r["paper"].split("/")[-1][-1:] if exam in CIE else "", "n": 0, "q": r["q"],
+                "qid": None, "qp": bool(_pdf(r["qp_pdf"])), "ms": bool(_pdf(r["ms_pdf"]))})
             x["n"] += r["n"]                 # an admissions paper is one code for its year
+            if r["q"] <= x["q"] or x["qid"] is None:
+                x["q"] = r["q"]
+                x["qid"] = con.execute("SELECT id FROM questions WHERE syllabus = ? AND paper = ? AND series = ? AND q = ?",
+                                       (exam, r["paper"], r["series"], r["q"])).fetchone()[0]
         out.append({
             "exam": exam, "label": label, "cie": exam in CIE, "years": years,
             "components": [{"value": r["component"], "label": _component_label(exam, r), "n": r["n"]}
@@ -228,13 +235,12 @@ def detail(qid):
         "options": json.loads(r["option_texts"]) if r["option_texts"] else None,
         "explanation": expl,
         "pages": json.loads(r["qp_pages"] or "[]"),
-        "paper_pdf": bool(paper_pdf(r)),
+        "paper_pdf": bool(paper_pdf(r)), "ms_pdf": bool(ms_pdf(r)),
     }
 
 
-def paper_pdf(r):
-    """The original question paper, if it is on this machine."""
-    name = r["qp_pdf"]
+def _pdf(name):
+    """A paper's PDF by its name in the bank (questions.qp_pdf, ms_pdf), if it is on this machine."""
     if not name:
         return None
     for base in (paths.PAPERS, os.path.join(paths.RAW, "pdf"), paths.RAW):
@@ -242,6 +248,16 @@ def paper_pdf(r):
         if os.path.exists(p):
             return p
     return None
+
+
+def paper_pdf(r):
+    """The original question paper, if it is on this machine."""
+    return _pdf(r["qp_pdf"])
+
+
+def ms_pdf(r):
+    """The paper's mark scheme (剑桥考试), if it is on this machine."""
+    return _pdf(r["ms_pdf"])
 
 
 _vocab = (None, [])
