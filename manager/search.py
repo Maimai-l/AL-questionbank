@@ -259,15 +259,42 @@ def _snippet(text, width=90):
     return ("…" if start > 0 else "") + text[start:end].strip(" ·") + ("…" if end < len(text) else "")
 
 
+def _lead(text, width=160):
+    """The start of a question's text, on one line, formulas kept whole: the result line
+    when there are no keywords to show around."""
+    text = re.sub(r"\[DIAGRAM\]|\[\d+\]", " ", text or "")       # the figure marker and the marks
+    text = re.sub(r"^\s*\d+\s+", "", text)                         # the question number: on the line above
+    text = re.sub(r"\s*\|\s*", " · ", re.sub(r"[ \t]*\n\s*", " · ", text.strip()))
+    text = re.sub(r"(\s*·\s*)+", " · ", re.sub(r"[ \t]{2,}", " ", text)).strip(" ·")
+    if len(text) <= width:
+        return text or None
+    end = width
+    while end < len(text) and text[end - 1].isalnum() and text[end].isalnum():
+        end += 1
+    if len(re.findall(r"(?<!\\)\$", text[:end])) % 2:      # inside a formula: to its end
+        nxt = text.find("$", end)
+        end = nxt + 1 if nxt >= 0 else len(text)
+    return text[:end].strip(" ·") + ("…" if end < len(text) else "")
+
+
+# conditions with a count beside each choice: (request key, record field). Each count is
+# taken with every other condition applied, not its own, so a choice shows what it would add.
+FACETS = (("comps", "component"), ("seasons", "month"), ("variants", "variant"), ("codes", "code"))
+
+
 def find(p, limit=200):
-    """The page's search: p = {q, exams, topics ["9709:3.5"], from, to, mmin, mmax, cols,
-    comps, tasks, expl ("any" | "y" | "n"), sort ("rel" | "year")}. Returns the count and
-    the matches per exam (whatever exams are chosen) and per paper (whatever papers are
-    chosen), the tasks of the matches, the first `limit` rows with their snippets, and the terms to mark."""
+    """The page's search: p = {q, exam ("9709", or "*" for every exam), topics ["9709:3.5"],
+    from, to, comps, seasons [3, 6, 11], variants ["1", "2", "3"], codes ["9709/32/O/N/24"],
+    cols, tasks, expl ("any" | "y" | "n"), sort ("rel" | "year")}; a list where p has none
+    of a condition, or null, sets no limit. Keywords are optional: without them the matches
+    are the questions the other conditions leave, by year. Returns the count, the matches
+    per exam and per choice of each condition above, the tasks of the matches, the first
+    `limit` rows with their snippets, and the terms to mark."""
     con = connect()
     text = (p.get("q") or "").strip()
     code = paper_code(text)
     where, args = [], []
+    pos = neg = None
     if code:                                 # a paper or a question, as on the query page
         exam, month, yy, paper, q = code
         where += ["d.month = ?", "d.year % 100 = ?", "d.paper = ?"]
@@ -278,17 +305,17 @@ def find(p, limit=200):
         if q:
             where.append("d.q = ?")
             args.append(q)
-        pos = neg = None
     else:
-        pos, neg = fts(con, text)
-        if not pos and not neg:
-            return {"total": 0, "counts": {}, "papers": {}, "tasks": {}, "rows": [], "terms": []}
+        if text:
+            pos, neg = fts(con, text)
+            if not pos and not neg:
+                return {"total": 0, "counts": {}, "facets": {}, "tasks": {}, "rows": [], "terms": []}
         cols = [c for c in p.get("cols") or COLS if c in COLS] or COLS
         scope = (lambda e: e) if len(cols) == len(COLS) else (lambda e: "{" + " ".join(cols) + "} : (" + e + ")")
         if pos:
             where.append("f MATCH ?")
             args.append(scope(f"({pos}) NOT ({neg})" if neg else pos))
-        else:                                # only words to leave out
+        elif neg:                            # only words to leave out
             where.append("d.rowid NOT IN (SELECT rowid FROM f WHERE f MATCH ?)")
             args.append(scope(neg))
         for key, col, op in (("from", "year", ">="), ("to", "year", "<="), ("mmin", "marks", ">="), ("mmax", "marks", "<=")):
@@ -302,8 +329,10 @@ def find(p, limit=200):
     sql = (f"SELECT d.*, {rank} AS score FROM {'f JOIN docs d ON d.rowid = f.rowid' if pos else 'docs d'} "
            f"WHERE {' AND '.join(where) or '1'}")
     rows = [dict(r) for r in con.execute(sql, args)]
+    cie = {e for e, _ in bank.EXAMS if e in bank.CIE}
     for r in rows:
         r["tasks"] = json.loads(r["tasks"])
+        r["variant"] = r["paper"][-1:] if r["exam"] in cie else ""
     if not code and p.get("topics"):         # a topic narrows its own exam only
         chosen = set(p["topics"])
         narrowed = {t.split(":")[0] for t in chosen}
@@ -318,30 +347,41 @@ def find(p, limit=200):
     counts = {}
     for r in rows:
         counts[r["exam"]] = counts.get(r["exam"], 0) + 1
-    if (not code or not code[0]) and p.get("exams") is not None:
-        rows = [r for r in rows if r["exam"] in p["exams"]]
-    papers = {}                              # matches per paper, whatever papers are chosen
-    for r in rows:
-        papers[r["component"]] = papers.get(r["component"], 0) + 1
-    if not code and p.get("comps") is not None:
-        want = {str(c) for c in p["comps"]}
-        rows = [r for r in rows if r["component"] in want]
-    if p.get("sort") == "year":
+    exam = p.get("exam")
+    if exam is None and p.get("exams") is not None:      # the former form: a list of exams
+        exam = p["exams"]
+    if (not code or not code[0]) and exam not in (None, "*"):
+        keep = {exam} if isinstance(exam, str) else set(exam)
+        rows = [r for r in rows if r["exam"] in keep]
+    wants = {} if code else {k: {str(v) for v in p[k]} for k, _ in FACETS if p.get(k)}
+    passes = lambda r, skip=None: all(str(r[f]) in wants[k] for k, f in FACETS if k in wants and k != skip)
+    facets = {}
+    for k, f in FACETS:
+        n = facets[k] = {}
+        for r in rows:
+            if passes(r, k):
+                n[str(r[f])] = n.get(str(r[f]), 0) + 1
+    rows = [r for r in rows if passes(r)]
+    if p.get("sort") == "year" or not pos:
         rows.sort(key=lambda r: (-r["year"], -r["month"], r["code"], r["q"]))
     else:
         rows.sort(key=lambda r: (r["score"], -r["year"], r["code"], r["q"]))
     page = rows[:limit]
     snips = {}
+    ids = [r["rowid"] for r in page]
     if pos and page:
-        expr = args[where.index("f MATCH ?")] if "f MATCH ?" in where else None
-        ids = [r["rowid"] for r in page]
+        expr = args[where.index("f MATCH ?")]
         for h in con.execute(
                 f"SELECT rowid, highlight(f, 0, char(1), char(2)), highlight(f, 1, char(1), char(2)), "
                 f"highlight(f, 2, char(1), char(2)), highlight(f, 3, char(1), char(2)) FROM f "
                 f"WHERE f MATCH ? AND rowid IN ({','.join('?' * len(ids))})", [expr] + ids):
             # the topic name is on the result's first line already
             snips[h[0]] = [[c, s] for c, s in zip(COLS[:3], (_snippet(x or "") for x in h[1:4])) if s]
-    out = [{"id": r["id"], "exam": r["exam"], "code": r["code"], "q": r["q"], "marks": r["marks"], "year": r["year"],
+    elif page:                               # no words to show around: the start of the question
+        for rowid, stem in con.execute(f"SELECT rowid, stem FROM f WHERE rowid IN ({','.join('?' * len(ids))})", ids):
+            lead = _lead(stem)
+            snips[rowid] = [["stem", lead]] if lead else []
+    out = [{"id": r["id"], "exam": r["exam"], "code": r["code"], "q": r["q"], "year": r["year"],
             "topic": r["topic"], "topic_name": r["topic_name"], "snippets": snips.get(r["rowid"], [])} for r in page]
-    return {"total": len(rows), "counts": counts, "papers": papers, "tasks": task_counts,
-            "rows": out, "terms": terms(con, text) if not code else []}
+    return {"total": len(rows), "counts": counts, "facets": facets, "papers": facets["comps"], "tasks": task_counts,
+            "rows": out, "terms": terms(con, text) if pos else []}

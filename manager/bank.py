@@ -107,12 +107,21 @@ def meta():
             "AND topic IS NOT NULL GROUP BY component, topic ORDER BY topic", (exam,)).fetchall()
         years = [r[0] for r in con.execute(
             "SELECT DISTINCT year FROM questions WHERE syllabus = ? ORDER BY year", (exam,))]
+        # each paper sat, newest first: the search page's 具体试卷
+        papers = {}
+        for r in con.execute("SELECT syllabus, component, paper, series, year, month, COUNT(*) n "
+                             "FROM questions WHERE syllabus = ? GROUP BY paper, series", (exam,)):
+            x = papers.setdefault(paper_code(r), {
+                "code": paper_code(r), "component": str(r["component"]), "year": r["year"],
+                "month": MONTH.get(r["series"][0], r["month"]) if exam in CIE else r["month"], "n": 0})
+            x["n"] += r["n"]                 # an admissions paper is one code for its year
         out.append({
             "exam": exam, "label": label, "cie": exam in CIE, "years": years,
             "components": [{"value": r["component"], "label": _component_label(exam, r), "n": r["n"]}
                            for r in comps],
             "topics": [{"component": r["component"], "value": r["topic"],
                         "label": f'{r["topic"]} {r["topic_name"]}', "n": r["n"]} for r in topics],
+            "papers": sorted(papers.values(), key=lambda x: (-x["year"], -x["month"], x["code"])),
         })
     return out
 

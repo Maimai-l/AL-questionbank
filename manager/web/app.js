@@ -299,6 +299,19 @@
         h('span', { className: 'fx-n' }, i.n)))));
   }
 
+  /** A condition where nothing picked sets no limit (the search page): the title with 不限,
+      or 清除 once something is picked; each choice with its count. */
+  function FreeFacet({ title, items, picked, onChange, grid }) {
+    const toggle = (v) => onChange(picked.includes(v) ? picked.filter((x) => x !== v) : picked.concat([v]));
+    return h('section', { className: 'sec' },
+      h('div', { className: 'fx-head' }, h('span', { className: 'sec-t' }, title),
+        picked.length ? h('button', { type: 'button', className: 'fx-clear', onClick: () => onChange([]) }, '清除')
+          : h('span', { className: 'fx-n' }, '不限')),
+      h('div', { className: grid ? 'fx-grid' : 'fx-line' }, items.map((i) => h('div', { className: 'fx-row' + (i.zero ? ' is-zero' : ''), key: i.value },
+        h(E.Checkbox, { checked: picked.includes(i.value), onChange: () => toggle(i.value) }, i.label),
+        h('span', { className: 'fx-n' }, i.n)))));
+  }
+
   function defaults(meta) {
     const first = meta.components[0] ? meta.components[0].value : null;
     return {
@@ -549,8 +562,16 @@
       ones are pills inside it, by their short name (9709 1.1, the full name on hover); two
       fit, past two the first one and +n. The menu (the design system's .dd .menu) has the
       full names. */
-  function MultiPick({ options, value, onChange, placeholder, short, ariaLabel }) {
+  function MultiPick({ options, value, onChange, placeholder, short, ariaLabel, filter }) {
     const [open, setOpen] = useState(false);
+    const [find, setFind] = useState('');           // the filter field of a long list: every word must occur
+    useEffect(() => {
+      if (!open) { setFind(''); return; }
+      const f = ref.current && ref.current.querySelector('.mpick-find input');
+      if (f) f.focus();                              // the menu opens ready for typing
+    }, [open]);
+    const words = find.toLowerCase().split(/\s+/).filter(Boolean);
+    const shown = words.length ? options.filter((o) => words.every((w) => o.label.toLowerCase().includes(w))) : options;
     const ref = useRef(null);
     useEffect(() => {
       if (!open) return undefined;
@@ -575,13 +596,18 @@
           : h('span', { className: 'val ph' }, placeholder),
         h(E.Icon, { name: 'i-tri-d', className: 'tri' })),
       h('div', { className: 'menu', role: 'listbox', 'aria-multiselectable': 'true', hidden: !open },
-        options.map((o) => h('button', { key: o.value, type: 'button', className: 'menu-item', role: 'option',
-          'aria-selected': value.includes(o.value), onClick: () => flip(o.value) }, o.label, h(E.Icon, { name: 'i-check', className: 'ok' })))));
+        filter ? h('div', { className: 'mpick-find' }, h(E.TextField, { 'aria-label': filter, placeholder: filter, size: 'sm', icon: 'i-search',
+          value: find, onChange: (e) => setFind(e.target.value) })) : null,
+        shown.map((o) => h('button', { key: o.value, type: 'button', className: 'menu-item', role: 'option',
+          'aria-selected': value.includes(o.value), onClick: () => flip(o.value) }, o.label,
+          o.meta ? h('span', { className: 'mpick-meta' }, o.meta) : null, h(E.Icon, { name: 'i-check', className: 'ok' })))));
   }
 
   const FIELDS_AT = [['stem', '题干'], ['ms', '评分细则'], ['ex', '详解'], ['topic', '主题名']];
   const FIELD_NAME = Object.fromEntries(FIELDS_AT);
   const RECENT = 'dm-search-recent';
+  const EXAM_KEY = 'dm-search-exam';
+  const SEASONS = [[3, 'F/M'], [6, 'M/J'], [11, 'O/N']];
   const recentList = () => { try { return JSON.parse(localStorage.getItem(RECENT)) || []; } catch (e) { return []; } };
 
   /** The search page (docs/data-manager.md, 搜索): every exam at once; the left column is
@@ -591,12 +617,22 @@
     const allYears = [...new Set(metas.flatMap((m) => m.years))].sort();
     const [text, setText] = useState('');
     const [q, setQ] = useState('');                       // the text searched (after a pause)
-    const [exams, setExams] = useState(() => new Set(allExams));
+    // one exam at a time, the one used last (first 9709); 全部考试 (*) is a choice, not the default
+    const [exam, setExamState] = useState(() => { try { const e = localStorage.getItem(EXAM_KEY); if (e === '*' || allExams.includes(e)) return e; } catch (e) {} return allExams[0]; });
+    const setExam = (e) => { setExamState(e); try { localStorage.setItem(EXAM_KEY, e); } catch (x) {} };
+    const exams = new Set(exam === '*' ? allExams : [exam]);
+    const examMeta = metas.find((m) => m.exam === exam);
+    const cie = !!(examMeta && examMeta.cie);
     const [topics, setTopics] = useState([]);
-    const [years, setYears] = useState([allYears[0], allYears[allYears.length - 1]]);
-    const [cols, setCols] = useState(() => new Set(FIELDS_AT.map((x) => x[0])));
+    const yearsOf = (e) => (e === '*' ? allYears : (metas.find((m) => m.exam === e) || { years: allYears }).years);
+    const [years, setYears] = useState(() => { const y = yearsOf(exam); return [y[0], y[y.length - 1]]; });
+    const [cols, setCols] = useState([]);                // where the keywords are looked for; none: everywhere
     const [more, setMore] = useState(false);
-    const [comps, setComps] = useState(null);             // null: every paper
+    // nothing picked: no limit
+    const [comps, setComps] = useState([]);
+    const [seasons, setSeasons] = useState([]);
+    const [variants, setVariants] = useState([]);
+    const [codes, setCodes] = useState([]);
     const [tasks, setTasks] = useState(null);             // null: every task type
     const [expl, setExpl] = useState('any');
     const [sort, setSort] = useState('rel');
@@ -608,10 +644,16 @@
     const [recent, setRecent] = useState(recentList);
 
     useEffect(() => { const t = setTimeout(() => setQ(text.trim()), 250); return () => clearTimeout(t); }, [text]);
-    const conds = { q, exams: [...exams], topics, from: years[0], to: years[1], cols: [...cols], comps, tasks, expl, sort };
+    const conds = { q, exam, topics, from: years[0], to: years[1], cols: cols.length ? cols : null, comps, seasons, variants, codes, tasks, expl, sort };
     const key = JSON.stringify(conds);
+    // a search runs with keywords, or with a condition that narrows (paper, topic, …); with
+    // neither the page shows the recent searches
+    const span = yearsOf(exam);
+    const narrowed = !!(topics.length || comps.length || seasons.length || variants.length || codes.length
+      || years[0] !== span[0] || years[1] !== span[span.length - 1]);
+    const active = !!q || narrowed;
     useEffect(() => {
-      if (!q) { setRes(null); return undefined; }
+      if (!active) { setRes(null); return undefined; }
       let live = true;
       setBusy(true);
       send('POST', '/api/find', conds).then((r) => { if (live) { setRes(r); setBusy(false); } })
@@ -636,15 +678,20 @@
     useEffect(() => { if (res && !busy && want.current === q) { want.current = null; keep(q, res.total); } }, [res, busy]);
     const kw = readQuery(text);
     const setKw = (k, v) => setText(writeQuery({ ...kw, [k]: v }));
-    const toggle = (set, setter, v) => { const n = new Set(set); n.has(v) ? n.delete(v) : n.add(v); setter(n); };
 
     // the topics of the chosen exams; a topic stays chosen only while its exam is
     const topicOptions = metas.filter((m) => exams.has(m.exam)).flatMap((m) => {
       const seen = new Set();
       return m.topics.filter((t) => !seen.has(t.value) && seen.add(t.value))
-        .map((t) => ({ value: `${m.exam}:${t.value}`, label: `${m.exam} · ${t.label}` }));
+        .map((t) => ({ value: `${m.exam}:${t.value}`, label: exam === '*' ? `${m.exam} · ${t.label}` : t.label }));
     });
-    useEffect(() => { setTopics((ts) => ts.filter((t) => exams.has(t.split(':')[0]))); }, [[...exams].join()]);
+    useEffect(() => {
+      setTopics((ts) => ts.filter((t) => exams.has(t.split(':')[0])));
+      setCodes((cs) => cs.filter((c) => exams.has(c.split('/')[0])));
+      if (!cie) { setSeasons([]); setVariants([]); }
+      const y = yearsOf(exam);
+      setYears([y[0], y[y.length - 1]]);
+    }, [exam]);
     // the papers of the chosen exams; a number named differently by two exams takes the CIE name (Paper 1)
     const compNames = new Map();
     metas.filter((m) => exams.has(m.exam)).sort((a, b) => b.cie - a.cie)
@@ -652,9 +699,17 @@
     const compOptions = [...compNames.entries()]
       .sort((a, b) => String(a[0]).localeCompare(String(b[0]), undefined, { numeric: true }));
     const taskOptions = Object.keys((res && res.tasks) || {}).sort((a, b) => Object.keys(TASK).indexOf(a) - Object.keys(TASK).indexOf(b));
-    const yearOpts = allYears.map((y) => ({ value: String(y), label: String(y) }));
+    const yearOpts = yearsOf(exam).map((y) => ({ value: String(y), label: String(y) }));
     const counts = (res && res.counts) || {};
-    const papers = (res && res.papers) || {};
+    const facet = (k) => (res && res.facets && res.facets[k]) || {};
+    const papers = facet('comps');
+    const n = (k, v) => (res ? facet(k)[String(v)] || 0 : '');
+    const zero = (k, v) => !!res && !facet(k)[String(v)];
+    // the papers sat that the other paper conditions leave, newest first
+    const paperOptions = metas.filter((m) => exams.has(m.exam)).flatMap((m) => m.papers)
+      .filter((x) => (!comps.length || comps.includes(x.component)) && (!seasons.length || seasons.includes(x.month))
+        && (!variants.length || variants.includes(x.code.split('/')[1].slice(-1))) && x.year >= years[0] && x.year <= years[1])
+      .map((x) => ({ value: x.code, label: x.code, meta: `${x.n} 题` }));
     const rows = (res && res.rows) || [];
     const picked = rows.filter((r) => selected.includes(r.id));
     const moreSet = tasks !== null || expl !== 'any';
@@ -666,25 +721,30 @@
     const allOn = exams.size === allExams.length;
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'dm-cond sp-left', 'aria-label': '高级搜索' },
-        h(Facet, { title: '考试', grid: true, picked: exams, onChange: setExams,
-          items: allExams.map((e) => ({ value: e, label: e, n: res ? counts[e] || 0 : '', zero: res && !counts[e] })) }),
-        h(Facet, { title: '试卷', grid: true, picked: new Set(comps || compOptions.map((c) => c[0])),
-          onChange: (set) => setComps(set.size === compOptions.length ? null : [...set]),
-          items: compOptions.map(([v, label]) => ({ value: v, label, n: res ? papers[v] || 0 : '', zero: res && !papers[v] })) }),
-        h('section', { className: 'sec' }, head('主题'),
-          h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', options: topicOptions, value: topics, onChange: setTopics,
-            short: (v) => v.replace(':', ' ') })),
+        h(E.Select, { label: '考试', value: exam, onChange: setExam,
+          options: metas.map((m) => ({ value: m.exam, label: m.label })).concat([{ value: '*', label: '全部考试' }]) }),
+        h(FreeFacet, { title: '试卷', grid: true, picked: comps, onChange: setComps,
+          items: compOptions.map(([v, label]) => ({ value: v, label, n: n('comps', v), zero: zero('comps', v) })) }),
+        cie ? h(FreeFacet, { title: '考季', picked: seasons, onChange: setSeasons,
+          items: SEASONS.map(([v, label]) => ({ value: v, label, n: n('seasons', v), zero: zero('seasons', v) })) }) : null,
+        cie ? h(FreeFacet, { title: '变体', picked: variants, onChange: setVariants,
+          items: ['1', '2', '3'].map((v) => ({ value: v, label: v, n: n('variants', v), zero: zero('variants', v) })) }) : null,
         h('section', { className: 'sec' }, head('年份'),
           h('div', { className: 'years' },
             h(E.Select, { ariaLabel: '起始年份', size: 'sm', options: yearOpts, value: String(years[0]), onChange: (v) => setYears([+v, Math.max(+v, years[1])]) }),
             h('span', null, '至'),
             h(E.Select, { ariaLabel: '结束年份', size: 'sm', options: yearOpts, value: String(years[1]), onChange: (v) => setYears([Math.min(+v, years[0]), +v]) }))),
+        h('section', { className: 'sec' }, head('具体试卷'),
+          h(MultiPick, { ariaLabel: '具体试卷', placeholder: '全部试卷', options: paperOptions, value: codes, onChange: setCodes,
+            filter: '输入卷号或年份', short: (v) => (exam === '*' ? v : v.slice(v.indexOf('/') + 1)) })),
+        h('section', { className: 'sec' }, head('主题'),
+          h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', options: topicOptions, value: topics, onChange: setTopics,
+            filter: topicOptions.length > 12 ? '输入主题码或名称' : null, short: (v) => (exam === '*' ? v.replace(':', ' ') : v.split(':')[1]) })),
         h('hr', { className: 'sp-hr' }),
         h('section', { className: 'sec' }, head('关键词'),
           field('包含全部词语', 'all'), field('包含完整短语', 'phrase'), field('包含任一词语', 'any'), field('不包含词语', 'none')),
-        h('section', { className: 'sec' }, head('查找位置'),
-          h('div', { className: 'fx-grid' }, FIELDS_AT.map(([k, label]) => h('div', { key: k, className: 'fx-row' }, h(E.Checkbox, { checked: cols.has(k),
-            onChange: () => { if (!(cols.has(k) && cols.size === 1)) toggle(cols, setCols, k); } }, label))))),
+        h(FreeFacet, { title: '查找位置', grid: true, picked: cols, onChange: setCols,
+          items: FIELDS_AT.map(([k, label]) => ({ value: k, label, n: '' })) }),
         h('hr', { className: 'sp-hr' }),
         h('section', { className: 'sec' },
           h('button', { type: 'button', className: 'more-h', 'aria-expanded': more, onClick: () => setMore(!more) },
@@ -700,7 +760,7 @@
           h(E.TextField, { 'aria-label': '搜索', placeholder: '搜索', icon: 'i-search', value: text, onChange: (e) => setText(e.target.value),
             onKeyDown: (e) => { if (e.key === 'Escape') setText(''); if (e.key === 'Enter') remember(); } }),
           text ? h(E.IconButton, { icon: 'i-close', label: '清除搜索', variant: 'ghost', size: 'sm', onClick: () => setText('') }) : null),
-        !q ? h('div', { className: 'sp-recent' },
+        !active ? h('div', { className: 'sp-recent' },
           recent.length ? h('h3', null, '最近搜索') : null,
           recent.length ? recent.map((x) => h('button', { type: 'button', className: 'rec', key: x.q, onClick: () => setText(x.q) },
             h(E.Icon, { name: 'i-search', size: 'sm' }), h('span', null, x.q), h('span', null, `${x.n} 题`)))
@@ -711,7 +771,7 @@
           h('div', { className: 'selbar' },
             h(E.Checkbox, { checked: rows.length > 0 && picked.length === rows.length, indeterminate: picked.length > 0 && picked.length < rows.length,
               onChange: () => setSelected(picked.length === rows.length ? [] : rows.map((r) => r.id)) }, '全选'),
-            h(E.SegmentedControl, { ariaLabel: '排序', value: sort, onChange: setSort, options: [{ value: 'rel', label: '相关度' }, { value: 'year', label: '年份' }] }),
+            q ? h(E.SegmentedControl, { ariaLabel: '排序', value: sort, onChange: setSort, options: [{ value: 'rel', label: '相关度' }, { value: 'year', label: '年份' }] }) : null,
             h('div', { className: 'dm-meta', style: { flexGrow: 1, justifyContent: 'flex-end' } },
               h('span', null, '已选 ', h('b', null, picked.length), ' 题')),
             h(E.Button, { variant: 'primary', size: 'sm', icon: 'i-plus', disabled: !picked.length, onClick: () => { remember(); setAdding(true); } }, '加入题组')),
@@ -727,7 +787,8 @@
             : h(E.EmptyState, { icon: 'i-search', title: '没有符合条件的题目' }))),
       h(Detail, { qid: focus, marks: res && res.terms }),
       adding ? h(AddDialog, {
-        sets, toast, ids: picked.map((r) => r.id), name: q, source: 'query',
+        sets, toast, ids: picked.map((r) => r.id), source: 'query',
+        name: q || (codes.length === 1 ? codes[0] : [exam === '*' ? '全部' : exam, comps.map((c) => 'P' + c).join('、'), `${years[0]}-${years[1]}`].filter(Boolean).join(' ')),
         onClose: () => setAdding(false), onDone: () => { setAdding(false); reloadSets(); },
       }) : null);
   }

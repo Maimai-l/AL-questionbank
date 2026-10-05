@@ -135,29 +135,43 @@ class SearchPage(Api):
         return await self.json("POST", "/api/find", p)
 
     async def test_conditions(self):
-        """Keywords alone, then narrowed by exam, paper, topic, year, where to look, part
-        type and explanation; each narrowing never finds more."""
-        all_ = await self.find(q="integration")
+        """Keywords alone, then narrowed by exam, paper, season, variant, year, a paper sat,
+        topic, where to look, part type and explanation; each narrowing never finds more."""
+        all_ = await self.find(q="integration", exam="*")
         self.assertGreater(all_["total"], 0)
-        exam = await self.find(q="integration", exams=["9709"])
+        exam = await self.find(q="integration", exam="9709")
         self.assertLessEqual(exam["total"], all_["total"])
-        for extra in ({"comps": ["3"]}, {"from": 2022, "to": 2024}, {"cols": ["stem"]},
-                      {"expl": "y"}, {"expl": "n"}, {"sort": "year"}, {"topics": ["9709:3.5"]}):
-            r = await self.find(q="integration", exams=["9709"], **extra)
+        for extra in ({"comps": ["3"]}, {"seasons": [11]}, {"variants": ["2"]}, {"from": 2022, "to": 2024},
+                      {"codes": ["9709/32/O/N/24"]}, {"cols": ["stem"]}, {"expl": "y"}, {"expl": "n"},
+                      {"sort": "year"}, {"topics": ["9709:3.5"]}):
+            r = await self.find(q="integration", exam="9709", **extra)
             self.assertLessEqual(r["total"], exam["total"], extra)
 
     async def test_query_forms(self):
         """Phrases, OR, NOT, word forms and text that is not a query at all."""
         for q in ('"partial fractions"', "integration OR differentiation", "integration -parts",
-                  "integrating", "x-axis", 'unbalanced "quote', "((", "*", "", "AND OR NOT"):
-            r = await self.find(q=q, exams=["9709"])
+                  "integrating", "x-axis", 'unbalanced "quote', "((", "*", "AND OR NOT"):
+            r = await self.find(q=q, exam="9709")
             self.assertIn("total", r, q)
 
-    async def test_needs_keywords(self):
-        """Without keywords the page lists nothing (browsing is the query page's), but a
-        paper code alone finds that paper."""
-        self.assertEqual((await self.find(exams=["9231"]))["total"], 0)
+    async def test_without_keywords(self):
+        """Without keywords the conditions alone pick the questions: a paper sat lists its
+        questions in order, its start as the line under each; a paper code typed does too."""
+        from manager import bank
+        paper = [r for r in bank.rows("9709") if r["code"] == "9709/32/O/N/24"]
+        r = await self.find(exam="9709", codes=["9709/32/O/N/24"])
+        self.assertEqual(r["total"], len(paper))
+        self.assertEqual([x["q"] for x in r["rows"]], sorted(x["q"] for x in paper))
+        self.assertTrue(all(x["snippets"] and x["snippets"][0][0] == "stem" for x in r["rows"]))
         self.assertGreater((await self.find(q="9709/32/O/N/24"))["total"], 0)
+
+    async def test_counts_beside_choices(self):
+        """Each choice's count leaves its own condition out: with Paper 3 picked the other
+        papers still show what they would add; the seasons and variants count Paper 3."""
+        r = await self.find(exam="9709", comps=["3"], seasons=[11])
+        self.assertGreater(r["facets"]["comps"]["1"], 0)
+        self.assertEqual(sum(r["facets"]["variants"].values()), r["total"])
+        self.assertTrue(all(c.split("/")[1].startswith("3") and "/O/N/" in c for c in r["facets"]["codes"]))
 
 
 @NEED

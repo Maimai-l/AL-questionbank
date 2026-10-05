@@ -152,9 +152,41 @@ class QueryPage(Page):
 
 
 class SearchPage(Page):
+    def test_defaults(self):
+        """One exam to start with (9709 the first time); papers, seasons and variants set no
+        limit; nothing listed until something is searched for."""
+        p = self.page
+        self.go("search")
+        left = p.locator(".sp-left")
+        expect(left.locator(".select").first).to_contain_text("9709")
+        expect(left.locator("input[type=checkbox]:checked")).to_have_count(0)
+        expect(left.locator(".sec", has_text="试卷").first).to_contain_text("不限")
+        expect(p.locator(".hit")).to_have_count(0)
+
+    def test_paper_without_keywords(self):
+        """Paper 3, O/N, then one paper sat picked by typing: its questions are listed with no
+        keywords; 清除 lifts a condition."""
+        from manager import bank
+        p = self.page
+        self.go("search")
+        left, head = p.locator(".sp-left"), p.locator(".sp-main .headline")
+        left.locator("label.check", has_text="Paper 3").click()
+        left.locator("label.check", has_text="O/N").click()
+        expect(p.locator(".hit").first).to_be_visible()
+        picker = left.locator(".mpick").first
+        picker.locator(".select").click()
+        p.keyboard.type("32 24")
+        expect(picker.locator(".menu-item")).to_have_count(1)
+        picker.locator(".menu-item").click()
+        p.mouse.click(1000, 40)
+        n = sum(r["code"] == "9709/32/O/N/24" for r in bank.rows("9709"))
+        expect(head).to_have_text(f"{n} 题")
+        left.locator(".sec", has_text="考季").get_by_role("button", name="清除").click()
+        expect(left.locator(".sec", has_text="考季")).to_contain_text("不限")
+
     def test_search_narrow_and_add(self):
-        """Keywords, then the advanced conditions on the left, a result opened with its
-        words marked, picked and added to a set; the search is kept among the recent ones."""
+        """Keywords, then the conditions on the left, a result opened, picked and added to a
+        set; the search is kept among the recent ones; another exam is remembered."""
         p = self.page
         self.go("search")
         p.locator(".sp-box input").fill("integration")
@@ -162,17 +194,14 @@ class SearchPage(Page):
         hits, head = p.locator(".hit"), p.locator(".sp-main .headline")
         expect(hits.first).to_be_visible()
         n = head.inner_text()
-        p.locator(".sp-left label.check", has_text="9231").click()
+        p.locator(".sp-left label.check", has_text="Paper 3").click()
         expect(head).not_to_have_text(n)
-        p.locator(".sp-left .mpick .select").click()
-        p.locator(".sp-left .mpick .menu-item").first.click()
+        p.locator(".sp-left .mpick").nth(1).locator(".select").click()
+        p.keyboard.type("3.5")
+        p.locator(".sp-left .mpick").nth(1).locator(".menu-item").first.click()
         p.mouse.click(1000, 40)
-        expect(p.locator(".sp-left .mpick .tag").first).to_be_visible()
-        p.get_by_label("不包含词语").fill("parts")
-        p.locator(".sp-left label.check", has_text="评分细则").click()
+        expect(p.locator(".sp-left .mpick").nth(1).locator(".tag").first).to_be_visible()
         p.locator(".sp-left .more-h").click()
-        p.locator(".sp-left .select", has_text="不限").click()
-        p.get_by_role("option", name="有详解").click()
         p.locator(".sp-main .selbar").get_by_text("年份", exact=True).click()
         hits.first.click()
         expect(p.locator(".detail .qimg").first).to_be_visible()
@@ -183,14 +212,19 @@ class SearchPage(Page):
         dlg.get_by_role("button", name="加入题组").click()
         self.toast_ok()
         p.locator(".sp-box input").fill("")
+        p.locator(".sp-left .mpick").nth(1).locator(".rm").first.click()
+        p.locator(".sp-left").get_by_role("button", name="清除").first.click()
         expect(p.locator(".sp-recent .rec").first).to_be_visible()
+        p.locator(".sp-left .select").first.click()
+        p.get_by_role("option", name="9618 Computer Science").click()
+        self.go("search")
+        expect(p.locator(".sp-left .select").first).to_contain_text("9618")
 
     def test_paper_code(self):
         p = self.page
         self.go("search")
         p.locator(".sp-box input").fill("9709/32/O/N/24")
         expect(p.locator(".hit").first).to_be_visible()
-
 
 
 class SetsPage(Page):
