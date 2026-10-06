@@ -19,7 +19,7 @@
   --bg:#12161d; --paper:#1a2029; --ink:#e8ecf2; --ink2:#a6b0bf; --line:#2c3440;
   --must:#ff6b7d; --must-bg:#3a1b22; --often:#f0b44c; --often-bg:#33280f; --know:#9aa5b5; --know-bg:#232a35;
   --fig:#7ea6f2; --fig-soft:#22324d; color-scheme:dark}
-body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.9;padding-inline:16px;padding-block:28px 64px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.9;padding-inline:16px;padding-block:28px 64px}
 main{max-width:46rem;margin-inline:auto;display:grid;gap:28px}
 h1{font-size:1.9rem;font-weight:900;line-height:1.3;margin:0;text-wrap:balance}
 .sub{color:var(--ink2);margin:4px 0 0;font-size:.95rem}
@@ -81,6 +81,9 @@ svg .mono{font-family:var(--mono)}
 .formula{margin:0;background:var(--bg);border-radius:8px;padding:10px 14px;font-weight:700;text-align:center}
 .formula .m{font-family:var(--mono);font-weight:500;color:var(--ink2);font-size:.9rem;display:block}
 @media (max-width:480px){body{font-size:16px}.core{font-size:1.1rem}.bits{grid-template-columns:repeat(8,minmax(0,1fr))}}
+.pager{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.92rem}
+.pager a{color:var(--fig);text-decoration:none;font-weight:700}
+.pager a:hover{text-decoration:underline}
 </style>
 
 <style>

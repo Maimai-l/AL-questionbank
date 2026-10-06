@@ -26,6 +26,8 @@ PAGES = os.path.join(WORK, "page")
 OUT = os.path.join(WORK, "out")
 SHELL = os.path.join(paths.ASSETS, "concepts")
 RESULT = os.path.join(paths.DATA, "concepts", "9618")
+DOC = ('<!doctype html>\n<html lang="zh-CN">\n<meta charset="utf-8">\n'
+       '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n')
 PAPER = {n: (1 if n <= 8 else 2 if n <= 12 else 3 if n <= 18 else 4) for n in range(1, 21)}
 LEVEL = {1: "AS", 2: "AS", 3: "A2", 4: "A2"}
 TIERS = {"must", "often", "know"}
@@ -238,7 +240,7 @@ def page_html(n, body):
     title = re.sub(r"<[^>]+>", "", title.group(1)).strip() if title else f"第 {n} 章"
     head = open(os.path.join(SHELL, "head.html"), encoding="utf-8").read()
     tail = open(os.path.join(SHELL, "tail.html"), encoding="utf-8").read()
-    return head.replace("{{TITLE}}", html.escape(f"9618 {title}")) + body + "\n" + tail
+    return DOC + head.replace("{{TITLE}}", html.escape(f"9618 {title}")) + body + "\n" + tail
 
 
 PROBE = """<!doctype html><meta charset=utf-8><body style="margin:0"><iframe id=f src="page.html" style="width:375px;height:900px;border:0"></iframe>
@@ -256,7 +258,7 @@ def render(n):
         return ["找不到 Chromium,跳过 --render"]
     body = open(os.path.join(PAGES, f"ch_{n:02d}.html"), encoding="utf-8").read()
     with tempfile.TemporaryDirectory() as tmp:
-        open(os.path.join(tmp, "page.html"), "w", encoding="utf-8").write("<!doctype html><meta charset=utf-8>" + page_html(n, body))
+        open(os.path.join(tmp, "page.html"), "w", encoding="utf-8").write(page_html(n, body))
         open(os.path.join(tmp, "probe.html"), "w", encoding="utf-8").write(PROBE)
         dom = subprocess.run([exe, "--headless", "--no-sandbox", "--disable-gpu", "--allow-file-access-from-files",
                               "--window-size=500,900", "--virtual-time-budget=4000", "--dump-dom",
@@ -295,21 +297,29 @@ def build(a):
         if problems(n):
             sys.exit(f"ch_{n:02d} 未通过 check")
         body = open(path, encoding="utf-8").read()
+        h1 = re.sub(r"<[^>]+>", "", re.search(r"<h1>(.*?)</h1>", body, re.S).group(1)).strip()
+        done.append((n, h1, body))
+    for i, (n, h1, body) in enumerate(done):
+        links = ['<a href="index.html">目录</a>']
+        if i:
+            links.append(f'<a href="ch_{done[i - 1][0]:02d}.html">← 第 {done[i - 1][0]} 章</a>')
+        if i + 1 < len(done):
+            links.append(f'<a href="ch_{done[i + 1][0]:02d}.html">第 {done[i + 1][0]} 章 →</a>')
+        nav = f'<nav class="pager">{"".join(links)}</nav>'
+        body = body.replace("<main>", "<main>\n" + nav, 1).replace("</main>", nav + "\n</main>", 1)
         with open(os.path.join(RESULT, f"ch_{n:02d}.html"), "w", encoding="utf-8") as f:
             f.write(page_html(n, body))
-        h1 = re.sub(r"<[^>]+>", "", re.search(r"<h1>(.*?)</h1>", body, re.S).group(1)).strip()
-        done.append((n, h1))
     rows = []
     for paper in (1, 2, 3, 4):
         links = "".join(f'<a class="chip often" href="ch_{n:02d}.html">{html.escape(t)}</a>'
-                        for n, t in done if PAPER[n] == paper)
+                        for n, t, _ in done if PAPER[n] == paper)
         if links:
             rows.append(f'<div class="row"><span class="tag know lab">卷 {paper}</span>{links}</div>')
     index = ('<main><header><h1>9618 Computer Science 复习页</h1><p class="sub">每章一页:先背什么、图、英文原话、常考题型</p></header>'
              f'<div class="overview">{"".join(rows)}</div></main>')
     head = open(os.path.join(SHELL, "head.html"), encoding="utf-8").read().replace("{{TITLE}}", "9618 复习页")
     with open(os.path.join(RESULT, "index.html"), "w", encoding="utf-8") as f:
-        f.write(head + index + "\n")
+        f.write(DOC + head + index + "\n")
     print(f"{len(done)} 章 -> {os.path.relpath(RESULT, paths.ROOT)}/")
 
 
