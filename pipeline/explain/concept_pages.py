@@ -6,7 +6,7 @@ behind them in sections that open on a click.
 
     python3 pipeline/explain/concept_pages.py plan --chapters 2-8     raw/concepts_9618/page_NN.md
     (a subagent per chapter writes raw/concepts_9618/page/ch_NN.html, the <main> of the page)
-    python3 pipeline/explain/concept_pages.py count KEYWORD [KEYWORD ...] [--chapter N]
+    python3 pipeline/explain/concept_pages.py count KEYWORD [KEYWORD* ...] [--chapter N]
     python3 pipeline/explain/concept_pages.py ms N KEYWORD                mark scheme lines of chapter N
     python3 pipeline/explain/concept_pages.py check [--chapters 2-8] [--render]
     python3 pipeline/explain/concept_pages.py build                       data/concepts/9618/*.html
@@ -42,8 +42,9 @@ TASK = """# 9618 第 {n} 章:复习页
 3. 本章候选术语与评分细则原文:`raw/concepts_9618/ch_{n:02d}.md`。
 4. 教材本章:`{book}`。文件长,用 offset/limit 分段读;先用 Grep 找 `^#` 看小节结构。
 5. 查真题:
-   - `python3 pipeline/explain/concept_pages.py count 关键词 [同义词 ...]` 输出含这些词的 9618 试卷份数(共 130 份);
-     加 `--chapter {n}` 只数本章的题。
+   - `python3 pipeline/explain/concept_pages.py count 关键词 [同义词 ...]` 输出含这些词的 9618 试卷份数(共 130 份)。
+     按整词匹配(可带复数),词尾加 * 匹配词的开头(如 `compress*`);加 `--chapter {n}` 只数本章的题。
+     这个概念也在别的章出现时(如 AI、switch),以本章的份数为准。
    - `python3 pipeline/explain/concept_pages.py ms {n} 关键词` 列出本章题目评分细则中含该词的行。
 
 ## 页面结构(照范本)
@@ -116,13 +117,21 @@ def plan(a):
 
 
 def count(a):
-    where = "syllabus='9618'" + (" AND topic=?" if a.chapter else "")
-    like = " OR ".join(["question_text LIKE ? OR ms_text LIKE ?"] * len(a.keywords))
-    args = ([str(a.chapter)] if a.chapter else []) + [f"%{k}%" for k in a.keywords for _ in (0, 1)]
-    n = con().execute(f"SELECT COUNT(DISTINCT qp_pdf) FROM questions WHERE {where} AND ({like})", args).fetchone()[0]
-    total = con().execute(f"SELECT COUNT(DISTINCT qp_pdf) FROM questions WHERE {where}",
-                          [str(a.chapter)] if a.chapter else []).fetchone()[0]
-    print(f"{n} / {total} 份试卷")
+    """Papers whose question or mark scheme contains a keyword as a whole word (plural allowed);
+    a keyword ending in * matches the start of a word (compress* finds compression)."""
+    where, args = "syllabus='9618'", []
+    if a.chapter:
+        where, args = where + " AND topic=?", [str(a.chapter)]
+    pat = re.compile("|".join(r"(?<![A-Za-z0-9])" + (re.escape(k[:-1]) if k.endswith("*") else
+                                                     re.escape(k) + r"(?:s|es)?(?![A-Za-z0-9])")
+                              for k in a.keywords), re.I)
+    papers, hit = set(), set()
+    for pdf, text in con().execute(f"SELECT qp_pdf, COALESCE(question_text,'') || ' ' || COALESCE(ms_text,'') "
+                                   f"FROM questions WHERE {where}", args):
+        papers.add(pdf)
+        if pat.search(text):
+            hit.add(pdf)
+    print(f"{len(hit)} / {len(papers)} 份试卷")
 
 
 def ms(a):
