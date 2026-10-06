@@ -14,10 +14,11 @@ behind them in sections that open on a click.
 
 raw/concepts_9618/page/ch_01.html is the model the subagents follow. The page shell (styles,
 the pop-up English definitions) is assets/concepts/head.html and tail.html; build wraps each
-chapter in it and writes an index. The pages load nothing from outside (system fonts, inline
-styles, scripts and SVG), so the zip opens offline.
+chapter in it and writes an index. The pages load nothing from outside: styles, scripts and SVG
+are inline, and Noto Sans SC and JetBrains Mono are embedded, cut down to the characters each
+page uses (the full fonts are downloaded once into raw/fonts/; fonttools and brotli needed).
 """
-import argparse, glob, html, json, os, re, sqlite3, subprocess, sys, tempfile, zipfile
+import argparse, base64, glob, html, io, json, os, re, sqlite3, subprocess, sys, tempfile, urllib.request, zipfile
 from html.parser import HTMLParser
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -33,6 +34,10 @@ DOC = ('<!doctype html>\n<html lang="zh-CN">\n<meta charset="utf-8">\n'
 PAPER = {n: (1 if n <= 8 else 2 if n <= 12 else 3 if n <= 18 else 4) for n in range(1, 21)}
 LEVEL = {1: "AS", 2: "AS", 3: "A2", 4: "A2"}
 TIERS = {"must", "often", "know"}
+FONTS = os.path.join(paths.RAW, "fonts")
+FONT_SRC = "https://raw.githubusercontent.com/google/fonts/main/ofl/"
+FONT_FILES = {"Noto Sans SC": "notosanssc/NotoSansSC%5Bwght%5D.ttf",
+              "JetBrains Mono": "jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf"}
 
 TASK = """# 9618 第 {n} 章:复习页
 
@@ -237,6 +242,46 @@ def chrome():
     return os.environ.get("CHROME") or (hits[-1] if hits else None)
 
 
+def font_path(family):
+    url = FONT_SRC + FONT_FILES[family]
+    path = os.path.join(FONTS, os.path.basename(url).replace("%5B", "[").replace("%5D", "]"))
+    if not os.path.exists(path):
+        os.makedirs(FONTS, exist_ok=True)
+        print(f"下载 {url}")
+        urllib.request.urlretrieve(url, path + ".part")
+        os.replace(path + ".part", path)
+        lic = os.path.join(FONTS, f"OFL-{family.replace(' ', '')}.txt")
+        urllib.request.urlretrieve(FONT_SRC + os.path.dirname(FONT_FILES[family]) + "/OFL.txt", lic)
+    return path
+
+
+def embedded_fonts(text):
+    """@font-face rules for the two families, each cut down to the characters in text."""
+    from fontTools import subset
+    from fontTools.ttLib import TTFont
+    chars = "".join(sorted(set(text) | {chr(c) for c in range(32, 127)}))
+    rules = []
+    for family in FONT_FILES:
+        opt = subset.Options()
+        opt.flavor, opt.layout_features, opt.name_IDs, opt.notdef_outline = "woff2", ["*"], ["*"], True
+        font = TTFont(font_path(family))
+        sub = subset.Subsetter(opt)
+        sub.populate(text=chars)
+        sub.subset(font)
+        buf = io.BytesIO()
+        font.flavor = "woff2"
+        font.save(buf)
+        data = base64.b64encode(buf.getvalue()).decode()
+        rules.append(f"@font-face{{font-family:\"{family}\";font-weight:100 900;font-display:block;"
+                     f"src:url(data:font/woff2;base64,{data}) format(\"woff2\")}}")
+    return "<style>" + "\n".join(rules) + "</style>\n"
+
+
+def with_fonts(page):
+    i = page.index("<style>")
+    return page[:i] + embedded_fonts(page) + page[i:]
+
+
 def page_html(n, body):
     title = re.search(r"<h1>(.*?)</h1>", body, re.S)
     title = re.sub(r"<[^>]+>", "", title.group(1)).strip() if title else f"第 {n} 章"
@@ -310,7 +355,7 @@ def build(a):
         nav = f'<nav class="pager">{"".join(links)}</nav>'
         body = body.replace("<main>", "<main>\n" + nav, 1).replace("</main>", nav + "\n</main>", 1)
         with open(os.path.join(RESULT, f"ch_{n:02d}.html"), "w", encoding="utf-8") as f:
-            f.write(page_html(n, body))
+            f.write(with_fonts(page_html(n, body)))
     rows = []
     for paper in (1, 2, 3, 4):
         links = "".join(f'<a class="chip often" href="ch_{n:02d}.html">{html.escape(t)}</a>'
@@ -321,11 +366,12 @@ def build(a):
              f'<div class="overview">{"".join(rows)}</div></main>')
     head = open(os.path.join(SHELL, "head.html"), encoding="utf-8").read().replace("{{TITLE}}", "9618 复习页")
     with open(os.path.join(RESULT, "index.html"), "w", encoding="utf-8") as f:
-        f.write(DOC + head + index + "\n")
+        f.write(with_fonts(DOC + head + index + "\n"))
     print(f"{len(done)} 章 -> {os.path.relpath(RESULT, paths.ROOT)}/")
 
 
 EXTERNAL = re.compile(r'<link\b|<script[^>]+src=|<img[^>]+src="(?!data:)|@import|url\((?!#|data:)', re.I)
+
 
 
 def zip_pages(a):
@@ -341,6 +387,8 @@ def zip_pages(a):
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
         for f in files:
             z.write(f, os.path.join("9618复习页", os.path.basename(f)))
+        for f in sorted(glob.glob(os.path.join(FONTS, "OFL-*.txt"))):
+            z.write(f, os.path.join("9618复习页", "字体许可", os.path.basename(f)))
     print(f"{len(files)} 个页面 -> {out}")
 
 
