@@ -57,7 +57,8 @@ figure{margin:0;display:flex;flex-wrap:wrap;gap:18px;justify-content:center;alig
 figure .cap{font-size:.85rem;color:var(--ink2);text-align:center;line-height:1.5;margin-top:6px}
 figure > div{display:flex;flex-direction:column;align-items:center;min-width:0;max-width:100%}
 svg{display:block;max-width:100%;height:auto}
-svg text{font-family:var(--sans);font-size:12px;fill:var(--ink2)}
+svg text{font-family:var(--sans);font-size:12px}
+svg text:not([fill]){fill:var(--ink2)}
 svg .mono{font-family:var(--mono)}
 .fg{fill:var(--fig)} .fgs{fill:var(--fig-soft)} .ln{stroke:var(--ink2);stroke-width:1.2;fill:none}
 .p1{fill:var(--px1)} .p2{fill:var(--px2)} .p3{fill:var(--px3)} .p4{fill:var(--px4)}
