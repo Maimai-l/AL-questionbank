@@ -1,0 +1,24 @@
+<script>
+(function(){
+  var pop=document.createElement('div');pop.className='pop';pop.hidden=true;document.body.appendChild(pop);
+  var cur=null;
+  function show(el){
+    cur=el;pop.innerHTML='<b>'+el.dataset.en+'</b>'+el.dataset.def;pop.hidden=false;
+    var r=el.getBoundingClientRect(),W=document.documentElement.clientWidth,w=Math.min(352,W-32);
+    pop.style.width=w+'px';
+    pop.style.left=(Math.max(16,Math.min(r.left,W-16-w))+window.scrollX)+'px';
+    pop.style.top=(r.bottom+window.scrollY+6)+'px';
+  }
+  function hide(){pop.hidden=true;cur=null}
+  document.querySelectorAll('.t[data-def]').forEach(function(el){
+    el.tabIndex=0;el.setAttribute('role','button');
+    el.addEventListener('mouseenter',function(){show(el)});
+    el.addEventListener('mouseleave',hide);
+    el.addEventListener('click',function(e){e.stopPropagation();show(el)});
+    el.addEventListener('focus',function(){show(el)});
+    el.addEventListener('blur',hide);
+  });
+  document.addEventListener('click',hide);
+  window.addEventListener('scroll',function(){if(cur)show(cur)},{passive:true});
+})();
+</script>
