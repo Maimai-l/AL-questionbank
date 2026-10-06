@@ -75,6 +75,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/tags/prereq.py            先修关系 → prereq.json
 11 详解      pipeline/explain/explain_batches.py explainer 子 agent 按小问写详解(plan / apply / write),写 explanation
             pipeline/explain/term_tree.py      关键术语:统计决定收录、级别、上下级与易混,termwriter 子 agent 按细则原文改写定义与区别 → exports/<科目>_terms/(Obsidian 仓库)
+            pipeline/explain/concepts.py       9618 每章极简概念:子 agent 按教材与术语统计每章挑 8–20 个,一句话定义(plan / check / build)→ data/concepts/9618.md
 12 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
 ```
 
