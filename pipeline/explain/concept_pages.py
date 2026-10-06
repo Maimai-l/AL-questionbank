@@ -10,12 +10,14 @@ behind them in sections that open on a click.
     python3 pipeline/explain/concept_pages.py ms N KEYWORD                mark scheme lines of chapter N
     python3 pipeline/explain/concept_pages.py check [--chapters 2-8] [--render]
     python3 pipeline/explain/concept_pages.py build                       data/concepts/9618/*.html
+    python3 pipeline/explain/concept_pages.py zip                         exports/9618复习页.zip
 
 raw/concepts_9618/page/ch_01.html is the model the subagents follow. The page shell (styles,
 the pop-up English definitions) is assets/concepts/head.html and tail.html; build wraps each
-chapter in it and writes an index.
+chapter in it and writes an index. The pages load nothing from outside (system fonts, inline
+styles, scripts and SVG), so the zip opens offline.
 """
-import argparse, glob, html, json, os, re, sqlite3, subprocess, sys, tempfile
+import argparse, glob, html, json, os, re, sqlite3, subprocess, sys, tempfile, zipfile
 from html.parser import HTMLParser
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -323,6 +325,25 @@ def build(a):
     print(f"{len(done)} 章 -> {os.path.relpath(RESULT, paths.ROOT)}/")
 
 
+EXTERNAL = re.compile(r'<link\b|<script[^>]+src=|<img[^>]+src="(?!data:)|@import|url\((?!#|data:)', re.I)
+
+
+def zip_pages(a):
+    files = sorted(glob.glob(os.path.join(RESULT, "*.html")))
+    if not files:
+        sys.exit("先运行 build")
+    for f in files:
+        m = EXTERNAL.search(open(f, encoding="utf-8").read())
+        if m:
+            sys.exit(f"{os.path.basename(f)} 引用了外部资源:{m.group(0)}")
+    os.makedirs(paths.EXPORTS, exist_ok=True)
+    out = os.path.join(paths.EXPORTS, "9618复习页.zip")
+    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
+        for f in files:
+            z.write(f, os.path.join("9618复习页", os.path.basename(f)))
+    print(f"{len(files)} 个页面 -> {out}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -333,6 +354,7 @@ def main():
     p = sub.add_parser("check"); p.add_argument("--chapters", default="1-20"); p.add_argument("--render", action="store_true")
     p.set_defaults(fn=check)
     p = sub.add_parser("build"); p.set_defaults(fn=build)
+    p = sub.add_parser("zip"); p.set_defaults(fn=zip_pages)
     a = ap.parse_args()
     a.fn(a)
 
