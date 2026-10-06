@@ -69,7 +69,7 @@ git -C data log -1 --format='%h %s' && python3 qb.py stats
 |---|---|
 | `data/practice.html` | 刷题页:按科目、试卷、主题筛题,看题干、评分细则与详解 |
 | `data/textbook.html` | 教材页:81 章教材正文,与题目按主题关联 |
-| `data/concepts/9618.md` | 9618 每章需要背的概念,每个一句话定义 |
+| `data/concepts/9618/index.html` | 9618 每章复习页:先背什么、图、评分细则英文原话、常考题型;点概念名看英文定义 |
 
 直接用浏览器打开,可以离线使用。
 
