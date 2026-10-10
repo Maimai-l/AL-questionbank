@@ -168,6 +168,7 @@ python3 -m pipeline.books.chapters coverage
 |---|---|
 | `build_site.py` | `data/` 下的 data.js、textbooks.js 与页面 |
 | `export_web.py` | `data/data.js`,可单独运行 |
+| `export_adm_practice.py` | `data/adm_practice.js`(TMUA / TARA 刷题页的题目数据),可单独运行 |
 | `export_textbooks.py` | `data/textbooks.js`,可单独运行 |
 | `export_all_chapters.py` | 每章一个 ZIP,放在 `exports/chapters/<考试>/`(9231、9618、9709 三个文件夹),文件名为 `<教材>_<两位章号>_<标题>.zip`,例如 `9709/9709_p1_09_Integration.zip`;旧版按教材分散存放的同一章文件在写新文件后删除。含章节正文、同主题真题、题图与评分细则;只有部分小问属于本章的题,只给这些小问及其评分细则(`part_data`)。教材插图中的 JPEG 以质量 75 重新压缩(更小时才替换,文件名不变)。数据管理页批量生成的「章节包」节点用同一函数 `write_chapter()` 写同样的 ZIP。`--syllabus`、`--chapter` 限定范围,`--no-images` 不含任何图片,文件名以 `_no_images` 结尾 |
 | `export_admissions_banks.py` | TMUA 包与 TARA(TSA 加 BMAT)包 |

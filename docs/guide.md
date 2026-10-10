@@ -68,6 +68,7 @@ git -C data log -1 --format='%h %s' && python3 qb.py stats
 | 文件 | 内容 |
 |---|---|
 | `data/practice.html` | 刷题页:按科目、试卷、主题筛题,看题干、评分细则与详解 |
+| `data/adm_practice.html` | TMUA / TARA(TSA、BMAT 第 1 部分)机考式刷题:选整卷或按主题抽题,计时作答,结束后看成绩与解析。做题记录只存在浏览器里,用页面上的“导出记录/导入记录”备份和迁移,与题目数据分开 |
 | `data/textbook.html` | 教材页:81 章教材正文,与题目按主题关联 |
 | `data/concepts/9618/index.html` | 9618 每章复习页:先背什么、图、评分细则英文原话、常考题型;点概念名看英文定义 |
 

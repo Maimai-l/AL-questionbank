@@ -25,7 +25,8 @@
 | `books/<书>/` | 教材章节 Markdown 与插图 | `pipeline/books/split_chapters.py` |
 | `papers/` | 原卷与评分细则 PDF,文件名即 `questions.qp_pdf`、`questions.ms_pdf`(入学考在 `papers/bank/…`);数据管理页打开原卷、整卷题目卷直接用原卷 | 从 `raw/pdf`、`raw/ms`、`raw/bank` 复制 |
 | `data.js` `textbooks.js` | 页面读取的数据 | `pipeline/export/build_site.py` |
-| `practice.html` `textbook.html` `vendor/` | 从 `assets/` 复制的页面 | `pipeline/export/build_site.py` |
+| `adm_practice.js` | TMUA / TARA 刷题页的题目数据 | `pipeline/export/export_adm_practice.py` |
+| `practice.html` `textbook.html` `adm_practice.html` `vendor/` | 从 `assets/` 复制的页面 | `pipeline/export/build_site.py` |
 
 `questions.image` 与 `chapters.path` 中存放的都是相对 `data/` 的路径。
 
