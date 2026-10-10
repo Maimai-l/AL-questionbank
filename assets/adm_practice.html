@@ -40,6 +40,7 @@ u{text-decoration:underline}
 #home .tabs button{background:transparent;border:0;color:#fff;font-size:16px;padding:0 18px}
 #home .tabs button.on{background:rgba(0,0,0,.2)}
 #home main{max-width:1000px;margin:0 auto;padding:20px 16px 60px;display:grid;gap:26px}
+#home main>section{min-width:0}
 #home h2{margin:0 0 8px;font-size:18px;color:var(--primary)}
 #home .note{color:#555;font-size:14px;margin:0 0 8px}
 .wrap{overflow-x:auto}
@@ -56,6 +57,19 @@ table.ht{width:100%;border-collapse:collapse;font-size:15px}
 .form select,.form input{font:inherit;font-size:15px;padding:3px 4px;min-width:0}
 .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .ok{color:var(--good)}.bad{color:var(--bad)}
+.tiles{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px}
+.tile{border:1px solid #d0d0d0;padding:8px 14px;min-width:120px}
+.tile b{display:block;font-size:24px;color:var(--primary);font-variant-numeric:tabular-nums}
+.tile span{font-size:13px;color:#555}
+.bars{display:grid;grid-template-columns:minmax(0,13em) minmax(60px,1fr) auto;gap:6px 10px;align-items:center;font-size:14px}
+.bars .name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bars .track{height:14px;background:#e8eef6;border-radius:0 4px 4px 0}
+.bars .fill{height:100%;background:var(--primary);border-radius:0 4px 4px 0;min-width:2px}
+.bars .val{font-variant-numeric:tabular-nums;color:#333;white-space:nowrap}
+.bars>div:hover{background:#f2f6fb}
+#trend{width:100%;max-width:760px;height:auto;display:block;margin-top:6px}
+#trend text{font-size:11px;fill:#555;font-family:inherit}
+#home h3{font-size:15px;margin:18px 0 6px;color:#333}
 
 /* ---- title bar ---- */
 #titlebar{position:fixed;top:0;left:0;right:0;height:47px;background:var(--primary);color:#fff;display:flex;justify-content:space-between}
@@ -151,6 +165,15 @@ table.nt{width:100%;border-collapse:collapse;color:#000;font-size:20px}
         <button class="hb" id="fStart">开始</button>
       </div>
       <p class="note" id="fInfo" style="margin-top:6px"></p>
+    </section>
+    <section>
+      <h2>统计</h2>
+      <p class="note">每道题按最近一次做完的作答计;只统计已结束的练习。</p>
+      <div class="tiles" id="tiles"></div>
+      <h3>各主题正确率(由低到高)</h3>
+      <div class="bars" id="bars"></div>
+      <h3>整卷成绩</h3>
+      <div id="trendBox"></div>
     </section>
     <section>
       <h2>做题记录</h2>
@@ -275,12 +298,34 @@ function home(){
   $('fTopic').innerHTML='<option value="">全部主题</option>'+Object.keys(t).sort().map(k=>'<option value="'+k+'">'+esc(t[k])+'</option>').join('');
   $('fMin').value=EX==='TMUA'?3.5:2;
   pool();
+  stats();
   $('recBody').innerHTML=REC.attempts.slice().sort((x,y)=>y.start-x.start).map(a=>{const s=score(a);
     return '<tr><td>'+new Date(a.start).toLocaleString('zh-CN',{hour12:false})+'</td><td>'+esc(a.title)+(a.end?'':' <span class="bad">(未完成)</span>')+'</td><td class="num">'+s.r+' / '+s.n+'</td><td class="num">'+mmss(a.time.reduce((x,y)=>x+y,0))+'</td><td style="white-space:nowrap">'+(a.end?'<button class="hb alt" data-v="'+a.id+'">查看</button> ':'<button class="hb" data-c="'+a.id+'">继续</button> ')+'<button class="hb alt" data-d="'+a.id+'">删除</button></td></tr>'}).join('')||'<tr><td colspan="5">还没有记录。</td></tr>';
   document.querySelectorAll('#recBody [data-v]').forEach(b=>b.onclick=()=>review(REC.attempts.find(a=>a.id===b.dataset.v)));
   document.querySelectorAll('#recBody [data-c]').forEach(b=>b.onclick=()=>resume(REC.attempts.find(a=>a.id===b.dataset.c)));
   document.querySelectorAll('#recBody [data-d]').forEach(b=>b.onclick=()=>{if(!window.confirm('删除这条记录?'))return;REC.attempts=REC.attempts.filter(a=>a.id!==b.dataset.d);save();home()});
 }
+function stats(){
+  const h=history(),ids=ADM.papers.filter(p=>p.exam===EX).flatMap(p=>p.q),done=ids.filter(id=>h[id]);
+  const right=done.filter(id=>h[id].right).length,att=REC.attempts.filter(a=>a.end&&a.qids.some(id=>Q[id]&&ids.includes(id)));
+  const secs=att.reduce((x,a)=>x+a.time.reduce((y,z)=>y+z,0),0),pct=(r,n)=>n?Math.round(100*r/n)+'%':'—';
+  $('tiles').innerHTML=[['做过的题',done.length+' / '+ids.length],['正确率',pct(right,done.length)],['练习次数',att.length],['总用时',Math.round(secs/60)+' 分钟']]
+    .map(([k,v])=>'<div class="tile"><b>'+v+'</b><span>'+k+'</span></div>').join('');
+  const T={};done.forEach(id=>{const t=Q[id].t,o=T[t]||(T[t]={r:0,n:0});o.n++;if(h[id].right)o.r++});
+  const rows=Object.entries(T).sort((a,b)=>a[1].r/a[1].n-b[1].r/b[1].n||b[1].n-a[1].n);
+  $('bars').innerHTML=rows.map(([t,o])=>{const name=ADM.topics[EX][t]||t,tip=name+':'+o.r+' / '+o.n+' 题正确';
+    return '<div class="name" title="'+esc(tip)+'">'+esc(name)+'</div><div class="track" title="'+esc(tip)+'"><div class="fill" style="width:'+(100*o.r/o.n)+'%"></div></div><div class="val">'+pct(o.r,o.n)+' <span style="color:#777">('+o.r+'/'+o.n+')</span></div>'}).join('')
+    ||'<div style="grid-column:1/-1;color:#555">做完一次练习后显示。</div>';
+  const full=att.filter(a=>a.paper).sort((x,y)=>x.end-y.end).map(a=>{const s=score(a);return{a,p:s.n?s.r/s.n:0,s}});
+  if(full.length<1){$('trendBox').innerHTML='<p class="note">做完一份整卷后显示。</p>';return}
+  const W=760,H=200,L=40,R=12,Tp=12,B=24,x=i=>L+(full.length===1?(W-L-R)/2:i*(W-L-R)/(full.length-1)),y=p=>Tp+(1-p)*(H-Tp-B);
+  let g='';[0,.25,.5,.75,1].forEach(p=>{g+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(p)+'" y2="'+y(p)+'" stroke="#e3e3e3"/><text x="'+(L-6)+'" y="'+(y(p)+4)+'" text-anchor="end">'+p*100+'%</text>'});
+  const pts=full.map((d,i)=>x(i)+','+y(d.p)).join(' ');
+  g+='<polyline points="'+pts+'" fill="none" stroke="#006DAA" stroke-width="2"/>';
+  g+=full.map((d,i)=>'<g><title>'+esc(d.a.title)+':'+d.s.r+' / '+d.s.n+'('+new Date(d.a.end).toLocaleDateString('zh-CN')+')</title><circle cx="'+x(i)+'" cy="'+y(d.p)+'" r="10" fill="transparent"/><circle cx="'+x(i)+'" cy="'+y(d.p)+'" r="4.5" fill="#006DAA" stroke="#fff" stroke-width="2"/></g>').join('');
+  const last=full[full.length-1];
+  g+='<text x="'+x(full.length-1)+'" y="'+(H-6)+'" text-anchor="'+(full.length>1?'end':'middle')+'">最近:'+esc(last.a.title)+' '+last.s.r+'/'+last.s.n+'</text>';
+  $('trendBox').innerHTML='<svg id="trend" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="整卷成绩走势">'+g+'</svg>'}
 function pool(){
   const t=$('fTopic').value,sc=$('fScope').value,h=history();
   const ids=ADM.papers.filter(p=>p.exam===EX).flatMap(p=>p.q).filter(id=>(!t||Q[id].t===t)&&(sc==='all'||(sc==='new'&&!h[id])||(sc==='wrong'&&h[id]&&!h[id].right)||(sc==='flag'&&h[id]&&h[id].flag)));
