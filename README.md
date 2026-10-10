@@ -44,7 +44,7 @@ python3 sync.py pull
 python3 sync.py pull
 ```
 
-打开 `data/practice.html` 刷题,打开 `data/textbook.html` 看教材。两个页面均可离线使用。
+打开 `data/practice.html` 刷题(TMUA / TARA 用 `data/adm_practice.html`),打开 `data/textbook.html` 看教材。两个页面均可离线使用。
 
 `data/` 在本地是只读副本。`sync.py pull` 会覆盖其中的改动,有未提交改动时会先拒绝执行。
 题库有更新时,`sync.py pull` 随后运行自动流程,把章节包写到 `exports/chapters/`。
@@ -92,7 +92,7 @@ pipeline/
   db/                 单科建库与合库
   admissions_rebuild/ TMUA / TSA / BMAT 选择题的完整流程
   export/             生成页面数据与各类分发 ZIP
-assets/               页面源文件 practice.html、textbook.html 与离线 KaTeX
+assets/               页面源文件 practice.html、textbook.html、adm_practice.html 与离线 KaTeX
 attic/                暂不使用的 MCP server、做题记录模块与已被取代的脚本
 docs/                 文档
 .claude/agents/       流水线用的子 agent 定义(explainer、tagger、termwriter、transcriber)
