@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""The terms 9618 paper 2 questions ask a student to name or define, where the meaning is not
-what the words suggest: each with the question as printed and the mark scheme answer.
+"""9618 paper 2 vocabulary: the terms paper 2 questions and mark schemes use whose meaning a
+student needs to answer and cannot work out from the words themselves (library routine,
+stub testing, BYREF, rogue value …). Each term has a Chinese explanation, the English
+definition to learn, the number of paper 2 papers it appears in, and one sentence quoted
+from the bank.
 
     python3 pipeline/explain/glossary.py            data/concepts/9618/glossary.html
 
-The list is pipeline/explain/glossary_p2.json, chosen by hand from the paper 2 parts that ask
-for a technical term or its meaning (Give the technical term …, Identify the type of …,
-Explain the term …). Terms whose name already says what they are (start pointer, breakpoint,
-run-time error, integration testing) and terms only paper 1 asks to define (library routine)
-are left out. Every question quoted is checked against the bank before the page is written.
-Run concept_pages.py build afterwards so the index links the page.
+The list is pipeline/explain/glossary_p2.json. Terms only paper 1 uses are left out, and so
+are terms whose name already says what they are (flowchart, trace table, breakpoint,
+run-time error, integration testing). Every quoted sentence is checked against the bank
+before the page is written. Run concept_pages.py build afterwards so the index links the page.
 """
 import html, json, os, re, sqlite3, sys
 
@@ -18,47 +19,58 @@ from lib import paths  # noqa: E402
 from pipeline.explain import concept_pages  # noqa: E402
 
 LIST = os.path.join(os.path.dirname(os.path.abspath(__file__)), "glossary_p2.json")
+TIERS = [("must", "必考", "8 份卷以上", 8, 99), ("often", "常考", "4 至 7 份卷", 4, 7), ("know", "了解", "1 至 3 份卷", 1, 3)]
 
 STYLE = """<style>
-.gl{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;gap:8px;min-width:0}
+.tier{display:flex;align-items:center;gap:10px;margin:14px 0 -4px;font-size:1rem;font-weight:700}
+.tier span{font-size:.85rem;font-weight:500;color:var(--ink2)}
+.gl{gap:8px;padding:16px 18px}
 .gl h2{margin:0;font-size:1.2rem;font-weight:900;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
 .gl h2 .zh{font-size:.95rem;font-weight:500;color:var(--ink2)}
-.gl .lab{font-size:.75rem;font-weight:700;color:var(--ink2);letter-spacing:.04em}
-.gl .q{font-family:var(--mono);font-size:.84rem;line-height:1.65;margin:0}
-.gl .q span{color:var(--ink2)}
-.gl .ms{font-family:var(--mono);font-size:.88rem;line-height:1.65;margin:0;background:var(--must-bg);color:var(--ink);border-radius:6px;padding:6px 10px}
+.gl h2 .n{margin-left:auto;font-size:.78rem;font-weight:500;color:var(--ink2);font-variant-numeric:tabular-nums}
 .gl .note{margin:0}
+.gl .def{margin:0;font-family:var(--mono);font-size:.86rem;line-height:1.65;background:var(--bg);border-radius:6px;padding:6px 10px}
+.gl .q{margin:0;font-size:.8rem;line-height:1.6;color:var(--ink2)}
+.gl .q i{font-style:normal;font-family:var(--mono)}
 </style>
 """
 
 
+def flat(s):
+    s = re.sub(r"\\underline\{\\text\{(.*?)\}\}", r"\1", s or "")
+    return re.sub(r"[\s`*|$]+", " ", s).strip()
+
+
 def check(items):
     con = sqlite3.connect(os.path.join(paths.DATA, "caie.db"))
-    norm = lambda s: re.sub(r"[\s`*]+", " ", s).strip()  # noqa: E731
     for t in items:
-        for ref, q in t["asks"]:
-            text = con.execute("SELECT COALESCE(question_latex, question_text) FROM questions WHERE id = ?",
-                               (ref.split()[0],)).fetchone()
-            core = re.sub(r"\s*\[\d+\]$", "", q.split(" — ", 1)[-1]).rstrip(".")
-            if not text or norm(core) not in norm(text[0]):
-                sys.exit(f"{t['en']}:{ref} 的题目原文对不上")
+        qid, src, text = t["quote"]
+        row = con.execute("SELECT COALESCE(question_latex, question_text), COALESCE(ms_latex, ms_text) "
+                          "FROM questions WHERE id = ? AND component = '2'", (qid,)).fetchone()
+        if not row or flat(text) not in flat(row[0 if src == "题目" else 1]):
+            sys.exit(f"{t['en']}:{qid} 的{src}原文对不上")
 
 
 def main():
-    items = json.load(open(LIST, encoding="utf-8"))
+    items = sorted(json.load(open(LIST, encoding="utf-8")), key=lambda t: -t["papers"])
     check(items)
     e = html.escape
-    cards = []
-    for t in items:
-        asks = "".join(f'<p class="q"><span>{e(ref)}</span><br>{e(q)}</p>' for ref, q in t["asks"])
-        cards.append(f'<section class="gl"><h2>{e(t["en"])}<span class="zh">{e(t["zh"])}</span></h2>'
-                     f'<div class="lab">题目怎么问</div>{asks}'
-                     f'<div class="lab">评分细则答案</div><p class="ms">{e(t["ms"])}</p>'
-                     f'<p class="note">{e(t["note"])}</p></section>')
-    body = ('<main>\n<nav class="pager"><a href="index.html">目录</a></nav>\n<header><h1>9618 卷 2 定义题</h1>'
-            f'<p class="sub">卷 2 真题明确要求写出名称或解释含义、而含义和字面不一样的 {len(items)} 个术语,'
-            '附原题问法与评分细则答案。</p></header>\n' + "\n".join(cards) + "\n</main>\n")
-    head = open(os.path.join(concept_pages.SHELL, "head.html"), encoding="utf-8").read().replace("{{TITLE}}", "9618 卷 2 定义题")
+    parts = []
+    for cls, name, span, low, high in TIERS:
+        group = [t for t in items if low <= t["papers"] <= high]
+        parts.append(f'<div class="tier"><span class="tag {cls}">{name}</span>{len(group)} 个<span>出现在 {span}</span></div>')
+        for t in group:
+            qid, src, text = t["quote"]
+            parts.append(f'<section class="gl"><h2>{e(t["en"])}<span class="zh">{e(t["zh"])}</span>'
+                         f'<span class="n">{t["papers"]} 份卷</span></h2>'
+                         f'<p class="note">{e(t["note"])}</p>'
+                         f'<p class="def">{e(t["def"])}</p>'
+                         f'<p class="q"><i>{e(qid)}</i> {src}:{e(text)}</p></section>')
+    body = ('<main>\n<nav class="pager"><a href="index.html">目录</a></nav>\n<header><h1>9618 卷 2 词汇</h1>'
+            f'<p class="sub">卷 2 真题和评分细则里出现、答题时必须知道含义、但从字面看不出意思的 {len(items)} 个术语。'
+            '按出现在多少份卷里排序;灰底是要背的英文定义,最后一行是题库原句。</p></header>\n'
+            + "\n".join(parts) + "\n</main>\n")
+    head = open(os.path.join(concept_pages.SHELL, "head.html"), encoding="utf-8").read().replace("{{TITLE}}", "9618 卷 2 词汇")
     out = os.path.join(concept_pages.RESULT, "glossary.html")
     os.makedirs(concept_pages.RESULT, exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:

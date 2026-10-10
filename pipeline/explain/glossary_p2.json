@@ -1,58 +1,902 @@
 [
- {"en": "algorithm", "zh": "算法",
-  "asks": [["9618_s22_21_q01 (a)", "Give the technical term for a sequence of steps that describe how to solve a problem. [1]"]],
-  "ms": "An algorithm",
-  "note": "题目给出描述,要你说出术语名称;一个词就得分。"},
- {"en": "abstraction", "zh": "抽象",
-  "asks": [["9618_s23_23_q07 (a)(i)", "State the purpose of applying abstraction to this problem. [1]"]],
-  "ms": "To filter out information (that is not necessary to solve the problem) // to include only essential information",
-  "note": "不是“变得抽象难懂”,而是把解题不需要的信息去掉,只留必需的。"},
- {"en": "index / subscript", "zh": "下标",
-  "asks": [["9618_w21_22_q01 (b)", "ThisArray[n] ← 42 — The technical term for the variable n in the pseudocode statement."]],
-  "ms": "Index / Subscript",
-  "note": "方括号里用来指出第几个元素的那个变量或数值。"},
- {"en": "lower bound, upper bound", "zh": "下界、上界",
-  "asks": [["9618_w21_22_q01 (b)", "ThisArray[n] ← 42 — The technical terms for minimum and maximum values that the variable n may take."]],
-  "ms": "Lower bound, upper bound",
-  "note": "指下标能取的最小值和最大值(ARRAY[1:10] 的 1 和 10),不是数组里存的数据的范围。"},
- {"en": "null pointer", "zh": "空指针",
-  "asks": [["9618_s21_22_q03 (c)", "Give the technical term for the item labelled B in the diagram. Explain the meaning of the value given to this item. [2]"]],
-  "ms": "Name: Null pointer. Meaning: There are no further nodes in the list",
-  "note": "链表最后一个节点的指针取一个特殊值,表示后面没有节点了;并不是“指向一个空节点”。"},
- {"en": "function", "zh": "函数",
-  "asks": [["9618_s22_21_q03 (b)", "Two types of program modules may be used in the design of the program. Identify the type of program module that should be used to return a value. [1]"],
-           ["9618_w23_22_q06 (b)(i)", "Identify the type of module that should be used for CheckFiles(). [1]"]],
-  "ms": "Function",
-  "note": "两种模块中返回一个值的那种;另一种是过程(procedure),不返回值。"},
- {"en": "procedure interface", "zh": "过程接口",
-  "asks": [["9618_w22_23_q05 (a)(ii)", "Explain the term procedure interface with reference to procedure Unpack(). [2]"]],
-  "ms": "Provides a mechanism to allow calling program to pass data // Defines the (four) parameters of Unpack() // … giving their data type and order (max 2)",
-  "note": "不是界面(屏幕),而是过程头里规定的参数:有哪些、什么类型、什么顺序,调用的程序靠它传数据进来。"},
- {"en": "count-controlled loop", "zh": "计数循环",
-  "asks": [["9618_s26_21_q01 (a)", "Identify the type of construct used in this pseudocode. [1]"],
-           ["9618_s25_21_q04 (a)", "State the type of loop structure that would be the most appropriate to use and justify why it is the most appropriate. [2]"]],
-  "ms": "Count-control(led) loop // Count-control(led) iteration. Justification: The number of iterations required is known",
-  "note": "就是 FOR … NEXT:执行次数事先知道。"},
- {"en": "pre-condition loop", "zh": "前置条件循环",
-  "asks": [["9618_s22_22_q05 (a)", "Identify the type of loop and state the condition that ends the loop. [2]"],
-           ["9618_w23_22_q02 (b)", "Give the name of a suitable loop structure that could be used. Justify your answer. [2]"]],
-  "ms": "Type: pre-condition. Justification: the number of iterations is not known // loop ends following a specific input",
-  "note": "就是 WHILE … ENDWHILE:先判断条件再执行,可能一次都不执行。"},
- {"en": "post-condition loop", "zh": "后置条件循环",
-  "asks": [["9618_s26_23_q01 (a)", "Identify the type of programming construct used in the pseudocode. [1]"]],
-  "ms": "Post-condition(al) loop // post-condition(al) iteration",
-  "note": "就是 REPEAT … UNTIL:先执行再判断,至少执行一次。"},
- {"en": "corrective maintenance", "zh": "纠错性维护",
-  "asks": [["9618_s22_23_q02", "One type of maintenance is called perfective. Name two other types of maintenance that the program may require and give a reason for each. [4]"]],
-  "ms": "Type: Corrective. Reason: The program does not operate as expected / contains a bug",
-  "note": "改错:程序有 bug,运行结果不对。"},
- {"en": "adaptive maintenance", "zh": "适应性维护",
-  "asks": [["9618_s22_23_q02", "One type of maintenance is called perfective. Name two other types of maintenance that the program may require and give a reason for each. [4]"],
-           ["9618_w23_23_q01 (d)", "The hardware that runs the program is changed and the program needs to be modified so that it works with the new hardware. Identify the type of maintenance that this represents and give one other reason why this type of maintenance may be needed. [2]"]],
-  "ms": "Type: Adaptive. Reason: To accommodate a change in the (user) requirement / technology / legislation",
-  "note": "程序没有错,是外部变了(需求、硬件、法规),程序要跟着改。"},
- {"en": "perfective maintenance", "zh": "完善性维护",
-  "asks": [["9618_s23_23_q05 (b)", "Some time later, changes are made to the program to improve the speed of response. State the type of maintenance that has been applied to the program. [1]"]],
-  "ms": "Perfective",
-  "note": "程序没有错、需求也没变,只是改得更好(更快、更好用)。"}
+ {
+  "en": "BYREF",
+  "zh": "按引用传递",
+  "def": "A parameter passed by reference: the procedure works on the caller's original variable, so changes to it are passed back.",
+  "papers": 18,
+  "quote": [
+   "9618_s22_22_q03",
+   "题目",
+   "PROCEDURE Mod_X(T4 : INTEGER, BYREF P3 : REAL)"
+  ],
+  "note": "调用时把变量本身交给模块,模块里改了它,调用者那边的变量也跟着变。"
+ },
+ {
+  "en": "global variable / local variable (scope)",
+  "zh": "全局变量 / 局部变量(作用域)",
+  "def": "A global variable is declared outside any module and can be used anywhere in the program; a local variable is declared inside a module and can only be used there.",
+  "papers": 16,
+  "quote": [
+   "9618_s21_22_q08",
+   "题目",
+   "The programmer has decided to use the following global variables:"
+  ],
+  "note": "全局变量在所有模块之外声明,哪里都能用;局部变量在模块里声明,只在这个模块里存在,模块结束就消失。"
+ },
+ {
+  "en": "record (data type)",
+  "zh": "记录(自定义复合数据类型)",
+  "def": "A data structure that groups items (fields) of different data types under a single identifier, declared with TYPE ... ENDTYPE.",
+  "papers": 16,
+  "quote": [
+   "9618_s22_23_q05",
+   "题目",
+   "The data will be held in a record structure of type Employee."
+  ],
+  "note": "自己定义的类型,把几个不同类型的数据项(字段)放在一个名字下面,比如一个员工的编号、姓名、出勤率。"
+ },
+ {
+  "en": "BOOLEAN",
+  "zh": "布尔类型",
+  "def": "A data type with only two values, TRUE or FALSE.",
+  "papers": 14,
+  "quote": [
+   "9618_s22_23_q01",
+   "题目",
+   "(ii) Give an example of when a variable of type Boolean would be used."
+  ],
+  "note": "只有 TRUE 和 FALSE 两个值的数据类型。"
+ },
+ {
+  "en": "flag",
+  "zh": "标志变量",
+  "def": "A Boolean variable set to TRUE or FALSE to record whether a condition has occurred, for example to end a loop.",
+  "papers": 14,
+  "quote": [
+   "9618_s21_21_q05",
+   "评分细则",
+   "'NoSwap' mechanism: Set flag in inner loop to indicate swap"
+  ],
+  "note": "一个布尔变量,用来记住某件事有没有发生过,比如冒泡排序里这一轮有没有交换。"
+ },
+ {
+  "en": "abstract data type (ADT)",
+  "zh": "抽象数据类型",
+  "def": "A collection of data together with the operations that can be performed on it, defined independently of how it is implemented.",
+  "papers": 13,
+  "quote": [
+   "9618_s21_21_q06",
+   "题目",
+   "The following diagram represents an Abstract Data Type (ADT) for a linked list."
+  ],
+  "note": "只规定存什么数据、能做哪些操作(加入、取出、查找),不规定怎么实现;栈、队列、链表都是。"
+ },
+ {
+  "en": "concatenation",
+  "zh": "字符串连接",
+  "def": "Joining two or more strings together into one string using the & operator.",
+  "papers": 13,
+  "quote": [
+   "9618_s25_23_q05",
+   "题目",
+   "The module will concatenate a single character to the end of BitString by applying one of the two rules"
+  ],
+  "note": "把两个字符串首尾接成一个,伪代码用 & 运算符。"
+ },
+ {
+  "en": "state-transition diagram",
+  "zh": "状态转换图",
+  "def": "A diagram of states (circles) and transitions (arrows) labelled with input and output, showing how a system changes.",
+  "papers": 13,
+  "quote": [
+   "9618_s21_22_q02",
+   "题目",
+   "(a) Examine the following state-transition diagram."
+  ],
+  "note": "用圆圈表示状态、箭头表示转换,箭头上写触发转换的输入(以及输出),题目一般要你按输入序列走出最终状态。"
+ },
+ {
+  "en": "dry run",
+  "zh": "人工模拟运行(走查)",
+  "def": "Manually stepping through the code with test data, recording variable values, without running it on a computer.",
+  "papers": 12,
+  "quote": [
+   "9618_s22_22_q05",
+   "题目",
+   "(b) Complete the trace table below by dry running the procedure Encode() when the following values are input"
+  ],
+  "note": "不上机运行,拿着测试数据一行一行手动执行代码,把每个变量的值记到 trace table 里。"
+ },
+ {
+  "en": "pre-condition loop / post-condition loop (conditional loop)",
+  "zh": "前置条件循环 / 后置条件循环",
+  "def": "A pre-condition loop (WHILE … ENDWHILE) tests its condition before each pass, so may run zero times; a post-condition loop (REPEAT … UNTIL) tests after, so runs at least once.",
+  "papers": 12,
+  "quote": [
+   "9618_s21_21_q04",
+   "题目",
+   "(b) The pseudocode for Convert() contains a conditional loop."
+  ],
+  "note": "条件循环,次数事先不知道。前置条件(WHILE)先判断再执行,可能一次都不执行;后置条件(REPEAT … UNTIL)先执行再判断,至少执行一次。"
+ },
+ {
+  "en": "file modes: READ / WRITE / APPEND",
+  "zh": "文件打开模式",
+  "def": "READ opens a file to read from; WRITE overwrites or creates a file; APPEND adds new lines to the end of an existing file.",
+  "papers": 11,
+  "quote": [
+   "9618_w22_22_q02",
+   "题目",
+   "(iii) Explain why WRITE mode cannot be used in the answer to **part 2(a)(i)**. [1]"
+  ],
+  "note": "OPENFILE 时选的模式:READ 只读;WRITE 新建或覆盖原有内容;APPEND 在原文件末尾接着写。"
+ },
+ {
+  "en": "iteration",
+  "zh": "迭代(循环)",
+  "def": "Repeating a block of code, using a loop such as FOR, WHILE or REPEAT.",
+  "papers": 11,
+  "quote": [
+   "9618_s21_22_q01",
+   "题目",
+   "(b) Each pseudocode statement in the following table contains an example of selection, assignment or iteration."
+  ],
+  "note": "三种基本结构之一,意思就是循环:FOR、WHILE、REPEAT。"
+ },
+ {
+  "en": "delimiter / separator",
+  "zh": "分隔符",
+  "def": "A special character placed between data values to mark where one value ends and the next begins.",
+  "papers": 10,
+  "quote": [
+   "9618_s26_21_q06",
+   "题目",
+   "The data for each rejected part forms a data packet made up of three data items, each separated by the ‘/’ character delimiter."
+  ],
+  "note": "放在数据项之间、标出一项在哪里结束的特殊字符,比如 '/' 或逗号;它本身不是数据。"
+ },
+ {
+  "en": "parameter",
+  "zh": "参数(形参)",
+  "def": "A value passed into a module (procedure or function) when it is called, declared in the module header.",
+  "papers": 10,
+  "quote": [
+   "9618_s21_21_q02",
+   "题目",
+   "• Called with parameters LoanID and BookID"
+  ],
+  "note": "调用模块时传进去的值,在模块头里写明名字和类型。"
+ },
+ {
+  "en": "selection",
+  "zh": "选择(分支)",
+  "def": "Choosing which code to run depending on a condition, using IF or CASE statements (including OTHERWISE).",
+  "papers": 10,
+  "quote": [
+   "9618_s21_22_q01",
+   "题目",
+   "(b) Each pseudocode statement in the following table contains an example of selection, assignment or iteration."
+  ],
+  "note": "三种基本结构之一,意思是根据条件选择执行哪段代码:IF 和 CASE。"
+ },
+ {
+  "en": "function",
+  "zh": "函数",
+  "def": "A module that returns a value to the calling program (FUNCTION … RETURNS); a procedure does not return a value.",
+  "papers": 9,
+  "quote": [
+   "9618_s22_22_q03",
+   "题目",
+   "FUNCTION Mod_V(S2 : INTEGER) RETURNS BOOLEAN"
+  ],
+  "note": "调用后返回一个值的模块(FUNCTION … RETURNS);不返回值的叫过程。"
+ },
+ {
+  "en": "identifier",
+  "zh": "标识符",
+  "def": "The name given to a variable, constant, array, procedure or function in a program.",
+  "papers": 9,
+  "quote": [
+   "9618_s21_21_q01",
+   "题目",
+   "Complete the following identifier table."
+  ],
+  "note": "就是名字:变量、常量、数组、过程、函数的名字都叫标识符。"
+ },
+ {
+  "en": "null pointer",
+  "zh": "空指针",
+  "def": "A pointer value in the last node showing there are no further nodes in the list.",
+  "papers": 9,
+  "quote": [
+   "9618_s24_21_q03",
+   "题目",
+   "The symbol Ø represents a null pointer."
+  ],
+  "note": "链表最后一个节点的指针取的特殊值,表示后面没有节点了。"
+ },
+ {
+  "en": "PUSH / POP",
+  "zh": "入栈 / 出栈",
+  "def": "PUSH adds an item to the top of the stack; POP removes the item at the top; the top-of-stack pointer is updated each time.",
+  "papers": 9,
+  "quote": [
+   "9618_s22_21_q04",
+   "题目",
+   "The memory location pointed to by TopOfStack if three POP operations are performed."
+  ],
+  "note": "栈的两个操作:PUSH 把数据放到栈顶,POP 取走栈顶的数据,栈顶指针跟着移动。"
+ },
+ {
+  "en": "REAL",
+  "zh": "实数型",
+  "def": "The data type for numbers that can have a fractional part, such as an average or a sum of money.",
+  "papers": 9,
+  "quote": [
+   "9618_s21_21_q02",
+   "题目",
+   "Returns a REAL (which is the value of the fine to be paid in the case of an overdue loan)"
+  ],
+  "note": "可以带小数部分的数,比如平均值、金额;只存整数用 INTEGER。"
+ },
+ {
+  "en": "decomposition",
+  "zh": "分解(把问题拆成子问题)",
+  "def": "Breaking a complex problem down into smaller sub-problems that are easier to understand, program, test and solve separately.",
+  "papers": 8,
+  "quote": [
+   "9618_s22_21_q03",
+   "题目",
+   "(a) Decomposition will be used to break the problem down into sub-problems."
+  ],
+  "note": "把一个复杂的问题拆成几个较小、容易解决的子问题,每个子问题再分别设计成模块。"
+ },
+ {
+  "en": "IDE",
+  "zh": "集成开发环境",
+  "def": "Software for writing, running and debugging code, with tools such as an editor, breakpoints, single-stepping and a watch window.",
+  "papers": 8,
+  "quote": [
+   "9618_s22_22_q01",
+   "题目",
+   "(a) A programmer is testing a program using an Integrated Development Environment (IDE)."
+  ],
+  "note": "写代码、运行、调试用的一整套软件,包含编辑器、断点、单步执行、变量监视等工具。"
+ },
+ {
+  "en": "library routine",
+  "zh": "库例程",
+  "def": "A pre-written, tested routine (function or procedure) stored in a library that a programmer can call instead of writing the code.",
+  "papers": 8,
+  "quote": [
+   "9618_s25_21_q02",
+   "题目",
+   "(iii) One other way that can reduce the risk of errors when writing the program is the use of library routines."
+  ],
+  "note": "别人事先写好并测试过、放在库里的过程或函数,程序里直接调用,不用自己再写。好处是节省时间、错误少;缺点是不一定完全符合需求、可能有你不知道的问题。"
+ },
+ {
+  "en": "normal / abnormal / boundary / extreme test data",
+  "zh": "正常 / 异常 / 边界 / 极端测试数据",
+  "def": "Normal: valid data that should be accepted; abnormal (erroneous): invalid data that should be rejected; boundary / extreme: values at the limits of the valid range, and just outside them.",
+  "papers": 8,
+  "quote": [
+   "9618_s25_21_q06",
+   "题目",
+   "Type of test data | Test data value | Expected outcome"
+  ],
+  "note": "四类测试数据:normal 是正常、应被接受的值;abnormal(erroneous)是非法、应被拒绝的值;boundary 是可接受范围两端以及紧挨着的不可接受值;extreme 是可接受范围的最大最小值。"
+ },
+ {
+  "en": "validation",
+  "zh": "有效性检查",
+  "def": "An automatic check that data is reasonable and acceptable, such as a range check or a length check.",
+  "papers": 8,
+  "quote": [
+   "9618_s22_21_q08",
+   "题目",
+   "(d) A validation function is written to check that the passwords generated are valid."
+  ],
+  "note": "程序自动检查输入是否合理、是否符合规则(范围、长度、格式),不能保证数据正确,只能保证合理。"
+ },
+ {
+  "en": "abstraction",
+  "zh": "抽象",
+  "def": "Filtering out unnecessary details and keeping only the essential information needed to solve the problem.",
+  "papers": 7,
+  "quote": [
+   "9618_s23_23_q07",
+   "题目",
+   "The process of abstraction has been used when designing the new module."
+  ],
+  "note": "去掉解题不需要的细节,只保留必需的信息。"
+ },
+ {
+  "en": "circular queue / wrap-around",
+  "zh": "循环队列 / 回绕",
+  "def": "A queue in a fixed array where the pointers wrap round to location 0 after the last location, so freed locations are reused.",
+  "papers": 7,
+  "quote": [
+   "9618_s26_21_q07",
+   "题目",
+   "(b) A programmer designs a circular queue. - The data items are stored in a 1D array, MyQueue - The queue is managed using two pointers."
+  ],
+  "note": "用固定长度的数组做队列,指针走到数组末尾后回到开头继续用,这样前面空出来的位置可以重复使用。"
+ },
+ {
+  "en": "count-controlled loop",
+  "zh": "计数循环(FOR 循环)",
+  "def": "A loop that repeats a set number of times, used when the number of iterations is known in advance.",
+  "papers": 7,
+  "quote": [
+   "9618_s21_21_q04",
+   "评分细则",
+   "Loop structure: A count-controlled loop Justification: The number of iterations is known"
+  ],
+  "note": "执行次数事先知道的循环,就是 FOR … NEXT。"
+ },
+ {
+  "en": "EOF",
+  "zh": "文件结束(判断是否读完)",
+  "def": "EOF(file) returns TRUE when the end of the file has been reached and there are no more lines to read.",
+  "papers": 7,
+  "quote": [
+   "9618_s22_21_q05",
+   "评分细则",
+   "Set up a conditional loop, repeating until the value is found or the EOF() is reached"
+  ],
+  "note": "EOF(文件名) 在文件已经读完、没有下一行时返回 TRUE,读文件的循环用它来结束。"
+ },
+ {
+  "en": "free list",
+  "zh": "空闲链表",
+  "def": "A linked list of unused nodes; a new node is taken from the front of it, and its start (next free) pointer moves on.",
+  "papers": 7,
+  "quote": [
+   "9618_s21_23_q06",
+   "题目",
+   "The free list is as follows: Diagram: free list, drawn left to right."
+  ],
+  "note": "链表实现里,把所有未使用的节点也串成一个链表;加入新数据时从空闲链表头部拿一个节点,删除的节点放回空闲链表。"
+ },
+ {
+  "en": "MOD / DIV",
+  "zh": "取余 / 整除",
+  "def": "MOD gives the remainder after integer division (9 MOD 4 = 1); DIV gives the whole-number quotient (9 DIV 4 = 2).",
+  "papers": 7,
+  "quote": [
+   "9618_s22_21_q01",
+   "题目",
+   "NUM_TO_STR(27 MOD 3)"
+  ],
+  "note": "MOD 取余数(27 MOD 3 = 0,9 MOD 4 = 1);DIV 取整数商(9 DIV 4 = 2)。"
+ },
+ {
+  "en": "report window / watch window",
+  "zh": "报告窗口 / 监视窗口",
+  "def": "An IDE window that displays the current values of chosen variables while the program runs or is stepped through.",
+  "papers": 7,
+  "quote": [
+   "9618_s26_23_q02",
+   "题目",
+   "The programmer interrupts its execution; the TimeSoFar is shown in a report window as 125 (the cleaning time so far in seconds)."
+  ],
+  "note": "IDE 里的一个窗口,程序运行或暂停时显示所选变量的当前值。"
+ },
+ {
+  "en": "stepwise refinement",
+  "zh": "逐步细化",
+  "def": "Repeatedly breaking an algorithm into more detailed steps until each step can be written as pseudocode.",
+  "papers": 7,
+  "quote": [
+   "9618_s23_21_q03",
+   "题目",
+   "Apply the process of stepwise refinement to increase the detail of the algorithm."
+  ],
+  "note": "把算法的每一步反复拆成更详细的小步,直到每一步都能直接写成代码。"
+ },
+ {
+  "en": "syntax error",
+  "zh": "语法错误",
+  "def": "A mistake in the grammar of the programming language, which prevents the program from being translated or run.",
+  "papers": 7,
+  "quote": [
+   "9618_s22_22_q01",
+   "题目",
+   "Syntax errors can occur."
+  ],
+  "note": "代码不符合语言的语法规则(拼错关键字、少括号),程序无法编译或解释。"
+ },
+ {
+  "en": "beta testing",
+  "zh": "Beta 测试",
+  "def": "Testing by a small group of real users before release, to find remaining errors and give feedback.",
+  "papers": 6,
+  "quote": [
+   "9618_w25_22_q05",
+   "题目",
+   "(b) Alpha and beta testing has been completed."
+  ],
+  "note": "软件基本完成后,交给一小部分真实用户试用,收集反馈、找剩下的错误。"
+ },
+ {
+  "en": "BYVAL",
+  "zh": "按值传递",
+  "def": "Parameter passed by value: a copy of the value is given to the module, so changes inside do not affect the caller's variable.",
+  "papers": 6,
+  "quote": [
+   "9618_w24_21_q07",
+   "题目",
+   "PROCEDURE Initialise(BYREF ID : INTEGER, BYVAL CC : INTEGER)"
+  ],
+  "note": "调用时只把值复制一份交给模块,模块里怎么改都不影响调用者的变量。"
+ },
+ {
+  "en": "node",
+  "zh": "节点",
+  "def": "One element of a linked list, consisting of a data field and a pointer field.",
+  "papers": 6,
+  "quote": [
+   "9618_s21_21_q06",
+   "题目",
+   "Linked list (each node has a data field and a pointer field):"
+  ],
+  "note": "链表中的一个元素,由数据部分和指向下一个节点的指针组成。"
+ },
+ {
+  "en": "procedure",
+  "zh": "过程",
+  "def": "A named module that carries out a task when called and does not return a value.",
+  "papers": 6,
+  "quote": [
+   "9618_s25_23_q06",
+   "题目",
+   "Some of the modules in the structure chart are functions, others are procedures."
+  ],
+  "note": "执行一项任务、不返回值的模块。"
+ },
+ {
+  "en": "stub testing",
+  "zh": "桩模块测试",
+  "def": "A simple dummy module replaces an unfinished module, returning an expected value or outputting a message to show it was called.",
+  "papers": 6,
+  "quote": [
+   "9618_s25_22_q02",
+   "题目",
+   "The program is to be tested using stub testing before all the program modules have been completed."
+  ],
+  "note": "某个模块还没写好时,先用一个只输出一句提示或返回固定值的简单模块代替它,用来测试调用它的部分。"
+ },
+ {
+  "en": "adaptive maintenance",
+  "zh": "适应性维护",
+  "def": "Maintenance to change the program to meet new requirements, technology or legislation.",
+  "papers": 5,
+  "quote": [
+   "9618_s25_22_q01",
+   "题目",
+   "(b) The program has been in use for a number of months and adaptive maintenance is required."
+  ],
+  "note": "程序本身没错,但需求、硬件、法规等外部情况变了,程序要跟着改。"
+ },
+ {
+  "en": "bubble sort",
+  "zh": "冒泡排序",
+  "def": "A sort that repeatedly compares adjacent items and swaps them if out of order; an efficient version stops when no swaps occur and shrinks the boundary.",
+  "papers": 5,
+  "quote": [
+   "9618_s21_21_q05",
+   "题目",
+   "A procedure Sort() is needed to sort Result into ascending order of mark using an efficient bubble sort algorithm."
+  ],
+  "note": "反复比较相邻的两个元素,顺序不对就交换;某一轮没有任何交换就说明已经排好,可以提前结束。"
+ },
+ {
+  "en": "FIFO / FILO (LIFO)",
+  "zh": "先进先出 / 先进后出",
+  "def": "FIFO (a queue): the first item added is the first removed. FILO, also called LIFO (a stack): the last item added is the first removed.",
+  "papers": 5,
+  "quote": [
+   "9618_s25_23_q02",
+   "评分细则",
+   "MP1 First value added to queue is the first value removed // FIFO // LILO"
+  ],
+  "note": "FIFO 先进先出,是队列的规则;FILO(也写作 LIFO)先进后出,是栈的规则。"
+ },
+ {
+  "en": "header / procedure interface",
+  "zh": "模块头 / 过程接口",
+  "def": "The first line of a procedure or function: name, parameters with their types (the interface through which data is passed) and, for a function, RETURNS and the return type.",
+  "papers": 5,
+  "quote": [
+   "9618_s24_21_q07",
+   "题目",
+   "(ii) Write the pseudocode module headers for Sub-A and Sub-B."
+  ],
+  "note": "模块的第一行:名字、参数(名字、类型、顺序、BYREF 或 BYVAL)和函数的返回类型。调用者靠这个接口传数据,不是屏幕界面。"
+ },
+ {
+  "en": "rapid application development (RAD)",
+  "zh": "快速应用开发",
+  "def": "A life cycle model using quick prototypes, constant user involvement and minimal planning, so requirements changes are easily made.",
+  "papers": 5,
+  "quote": [
+   "9618_w22_23_q01",
+   "题目",
+   "(c) The program will be developed using the Rapid Application Development (RAD) life cycle."
+  ],
+  "note": "一种开发模型:很少前期规划,快速做出原型给用户看,根据反馈不断修改,用户全程参与。"
+ },
+ {
+  "en": "rogue value / terminator",
+  "zh": "哨兵值(结束标志值)",
+  "def": "A special value that cannot be real data, used to show an element is unused or that input has ended, e.g. -1.",
+  "papers": 5,
+  "quote": [
+   "9618_s26_23_q04",
+   "题目",
+   "Output the total number of integers greater than 120 after the –1 terminator is input."
+  ],
+  "note": "一个不可能是真实数据的特殊值(比如 -1 或 99999),用来表示输入结束或数组元素未使用。"
+ },
+ {
+  "en": "black-box testing",
+  "zh": "黑盒测试",
+  "def": "Testing a module by giving inputs and checking outputs against expected results, without looking at the code.",
+  "papers": 4,
+  "quote": [
+   "9618_s21_22_q07",
+   "题目",
+   "The FormatName() procedure has been written in a programming language and is to be tested using the black-box method."
+  ],
+  "note": "只看输入和输出,不看代码内部,用测试数据对照期望结果。"
+ },
+ {
+  "en": "corrective maintenance",
+  "zh": "纠正性维护",
+  "def": "Maintenance to find and fix bugs where the program does not work as expected.",
+  "papers": 4,
+  "quote": [
+   "9618_s26_23_q03",
+   "评分细则",
+   "CORRECTIVE maintenance has to be carried out."
+  ],
+  "note": "程序有 bug、运行结果不对,找出并改正错误。"
+ },
+ {
+  "en": "dot notation",
+  "zh": "点号访问",
+  "def": "Accessing a field of a record using the record name, a dot and the field name, e.g. Batch[ThisIndex].Weight.",
+  "papers": 4,
+  "quote": [
+   "9618_s24_22_q03",
+   "评分细则",
+   "use of dot notation Item[1].Stage"
+  ],
+  "note": "访问记录里某个字段的写法:记录名.字段名,比如 Item[1].Stage。"
+ },
+ {
+  "en": "enqueue / dequeue",
+  "zh": "入队 / 出队",
+  "def": "Enqueue adds an item at the rear of the queue; dequeue removes the item at the front of the queue.",
+  "papers": 4,
+  "quote": [
+   "9618_s26_21_q07",
+   "题目",
+   "EnQueue(<value>)"
+  ],
+  "note": "队列的两个操作:enqueue 从队尾加入,dequeue 从队头取出。"
+ },
+ {
+  "en": "index / subscript",
+  "zh": "下标",
+  "def": "The value in square brackets that identifies the position of an element within an array.",
+  "papers": 4,
+  "quote": [
+   "9618_s23_23_q01",
+   "题目",
+   "The name of the variable used as an array index"
+  ],
+  "note": "方括号里那个指出第几个元素的值,比如 Data[5] 的 5。"
+ },
+ {
+  "en": "subroutine",
+  "zh": "子程序",
+  "def": "A named, self-contained block of code (a procedure or function) that performs a specific task and can be called from several places.",
+  "papers": 4,
+  "quote": [
+   "9618_w22_22_q01",
+   "题目",
+   "Part of the algorithm would be appropriate to implement as a subroutine (a procedure or a function)."
+  ],
+  "note": "过程和函数的统称:有名字、独立的一段代码,完成一项任务,可以多次调用。"
+ },
+ {
+  "en": "walkthrough",
+  "zh": "走查(人工逐步检查)",
+  "def": "A testing method where the code is followed step by step by hand using a test plan with test data and expected outputs.",
+  "papers": 4,
+  "quote": [
+   "9618_s23_23_q05",
+   "题目",
+   "(a) The program will be tested using the walkthrough method."
+  ],
+  "note": "一种测试方法:几个人一起拿着测试数据把代码从头到尾手动走一遍,找出错误。"
+ },
+ {
+  "en": "waterfall model",
+  "zh": "瀑布模型",
+  "def": "A linear life cycle model in which each stage is completed and its result passed to the next stage, with return to an earlier stage possible.",
+  "papers": 4,
+  "quote": [
+   "9618_s22_23_q08",
+   "题目",
+   "The following diagram shows the incomplete waterfall model of the program development life cycle."
+  ],
+  "note": "一种开发模型:分析、设计、编码、测试、维护按顺序进行,上一阶段完成后结果交给下一阶段,一般不回头。"
+ },
+ {
+  "en": "alpha testing",
+  "zh": "α 测试(内部测试)",
+  "def": "Testing of the completed software by the developer's own staff in-house before it is released to the customer.",
+  "papers": 3,
+  "quote": [
+   "9618_w25_21_q01",
+   "题目",
+   "(c) During the alpha testing stage, an Integrated Development Environment (IDE) is used to help locate an error that has been identified."
+  ],
+  "note": "软件完成后在公司内部、由开发方自己的人员进行的测试,在交给外部用户之前。"
+ },
+ {
+  "en": "alphanumeric",
+  "zh": "字母数字(字母和数字组成)",
+  "def": "Made up of letters (a-z, A-Z) and digits (0-9) only.",
+  "papers": 3,
+  "quote": [
+   "9618_s22_21_q08",
+   "题目",
+   "The password will be of a fixed format, consisting of three groups of four alphanumeric characters."
+  ],
+  "note": "只由字母和数字组成。"
+ },
+ {
+  "en": "case-sensitive",
+  "zh": "区分大小写",
+  "def": "Upper-case and lower-case letters are treated as different, so 'a' is not the same as 'A'.",
+  "papers": 3,
+  "quote": [
+   "9618_s22_21_q08",
+   "题目",
+   "To be valid, each password must: - be 14 characters long - be organised as three groups of four case-sensitive alphanumeric characters."
+  ],
+  "note": "区分大小写,'a' 和 'A' 算两个不同的字符。"
+ },
+ {
+  "en": "field",
+  "zh": "字段",
+  "def": "One named data item within a record or within a line of a file.",
+  "papers": 3,
+  "quote": [
+   "9618_s22_21_q05",
+   "题目",
+   "Each line of a text file contains data organised into fixed-length fields as shown:"
+  ],
+  "note": "记录里的一个数据项,或者文件一行里的一段数据。"
+ },
+ {
+  "en": "lower bound / upper bound",
+  "zh": "数组下界/上界",
+  "def": "The smallest and largest index values of an array dimension, written ARRAY[lower:upper] in the declaration.",
+  "papers": 3,
+  "quote": [
+   "9618_s25_22_q01",
+   "题目",
+   "The lower and upper bound values are shown in the table:"
+  ],
+  "note": "数组下标能取的最小值和最大值,ARRAY[1:10] 中的 1 和 10;不是数组里存的数据的范围。"
+ },
+ {
+  "en": "perfective maintenance",
+  "zh": "完善性维护",
+  "def": "Maintenance that improves the performance or efficiency of a working program.",
+  "papers": 3,
+  "quote": [
+   "9618_s23_23_q05",
+   "题目",
+   "Some time later, changes are made to the program to improve the speed of response."
+  ],
+  "note": "程序没有错、需求也没变,只是改得更好,比如更快、更好用。"
+ },
+ {
+  "en": "sequence",
+  "zh": "顺序结构",
+  "def": "A programming construct in which statements are executed one after another in the order they are written.",
+  "papers": 3,
+  "quote": [
+   "9618_s24_23_q02",
+   "题目",
+   "(b) Sequence is one programming construct."
+  ],
+  "note": "三种基本结构之一,意思是语句按书写顺序一条接一条执行。"
+ },
+ {
+  "en": "ASCII",
+  "zh": "ASCII 码",
+  "def": "A character set in which each character has a numeric code, e.g. 'A' = 65, 'a' = 97, '0' = 48.",
+  "papers": 2,
+  "quote": [
+   "9618_s22_21_q08",
+   "题目",
+   "For reference, relevant ASCII values are as follows:"
+  ],
+  "note": "一种字符编码,每个字符对应一个数字,比如 'A' 是 65,'a' 是 97。"
+ },
+ {
+  "en": "assignment",
+  "zh": "赋值",
+  "def": "Storing a value in a variable using the ← operator; INPUT also assigns a value.",
+  "papers": 2,
+  "quote": [
+   "9618_s21_22_q01",
+   "题目",
+   "(b) Each pseudocode statement in the following table contains an example of selection, assignment or iteration."
+  ],
+  "note": "把一个值存进变量,伪代码用 ←。"
+ },
+ {
+  "en": "check digit",
+  "zh": "校验位",
+  "def": "An extra digit calculated from the other digits of a number and appended to it, so errors in input can be detected.",
+  "papers": 2,
+  "quote": [
+   "9618_w25_21_q06",
+   "题目",
+   "Students are learning about a simple check digit method for data validation."
+  ],
+  "note": "根据其他各位数字算出来、附加在号码末尾的一位,输入后重新计算比对,用来发现输错的数字。"
+ },
+ {
+  "en": "composite data type",
+  "zh": "复合数据类型",
+  "def": "A data type built from other data types, such as a record containing an INTEGER and a STRING.",
+  "papers": 2,
+  "quote": [
+   "9618_s25_22_q07",
+   "评分细则",
+   "a new (composite) data type / record is defined (that consists of both INTEGER and STRING)"
+  ],
+  "note": "由其他数据类型组合出来的类型,比如一个记录里既有 INTEGER 字段也有 STRING 字段。"
+ },
+ {
+  "en": "computational thinking",
+  "zh": "计算思维",
+  "def": "Problem-solving skills used to design programs, including abstraction, decomposition and algorithm design.",
+  "papers": 2,
+  "quote": [
+   "9618_w24_22_q07",
+   "题目",
+   "(b) Identify the computational thinking skill that you needed to use to answer part (a). [1]"
+  ],
+  "note": "设计程序时用到的思考方法的总称,包括抽象、分解、模式识别、算法设计。"
+ },
+ {
+  "en": "context-sensitive prompts",
+  "zh": "上下文相关提示",
+  "def": "An IDE feature that offers suggestions or help relevant to the code currently being typed.",
+  "papers": 2,
+  "quote": [
+   "9618_w25_22_q05",
+   "题目",
+   "an Integrated Development Environment (IDE) provides context-sensitive help such as 'auto-complete'"
+  ],
+  "note": "IDE 根据当前正在输入的代码,提示可用的关键字、变量名或参数。"
+ },
+ {
+  "en": "feasibility study",
+  "zh": "可行性研究",
+  "def": "An investigation at the start of a project to decide whether the proposed system is practical, affordable and worthwhile to develop.",
+  "papers": 2,
+  "quote": [
+   "9618_s26_21_q03",
+   "题目",
+   "(a) The analysis stage included a feasibility study."
+  ],
+  "note": "项目开始阶段的调查,判断这个系统在技术、成本、时间上是否值得做、做得成。"
+ },
+ {
+  "en": "non-volatile storage",
+  "zh": "非易失性存储",
+  "def": "Storage that keeps its data when the program ends or the power is switched off, such as a text file on secondary storage.",
+  "papers": 2,
+  "quote": [
+   "9618_s21_21_q03",
+   "评分细则",
+   "The data is retained when the program is terminated / after the computer is switched off // data is stored permanently // non-volatile storage"
+  ],
+  "note": "程序结束或断电后数据仍然保留的存储,比如保存到文件里。"
+ },
+ {
+  "en": "stakeholder",
+  "zh": "利益相关者",
+  "def": "A person or group with an interest in the program, such as the customer, client or user.",
+  "papers": 2,
+  "quote": [
+   "9618_s23_21_q05",
+   "评分细则",
+   "Needs high involvement/feedback of the stake holders /customer / client"
+  ],
+  "note": "和这个程序有利害关系的人,比如客户、用户、出资方。"
+ },
+ {
+  "en": "camel case",
+  "zh": "驼峰命名法",
+  "def": "A naming style where words are joined without spaces and each new word starts with a capital letter, e.g. ItemPostalCost.",
+  "papers": 1,
+  "quote": [
+   "9618_s23_22_q01",
+   "评分细则",
+   "Sensible / meaningful variable names // use of Camel Case"
+  ],
+  "note": "多个单词连写、从第二个单词起首字母大写的命名方式,比如 TotalScore 或 totalScore。"
+ },
+ {
+  "en": "dynamic data structure",
+  "zh": "动态数据结构",
+  "def": "A data structure whose size can change while the program runs, as items are added or removed.",
+  "papers": 1,
+  "quote": [
+   "9618_s26_22_q04",
+   "评分细则",
+   "Is a dynamic (data structure)"
+  ],
+  "note": "程序运行时大小可以随数据增减而改变的数据结构;数组是固定大小的静态结构。"
+ },
+ {
+  "en": "dynamic syntax checking",
+  "zh": "动态语法检查",
+  "def": "An IDE feature that checks syntax as the code is typed and highlights errors immediately.",
+  "papers": 1,
+  "quote": [
+   "9618_w24_22_q01",
+   "评分细则",
+   "MP4 Dynamic syntax checking"
+  ],
+  "note": "IDE 在你输入代码的同时检查语法,立刻标出错误,不用等到编译。"
+ },
+ {
+  "en": "parity",
+  "zh": "奇偶校验",
+  "def": "A check where an extra bit is added to binary data so the total number of 1s is always even (or always odd).",
+  "papers": 1,
+  "quote": [
+   "9618_s25_23_q05",
+   "题目",
+   "A module Parity() takes a string as a parameter."
+  ],
+  "note": "奇偶校验:在二进制数据后加一位,使 1 的总个数保持为偶数(偶校验)或奇数(奇校验)。"
+ },
+ {
+  "en": "prettyprint",
+  "zh": "代码自动排版/美化",
+  "def": "An IDE feature that automatically lays out code with indentation and highlighting of keywords and structures to make it easier to read.",
+  "papers": 1,
+  "quote": [
+   "9618_w24_22_q01",
+   "评分细则",
+   "MP3 Prettyprint / auto-indentation / auto (structure) highlighter"
+  ],
+  "note": "IDE 自动排版代码:自动缩进,用不同颜色显示关键字。"
+ },
+ {
+  "en": "white-box testing",
+  "zh": "白盒测试",
+  "def": "Testing based on knowledge of the code's internal structure, designing tests so that every path through the program is executed.",
+  "papers": 1,
+  "quote": [
+   "9618_s25_22_q02",
+   "题目",
+   "(i) The module is tested using white-box testing."
+  ],
+  "note": "根据代码内部的结构设计测试数据,让每一条路径、每一个分支都被执行到。"
+ }
 ]

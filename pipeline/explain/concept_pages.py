@@ -381,7 +381,7 @@ def build(a):
             rows.append(f'<div class="row"><span class="tag know lab">卷 {paper}</span>{links}</div>')
     if os.path.exists(os.path.join(RESULT, "glossary.html")):
         rows.insert(0, '<div class="row"><span class="tag must lab">术语</span>'
-                       '<a class="chip must" href="glossary.html">卷 2 定义题:真题要求说出名称或含义的术语</a></div>')
+                       '<a class="chip must" href="glossary.html">卷 2 词汇:字面看不出意思的术语</a></div>')
     index = ('<main><header><h1>9618 Computer Science 复习页</h1><p class="sub">每章一页:先背什么、图、英文原话、常考题型</p></header>'
              f'<div class="overview">{"".join(rows)}</div></main>')
     head = open(os.path.join(SHELL, "head.html"), encoding="utf-8").read().replace("{{TITLE}}", "9618 复习页")
