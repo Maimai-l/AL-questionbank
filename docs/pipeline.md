@@ -77,7 +77,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/explain/term_tree.py      关键术语:统计决定收录、级别、上下级与易混,termwriter 子 agent 按细则原文改写定义与区别 → exports/<科目>_terms/(Obsidian 仓库)
             pipeline/explain/concepts.py       9618 每章概念清单:子 agent 按教材与术语统计每章挑 8–20 个,一句话英文定义(plan / check)→ raw/concepts_9618/out/
             pipeline/explain/concept_pages.py  9618 每章复习页:子 agent 以第 1 章为范本写页面(plan / check --render / build),外壳在 assets/concepts/ → data/concepts/9618/
-            pipeline/explain/glossary.py       9618 卷 2 定义题:卷 2 真题要求说出名称或含义、且含义与字面不同的术语(清单 glossary_p2.json,人工挑选,原题逐句核对)→ data/concepts/9618/glossary.html
+            pipeline/explain/glossary.py       9618 卷 2 词汇:卷 2 题目与评分细则里答题必须知道含义、字面看不出意思的术语(清单 glossary_p2.json,人工挑选,原句逐条核对)→ data/concepts/9618/glossary.html
 12 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
 ```
 
