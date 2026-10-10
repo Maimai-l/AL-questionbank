@@ -34,6 +34,21 @@ DOC = ('<!doctype html>\n<html lang="zh-CN">\n<meta charset="utf-8">\n'
 PAPER = {n: (1 if n <= 8 else 2 if n <= 12 else 3 if n <= 18 else 4) for n in range(1, 21)}
 LEVEL = {1: "AS", 2: "AS", 3: "A2", 4: "A2"}
 TIERS = {"must", "often", "know"}
+# Paper 2 (chapters 9-12) is mostly pseudocode: what the model page does not show.
+CODE = """
+## 伪代码与程序(本章适用)
+
+- 伪代码写在 `<pre class="code">` 里,关键字(DECLARE、IF、THEN、ENDIF、FOR、NEXT、WHILE、ENDWHILE、REPEAT、UNTIL、
+  CASE OF、OTHERWISE、ENDCASE、PROCEDURE、FUNCTION、RETURNS、RETURN、CALL、BYVAL、BYREF、OPENFILE、READFILE、
+  WRITEFILE、CLOSEFILE、INPUT、OUTPUT 等)用 `<b>` 包起来,注释(`//` 起)用 `<i>`,要强调的一行用 `<mark>`。
+  `<pre>` 里的 `<`、`>`、`&` 写成 `&lt;`、`&gt;`、`&amp;`,赋值箭头写 `←`。
+- 写法以教材本章与评分细则为准(剑桥 9618 伪代码指南):缩进 4 格,THEN、ELSE 与 CASE 的分支缩进 2 格;
+  数组 `ARRAY[1:10] OF INTEGER`,字符串拼接用 `&`,整除与取余用 `DIV`、`MOD`。每段代码都要能照着手工执行出正确结果。
+- 追踪表用 `.cmp` 表格,逐行写出变量的变化;算法过程用 `.flow`,流程图可以画 SVG(按标准符号:圆角框开始结束、
+  平行四边形输入输出、矩形处理、菱形判断)。
+- 每节的 `.how` 优先放真题常考的写法:完整的模板代码(如线性查找、冒泡排序、读写文件、栈和队列的操作),
+  以及评分细则的给分点。代码只写最典型的一种写法,其他可接受的写法用一句话说明。
+"""
 FONTS = os.path.join(paths.RAW, "fonts")
 FONT_SRC = "https://raw.githubusercontent.com/google/fonts/main/ofl/"
 FONT_FILES = {"Noto Sans SC": "notosanssc/NotoSansSC%5Bwght%5D.ttf",
@@ -120,8 +135,10 @@ def plan(a):
     books = chapters()
     for n in span(a.chapters):
         with open(os.path.join(WORK, f"page_{n:02d}.md"), "w", encoding="utf-8") as f:
-            f.write(TASK.format(n=n, book=os.path.relpath(books[n], paths.ROOT),
-                                level=LEVEL[PAPER[n]], paper=PAPER[n]))
+            task = TASK.format(n=n, book=os.path.relpath(books[n], paths.ROOT), level=LEVEL[PAPER[n]], paper=PAPER[n])
+            if PAPER[n] in (2, 4):
+                task = task.replace("\n## 规定\n", CODE + "\n## 规定\n", 1)
+            f.write(task)
         print(f"page_{n:02d}.md")
 
 
