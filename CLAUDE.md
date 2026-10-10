@@ -9,17 +9,11 @@
 - 不要把 `data/`、`raw/`、`exports/` 下的任何文件提交到 `main`。
 - 所有路径经 `lib/paths.py` 解析,新脚本不得写死路径。
 
-## 与题库 skill 的差异
+## claude.ai 上的 skill
 
-`exam-bank-pipeline` skill 中的部分路径已与本仓库不同,以本仓库为准:
-
-| skill 中的写法 | 本仓库 |
-|---|---|
-| `qb/caie.db` | `data/caie.db` |
-| `qb/img9709/` 等 | `data/img9709/` 等 |
-| 根目录的 `export_*.py` | `pipeline/export/` |
-| `pipeline/admissions_rebuild/export_web.py` | `pipeline/export/export_web.py`,通常经 `build_site.py` 调用 |
-| `qb/practice.html + data.js` | 源文件在 `assets/`,生成物在 `data/` |
+`exam-bank-pipeline` 与 `exam-paper-review` 两个 skill 的源文件在 `skills/`,共用脚本在 `skills/shared/`
+(下载试卷、去水印、按题取文本,不依赖仓库)。改完运行 `python3 skills/build.py`,把 `exports/` 下的
+`.skill` 文件交给用户在 claude.ai 上传。`skills/shared/strip_watermark.py` 与 `pipeline/fetch/` 的那份一起改。
 
 ## 文档
 

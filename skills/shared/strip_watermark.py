@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Remove the PapaCambridge watermark from downloaded papers, in place.
 
-    python3 pipeline/fetch/strip_watermark.py [--check] [FILE_OR_DIR ...]
+    python3 strip_watermark.py [--check] FILE_OR_DIR ...
 
-Default places: raw/pdf, raw/ms and data/papers.
+Standalone copy of the question bank's pipeline/fetch/strip_watermark.py (needs PyMuPDF).
 
 PapaCambridge wraps each original page in a form XObject `/R` and draws three
 layers in the page content: diagonal "PapaCambridge" marks (`/FormXob.pcm`),
@@ -23,12 +23,8 @@ dropped on save. A page with neither `/FormXob.pcm` nor that overlay is left alo
 import argparse
 import os
 import re
-import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
-import pymupdf  # noqa: E402
-
-from lib import paths  # noqa: E402
+import pymupdf
 
 CLIP = re.compile(rb"\nq\n0(?:\.0)? 0(?:\.0)? 595\.27\d* 841\.88\d* re\nW\nn\n")
 PAGE_CLIP = re.compile(rb"q\s+0(?:\.0)?\s+0(?:\.0)?\s+595\.27\d*\s+841\.8\d*\s+re\s+W\s+n\s")
@@ -135,10 +131,10 @@ def strip(path):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("where", nargs="*")
+    ap.add_argument("where", nargs="+")
     ap.add_argument("--check", action="store_true")
     a = ap.parse_args()
-    where = a.where or [os.path.join(paths.RAW, "pdf"), os.path.join(paths.RAW, "ms"), paths.PAPERS]
+    where = a.where
     files = []
     for w in where:
         if os.path.isdir(w):
@@ -155,7 +151,7 @@ def main():
             res = strip(f)
         counts[res] = counts.get(res, 0) + 1
         if res not in ("clean",):
-            print(f"{res:20} {os.path.relpath(f, paths.ROOT)}")
+            print(f"{res:20} {f}")
     print(counts)
 
 
