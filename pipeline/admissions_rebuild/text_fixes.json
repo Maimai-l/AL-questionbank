@@ -44,7 +44,7 @@
   "note": "原卷第 32 题,原先存在第 31 题下"
  },
  "BMAT-2003-S1-q33": {
-  "text": "33 Just four horses start in the 3:15 race, a short sprint. They are: Arctic Ape, Bistro, Crackdown and Drumbeat. At the first turn Bistro is ahead of Drumbeat and Crackdown is ahead of Arctic Ape, but nothing more specific is known. By the half way mark the only change is that Drumbeat has dropped back one place. Then, in the last furlong, Bistro moves up one place and that is how they finish.\n\nOn the basis of this information, which one of the following gives the correct result of the race?\n\nA $1^{\\mathrm{st}}$ Crackdown, $2^{\\mathrm{nd}}$ Drumbeat, $3^{\\mathrm{rd}}$ Arctic Ape\n\nB  $ 1^{st} $ Bistro,  $ 2^{nd} $ Crackdown,  $ 3^{rd} $ Drumbeat\n\nC $1^{\\mathrm{st}}$ Bistro, $2^{\\mathrm{nd}}$ Drumbeat, $3^{\\mathrm{rd}}$ Arctic Ape\n\nD $1^{\\mathrm{st}}$ Bistro, $2^{\\mathrm{nd}}$ Crackdown, $3^{\\mathrm{rd}}$ Arctic Ape\n\nE $1^{\\mathrm{st}}$ Drumbeat, $2^{\\mathrm{nd}}$ Arctic Ape, $3^{\\mathrm{rd}}$ Crackdown",
+  "text": "33 Just four horses start in the 3:15 race, a short sprint. They are: Arctic Ape, Bistro, Crackdown and Drumbeat. At the first turn Bistro is ahead of Drumbeat and Crackdown is ahead of Arctic Ape, but nothing more specific is known. By the half way mark the only change is that Drumbeat has dropped back one place. Then, in the last furlong, Bistro moves up one place and that is how they finish.\n\nOn the basis of this information, which one of the following gives the correct result of the race?\n\nA $1^{st}$ Crackdown, $2^{nd}$ Drumbeat, $3^{rd}$ Arctic Ape\n\nB $1^{st}$ Bistro, $2^{nd}$ Crackdown, $3^{rd}$ Drumbeat\n\nC $1^{st}$ Bistro, $2^{nd}$ Drumbeat, $3^{rd}$ Arctic Ape\n\nD $1^{st}$ Bistro, $2^{nd}$ Crackdown, $3^{rd}$ Arctic Ape\n\nE $1^{st}$ Drumbeat, $2^{nd}$ Arctic Ape, $3^{rd}$ Crackdown",
   "options": [
    "A",
    "B",
@@ -52,7 +52,7 @@
    "D",
    "E"
   ],
-  "note": "原卷第 33 题,原先存在第 32 题下"
+  "note": "对照原卷(2026-10 逐题核对):选项中的序数词 LaTeX 原样显示,改为 $^{st}$ 等公式格式"
  },
  "BMAT-2003-S1-q34": {
   "text": "34 A food supplement is diluted from concentrate by adding 8 parts water to 1 part concentrate. By mistake, Jean added 400cm³ water to 40cm³ concentrate.\n\nWhat must she add to the resulting mix to obtain the correct concentration?\n\nA  $ 80cm^{3} $ water\n\nB 320cm $ ^{3} $ water\n\nC  $ 10~cm^{3} $ concentrate\n\nD  $ 15~cm^{3} $ concentrate\n\nE 50cm $ ^{3} $ concentrate",
@@ -66,7 +66,7 @@
   "note": "原卷第 34 题,原先存在第 33 题下"
  },
  "BMAT-2003-S1-q35": {
-  "text": "35 Figure 1 shows the number of births and deaths recorded during each year, over a ten-year period on an island. The total population at the start of the ten-year period was 100,000 people.\n\n<div style=\"text-align: center;\">Figure 1</div>\n\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_928_634_2259_1641.jpg\" alt=\"Image\" width=\"40%\" /></div>\n\n\nAssuming there is not any immigration or emigration on the island, which of the following shows the total population over the ten-year period?\n\n<!-- 选项为六幅柱状图,字母自页面图像转录 -->\nA (见图 A)\n\nB (见图 B)\n\nC (见图 C)\n\nD (见图 D)\n\nE (见图 E)\n\nF (见图 F)\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_273_2016_1138_2863.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_1164_2045_2030_2865.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_2057_2029_2911_2861.jpg\" alt=\"Image\" width=\"25%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_274_2915_1136_3728.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_1161_2915_2028_3731.jpg\" alt=\"Image\" width=\"26%\" /></div>\n\n<div style=\"text-align: center;\"><img src=\"imgs/img_in_chart_box_2054_2917_2917_3731.jpg\" alt=\"Image\" width=\"26%\" /></div>",
+  "text": "35 Figure 1 shows the number of births and deaths recorded during each year, over a ten-year period on an island. The total population at the start of the ten-year period was 100,000 people.\n\nFigure 1\n\n![](img_tara/BMAT-2003/img_in_chart_box_928_634_2259_1641.jpg)\n\nAssuming there is not any immigration or emigration on the island, which of the following shows the total population over the ten-year period?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)\n\nE (图形选项)\n\nF (图形选项)\n\n![](img_tara/BMAT-2003/img_in_chart_box_273_2016_1138_2863.jpg)\n\n![](img_tara/BMAT-2003/img_in_chart_box_1164_2045_2030_2865.jpg)\n\n![](img_tara/BMAT-2003/img_in_chart_box_2057_2029_2911_2861.jpg)\n\n![](img_tara/BMAT-2003/img_in_chart_box_274_2915_1136_3728.jpg)\n\n![](img_tara/BMAT-2003/img_in_chart_box_1161_2915_2028_3731.jpg)\n\n![](img_tara/BMAT-2003/img_in_chart_box_2054_2917_2917_3731.jpg)",
   "options": [
    "A",
    "B",
@@ -75,7 +75,7 @@
    "E",
    "F"
   ],
-  "note": "原卷第 35 题,原先存在第 34 题下;其余五幅选项图原先在第 35 题下"
+  "note": "对照原卷(2026-10 逐题核对):选项图形的标注统一为 (图形选项)"
  },
  "BMAT-2003-S1-q36": {
   "text": "## Questions 36 to 40 refer to the following information:\n\nThe dates of two of the battles supposedly fought by the semi-legendary King Arthur have caused confusion because there are inconsistencies in the early manuscripts.\n\nThe Welsh Annals give the Battle of Badon as “year 72” and the Battle of Camlann as “year 93”. They also record the death of King Maelgwn of Gwynedd as “year 103”. There is definite evidence from the calculation of the dates of Easter that “year 9” in the Welsh Annals coincides with 455 AD in our modern dating system.\n\nThe dark age historian, Gildas, records these battles without any mention of Arthur. Records indicate that Gildas was born in the year of the battle of Badon and wrote his book “On the Ruin and Conquest of Britain” when he was 43.\n\nHowever, Maelgwn was still alive when Gildas wrote his book, which is inconsistent with the other dates given by Gildas and the Welsh Annals.\n\n36 If the dates given in the Welsh Annals are correct, when was the Battle of Badon?\n\n\n\nA 455 AD\nB 518 AD\nC 527 AD\nD 539 AD\nE 549 AD",
@@ -2555,6 +2555,716 @@
    "D"
   ],
   "note": "对照原卷(2026-10 逐题核对):原题有四幅图,页面左侧不显示,改用原图",
+  "figure": true
+ },
+ "BMAT-2003-S1-q1": {
+  "text": "1 A farmer has an underground water tank which he decided to calibrate by adding known volumes of water and measuring the depth using a dip-stick. His calibration graph is shown below. The horizontal cross section of the tank is circular at all points.\n\nWhich one of the following shows a possible vertical cross sectional shape of the tank?",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题图(校准曲线与截面形状选项)原卷有图,库中只剩 [DIAGRAM],设 figure;删去占位行",
+  "figure": true
+ },
+ "BMAT-2003-S1-q12": {
+  "text": "12 Which one of the following bar charts best represents the average numbers of patients seen per week in home and surgery consultations during the two years?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文只有一题(柱状图选项),库中混入第7-9题的引导语、题干与选项,并残留 [DIAGRAM]; 按原卷重写,设 figure",
+  "figure": true
+ },
+ "BMAT-2003-S1-q24": {
+  "text": "## Questions 24 to 27 refer to the following information:\n\nThe Ruritanian Institute for Economic Studies has totalled up the effects of the Ruritanian Finance Minister's six budgets prior to April 2003. Its calculations suggest that tax and benefit measures introduced by the Finance Minister have resulted in the redistribution of income from the better off to less well off. A lone parent, for example, is on average $24 better off in today's money as a result of the Finance Minister's measures – an 11% gain.\n\nChart 1\n\n![](img_tara/BMAT-2003/img_in_chart_box_308_362_833_813.jpg)\n\nChart 2 shows trends in the ‘Fair-E coefficient’ since 1982.\n\nChart 2\n\n![](img_tara/BMAT-2003/img_in_chart_box_306_953_841_1397.jpg)\n\nThe Fair-E coefficient is a number between zero and one that measures the degree of inequality in the distribution of income in a given society. The coefficient would register zero inequality for a society in which each member received exactly the same income and it would register a coefficient of 1.0 if one member got all the income and the rest got nothing. In practice, coefficient values range from around 0.2 for, e.g., the Slovak and Czech republics and Poland, to\naround 0.6 for places like Mexico, Guatemala, Honduras and Panama where powerful elites dominate the economy. The coefficient is particularly useful to show trends. It reveals the change towards greater equality in Cuba from 1953 to 1986 (0.55 to 0.22) and the growth of inequality in the USA in the last three decades when the Fair-E went from 0.35 in the 1970s to 0.40 in the 1990s (and still rising).\n\nAssuming that the information and coefficient above are valid:\n\n## 24 Which one of the following can be reliably concluded from the information given above?\n\nA The top 40% of earners in Ruritania are less well off than they were in 1997.\n\nB Low earners in Ruritania are no better off than they were in 1997.\n\nC Despite the Finance Minister’s tax and benefit measures, income inequality in Ruritania has not been reduced.\n\nD The Finance Minister's tax and benefit measures have resulted in a rise in the overall standard of living in Ruritania.\n\nE People in the top income decile have seen their real wealth fall by over 4%.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删去开头的页脚 PLEASE TURN OVER(对照原卷)"
+ },
+ "BMAT-2003-S1-q38": {
+  "text": "38 The most likely explanation for the inconsistency in dates is that the dates in the Welsh Annals, which exist only in a copied form from the 9$^{th}$ century, were too late by 28 years (the length of one of the cycles used in the calculation of the date of Easter). If this is so, when was the battle of Camlann?\n\nA 490 AD\n\nB 511 AD\n\nC 521 AD\n\nD 539 AD\n\nE 567 AD",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):9^{th} 的 LaTeX 未放入 $ 中"
+ },
+ "BMAT-2003-S1-q40": {
+  "text": "40 Which one of the following time lines best represents the data given by Gildas and the Welsh Annals?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):库中混入第36-39题的引导语、题干与选项及 END OF SECTION 1; 只保留第40题,四个时间线选项为图形,设 figure",
+  "figure": true
+ },
+ "BMAT-2003-S1-q7": {
+  "text": "## Questions 7 to 12 refer to the following information:\n\nThe table below shows statistics for consultations by family doctors in the country of Santesia for the years 1995 and 2000. Santesia has a population of approximately 10 million and there are 5000 family doctors (these figures have not changed significantly over the five years between the two surveys).\n\n|  | 1995 | 2000 |\n|---|---|---|\n| Average number of surgery sessions a week | 8.5 | 8.4 |\n| Average length of a surgery session (min) | 140 | 165 |\n| Average length of a consultation (min:sec) | 9:59 | 10:00 |\n| Average time spent on home visits a week (min) | 408 | 412 |\n| Average length of a home visit (min) | 25.5 | 25.0 |\n| Average number of patients seen per week | 135 | 155 |\n\n7 A doctor’s consultation appointments are made 10 minutes apart and all patients attend. How many patients would been seen in an average surgery session in 1995?\n\nA 14\n\nB 16\n\nC 17\n\nD 30",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删去开头的页脚 PLEASE TURN OVER(对照原卷)"
+ },
+ "BMAT-2008-S1-q1": {
+  "text": "1 Some Malgons are Zanders and all Zanders are Tvints\n\nWhich one of the following statements is definitely true?\n\nA All Zanders are both Malgons and Tvints.\n\nB All Malgons are Tvints\n\nC All Tvints are Malgons\n\nD Some Malgons are Tvints\n\nE Nothing can be said about the relationship between Malgons and Tvints",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原卷为 Tvints,库中 Twints 为 OCR 错字;题干与选项 B-E 同步改正。"
+ },
+ "BMAT-2008-S1-q16": {
+  "text": "A farmer has a tank for storing diesel of the form shown below, buried in his farmyard.\n\n![](img_tara/BMAT-2008/img_in_image_box_544_164_684_393.jpg)\n\nHe calculates the volume remaining in the tank using a dipstick which measures the depth of diesel and then referring to a chart. Unfortunately he has calibration charts for several different tanks and is not sure which is his.\n\nWhich one of the following best represents the correct calibration chart for the tank?\n\nA (图形选项)\n\n![](img_tara/BMAT-2008/img_in_chart_box_188_551_512_843.jpg)\n\nB (图形选项)\n\n![](img_tara/BMAT-2008/img_in_chart_box_697_551_1023_860.jpg)\n\nC (图形选项)\n\n![](img_tara/BMAT-2008/img_in_chart_box_188_889_515_1182.jpg)\n\nD (图形选项)\n\n![](img_tara/BMAT-2008/img_in_chart_box_696_888_1019_1182.jpg)\n\nE (图形选项)\n\n![](img_tara/BMAT-2008/img_in_chart_box_190_1229_512_1534.jpg)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除图表坐标轴标签 Measurement on dipstick 的误抓文字(属于选项图片内部)。"
+ },
+ "BMAT-2008-S1-q18": {
+  "text": "18 It is known that droplets of a certain chemical have a volume of 0.02 cm³ (rounded to the nearest 0.01 cm³).\n\nWhat is the maximum number of droplets of the chemical that can be mixed with  $ 10 \\, cm^3 $ of water (rounded to the nearest  $ 10 \\, cm^3 $) if the resulting solution must not have more than 1% of the chemical in?\n\nA  $ \\quad $ 2\n\nB  $ \\quad $ 4\n\nC  $ \\quad $ 5\n\nD  $ \\quad $ 6\n\nE  $ \\quad $ 10",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除末尾混入的下一组题引导语 Questions 19 - 22(应属于 q19)。"
+ },
+ "BMAT-2008-S1-q19": {
+  "text": "## Questions 19 - 22 refer to the following information:\n\n## Even moderate exercise boosts longevity, study says\n\nSorry, couch potatoes - the verdict is in: people who exercise regularly really do live longer.\n\nIn fact, people who get a good workout almost daily can add nearly four years to their lives, according to the first study to quantify the impact of physical activity this way.\n\nThe researchers looked at records of more than 5,000 middle aged and elderly Americans and found that those who had moderate to high levels of activity lived 1.4 to 3.6 years longer than those who got little exercise, largely because they put off developing heart disease - the nation's leading killer. Men and women benefited about equally.\n\nPrevious studies have found that being physically active has a host of health benefits. It reduces the risk of being overweight and of developing many illnesses and improves overall quality of life. But the new study is the first to directly calculate the effect on how long people live.\n\nOscar Franco, of the Erasmus M.C. University Medical Center in Rotterdam, and his colleagues analysed the data from the Framingham Heart Study, a well-known research project that has followed 5,209 residents of one Massachusetts town for more than 40 years, collecting detailed information about their lifestyles and health.\n\nPeople who engaged in moderate activity - the equivalent of walking for 30 minutes a day - lived on average 1.4 years longer than those who were less active. Those who took on more intense exercise - the equivalent of running half an hour a day - extended their lives on average by 3.6 years, the researchers found.\n\nFranco and others noted that this and other studies show that people do not have to be exercise fanatics to reap the benefits. \"What we're talking about is small changes,\" said James Hill of the University of Colorado in Denver. \"We're telling people to get out and walk more. Fifteen, 20 or 30 minutes of walking each day is probably enough.\"\n\n19 If the average lifespan of an American male who does not exercise is 75, to how much might this average be expected to be increased by running for 30 minutes a day? (Answer to the nearest year.)",
+  "options": [],
+  "note": "对照原卷(2026-10 逐题核对):补回本组引导语 Questions 19 - 22 refer to the following information:(原卷在此组首题前印出,库中被误放到 q18 末尾)。"
+ },
+ "BMAT-2008-S1-q3": {
+  "text": "3 Jim has all his screws jumbled up in a big jar. The number of screws it contains is as follows:\n\n| diameter / length | 25 mm | 35 mm | 45 mm |\n|---|---|---|---|\n| 3 mm | 68 | 10 | 2 |\n| 4 mm | 22 | 20 | 18 |\n| 5 mm | 10 | 54 | 46 |\n\nHe needs a 4 mm screw but doesn't mind whether it is 35 or 45 mm long. If he takes one out at random, what are the chances that it will suit his purpose? (Answer to the nearest 1%)\n\nA 8%\nB 15%\nC 22%\nD 25%\nE 27%",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除开头混入的上一题选项 D、E 文字;原表格结构错乱(length 与 diameter 列标题丢失、多余空列),按原卷重做为 4 列表格。"
+ },
+ "BMAT-2008-S1-q31": {
+  "text": "31 The picture below shows the pieces of a puzzle called the Soma Cube which may be assembled to make a  $ 3 \\times 3 \\times 3 $ cube.\n\n![](img_tara/BMAT-2008/img_in_image_box_323_220_903_560.jpg)\n\nWhich other piece, along with pieces F and G, can be used to make a 3 x 2 x 2 cuboid?\n\nA Piece A\n\nB Piece B\n\nC Piece C\n\nD Piece D\n\nE Piece E",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除末尾混入的下一组引导语 Questions 32 - 35(应属于 q32)。"
+ },
+ "BMAT-2008-S1-q32": {
+  "text": "## Questions 32 - 35 refer to the following information:\n\n## Section 1: Cycling level - facts\n\nAccording to the 2005 National Travel Survey (NTS) cycling is a relatively rare means of travel in the UK, and is declining.\n\n- Cycling accounts for 1% of all trips $ ^{*} $, and 2% of trips of less than 2 miles, including those that are made on foot.\n\n- The average person makes 14 cycle trips per year and cycles a distance of 36 miles.\n\nWhen asked how often they ride a bike, 15% of the population say at least once a week, and a further 8% say at least once a month. Over two thirds (69%) of people say they cycle less than once a year or never.\n\n- Those who do cycle average 5 trips a week by bicycle and travel 13 miles in a week. Cycling accounts for a fifth (22%) of all trips by cyclists $ ^{\\dagger} $.\n\n $ ^{*} $ For the purposes of the survey a ‘trip’ is a one-way journey having a single main purpose – e.g. going to work.\n\n $ ^{\\dagger} $ A ‘cyclist’ is someone who cycles once a week or more.\n\n## Section 2: Charts\n\nChart 1: Cycle trips per person per year, by sex and age:\n\n![](img_tara/BMAT-2008/img_in_chart_box_151_792_703_1080.jpg)\n\nChart 2: Distance travelled by bicycle per person per year, by sex and age:\n\n![](img_tara/BMAT-2008/img_in_chart_box_152_1157_699_1443.jpg)\n\n## Section 3: Cycling, income and car-ownership\n\nPeople living in households with lower levels of income make, on average, fewer bicycle trips and travel shorter distances by bicycle than those in higher income households. Those in the highest income quintile (top 20%) cycle 49 miles per person per year compared with 29 miles among people in the lowest income quintile. The poorest fifth, despite being the least likely to own a car, are also the least likely to cycle.\n\nChart 3: Cycle trips, by car ownership\n\n![](img_tara/BMAT-2008/img_in_chart_box_151_320_701_596.jpg)\n\n[Source: Department for Transport.]\n\n32 Which of the following is the best estimate of the average number of trips by all modes of travel made per person per week?\n\nA 10\n\nB 13\n\nC 20\n\nD 25\n\nE 27",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):补回本组引导语 Questions 32 - 35 refer to the following information:(原卷在此组首题前印出,库中被误放到 q31 末尾)。"
+ },
+ "BMAT-2008-S1-q5": {
+  "text": "5 I played a game at a friend's house yesterday that involved throwing a pair of dice. When I threw them for my first turn they landed as follows:\n\n![](img_tara/BMAT-2008/img_in_image_box_415_220_570_397.jpg)\n\n![](img_tara/BMAT-2008/img_in_image_box_671_219_829_397.jpg)\n\nIt was clear they were not identical. On my second turn they landed like this:\n\n![](img_tara/BMAT-2008/img_in_image_box_415_470_570_639.jpg)\n\n![](img_tara/BMAT-2008/img_in_image_box_672_469_829_639.jpg)\n\nNow I could see that there was something very odd about them. Closer inspection revealed that one of them was a conventional die (with opposite faces totalling seven), whilst the other one appeared to have had its faces numbered from one to six unconventionally.\n\nWhat number is on the opposite face to two on the “unconventional die”?\n\nA One\n\nB Three\n\nC Four\n\nD Five\n\nE Six",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除混入的下一题标题\"F ## Growing digital divide...\"。注意:数据库选项列表多出 F,页面仍显示 F 选项,原卷只有 A-E,需主线修正选项列表。"
+ },
+ "BMAT-2008-S1-q6": {
+  "text": "Growing digital divide between age groups\n\n55 % of males aged 15 – 19 regularly browse social networking sites according to a survey in early 2008, whereas only 13 % of 45 – 54 year old men do the same.\n\nWhich of the following express(es) why the headline does not accurately reflect the evidence provided by the survey?\n\n1 45 – 54 year old men might be using other digital applications.\n\n2 Evidence from a single survey is insufficient to show that a gap is growing.\n\n3 Surveys can be misleading if they are taken from unrepresentative samples.\n\nA 1 only\nB 2 only\nC 3 only\nD 1 and 2\nE 1 and 3\nF 2 and 3\nG 1, 2 and 3",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F",
+   "G"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):补回缺失的 55 % 开头与报纸标题 Growing digital divide between age groups。"
+ },
+ "BMAT-2013-S1-q31": {
+  "text": "A group of ten teenagers attending a party meal are each given a card numbered from 3 to 12 as they arrive at the venue. The card is to be used to find their places at the table when it is time for the meal. Some of the places at the table already have the numbers showing but the teenagers have to solve the problem of where the rest of them should sit in order to meet a list of criteria given to them by their host. The partial seating plan is shown below:\n\n![](img_tara/BMAT-2013/img_in_image_box_144_228_908_679.jpg)\n\nThe remaining guests must sit in places such that the sum of any four place numbers that fall in a straight row makes 29.\n\nWhat will be the number of the person sitting opposite number 9?\n\nA 3\n\nB 4\n\nC 7\n\nD 8\n\nE 11",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):'or ten'改为'of ten';问句补上'number 9';末尾混入第32-35题引导语,已删除"
+ },
+ "BMAT-2013-S1-q32": {
+  "text": "Questions 32–35 refer to the following information based on a press release issued 27th July 2007:\n\n## Cannabis increases risk of psychotic illness later in life\n\nEvidence that using cannabis could increase the risk of developing a psychotic illness such as schizophrenia subsequently is revealed in a study published in The Lancet.\n\nCannabis, or marijuana, is the most commonly used illegal substance in most countries. About 20% of young people now report using cannabis at least once per week.\n\nThe study analysed 35 studies dated up to 2006. They assessed the strength of evidence for a causal relationship between cannabis use and the subsequent occurrence of psychotic or other mental health disorders.\n\nThe study found that individuals who used cannabis were 41% more likely to have any psychosis than those who had never used the drug. The risk increased relative to dose, with the most frequent cannabis users more than twice as likely to have a psychotic outcome.\n\nProfessor Glyn Lewis from the University of Bristol, and senior author on the paper, said: 'It is difficult to be certain about whether cannabis use causes psychotic illnesses such as schizophrenia. However, all the studies have found an association and it seems appropriate to warn members of the public about the possible risk.'\n\nThe authors estimate that, if cannabis had a causal relationship with psychosis, about 14% of psychotic illnesses in young adults in the UK could be prevented if cannabis were not consumed.\n\n32 In 10,000 typical young people, if 1% of non-cannabis users develop psychosis, how many cannabis users would be expected to develop psychosis?\n\nA 20\n\nB 28\n\nC 41\n\nD 112\n\nE 141",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):补上第32-35题共用引导语(原卷位于该段前)"
+ },
+ "BMAT-2014-S1-q1": {
+  "text": "1 The table below shows 'audience numbers' and 'time per visit' for a number of popular social networking sites. A comparison of figures for the month of February is shown for two consecutive years.\n\n|  | February 2008 |  | February 2007 |  |\n|---|---|---|---|---|\n| Site | Audience (000's) | Time per visit (hr:min:sec) | Audience (000's) | Time per visit (hr:min:sec) |\n| myspace.com | 55 419 | 2:12:19 | 53 362 | 2:00:24 |\n| Facebook | 20 043 | 1:06:43 | 9 923 | 1:04:54 |\n| LinkedIn | 7 392 | 0:10:31 | 1 990 | 0:05:10 |\n| Flixster | 2 619 | 0:07:38 | 1 591 | 0:12:28 |\n| Reunion.com | 4 323 | 0:04:34 | 4 348 | 0:04:49 |\n| Meetup.com | 1 940 | 0:12:16 | 1 215 | 0:07:07 |\n| Last.fm | 1 938 | 0:06:43 | 1 508 | 0:02:24 |\n| myYearbook | 1 738 | 0:07:02 | 2 368 | 0:09:04 |\n\nHow many sites had an increase in both 'audience numbers' and 'time per visit' from 2007 to 2008?\n\nA 1\nB 2\nC 3\nD 5\nE 6",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表头错位:'February 2007' 原在 2008 年'Time per visit' 列上方,已改到 2007 年两列上方"
+ },
+ "BMAT-2014-S1-q4": {
+  "text": "4 Since the late 1990s wolves have been seen in the Haute-France region of the Alps. This places them once again in conflict with the shepherds who farm this region. Due to the protected status of the European wolf, French farmers are awarded a compensation payment for the loss of any of their sheep to a wolf. This payment amounts to considerably more than the livestock value of the animal. In addition to this, it is very difficult to distinguish between evidence of a wolf attack and dog attack. France has a population of 8 million dogs; 8000 of these are estimated to be wild compared to only 200 wolves.\n\nWhich one of the following is a conclusion that can be drawn from the above passage?\n\nA The problem of wolves attacking sheep in the French Alps has been exaggerated.\n\nB Any claim that a sheep has been attacked by a wolf should be treated with caution.\n\nC The protected status of the European wolf is unpopular in the French farming community.\n\nD The wolf's reputation for killing sheep is undeserved.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 C 开头多出一个字母 'c',已删除"
+ },
+ "BMAT-2014-S1-q5": {
+  "text": "5 This is part of a tiled floor in my house, surrounding a space where I have removed a broken tile.\n\nEach tile has a pattern of sixteen smaller squares, three of which are black. On each tile, one of the black squares is a corner square, one is an edge square and one is an inner square. No two black squares touch, either edge to edge or corner to corner.\n\nAlthough I laid the tiles to produce an apparently random pattern, I made sure that no two black squares touched anywhere, either edge to edge or corner to corner.\n\nWhich one of the eight different tiles that are available must I use to replace the broken one? (Tiles may be rotated.)\n\nA (图形选项)\nB (图形选项)\nC (图形选项)\nD (图形选项)\nE (图形选项)\nF (图形选项)\nG (图形选项)\nH (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F",
+   "G",
+   "H"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原卷为瓷砖平面图与 A-H 八个图形选项;文本中的 [DIAGRAM] 占位与多余的 'D' 已删除,补上选项行;地板图缺失,标 figure",
+  "figure": true
+ },
+ "BMAT-2014-S1-q7": {
+  "text": "7 When I buy my favourite brand of coffee from the supermarket I normally have a choice of three jar sizes, as follows:\n\n $$ \\mathrm{s m a l l}\\quad-\\quad100\\mathrm{g} $$ \n\n $$ \\mathrm{medium}\\quad-\\quad200\\mathrm{g} $$ \n\n $$ \\mathrm{~l a r g e~}\\quad-\\quad\\mathrm{~400~g} $$ \n\nAt present, all three jars contain 25% extra for the normal price and, in addition, customers who buy a large jar get a small jar free.\n\nFor customers who buy a large jar of coffee, what is the total extra percentage of coffee for the normal price of the large jar?\n\nA 33$\\frac{1}{3}$%\n\nB 36%\n\nC 46$\\frac{2}{3}$%\n\nD 50%\n\nE 56$\\frac{1}{4}$%\n\nF 87$\\frac{1}{2}$%",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 C/E/F 的 \\% 放在 $ 外面(与选项 A 一致),原页面显示为 LaTeX 源码;末尾混入第8-11题引导语,已删除"
+ },
+ "BMAT-2014-S1-q8": {
+  "text": "Questions 8 – 11 refer to the following information:\n\nA new research study shows that general anaesthesia increases the risk of developing dementia in later life by 35%, regardless of lifestyle. Research from France being presented at a conference of anaesthetists identifies postoperative cognitive dysfunction (POCD), a common delirium-like complication of major surgery in older people, as a likely cause of dementia that develops some years later.\n\nThe study examined the health of 9 294 people aged 65 or over in three French cities from 1999 in order to assess the risk of dementia and decline in cognitive function linked to vascular risk factors. Participants were checked two, four, seven and 10 years later. Each time the 7 008 patients originally without dementia were asked if they had had either a general or local anaesthetic since the last check-up. After two years, 2 309 (33%) had undergone one in that time, of which 1 333 (19%) were general and 948 (14%) local. In total 632 participants developed dementia over the eight-year follow-up period.\n\nThe statistical model used in the study suggests that if a smoker has undergone general anaesthesia then they have a 27% likelihood of developing dementia in later life, compared to a 19% likelihood for a non-smoker. These results further support previous research findings about the effects of smoking on health.\n\nA summary of the findings, which are being unveiled at the annual meeting of the European Society of Anaesthesiology, states: \"After adjustment, participants with at least one general anaesthesia over the follow-up had a 35% increased risk of developing a dementia compared with participants without anaesthesia.\" That risk is for general anaesthesia, not all anaesthesia, they stressed.\n\nDr Sztark, one of the authors of the study, said that \"[t]hese results are in favour of an increased risk for dementia several years after general anaesthesia.\" Health professionals should, he said, be aware of the possibility of POCD when deciding how to manage elderly patients who are being fully anaesthetised.\n\nDementia organisations responded cautiously. Dr Eric Karran, director of research at Alzheimer's Research UK, said: \"This is early data and given the complexity of the findings we need to await the full peer-reviewed publication before fully interpreting the results. Research into the impact of anaesthetics on dementia is challenging because it can be very difficult to tease out cause and effect. Dementia is caused by several brain diseases, many of which arise from a complex mix of genetic and environmental factors.\"\n\nDr Doug Brown, director of research at the Alzheimer's Society, said: \"The early results from this study support the view that anaesthesia may increase risk of developing dementia but questions still remain about why this is the case and whether other factors could also have a role to play.\"\n\nAdapted from an article by Denis Campbell, The Guardian, Friday 31 May 2013\n8 If the cohort is typical of the population aged 65 or over, what are the chances of someone without dementia developing it during the eight-year follow-up period?\n\nA 7%\n\nB 9%\n\nC 11%\n\nD 19%\n\nE 35%",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):补上第8-11题共用引导语(原卷位于第7题之后、该段之前)"
+ },
+ "BMAT-2018-S1-q10": {
+  "text": "Questions 8–11 refer to the following information.\n\nTotal unpaid work in the UK in 2015 had a value of £1000 billion, equivalent to approximately 55% of Gross Domestic Product (GDP), and women carried out an overall average of 60% more unpaid work than men. The only area where men put in more unpaid work hours than women was in the category of 'non-leisure travel'. While the numbers of men and women are roughly equal, women did more unpaid work than men in every age group, from the 25 and under age category to the 56 and over age category. The figures also revealed that people on lower incomes tended to carry out on average more unpaid work than other income brackets.\n\naverage hours of unpaid work done per week in each type of work for men and women, UK 2015\n\n| type of work | female | male |\n|---|---|---|\n| cooking | 7.28 | 3.65 |\n| non-leisure travel | 5.85 | 7.21 |\n| childcare | 4.67 | 1.89 |\n| housework | 4.66 | 2.42 |\n| laundry | 2.40 | 0.39 |\n| volunteering | 0.36 | 0.20 |\n| adult care | 0.32 | 0.23 |\n| total | 25.54 | 15.99 |\n\naverage hours of unpaid work done per week in each age category for men and women, UK 2015\n\n| age | female | male |\n|---|---|---|\n| 25 and under | 12.38 | 8.07 |\n| 26 to 35 | 34.60 | 17.47 |\n| 36 to 45 | 33.26 | 20.87 |\n| 46 to 55 | 26.49 | 18.27 |\n| 56 and over | 25.56 | 17.56 |\n\naverage hours of unpaid work done per week by grouped income level, UK 2015\n\n| type of work | low income | middle income | high income |\n|---|---|---|---|\n| cooking | 5.93 | 5.57 | 4.98 |\n| non-leisure travel | 5.43 | 6.75 | 7.80 |\n| housework | 3.78 | 3.65 | 3.23 |\n| childcare | 3.74 | 3.92 | 2.74 |\n| laundry | 1.42 | 1.54 | 1.22 |\n| adult care | 0.27 | 0.22 | 0.18 |\n| volunteering | 0.24 | 0.31 | 0.21 |\n\n10 Which one of the following cannot be a plausible explanation why, contrary to the general trend, people on higher incomes tended to spend more time on non-leisure travel?\n\nA People on lower incomes are less likely to own a car, which means that they are less likely to drive their family members around.\n\nB People on lower incomes are more likely to be unemployed or to work part-time, which means that they do not need to commute to work so often.\n\nC People on lower incomes are more likely to use public transport to commute to work, so they spend less time driving.\n\nD The lower income group includes many university students who live on campus and thus spend little time on transport.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 8–11 题共用的材料(导语、三张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q11": {
+  "text": "Questions 8–11 refer to the following information.\n\nTotal unpaid work in the UK in 2015 had a value of £1000 billion, equivalent to approximately 55% of Gross Domestic Product (GDP), and women carried out an overall average of 60% more unpaid work than men. The only area where men put in more unpaid work hours than women was in the category of 'non-leisure travel'. While the numbers of men and women are roughly equal, women did more unpaid work than men in every age group, from the 25 and under age category to the 56 and over age category. The figures also revealed that people on lower incomes tended to carry out on average more unpaid work than other income brackets.\n\naverage hours of unpaid work done per week in each type of work for men and women, UK 2015\n\n| type of work | female | male |\n|---|---|---|\n| cooking | 7.28 | 3.65 |\n| non-leisure travel | 5.85 | 7.21 |\n| childcare | 4.67 | 1.89 |\n| housework | 4.66 | 2.42 |\n| laundry | 2.40 | 0.39 |\n| volunteering | 0.36 | 0.20 |\n| adult care | 0.32 | 0.23 |\n| total | 25.54 | 15.99 |\n\naverage hours of unpaid work done per week in each age category for men and women, UK 2015\n\n| age | female | male |\n|---|---|---|\n| 25 and under | 12.38 | 8.07 |\n| 26 to 35 | 34.60 | 17.47 |\n| 36 to 45 | 33.26 | 20.87 |\n| 46 to 55 | 26.49 | 18.27 |\n| 56 and over | 25.56 | 17.56 |\n\naverage hours of unpaid work done per week by grouped income level, UK 2015\n\n| type of work | low income | middle income | high income |\n|---|---|---|---|\n| cooking | 5.93 | 5.57 | 4.98 |\n| non-leisure travel | 5.43 | 6.75 | 7.80 |\n| housework | 3.78 | 3.65 | 3.23 |\n| childcare | 3.74 | 3.92 | 2.74 |\n| laundry | 1.42 | 1.54 | 1.22 |\n| adult care | 0.27 | 0.22 | 0.18 |\n| volunteering | 0.24 | 0.31 | 0.21 |\n\n11 Assuming that the different types of work are valued equally, what was the total value of unpaid work done by women in the UK in 2015?\n\nA £385 billion\n\nB £550 billion\n\nC £615 billion\n\nD £700 billion\n\nE £1120 billion",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 8–11 题共用的材料(导语、三张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q20": {
+  "text": "Questions 19–22 refer to the following information.\n\nBetween 1 January 1960 and 31 December 2015, there were 1104 fatal passenger aircraft crashes for which a definitive cause was known (see Table 1). The crashes included are those which had ten or more passengers on board and which resulted in at least one fatality. Military and private aircraft and helicopters were excluded. Where there were multiple causes, the most prominent cause was recorded. The category of pilot error includes those crashes in which weather or a mechanical fault was a strong contributing factor to the pilot error.\n\nTable 1 Number of crashes in each category of primary cause, 1960 to 2015\n\n| category | 1960s | 1970s | 1980s | 1990s | 2000s | 2010s | Total |\n|---|---|---|---|---|---|---|---|\n| pilot error | 150 | 132 | 111 | 140 | 67 | 40 | 640 |\n| mechanical | 52 | 38 | 37 | 36 | 21 | 11 | 195 |\n| weather | 14 | 13 | 11 | 13 | 7 | 5 | 63 |\n| sabotage | 12 | 25 | 23 | 19 | 10 | 6 | 95 |\n| other | 20 | 30 | 23 | 27 | 7 | 4 | 111 |\n| total | 248 | 238 | 205 | 235 | 112 | 66 | 1104 |\n\nTable 2 gives a breakdown of fatal accidents and onboard fatalities by phase of flight over the same period.\n\nTable 2 Fatal crashes and onboard fatalities by phase of flight, 1960 to 2015\n\n| phase of flight | taxi / parked | take-off | initial climb | climb (flaps up) | cruise | descent | initial approach | final approach | landing |\n|---|---|---|---|---|---|---|---|---|---|\n| fatal crashes | 12% | 12% | 8% | 10% | 8% | 4% | 10% | 11% | 25% |\n| onboard fatalities | 0% | 16% | 14% | 13% | 16% | 4% | 12% | 13% | 12% |\n| exposure $ ^{{*}} $ |  | 1% | 1% | 14% | 57% | 11% | 12% | 3% | 1% |\n\n $ ^{*} $ Percentage of flight time estimated for a 1.5 hour flight\n\nSince 1997, the average number of airliner crashes per year has shown a steady and persistent decline, thanks to the continuing efforts of international aviation organisations and the stringent safety standards now in place in the aviation industry. Recent figures reveal that 2016 was the second safest year on record. There were 17 fatal crashes, resulting in 325 deaths, down from 560 in 2015. Given that a total of around 3.5 billion air passengers flew during 2016, that's just one death per 10.8 million travellers.\n\nOnly one year saw fewer deaths – 2013, with 265. But with 3.05 billion passengers boarding a plane that year, that amounts to a very similar number of deaths per passenger (one per 11.5 million). When one discounts sabotage, 2015 was actually the safest year on record. Two crashes, deliberately caused, accounted for the majority of fatalities that year. So it is easy to see that air travel has never been safer.\n\nWhat is the average time taken by an aircraft to get from the start of its descent (at cruising altitude) to landing on the runway?\n\nA 14 minutes\n\nB 16 minutes\n\nC 24 minutes\n\nD 27 minutes\n\nE 51 minutes",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 19–22 题共用的材料(导语、两张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q21": {
+  "text": "Questions 19–22 refer to the following information.\n\nBetween 1 January 1960 and 31 December 2015, there were 1104 fatal passenger aircraft crashes for which a definitive cause was known (see Table 1). The crashes included are those which had ten or more passengers on board and which resulted in at least one fatality. Military and private aircraft and helicopters were excluded. Where there were multiple causes, the most prominent cause was recorded. The category of pilot error includes those crashes in which weather or a mechanical fault was a strong contributing factor to the pilot error.\n\nTable 1 Number of crashes in each category of primary cause, 1960 to 2015\n\n| category | 1960s | 1970s | 1980s | 1990s | 2000s | 2010s | Total |\n|---|---|---|---|---|---|---|---|\n| pilot error | 150 | 132 | 111 | 140 | 67 | 40 | 640 |\n| mechanical | 52 | 38 | 37 | 36 | 21 | 11 | 195 |\n| weather | 14 | 13 | 11 | 13 | 7 | 5 | 63 |\n| sabotage | 12 | 25 | 23 | 19 | 10 | 6 | 95 |\n| other | 20 | 30 | 23 | 27 | 7 | 4 | 111 |\n| total | 248 | 238 | 205 | 235 | 112 | 66 | 1104 |\n\nTable 2 gives a breakdown of fatal accidents and onboard fatalities by phase of flight over the same period.\n\nTable 2 Fatal crashes and onboard fatalities by phase of flight, 1960 to 2015\n\n| phase of flight | taxi / parked | take-off | initial climb | climb (flaps up) | cruise | descent | initial approach | final approach | landing |\n|---|---|---|---|---|---|---|---|---|---|\n| fatal crashes | 12% | 12% | 8% | 10% | 8% | 4% | 10% | 11% | 25% |\n| onboard fatalities | 0% | 16% | 14% | 13% | 16% | 4% | 12% | 13% | 12% |\n| exposure $ ^{{*}} $ |  | 1% | 1% | 14% | 57% | 11% | 12% | 3% | 1% |\n\n $ ^{*} $ Percentage of flight time estimated for a 1.5 hour flight\n\nSince 1997, the average number of airliner crashes per year has shown a steady and persistent decline, thanks to the continuing efforts of international aviation organisations and the stringent safety standards now in place in the aviation industry. Recent figures reveal that 2016 was the second safest year on record. There were 17 fatal crashes, resulting in 325 deaths, down from 560 in 2015. Given that a total of around 3.5 billion air passengers flew during 2016, that's just one death per 10.8 million travellers.\n\nOnly one year saw fewer deaths – 2013, with 265. But with 3.05 billion passengers boarding a plane that year, that amounts to a very similar number of deaths per passenger (one per 11.5 million). When one discounts sabotage, 2015 was actually the safest year on record. Two crashes, deliberately caused, accounted for the majority of fatalities that year. So it is easy to see that air travel has never been safer.\n\n21 For the most part, the proportions of crashes that were attributable to each category of primary cause have remained broadly constant over the period since 1960.\n\nWhich one of the following represents the clearest exception to this observation?\n\nA The proportion of crashes due to pilot error was unusually high in the 1990s.\n\nB The proportion of crashes due to mechanical failure was unusually low in the 2010s.\n\nC The proportion of crashes due to bad weather decreased steadily over the period.\n\nD The proportion of crashes due to sabotage was unusually low in the 1960s.\n\nE The proportion of crashes due to other causes increased steadily over the period.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 19–22 题共用的材料(导语、两张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q22": {
+  "text": "Questions 19–22 refer to the following information.\n\nBetween 1 January 1960 and 31 December 2015, there were 1104 fatal passenger aircraft crashes for which a definitive cause was known (see Table 1). The crashes included are those which had ten or more passengers on board and which resulted in at least one fatality. Military and private aircraft and helicopters were excluded. Where there were multiple causes, the most prominent cause was recorded. The category of pilot error includes those crashes in which weather or a mechanical fault was a strong contributing factor to the pilot error.\n\nTable 1 Number of crashes in each category of primary cause, 1960 to 2015\n\n| category | 1960s | 1970s | 1980s | 1990s | 2000s | 2010s | Total |\n|---|---|---|---|---|---|---|---|\n| pilot error | 150 | 132 | 111 | 140 | 67 | 40 | 640 |\n| mechanical | 52 | 38 | 37 | 36 | 21 | 11 | 195 |\n| weather | 14 | 13 | 11 | 13 | 7 | 5 | 63 |\n| sabotage | 12 | 25 | 23 | 19 | 10 | 6 | 95 |\n| other | 20 | 30 | 23 | 27 | 7 | 4 | 111 |\n| total | 248 | 238 | 205 | 235 | 112 | 66 | 1104 |\n\nTable 2 gives a breakdown of fatal accidents and onboard fatalities by phase of flight over the same period.\n\nTable 2 Fatal crashes and onboard fatalities by phase of flight, 1960 to 2015\n\n| phase of flight | taxi / parked | take-off | initial climb | climb (flaps up) | cruise | descent | initial approach | final approach | landing |\n|---|---|---|---|---|---|---|---|---|---|\n| fatal crashes | 12% | 12% | 8% | 10% | 8% | 4% | 10% | 11% | 25% |\n| onboard fatalities | 0% | 16% | 14% | 13% | 16% | 4% | 12% | 13% | 12% |\n| exposure $ ^{{*}} $ |  | 1% | 1% | 14% | 57% | 11% | 12% | 3% | 1% |\n\n $ ^{*} $ Percentage of flight time estimated for a 1.5 hour flight\n\nSince 1997, the average number of airliner crashes per year has shown a steady and persistent decline, thanks to the continuing efforts of international aviation organisations and the stringent safety standards now in place in the aviation industry. Recent figures reveal that 2016 was the second safest year on record. There were 17 fatal crashes, resulting in 325 deaths, down from 560 in 2015. Given that a total of around 3.5 billion air passengers flew during 2016, that's just one death per 10.8 million travellers.\n\nOnly one year saw fewer deaths – 2013, with 265. But with 3.05 billion passengers boarding a plane that year, that amounts to a very similar number of deaths per passenger (one per 11.5 million). When one discounts sabotage, 2015 was actually the safest year on record. Two crashes, deliberately caused, accounted for the majority of fatalities that year. So it is easy to see that air travel has never been safer.\n\n22 Which one of the following is assumed by the reasoning in the final paragraph?\n\nA Crashes that are deliberately caused are extremely rare.\n\nB Crashes caused by sabotage are not the fault of the airlines.\n\nC Sabotage does not make air travel less safe.\n\nD Safety should not be judged on numbers of crashes and fatalities.\n\nE We have no need to be concerned about sabotage.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 19–22 题共用的材料(导语、两张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q29": {
+  "text": "Most board games that require two dice are supplied with two identical dice, both having 1 to 6 spots on their faces, with the spots on opposite faces adding up to 7.\n\nThe two dice supplied with one of my board games are different. One has 0 to 5 spots on its faces, with the spots on opposite faces adding up to 5, while the other one has 2 to 7 spots on its faces, with the spots on opposite faces adding up to 9.\n\nThis is a view of both dice together.\n\nWhich one of the following could be another view of one of the dice?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)\n\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原卷为骰子图(两个骰子的整体视图及五个选项图),标 figure;选项为图形,改为(图形选项)",
+  "figure": true
+ },
+ "BMAT-2018-S1-q33": {
+  "text": "Questions 32–35 refer to the following information.\n\nAll proteins are composed entirely of amino acids. Determining the amino acid mixture that is most desirable in a protein food is an issue of debate. Part of the difficulty in determining our need for individual amino acids involves the interconversion of amino acids that is constantly taking place in our body. Researchers simplify amino acid recommendations by dividing the twenty amino acids into three basic categories: dispensable, indispensable, and conditionally indispensable. The five dispensable amino acids are those that our bodies are able to make under all circumstances; the nine indispensable amino acids can never be made by our body and must be consumed through diet; the six conditionally indispensable amino acids can be made by our body under many circumstances but, under other circumstances, cannot be made in a sufficiently reliable way to meet our needs.\n\nOur bodies can take some amino acids and convert them into others, for example phenylalanine into tyrosine and methionine into cysteine. However, these conversions rely on the presence of other molecules, and the ability of our bodies to create and transform amino acids can (as with the examples cited) change at different stages of life and in different states of health.\n\nThe protein content of human breast milk falls from 2.5% immediately after giving birth to 1% eight weeks after birth, but the amino acid mix of the protein content remains the same and has always been regarded as the ideal for infants. For older humans, however, protein quality is provided through a variety of foods, which makes it more difficult to determine the most desirable mixture of amino acids. One proposal for a desirable mixture of amino acids for adults is the mixture found in a hen's egg, based on a recommended daily protein intake of 0.8g per kilogram of body weight.\n\nTable 1 shows the number of milligrams of each amino acid per gram of protein consumed for human milk and a hen's egg.\n\nTable 1\n\n| amino acid | human milk | hen's egg |\n|---|---|---|\n| Try | 17 | 4 |\n| His | 21 | * |\n| Cys+Met | 33 | 13 |\n| Thr | 44 | 19 |\n| Iso | 55 | 42 |\n| Val | 55 | 47 |\n| Lys | 69 | 37 |\n| Phe+Tyr | 94 | 48 |\n| Leu | 96 | 55 |\n\nAn alternative proposal, presented in Table 2, recommends levels for daily amino acid intake based upon a person's age, sex and body weight (in mg/kg of body weight per day).\n\nTable 2\n\n| age/sex | His | Iso | Leu | Lys | Cys +Met | Phe +Tyr | Thr | Try | Val |\n|---|---|---|---|---|---|---|---|---|---|\n| 0 to 6 months | 36 | 88 | 156 | 107 | 59 | 135 | 73 | 28 | 87 |\n| 7 to 12 months | 32 | 43 | 93 | 89 | 43 | 84 | 49 | 13 | 58 |\n| 1 to 3 years | 21 | 28 | 63 | 58 | 28 | 54 | 32 | 8 | 37 |\n| 4 to 8 years | 16 | 22 | 49 | 46 | 22 | 41 | 24 | 6 | 28 |\n| 9 to 13 years male | 17 | 22 | 49 | 46 | 22 | 41 | 24 | 6 | 28 |\n| 9 to 13 years female | 15 | 21 | 47 | 43 | 21 | 38 | 22 | 6 | 27 |\n| 14 to 18 years male | 15 | 21 | 47 | 43 | 21 | 38 | 22 | 6 | 27 |\n| 14 to 18 years female | 14 | 19 | 44 | 40 | 19 | 35 | 21 | 5 | 24 |\n| 19+ years | 14 | 19 | 42 | 38 | 19 | 33 | 20 | 5 | 24 |\n\n $ ^{*} $ not established\n\nAbbreviations: His – histidine, Iso – isoleucine, Leu – leucine, Lys – lysine, Cys+Met – total of cysteine and methionine, Phe+Tyr – total of phenylalanine and tyrosine, Thr – threonine, Try – Tryptophan, Val – valine.\n\nHow much more tryptophan would be recommended for a 20-year-old man weighing 70 kg by the proposed daily desired intake from Table 2 compared to Table 1?\n\nA 1mg\n\nB 126mg\n\nC 196mg\n\nD 336mg\n\nE 591mg",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 32–35 题共用的材料(导语、两张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q34": {
+  "text": "Questions 32–35 refer to the following information.\n\nAll proteins are composed entirely of amino acids. Determining the amino acid mixture that is most desirable in a protein food is an issue of debate. Part of the difficulty in determining our need for individual amino acids involves the interconversion of amino acids that is constantly taking place in our body. Researchers simplify amino acid recommendations by dividing the twenty amino acids into three basic categories: dispensable, indispensable, and conditionally indispensable. The five dispensable amino acids are those that our bodies are able to make under all circumstances; the nine indispensable amino acids can never be made by our body and must be consumed through diet; the six conditionally indispensable amino acids can be made by our body under many circumstances but, under other circumstances, cannot be made in a sufficiently reliable way to meet our needs.\n\nOur bodies can take some amino acids and convert them into others, for example phenylalanine into tyrosine and methionine into cysteine. However, these conversions rely on the presence of other molecules, and the ability of our bodies to create and transform amino acids can (as with the examples cited) change at different stages of life and in different states of health.\n\nThe protein content of human breast milk falls from 2.5% immediately after giving birth to 1% eight weeks after birth, but the amino acid mix of the protein content remains the same and has always been regarded as the ideal for infants. For older humans, however, protein quality is provided through a variety of foods, which makes it more difficult to determine the most desirable mixture of amino acids. One proposal for a desirable mixture of amino acids for adults is the mixture found in a hen's egg, based on a recommended daily protein intake of 0.8g per kilogram of body weight.\n\nTable 1 shows the number of milligrams of each amino acid per gram of protein consumed for human milk and a hen's egg.\n\nTable 1\n\n| amino acid | human milk | hen's egg |\n|---|---|---|\n| Try | 17 | 4 |\n| His | 21 | * |\n| Cys+Met | 33 | 13 |\n| Thr | 44 | 19 |\n| Iso | 55 | 42 |\n| Val | 55 | 47 |\n| Lys | 69 | 37 |\n| Phe+Tyr | 94 | 48 |\n| Leu | 96 | 55 |\n\nAn alternative proposal, presented in Table 2, recommends levels for daily amino acid intake based upon a person's age, sex and body weight (in mg/kg of body weight per day).\n\nTable 2\n\n| age/sex | His | Iso | Leu | Lys | Cys +Met | Phe +Tyr | Thr | Try | Val |\n|---|---|---|---|---|---|---|---|---|---|\n| 0 to 6 months | 36 | 88 | 156 | 107 | 59 | 135 | 73 | 28 | 87 |\n| 7 to 12 months | 32 | 43 | 93 | 89 | 43 | 84 | 49 | 13 | 58 |\n| 1 to 3 years | 21 | 28 | 63 | 58 | 28 | 54 | 32 | 8 | 37 |\n| 4 to 8 years | 16 | 22 | 49 | 46 | 22 | 41 | 24 | 6 | 28 |\n| 9 to 13 years male | 17 | 22 | 49 | 46 | 22 | 41 | 24 | 6 | 28 |\n| 9 to 13 years female | 15 | 21 | 47 | 43 | 21 | 38 | 22 | 6 | 27 |\n| 14 to 18 years male | 15 | 21 | 47 | 43 | 21 | 38 | 22 | 6 | 27 |\n| 14 to 18 years female | 14 | 19 | 44 | 40 | 19 | 35 | 21 | 5 | 24 |\n| 19+ years | 14 | 19 | 42 | 38 | 19 | 33 | 20 | 5 | 24 |\n\n $ ^{*} $ not established\n\nAbbreviations: His – histidine, Iso – isoleucine, Leu – leucine, Lys – lysine, Cys+Met – total of cysteine and methionine, Phe+Tyr – total of phenylalanine and tyrosine, Thr – threonine, Try – Tryptophan, Val – valine.\n\n34 The average newborn baby consumes 560 g of breast milk a day, while the average 8-week-old baby consumes 700 g a day. What is the ratio of the average consumption of isoleucine per day between the average newborn and the average 8-week-old?\n\nA 2:1\n\nB 4:5\n\nC 5:2\n\nD 5:3\n\nE 5:4\n\nF 5:8",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E",
+   "F"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 32–35 题共用的材料(导语、两张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q35": {
+  "text": "Questions 32–35 refer to the following information.\n\nAll proteins are composed entirely of amino acids. Determining the amino acid mixture that is most desirable in a protein food is an issue of debate. Part of the difficulty in determining our need for individual amino acids involves the interconversion of amino acids that is constantly taking place in our body. Researchers simplify amino acid recommendations by dividing the twenty amino acids into three basic categories: dispensable, indispensable, and conditionally indispensable. The five dispensable amino acids are those that our bodies are able to make under all circumstances; the nine indispensable amino acids can never be made by our body and must be consumed through diet; the six conditionally indispensable amino acids can be made by our body under many circumstances but, under other circumstances, cannot be made in a sufficiently reliable way to meet our needs.\n\nOur bodies can take some amino acids and convert them into others, for example phenylalanine into tyrosine and methionine into cysteine. However, these conversions rely on the presence of other molecules, and the ability of our bodies to create and transform amino acids can (as with the examples cited) change at different stages of life and in different states of health.\n\nThe protein content of human breast milk falls from 2.5% immediately after giving birth to 1% eight weeks after birth, but the amino acid mix of the protein content remains the same and has always been regarded as the ideal for infants. For older humans, however, protein quality is provided through a variety of foods, which makes it more difficult to determine the most desirable mixture of amino acids. One proposal for a desirable mixture of amino acids for adults is the mixture found in a hen's egg, based on a recommended daily protein intake of 0.8g per kilogram of body weight.\n\nTable 1 shows the number of milligrams of each amino acid per gram of protein consumed for human milk and a hen's egg.\n\nTable 1\n\n| amino acid | human milk | hen's egg |\n|---|---|---|\n| Try | 17 | 4 |\n| His | 21 | * |\n| Cys+Met | 33 | 13 |\n| Thr | 44 | 19 |\n| Iso | 55 | 42 |\n| Val | 55 | 47 |\n| Lys | 69 | 37 |\n| Phe+Tyr | 94 | 48 |\n| Leu | 96 | 55 |\n\nAn alternative proposal, presented in Table 2, recommends levels for daily amino acid intake based upon a person's age, sex and body weight (in mg/kg of body weight per day).\n\nTable 2\n\n| age/sex | His | Iso | Leu | Lys | Cys +Met | Phe +Tyr | Thr | Try | Val |\n|---|---|---|---|---|---|---|---|---|---|\n| 0 to 6 months | 36 | 88 | 156 | 107 | 59 | 135 | 73 | 28 | 87 |\n| 7 to 12 months | 32 | 43 | 93 | 89 | 43 | 84 | 49 | 13 | 58 |\n| 1 to 3 years | 21 | 28 | 63 | 58 | 28 | 54 | 32 | 8 | 37 |\n| 4 to 8 years | 16 | 22 | 49 | 46 | 22 | 41 | 24 | 6 | 28 |\n| 9 to 13 years male | 17 | 22 | 49 | 46 | 22 | 41 | 24 | 6 | 28 |\n| 9 to 13 years female | 15 | 21 | 47 | 43 | 21 | 38 | 22 | 6 | 27 |\n| 14 to 18 years male | 15 | 21 | 47 | 43 | 21 | 38 | 22 | 6 | 27 |\n| 14 to 18 years female | 14 | 19 | 44 | 40 | 19 | 35 | 21 | 5 | 24 |\n| 19+ years | 14 | 19 | 42 | 38 | 19 | 33 | 20 | 5 | 24 |\n\n $ ^{*} $ not established\n\nAbbreviations: His – histidine, Iso – isoleucine, Leu – leucine, Lys – lysine, Cys+Met – total of cysteine and methionine, Phe+Tyr – total of phenylalanine and tyrosine, Thr – threonine, Try – Tryptophan, Val – valine.\n\n35 The requirement for histidine (based on a hen's egg) has not been quantified beyond infancy, but an estimate has been extrapolated from the ratio of threonine requirements between infants and adults. Which one of the following would be this estimate?\n\nA 8 mg\n\nB 9 mg\n\nC 10 mg\n\nD 11 mg\n\nE 12 mg",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 32–35 题共用的材料(导语、两张表)在本题缺失,补入"
+ },
+ "BMAT-2018-S1-q8": {
+  "text": "Questions 8–11 refer to the following information.\n\nTotal unpaid work in the UK in 2015 had a value of £1000 billion, equivalent to approximately 55% of Gross Domestic Product (GDP), and women carried out an overall average of 60% more unpaid work than men. The only area where men put in more unpaid work hours than women was in the category of 'non-leisure travel'. While the numbers of men and women are roughly equal, women did more unpaid work than men in every age group, from the 25 and under age category to the 56 and over age category. The figures also revealed that people on lower incomes tended to carry out on average more unpaid work than other income brackets.\n\naverage hours of unpaid work done per week in each type of work for men and women, UK 2015\n\n| type of work | female | male |\n|---|---|---|\n| cooking | 7.28 | 3.65 |\n| non-leisure travel | 5.85 | 7.21 |\n| childcare | 4.67 | 1.89 |\n| housework | 4.66 | 2.42 |\n| laundry | 2.40 | 0.39 |\n| volunteering | 0.36 | 0.20 |\n| adult care | 0.32 | 0.23 |\n| total | 25.54 | 15.99 |\n\naverage hours of unpaid work done per week in each age category for men and women, UK 2015\n\n| age | female | male |\n|---|---|---|\n| 25 and under | 12.38 | 8.07 |\n| 26 to 35 | 34.60 | 17.47 |\n| 36 to 45 | 33.26 | 20.87 |\n| 46 to 55 | 26.49 | 18.27 |\n| 56 and over | 25.56 | 17.56 |\n\naverage hours of unpaid work done per week by grouped income level, UK 2015\n\n| type of work | low income | middle income | high income |\n|---|---|---|---|\n| cooking | 5.93 | 5.57 | 4.98 |\n| non-leisure travel | 5.43 | 6.75 | 7.80 |\n| housework | 3.78 | 3.65 | 3.23 |\n| childcare | 3.74 | 3.92 | 2.74 |\n| laundry | 1.42 | 1.54 | 1.22 |\n| adult care | 0.27 | 0.22 | 0.18 |\n| volunteering | 0.24 | 0.31 | 0.21 |\n\n8 In which age category did women do the most unpaid work relative to men?\n\nA 25 and under\n\nB 26 to 35\n\nC 36 to 45\n\nD 46 to 55\n\nE 56 and over",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):补上共用导语“Questions 8–11 refer to the following information.”"
+ },
+ "BMAT-2018-S1-q9": {
+  "text": "Questions 8–11 refer to the following information.\n\nTotal unpaid work in the UK in 2015 had a value of £1000 billion, equivalent to approximately 55% of Gross Domestic Product (GDP), and women carried out an overall average of 60% more unpaid work than men. The only area where men put in more unpaid work hours than women was in the category of 'non-leisure travel'. While the numbers of men and women are roughly equal, women did more unpaid work than men in every age group, from the 25 and under age category to the 56 and over age category. The figures also revealed that people on lower incomes tended to carry out on average more unpaid work than other income brackets.\n\naverage hours of unpaid work done per week in each type of work for men and women, UK 2015\n\n| type of work | female | male |\n|---|---|---|\n| cooking | 7.28 | 3.65 |\n| non-leisure travel | 5.85 | 7.21 |\n| childcare | 4.67 | 1.89 |\n| housework | 4.66 | 2.42 |\n| laundry | 2.40 | 0.39 |\n| volunteering | 0.36 | 0.20 |\n| adult care | 0.32 | 0.23 |\n| total | 25.54 | 15.99 |\n\naverage hours of unpaid work done per week in each age category for men and women, UK 2015\n\n| age | female | male |\n|---|---|---|\n| 25 and under | 12.38 | 8.07 |\n| 26 to 35 | 34.60 | 17.47 |\n| 36 to 45 | 33.26 | 20.87 |\n| 46 to 55 | 26.49 | 18.27 |\n| 56 and over | 25.56 | 17.56 |\n\naverage hours of unpaid work done per week by grouped income level, UK 2015\n\n| type of work | low income | middle income | high income |\n|---|---|---|---|\n| cooking | 5.93 | 5.57 | 4.98 |\n| non-leisure travel | 5.43 | 6.75 | 7.80 |\n| housework | 3.78 | 3.65 | 3.23 |\n| childcare | 3.74 | 3.92 | 2.74 |\n| laundry | 1.42 | 1.54 | 1.22 |\n| adult care | 0.27 | 0.22 | 0.18 |\n| volunteering | 0.24 | 0.31 | 0.21 |\n\n9 Which of the following can be inferred from the data given?\n\n1 Women spend more than twice as much time doing housework as men.\n\n2 Laundry is the type of unpaid work that men spend the least time on relative to women.\n\nA 1 only\n\nB 2 only\n\nC both 1 and 2\n\nD neither 1 nor 2",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文 8–11 题共用的材料(导语、三张表)在本题缺失,补入"
+ },
+ "TSA-2008-S1-q26": {
+  "text": "26 The design of a tile for a bathroom wall is shown below:\n\n![](img_tara/TSA-2008/img_in_image_box_1281_413_1457_582.jpg)\n\nWhich of the following patterns may NOT be made using only a number of identical tiles as shown?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)\n\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题干多出两行乱码(“う”与“30 30 30”),已删除"
+ },
+ "TSA-2011-S1-q13": {
+  "text": "13 The table shows the areas of the countries of the European Union.\n\n| Country | area (sq km) | % of EU area | population density (people/sq km) |\n|---|---|---|---|\n| Austria | 83858 | 1.90 | 99 |\n| Belgium | 30510 | 0.70 | 344 |\n| Bulgaria | 110912 | 2.50 | 70 |\n| Cyprus | 9250 | 0.20 | 84 |\n| Czech Republic | 78866 | 1.80 | 131 |\n| Denmark | 43094 | 1.00 | 126 |\n| Estonia | 45226 | 1.00 | 29 |\n| Finland | 337030 | 7.60 | 16 |\n| France | 643548 | 14.60 | 99 |\n| Germany | 357021 | 8.10 | 231 |\n| Greece | 131940 | 3.00 | 84 |\n| Hungary | 93030 | 2.10 | 108 |\n| Ireland | 70280 | 1.60 | 60 |\n| Italy | 301320 | 6.80 | 196 |\n| Latvia | 64589 | 1.50 | 35 |\n| Lithuania | 65200 | 1.50 | 52 |\n| Luxembourg | 2586 | 0.10 | 181 |\n| Malta | 316 | 0.00 | 1261 |\n| Netherlands | 41526 | 0.90 | 394 |\n| Poland | 312685 | 7.10 | 122 |\n| Portugal | 92931 | 2.10 | 114 |\n| Romania | 238391 | 5.40 | 91 |\n| Spain | 504782 | 11.40 | 87 |\n| Slovakia | 48845 | 1.10 | 111 |\n| Slovenia | 20253 | 0.50 | 99 |\n| Sweden | 449964 | 10.20 | 20 |\n| United Kingdom | 244820 | 5.50 | 246 |\n| European Union | 4422773 | 100.00 |  |\n\nWhat is the minimum number of countries needed to make up at least 50% of the total land area?\n\nA 5\nB 6\nC 7\nD 11\nE 22",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表头残留 HTML 标签 <br>,改为普通文字"
+ },
+ "TSA-2011-S1-q32": {
+  "text": "32 The following table shows the results of a test on smokers trying to quit. Of 240 people, half were given nicotine tablets and half were given a placebo (a substance containing no medication).\n\n|  | Failed to quit | Succeeded in quitting | Total |\n|---|---|---|---|\n| Nicotine | 64 | 56 | 120 |\n| Placebo | 96 | 24 | 120 |\n| Total | 160 | 80 | 240 |\n\nThe researchers assumed that: of the smokers given nicotine tablets, the same proportion would have quit without using them as would have quit using the placebo.\n\nHow many of the smokers that were given the nicotine tablets can the researchers conclude had quit due to taking the tablets?\n\nA 16\nB 32\nC 39\nD 40\nE 45",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题首多出一个 OCR 误识的 X/□ 方格表(原卷无此图),已删除"
+ },
+ "TSA-2011-S1-q50": {
+  "text": "50 I am a member of a book club. Every month I must choose at least one book. All books are sold at a discount of £2.00 on shop prices. I pay a fixed charge for postage regardless of which books I order.\n\nWhich one of the following graphs could show the relationship between the number of books ordered in a month and the total saving on shop prices (allowing for postage charge)?\n\nA (图形选项)\nB (图形选项)\nC (图形选项)\nD (图形选项)\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项为五幅储蓄-订购数量图,页面 B/C/D 显示 [DIAGRAM] 残片,改为图形选项占位并标记有图",
+  "figure": true
+ },
+ "TSA-2011-S1-q6": {
+  "text": "6 To encourage themselves to lose weight, Alma, Brigit, Cara, Danni and Evelyn each put £10 into a pot. They weighed themselves when they began and again at the end of each week. The one who had lost most weight after 4 weeks won the £50. The following chart shows their progress:\n\n|  | Alma | Brigit | Cara | Danni | Evelyn |\n|---|---|---|---|---|---|\n| Starting weight | 71kg | 67kg | 63½kg | 66½kg | 69kg |\n| Weight after week 1 | 67kg | 68kg | 62kg | 67kg | 66kg |\n| Weight after week 2 | 63½kg | 66½kg | 59kg | 62kg | 63½kg |\n| Weight after week 3 | 61kg | 66kg | 58kg | 61½kg | 62kg |\n| Weight after week 4 | 64kg | 62kg | 57½kg | 60kg | 61kg |\n\nwho won the £50?\n\nA Alma\n\nB Brigit\n\nC Cara\n\nD Danni\n\nE Evelyn",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表格中 \\frac{1}{2}kg 原始 LaTeX 直接显示,改为 63½kg 等写法"
+ },
+ "TSA-2011-S1-q7": {
+  "text": "7 Below is a list of the Angevin and Plantagenet kings of England and the dates of their reigns.\n\n| Monarch | Reign |\n|---|---|\n| Henry II | 1154 - 1189 |\n| Richard I | 1189 - 1199 |\n| John | 1199 - 1216 |\n| Henry III | 1216 - 1272 |\n| Edward I | 1272 - 1307 |\n| Edward II | 1307 - 1327 |\n| Edward III | 1327 - 1377 |\n| Richard II | 1377 - 1399 |\n\nWhich of the following bar charts represents a distribution of the lengths of the reigns of these kings?\n\nA (图形选项)\nB (图形选项)\nC (图形选项)\nD (图形选项)\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项为五个柱状图,页面显示 [DIAGRAM] 残片且 C/D/E 串位,改为图形选项占位并标记有图",
+  "figure": true
+ },
+ "TSA-2011-S1-q8": {
+  "text": "8 A man drives off from his house and travels through the village at a constant speed. As he leaves the village behind, his speed increases to a new constant value which he maintains until he reaches a steep hill which slows him down. At the top of the hill the driver stops for a few minutes to admire the view. He realises that he has left his picnic basket at home and so drives rapidly back along his route to collect it.\n\nWhich one of the following graphs best represents the driver's distance from home throughout his journey?\n\nA (图形选项)\nB (图形选项)\nC (图形选项)\nD (图形选项)\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项为五幅距离-时间图(原卷 A-E),页面显示 [DIAGRAM] 残片且缺 E,补 E 文字并标记有图;注意数据库 options 列仅 A-D,E 需主流程补",
+  "figure": true
+ },
+ "TSA-2012-S1-q13": {
+  "text": "A boxed up board game consists of the following components:\n\n- 1 playing board\n\n- 50 question cards\n\n- 6 playing pieces\n\n- 40 money tokens\n\n- 12 bonus tokens\n\n- 2 dice\n\nThe producers of the board game have all the component parts manufactured separately and sent to their warehouse, where they box them up and send them to retailers in cartons of 8 complete games. In their warehouse they have: 98 playing boards; 5,000 question cards; 1,000 playing pieces; 5,000 money tokens; 1,000 bonus tokens and 300 dice.\n\nWhat is the maximum number of cartons of eight games they can dispatch from their warehouse?\n\nA 10\n\nB 11\n\nC 12\n\nD 20\n\nE 83",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):漏掉引导句 \"A boxed up board game consists of...\" 与第一项 1 playing board"
+ },
+ "TSA-2012-S1-q14": {
+  "text": "In a game, circular counters are moved around a board which is a  $ 4 \\times 4 $ grid. There are symbols on some of the squares on the board. At one point in the game, the board looks like this (all the circles represent counters which completely cover any symbol on the square that they occupy):\n\n(图形)\n\nWhich one of the following diagrams could show the layout of the board (not necessarily viewed in the same direction as above)?\n\nA (图形选项)\nB (图形选项)\nC (图形选项)\nD (图形选项)\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题干棋盘与选项 A-E 均为图,页面显示 [DIAGRAM] 残片,改为图形占位并标记有图",
+  "figure": true
+ },
+ "TSA-2012-S1-q23": {
+  "text": "There is a trend in climate discussions to devalue individual solutions such as wind energy, alternative fuels or investment in public transport, because each one by itself is not going to solve the climate crisis. There is not, however, and will never be, any single solution to climate change. When there is no single solution to a problem, attempts to improve the situation should not be dismissed on the grounds that they do not work fully. We should get past the bickering and move towards promoting any single initiative which will have any positive effect on climate change, however small.\n\nWhich one of the following best illustrates the principle underlying the argument?\n\nA Schools should revert to traditional methods of teaching reading as new initiatives have failed to raise standards.\n\nB Scientists, not governments, should be responsible for finding solutions to environmental problems.\n\nC World peace can only be guaranteed by world government.\n\nD Tackling the tide of obesity demands a national campaign to increase the amount of exercise people take even though this may damage their joints.\n\nE Curfews should not be rejected on the grounds that on their own they will not solve the problem of anti-social behaviour.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题首多出上一题(第22题)选项E的两句话,已删除"
+ },
+ "TSA-2012-S1-q31": {
+  "text": "31 The mock examination and actual GCSE results for English in one year at Morgan College are shown below:\n\n| | Actual GCSE: Grades A-C | Actual GCSE: Other Grades |\n|---|---|---|\n| Mock GCSE: Grades A-C | 90 | 25 |\n| Mock GCSE: Other grades | 25 | 60 |\n\nWhat percentage of pupils had their GCSE results correctly predicted by their mock examination results?\n\nA 25.0%\nB 50.0%\nC 57.5%\nD 60.0%\nE 75.0%",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表格结构错位(表头与数据列对不上),按原卷重排为 2x2 数据表"
+ },
+ "TSA-2012-S1-q7": {
+  "text": "Kingsbury School Examination Schedule for the first week of June\n\n| Monday | Tuesday | Wednesday | Thursday | Friday |\n|---|---|---|---|---|\n| History 3hrs | English Lit 3hrs | Maths 2hrs | Economics 2hrs | Maths 2hrs |\n| English Lit 2 hrs | Physics 3hrs | Latin 2hrs | History 2hrs | Latin 2hrs |\n| lunch | lunch | lunch | lunch | lunch |\n| Geography 2hrs 30mins | Chemistry 3hrs | English Lang 2hrs 30mins | Economics 2hrs 30mins | - |\n| Biology 1hr 30mins | French 2hrs | Spanish 2hrs | German 2hrs | - |\n\nAll exams take place in the school hall. All morning exams start at 9am, all afternoon exams start at 2pm. Each session (morning or afternoon) must have at least one male and one female invigilator. Each examination must be invigilated by one teacher of that subject. Each person can only invigilate once a day.\n\nOf the male teachers, Ian teaches Economics and German, Mike teaches French and German, and Keith teaches French and Spanish. Of the female teachers, Marjorie teaches Maths and English, Susan teaches Spanish and Latin, and Jenny teaches English and History,\n\nWho will invigilate on Wednesday afternoon?\n\nA Ian and Marjorie\n\nB Jenny and Mike\n\nC Keith and Jenny\n\nD Marjorie and Keith\n\nE Mike and Susan",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表格单元格残留 <br> 标签改为空格;选项 A 的 Ian 误识为 lan"
+ },
+ "TSA-2014-S1-q12": {
+  "text": "David is planning a holiday for himself and his wife. He has a budget of £2,000 but wishes to retain about £600 for spending money. Below is a table showing different holiday possibilities.\n\n|  | Return flight | Ferry and train | Car hire and fuel | Hotel accommodation |\n|---|---|---|---|---|\n| Moscow | £300 per person | £250 per person | N/A | £120 per night for 2 only |\n| Cyprus | £195 per person | N/A | N/A | £42.50 per person per night |\n| Barcelona | £215 per person | £210 per person | N/A | £370 per week per person |\n| Paris | £80 per person | £78 per person | N/A | £180 per night per room for 2 |\n| Scotland | N/A | N/A | £40 per day | £80 per night for 2 only |\n| Rome | £110 per person | £220 per person | N/A | £120 per night for 2 only |\n\nWhich one of the following holiday possibilities leaves him with as near to £600 as possible?\n\nA Ten nights in Moscow, travelling by ferry and train.\n\nB Twelve nights in Cyprus.\n\nC Twelve days and nights in Scotland.\n\nD Twelve nights in Rome travelling by plane.\n\nE Seven nights in Paris travelling by plane.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 E 缺失(Seven nights in Paris travelling by plane.),已补上。"
+ },
+ "TSA-2014-S1-q13": {
+  "text": "The table below shows the energy values for the main foods used by volunteer wardens at a wild bird reserve to prepare a variety of feed mixes.\n\n| Food | Energy per 100 g (calories) |\n|---|---|\n| mealworms | 150 |\n| peanuts | 560 |\n| apples | 350 |\n| oats | 370 |\n| niger seed | 480 |\n| cheese | 400 |\n| sunflower seeds | 500 |\n| raisins | 300 |\n| sunflower hearts | 600 |\n| suet | 800 |\n\nA trainee volunteer has been asked to prepare a sample of a special mix to provide exactly 5,000 calories. He has weighed out the first four ingredients but cannot read the required mass of the final ingredient because of an ink blot. This is what has been weighed out so far:\n\nmealworms 150 g, apple 150 g, raisins 250 g, suet 125 g\n\nWhat mass of sunflower seeds must be used to successfully complete the task?\n\nA 500 g\nB 520 g\nC 540 g\nD 560 g\nE 680 g",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题首混入上一题(Q12)的选项 E 文字,已删除。"
+ },
+ "TSA-2014-S1-q14": {
+  "text": "Sue takes her dog Freya to the park. She throws a stick for Freya to fetch. Freya runs to collect the stick and bring it back to Sue. While Freya is collecting the stick, Sue walks slowly towards Freya.\n\nWhich one of the following graphs could correctly show the distance between Sue and Freya?\n\nA (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_232_243_618_499.jpg)\n\nB (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_676_245_1081_501.jpg)\n\nC (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_230_525_617_783.jpg)\n\nD (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_662_524_1083_783.jpg)\n\nE (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_228_807_615_1065.jpg)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 D 缺少字母标记行,已补上 D (图形选项)。"
+ },
+ "TSA-2014-S1-q17": {
+  "text": "There was a 17 per cent decline in public library use in the UK between 1993 and 2003 according to a report by CABE (The Commission for Architecture and the Built Environment). They suggest this is not due to a lack of public interest in reading books. Rather it is the authoritarian style and image of libraries with their rules about silence and fines for late returns of books. Those few libraries that have moved away from this image such as the one in Bournemouth, which provide cafes and 'chill-out' zones, have seen a 40 per cent increase in library use. Therefore it is clear that the future of the function of the UK library service will be more assured if all libraries follow this lead.\n\nWhich one of the following, if true, would most strengthen the above argument?\n\nA The decline in public library use has not occurred in other European countries.\n\nB The main users of public libraries are school children looking for reference books.\n\nC Bookshops have experienced an increase in sales since 1993.\n\nD The use of computers in libraries has increased over the same period.\n\nE Few people who use new-style libraries use them to borrow books.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 E 缺失(Few people who use new-style libraries use them to borrow books.),已补上。"
+ },
+ "TSA-2014-S1-q18": {
+  "text": "A main road crosses a side road and the junction is controlled by a set of traffic lights. The normal sequence is for the lights to be green for 25 seconds on the main road followed by 15 seconds of green for the side road. There is also a pedestrian phase in the lights when all the road lights are red. If a pedestrian presses a button to cross any of the roads then, after the side road lights have been green, the pedestrian lights turn green for 10 seconds. Following a pedestrian phase, the main road green period is increased to 35 seconds to clear the build-up. Whenever any of the lights change there is a two-second period when all lights are red. The time on amber is included in the green times given above.\n\nWhat is the longest time traffic on the side road will have to wait for their lights to go green?\n\nA 19 seconds\nB 29 seconds\nC 45 seconds\nD 51 seconds\nE 66 seconds",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题首混入上一题(Q17)的选项 E 文字,已删除。"
+ },
+ "TSA-2014-S1-q25": {
+  "text": "Chris is an actor and recently feels he has become overweight. He aims to lose at least 7.5 lbs over the next 10 weeks. He decides he is able to walk the following number of miles over each of the next ten weeks:\n\nMondays – 5 miles\n\nWednesdays – 5 miles\n\nSaturdays – 8 miles\n\nSundays – 8 miles\n\nThe table below shows calories burned per mile by walking at various speeds.\n\n| Walking speed \\ Starting weight | 100lb | 120lb | 140lb | 160lb | 180lb | 200lb | 220lb | 250lb | 275lb |\n|---|---|---|---|---|---|---|---|---|---|\n| 2.5mph | 55 | 65 | 76 | 87 | 98 | 109 | 120 | 136 | 150 |\n| 3.0mph | 53 | 64 | 74 | 85 | 95 | 106 | 117 | 133 | 146 |\n| 3.5mph | 52 | 62 | 73 | 83 | 94 | 104 | 114 | 130 | 143 |\n| 4.0mph | 57 | 68 | 80 | 91 | 102 | 114 | 125 | 142 | 156 |\n| 4.5mph | 64 | 76 | 89 | 102 | 115 | 127 | 140 | 159 | 175 |\n| 5.0mph | 73 | 87 | 102 | 116 | 131 | 145 | 160 | 182 | 200 |\n\nNB: A lb in fat equals 3500 calories\n\nWhat is the slowest speed he needs to walk at to lose at least 7.5 lbs if he starts at 180 lbs?\n\nA 2.5 mph\n\nB 3.0 mph\n\nC 4.0 mph\n\nD 4.5 mph\n\nE 5.0 mph",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):卡路里表格列错位(体重行被当成数据行),已按原卷重排为标准表格,数值逐项核对无误。"
+ },
+ "TSA-2014-S1-q26": {
+  "text": "The bar chart shows the amount of money in the savings accounts of three friends at the start of the year.\n\nAccount balance\n\n![](img_tara/TSA-2014/img_in_chart_box_174_211_528_557.jpg)\n\nSince then, they have all spent the same amount of money from their accounts and the amount in Belinda's account has halved.\n\nWhich one of the following pie charts could represent the amounts of money in the accounts now?\n\nA (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_252_755_527_947.jpg)\n\nB (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_583_752_917_945.jpg)\n\nC (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_251_1000_527_1195.jpg)\n\nD (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_599_991_917_1192.jpg)\n\nE (图形选项)\n\n![](img_tara/TSA-2014/img_in_chart_box_253_1251_526_1435.jpg)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 B 缺少字母标记行,已补上 B (图形选项)。"
+ },
+ "TSA-2014-S1-q37": {
+  "text": "My current membership of the squash club is about to expire and so I wish to renew it. The options available to me are given in the table below and have not changed since I joined as a new member six months ago (a change in membership type counts as a renewal, not a new member).\n\n| Membership type | Length | Extras | New member (£) | Renewal price (£) |\n|---|---|---|---|---|\n| Bronze | 1 year | none | 10 | 8 |\n| Silver | 6 months | free locker | 25 | 18 |\n| Silver | 1 year | free locker | 45 | 28 |\n| Gold | 6 months | free locker<br>free competition entry | 40 | 32 |\n| Gold | 1 year | free locker<br>free competition entry | 75 | 52 |\n\nI am currently a Gold member, but I do not want to enter competitions any more as I play only once a month. I do need a locker when I visit and the normal cost to hire a locker is £2 per visit. I want to choose a membership that will give me the smallest possible total cost for a full year.\n\nWhat will be the difference between the amount that I will pay now and the amount I paid six months ago?\n\nA I will pay £32 less.\n\nB I will pay £30 less.\n\nC I will pay £12 less.\n\nD I will pay £8 less.\n\nE I will pay £5 more.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):价格表 1 year 两行的会员类型列缺失、数据整体左移一列,已补全 Silver/Gold 并对齐,数值核对无误。"
+ },
+ "TSA-2014-S1-q43": {
+  "text": "Fred is carrying out a three-year biological survey which depends on anglers sending in scale samples of fish that they catch. The survey covers five rivers and Fred has set a target for the numbers of sets of fish scales returned from each river each year. Unfortunately, by the end of the second year the number of scale sets returned has fallen well short of target.\n\n| River | Annual target of scale sets | Scale sets obtained Year 1 | Scale sets obtained Year 2 | Number of anglers sending scale sets Year 1 | Number of anglers sending scale sets Year 2 | Percentage of target achieved Year 1 | Percentage of target achieved Year 2 |\n|---|---|---|---|---|---|---|---|\n| Dark | 250 | 77 | 125 | 5 | 30 | 31 | 50 |\n| Fare | 100 | 85 | 35 | 20 | 8 | 85 | 35 |\n| Gwynt | 500 | 71 | 132 | 19 | 2 | 14 | 26 |\n| Tine | 250 | 105 | 66 | 43 | 19 | 42 | 26 |\n| Yarrow | 250 | 80 | 150 | 18 | 25 | 32 | 60 |\n\nThe anglers who participated in the survey sent scales from all the fish they caught.\n\nFor which river was the average catch per angler sending in scales the highest in any one year?\n\nA Dark\n\nB Fare\n\nC Gwynt\n\nD Tine\n\nE Yarrow",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题干 \"Red\" 应为 \"Fred\"(OCR 错字);表头两层结构错位,已改为单行表头(各指标分 Year 1/Year 2),数值逐项核对无误。"
+ },
+ "TSA-2014-S1-q46": {
+  "text": "The level of light pollution must be low in order to be able to observe the moon, planets and stars. My house is in the darkness of the countryside so stargazing will always be possible from my back garden.\n\nWhich one of the following most closely parallels the reasoning used in the above argument?\n\nA My train must be on time if I am going to catch my plane. The train is now half an hour late so I will not get to the airport on time.\n\nB My doctor has told me that contact with a sufferer is necessary if someone is to catch flu. Ten members of my class now have flu so I am bound to catch it.\n\nC We need to have an exceptionally high tide on this part of the coast for flooding to occur. There has not been a flood so therefore there cannot have been exceptionally high tides.\n\nD Boiling water is essential to make an excellent cup of tea. The water used to make my aunt's tea was not hot enough so she did not enjoy it.\n\nE The finest wines in the world come from France. I buy French wines to ensure that I always have the best.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 E 缺失(The finest wines in the world come from France...),已补上。"
+ },
+ "TSA-2014-S1-q47": {
+  "text": "Although boxing is unacceptable, other risky sports are not. When people get injured or killed in horse sports, motor sports or while climbing, yachting or skydiving it is because things have gone horribly wrong. When people get killed in boxing it is because things have gone horribly right. The aim of any boxing match is to cause more permanent brain damage to your opponent than you yourself sustain.\n\nWhich one of the following best illustrates the principle underlying the argument?\n\nA Laws are made to protect people from risks of which they are not fully aware.\n\nB Medical treatment should be limited to those who do not pursue lifestyles which cause medical conditions.\n\nC Spectator events where people take pleasure in others' misfortune should be banned.\n\nD We should not make bonfire parties illegal in the way that arson is.\n\nE Different attitudes to risk in life can be expressed in sport.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题首混入上一题(Q46)的选项 E 文字,已删除。"
+ },
+ "TSA-2017-S1-q13": {
+  "text": "The following table summarises the results of all the matches played last season in a football league. (The home team's score is always given first.) Each team plays every other team in the league twice; once at home and once away.\n\n| home / away | Amazon | Danube | Ganges | Hudson | Nile | Orinoco | Rhine | Tigris | Volga | Yangtze |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n| Amazon |  | 2–2 | 2–1 | 4–0 | 1–1 | 2–1 | 1–3 | 2–0 | 1–2 | 1–1 |\n| Danube | 1–3 |  | 1–4 | 2–1 | 2–3 | 0–1 | 2–1 | 0–0 | 2–5 | 0–1 |\n| Ganges | 2–2 | 3–1 |  | 2–0 | 1–2 | 2–3 | 1–3 | 1–2 | 3–1 | 2–0 |\n| Hudson | 1–2 | 0–1 | 2–1 |  | 0–1 | 1–3 | 2–1 | 1–0 | 1–4 | 0–0 |\n| Nile | 2–0 | 3–0 | 1–2 | 3–1 |  | 1–0 | 3–3 | 2–3 | 2–0 | 1–2 |\n| Orinoco | 4–1 | 0–0 | 3–1 | 2–0 | 3–2 |  | 2–2 | 3–1 | 1–2 | 2–0 |\n| Rhine | 2–3 | 2–1 | 1–1 | 3–0 | 1–2 | 2–0 |  | 3–0 | 2–2 | 3–1 |\n| Tigris | 1–1 | 2–2 | 1–3 | 1–0 | 2–0 | 0–2 | 0–3 |  | 2–4 | 1–0 |\n| Volga | 3–2 | 3–0 | 2–1 | 4–1 | 2–2 | 1–0 | 1–2 | 4–0 |  | 1–1 |\n| Yangtze | 0–2 | 1–2 | 2–0 | 2–1 | 3–1 | 0–3 | 0–2 | 2–0 | 1–3 |  |\n\n\nWhich was the only team that scored at least one goal in every match they played last season?\n\nA Amazon\n\nB Ganges\n\nC Nile\n\nD Rhine\n\nE Volga",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表格列错位:表头与各行比标签多一列,已改为主队/客队 × 10 队的对齐表格,数值逐格核对原卷无误。"
+ },
+ "TSA-2017-S1-q19": {
+  "text": "The heptathlon is a seven-event athletics competition. In each event the time or distance recorded is converted into a points score. This is the scoring table that is used for the high jump:\n\n| performance | points | performance | points | performance | points | performance | points |\n| --- | --- | --- | --- | --- | --- | --- | --- |\n| 2.19 | 1498 | 1.89 | 1093 | 1.59 | 724 | 1.29 | 399 |\n| 2.18 | 1484 | 1.88 | 1080 | 1.58 | 712 | 1.28 | 389 |\n| 2.17 | 1470 | 1.87 | 1067 | 1.57 | 701 | 1.27 | 379 |\n| 2.16 | 1456 | 1.86 | 1054 | 1.56 | 689 | 1.26 | 369 |\n| 2.15 | 1442 | 1.85 | 1041 | 1.55 | 678 | 1.25 | 359 |\n| 2.14 | 1428 | 1.84 | 1029 | 1.54 | 666 | 1.24 | 350 |\n| 2.13 | 1414 | 1.83 | 1016 | 1.53 | 655 | 1.23 | 340 |\n| 2.12 | 1400 | 1.82 | 1003 | 1.52 | 644 | 1.22 | 331 |\n| 2.11 | 1386 | 1.81 | 991 | 1.51 | 632 | 1.21 | 321 |\n| 2.10 | 1373 | 1.80 | 978 | 1.50 | 621 | 1.20 | 312 |\n| 2.09 | 1359 | 1.79 | 966 | 1.49 | 610 | 1.19 | 302 |\n| 2.08 | 1345 | 1.78 | 953 | 1.48 | 599 | 1.18 | 293 |\n| 2.07 | 1332 | 1.77 | 941 | 1.47 | 588 | 1.17 | 284 |\n| 2.06 | 1318 | 1.76 | 928 | 1.46 | 577 | 1.16 | 275 |\n| 2.05 | 1305 | 1.75 | 916 | 1.45 | 566 | 1.15 | 266 |\n| 2.04 | 1291 | 1.74 | 903 | 1.44 | 555 | 1.14 | 257 |\n| 2.03 | 1278 | 1.73 | 891 | 1.43 | 544 | 1.13 | 248 |\n| 2.02 | 1264 | 1.72 | 879 | 1.42 | 534 | 1.12 | 239 |\n| 2.01 | 1251 | 1.71 | 867 | 1.41 | 523 | 1.11 | 231 |\n| 2.00 | 1237 | 1.70 | 855 | 1.40 | 512 | 1.10 | 222 |\n| 1.99 | 1224 | 1.69 | 842 | 1.39 | 502 | 1.09 | 214 |\n| 1.98 | 1211 | 1.68 | 830 | 1.38 | 491 | 1.08 | 205 |\n| 1.97 | 1198 | 1.67 | 818 | 1.37 | 481 | 1.07 | 197 |\n| 1.96 | 1184 | 1.66 | 806 | 1.36 | 470 | 1.06 | 188 |\n| 1.95 | 1171 | 1.65 | 795 | 1.35 | 460 | 1.05 | 180 |\n| 1.94 | 1158 | 1.64 | 783 | 1.34 | 449 | 1.04 | 172 |\n| 1.93 | 1145 | 1.63 | 771 | 1.33 | 439 | 1.03 | 164 |\n| 1.92 | 1132 | 1.62 | 759 | 1.32 | 429 | 1.02 | 156 |\n| 1.91 | 1119 | 1.61 | 747 | 1.31 | 419 | 1.01 | 149 |\n| 1.90 | 1106 | 1.60 | 736 | 1.30 | 409 | 1.00 | 141 |\n\nDaphne is competing in a heptathlon competition and has just beaten her previous best high jump performance by 18 cm. This has increased her best points score in the high jump by 214.\n\nWhat is Daphne's new personal-best high jump performance?\n\nA 1.09 metres\nB 1.44 metres\nC 1.74 metres\nD 1.89 metres\nE 2.09 metres",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):表格列错位:每行第一对数值合在一格,表头 5 个而非 8 个,已拆成 4 组 performance | points 的 8 列。"
+ },
+ "TSA-2017-S1-q20": {
+  "text": "After the financial crash there were fewer new car registrations in the UK in 2012 than there were in 2007. The monthly figures for new car registrations for both years are given in the table below.\n\n| Jan 2012 | 124.1 | Jan 2007 | 161.2 |\n|---|---|---|---|\n| Feb 2012 | 61.4 | Feb 2007 | 71.5 |\n| Mar 2012 | 367.9 | Mar 2007 | 445.3 |\n| Apr 2012 | 138.0 | Apr 2007 | 167.9 |\n| May 2012 | 159.0 | May 2007 | 184.8 |\n| Jun 2012 | 185.5 | Jun 2007 | 220.6 |\n| Jul 2012 | 141.7 | Jul 2007 | 175.3 |\n| Aug 2012 | 57.5 | Aug 2007 | 76.2 |\n| Sep 2012 | 359.0 | Sep 2007 | 419.1 |\n| Oct 2012 | 149.7 | Oct 2007 | 168.0 |\n| Nov 2012 | 150.3 | Nov 2007 | 160.5 |\n| Dec 2012 | 123.1 | Dec 2007 | 139.8 |\n\nWhich one of the following charts best represents the monthly differences between new car registrations for these two years?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):原文选项为柱状图,原文本中 A/B 为占位 [DIAGRAM] 且 C/D 为空,统一改为图形选项;去掉开头多余的 \"0\"。选项表中只有 A-D,原卷 E 图未在题库中,需另行核对。"
+ },
+ "TSA-2020-S1-q35": {
+  "text": "35 There are countless ways to get rich in this world. Those who do not achieve wealth either do not find it important or simply have bad luck. Jane is poor but she has always valued material goods, so she must have been unlucky in her life.\n\nWhich one of the following most closely parallels the reasoning used in the above argument?\n\nA Anyone can become prosperous by working hard. Tom is not wealthy so he must not have been working hard.\n\nB There are numerous ways to become famous. Among others, one can learn to play a musical instrument very well, study to become a world-class scientist or just upload a funny video of oneself to the internet. Mike is not famous because he has not done any of these.\n\nC To make a cake sweet, one can use either sugar or honey. This cake is not sweet because it was made with neither sugar nor honey.\n\nD Two paths lead to the lake: one through the forest and another over the mountain. You must have arrived at the lake by the forest route because you were not on the mountain path.\n\nE It takes a lot of luck to win the lottery. I have never won the lottery, so I must not have been lucky so far.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 E 缺失，原卷 E 为“It takes a lot of luck…”，误放在 q36 题干开头，已移到此处；另需在数据库 options 补上 E（当前 options 只有 A–D，页面不会显示 E）"
+ },
+ "TSA-2020-S1-q36": {
+  "text": "![](img_tara/TSA-2020/img_in_image_box_416_132_829_403.jpg)\n\n12.5 metres\n\nThe whole of my garden is a patio, which is 12.5 by 10.5 metres. I intend to resurface my patio. I would like my patio to include a 25cm border of bricks and the remainder of the patio inside the border to be covered with paving slabs.\n\nThe bricks I will use for the border are 25 cm x 25 cm and the paving slabs I will use for the remainder are 30 cm x 20 cm.\n\nWhat is the total number of bricks and paving slabs that I will need for my patio?\n\nA 2000\nB 2180\nC 2184\nD 2268\nE 2272",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除题干开头误入的 q35 选项 E 文字"
+ },
+ "TSA-2020-S1-q38": {
+  "text": "At a smoothie factory, a tropical smoothie mixture contains banana, orange and apple in the proportions shown in the pie chart below.\n\nThe chief taster requested a new recipe, in which every litre contained 10% more banana than was present in the original mixture, and 10% less orange than was present in the original mixture. This change also affected the proportion of apple in the mixture.\n\nWhich one of the following graphs shows the content of the new smoothie mixture?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)\n\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):题干与选项为图（饼图），原文本含 [DIAGRAM] 占位与错乱的选项字母，已重写为完整题干，选项 A–E 均为图形选项；题干饼图需显示；另需在数据库 options 补上 C、D、E（当前只有 A、B，页面不会显示 C–E）",
+  "figure": true
+ },
+ "TSA-2020-S1-q49": {
+  "text": "One often hears that this or that action is justified or unjustified morally on the grounds that it is 'natural' or 'unnatural'. To say that something is 'natural' is really just to say that this is how things happen to be. Yet just because something happens to be the case, it doesn't mean that it ought to be the case. After all, there are plenty of things in life that are natural – for instance illness and disease, droughts and earthquakes; even emotions such as aggression, jealousy, anger and a desire for revenge. This does not mean that they are to be encouraged or welcomed. To say of something that it is natural, or unnatural, is not to provide anything by way of moral justification.\n\nWhich one of the following illustrates the principle used in the above argument?\n\nA The fact that human beings have a tendency to be competitive does not mean that this should be encouraged in schools.\n\nB The fact that someone believes that human beings ought always to behave ethically does not mean that they actually will.\n\nC The fact that some countries have laws protecting freedom of speech does not mean that all countries should.\n\nD The fact that some things in life are clearly unpleasant does not mean that life itself is not worth living.\n\nE The fact that someone thinks a particular person is not to be trusted does not mean that the person in question is indeed untrustworthy.",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):删除多余的 Markdown 标题符号 “##”"
+ },
+ "TSA-2020-S1-q50": {
+  "text": "The table below shows the medal count by the top five teams in a recent Mini Olympics.\n\n| teams | gold medals | silver medals | bronze medals |\n|---|---|---|---|\n| Amber | 8 | 7 | 6 |\n| Emerald | 5 | 10 | 6 |\n| Garnet | 6 | 6 | 10 |\n| Jade | 6 | 5 | 5 |\n| Sapphire | 11 | 8 | 9 |\n\nEach team calculated the proportion of their medals that were gold.\n\nWhich one of the following charts, with appropriate labelling, shows this proportion for each of the five teams?\n\nA (图形选项)\n\nB (图形选项)\n\nC (图形选项)\n\nD (图形选项)\n\nE (图形选项)",
+  "options": [
+   "A",
+   "B",
+   "C",
+   "D",
+   "E"
+  ],
+  "note": "对照原卷(2026-10 逐题核对):选项 A–E 为图表，原文本为 [DIAGRAM] 占位，已改为图形选项写法",
   "figure": true
  }
 }
