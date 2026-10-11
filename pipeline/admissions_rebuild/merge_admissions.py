@@ -19,7 +19,8 @@ Schema: two new columns are added if missing —
 
 Hand corrections checked against the papers (text_fixes.json: a question whose
 text went to its neighbour, option fragments of the previous question) replace
-the split's text and options before anything else.
+the split's text and options before anything else. "figure": true marks a question
+whose figure is only in its page image (has_diagram = 1, so pages show the image).
 
 Text is converted from Paddle's HTML to what practice.html already renders:
 HTML tables become pipe tables, <img> tags become ![](img_tara/...) lines
@@ -124,7 +125,7 @@ def apply_fix(q, fixes):
     """The hand correction from text_fixes.json, if there is one."""
     f = fixes.get(qid_of(q))
     if f:
-        q = dict(q, text=f["text"], options=f["options"])
+        q = dict(q, text=f["text"], options=f["options"], figure=f.get("figure", False))
     return q
 
 
@@ -204,7 +205,7 @@ def main():
             "ms_total": 1, "totals_agree": 1,
             "image": image, "qp_pdf": pdf, "ms_pdf": None,
             "qp_pages": json.dumps([p - 1 for p in q["pages"]]),
-            "has_diagram": int("![](" in text),
+            "has_diagram": int("![](" in text or bool(q.get("figure"))),
             "q_quality": "ok", "ms_quality": "ok",
             "subtopic": q.get("subtopic"), "subtopic_name": q.get("subtopic_name"),
             "answer": ans, "qtype": qtype,

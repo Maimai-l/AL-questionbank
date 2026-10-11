@@ -16,6 +16,62 @@ from lib import paths  # noqa: E402
 
 EXAMS = {"TMUA": ("TMUA", "Paper", 75), "TSA": ("TARA", "Section", 90), "BMAT": ("TARA", "Section", 60)}
 OPT = re.compile(r"^\s*([A-H])(\s|$)")
+MATH = re.compile(r"(\$\$.*?\$\$|\$[^$]*\$|!\[[^\]]*\]\([^)]*\)|`[^`]*`)", re.S)
+SYM = {"≤": r"\leq ", "≥": r"\geq ", "≠": r"\neq ", "−": "-", "×": r"\times ", "π": r"\pi "}
+TOK = r"(?:\d+(?:\.\d+)?[a-z]?(?![A-Za-z])|[A-Za-z]\([^()$]{1,8}\)|[A-Za-z](?![A-Za-z'’(])|\([^()$]{1,12}\))"
+EXPR = re.compile(r"(?<![\w$\\])-?" + TOK + r"(?:\s*[=<>≤≥≠+\-−]\s*-?" + TOK + r")+(?![\w$])")
+VAR = re.compile(r"(?<![\w$\\'’(-])([b-zB-HJ-Z])(?![\w$'’()-])")
+COORD = re.compile(r"(?<![\w$])\(\s*-?\d+(?:\.\d+)?\s*,\s*-?\d+(?:\.\d+)?\s*\)")
+NUM = re.compile(r"^\s*[-−]\s*\d+(?:\.\d+)?\s*$")
+
+
+USD = "\ue000"   # a dollar sign that is money, not maths; the page shows it as "$"
+
+
+def money(text):
+    """TSA/BMAT write prices as $100: mark those dollars so KaTeX does not pair them
+    up as maths. A "$" is money when a digit follows it directly, or when the text up to
+    the next "$" is ordinary words; $$…$$ and $ x^{2} $ stay maths."""
+    out, i, t = [], 0, text or ""
+    while i < len(t):
+        if t.startswith("$$", i):
+            j = t.find("$$", i + 2)
+            j = len(t) if j < 0 else j + 2
+            out.append(t[i:j]); i = j
+            continue
+        if t[i] != "$":
+            out.append(t[i]); i += 1
+            continue
+        j = t.find("$", i + 1)
+        inner = t[i + 1:j] if j > 0 else t[i + 1:]
+        if j < 0 or re.match(r"\d", t[i + 1:i + 2]) or (
+                not re.search(r"[\\^_{}]", inner) and re.search(r"[A-Za-z]{3,}", inner)):
+            out.append(USD); i += 1
+            continue
+        out.append(t[i:j + 1]); i = j + 1
+    return "".join(out)
+
+
+def tidy(text):
+    """TMUA text written outside $…$ (x = 1, -2 < c < 7, values of x) set as maths, so
+    it reads like the paper; only for the practice page, the bank keeps its text."""
+    out = []
+    for i, part in enumerate(MATH.split(text or "")):
+        if i % 2:
+            out.append(part)
+            continue
+        def wrap(m):
+            t = m.group(0)
+            for k, v in SYM.items():
+                t = t.replace(k, v)
+            return "$" + t.strip() + "$"
+        if NUM.match(part):
+            return "$" + re.sub(r"[-−]\s*", "-", part.strip()) + "$"
+        part = COORD.sub(wrap, EXPR.sub(wrap, part))
+        out.append(VAR.sub(lambda m: "$" + m.group(1) + "$", part) if "$" not in part else
+                   "".join(VAR.sub(lambda m: "$" + m.group(1) + "$", x) if j % 2 == 0 else x
+                           for j, x in enumerate(re.split(r"(\$[^$]*\$)", part))))
+    return "".join(out)
 
 
 def stem(text, letters):
@@ -52,9 +108,10 @@ def main(out=os.path.join(paths.DATA, "adm_practice.js")):
             q["img"] = r["image"]
             images += 1
         else:
-            q["s"] = s
+            fix = tidy if r["syllabus"] == "TMUA" else money
+            q["s"] = fix(s)
             q["img0"] = r["image"]
-            q["o"] = [opts.get(k, "") for k in letters]
+            q["o"] = [fix(opts.get(k, "")) for k in letters]
         qs[r["id"]] = q
     data = {"papers": sorted(papers.values(), key=lambda p: (p["exam"], p["test"], -p["year"], p["title"])),
             "topics": topics, "q": qs}

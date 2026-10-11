@@ -209,6 +209,9 @@ table.nt{width:100%;border-collapse:collapse;color:#000;font-size:20px}
       <svg class="ico" viewBox="0 0 20 20"><path d="M10 3a5 5 0 0 0-3 9v2h6v-2a5 5 0 0 0-3-9z" fill="none" stroke="#fff" stroke-width="1.4"/><path d="M8 16h4M8.5 18h3" stroke="#fff" stroke-width="1.4"/><path d="M2 8h2M16 8h2M4 3l1.4 1.4M16 3l-1.4 1.4" stroke="#fff" stroke-width="1.2"/></svg>
       <span>E<u>x</u>plain Answer</span></button>
     <div style="display:flex">
+      <button class="bbtn" id="pauseBtn" title="Pause the timer and hide the question">
+        <svg class="ico" viewBox="0 0 20 20"><path d="M7 4v12M13 4v12" stroke="#fff" stroke-width="2.6"/></svg>
+        <span>P<u>a</u>use</span></button>
       <button class="bbtn" id="origBtn" title="Show the question as printed"><span><u>O</u>riginal</span></button>
       <button class="bbtn" id="flagBtn">
         <svg class="ico" viewBox="0 0 20 20"><path d="M5 18V3" stroke="#3a3a10" stroke-width="1.6"/><path id="flagPath" d="M5.5 3.5c3-1.5 5 1.5 9 0v7c-4 1.5-6-1.5-9 0z" fill="none" stroke="#f3e34a" stroke-width="1.6"/></svg>
@@ -258,6 +261,15 @@ table.nt{width:100%;border-collapse:collapse;color:#000;font-size:20px}
       <th data-k="n">Question # <span class="arr">▲</span></th><th data-k="s" style="width:27%">Status <span class="arr"></span></th><th data-k="f" style="width:31.5%">Flagged <span class="arr"></span></th>
     </tr></thead><tbody id="navBody"></tbody></table></div>
     <div class="dfoot"><span id="navCount"></span><button class="dbtn" id="navClose"><u>C</u>lose</button></div>
+  </div>
+</div>
+
+<!-- Paused -->
+<div class="overlay dim hidden" id="pauseOv" style="background:var(--content-bg)">
+  <div class="dlg" id="pauseDlg" role="dialog" style="width:min(520px,92vw)">
+    <div class="dt">Exam Paused</div>
+    <div class="body" style="background:#fff;color:#000;padding:20px;font-size:17px;line-height:1.5">The timer has stopped and the question is hidden. Time used so far: <b id="pauseUsed"></b></div>
+    <div class="dfoot" style="justify-content:flex-end"><button class="dbtn" id="resumeBtn"><u>R</u>esume</button></div>
   </div>
 </div>
 
@@ -353,7 +365,7 @@ function md(s){ // paragraphs, **bold**, images and pipe tables, as the bank tex
     const lines=t.split('\n').filter(l=>!/^#*\s*PLEASE TURN OVER\s*$/i.test(l.trim()));if(!lines.length)return'';
     if(lines.every(l=>l.trim().startsWith('|')))return'<table>'+lines.filter(l=>!/^\|[\s:|-]+\|$/.test(l.trim())).map(l=>'<tr>'+l.trim().replace(/^\||\|$/g,'').split('|').map(c=>'<td>'+inline(c.trim())+'</td>').join('')+'</tr>').join('')+'</table>';
     return'<p>'+lines.map(inline).join('<br>')+'</p>'}).join('')}
-function inline(s){return esc(s.replace(/^#+\s*/,'')).replace(/!\[[^\]]*\]\(([^)\s]+)\)/g,'<img src="$1" alt="">').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
+function inline(s){return esc(s.replace(/^#+\s*/,'')).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\ue000/g,'<span>$$</span>').replace(/!\[[^\]]*\]\(([^)\s]+)\)/g,'<img src="$1" alt="">').replace(/\*\*(.+?)\*\*/g,'<b>$1</b>')}
 function typeset(el){try{renderMathInElement(el,{delimiters:[{left:"$$",right:"$$",display:true},{left:"$",right:"$",display:false}],throwOnError:false})}catch(e){}}
 
 function start(o){
@@ -367,10 +379,10 @@ function open(a,rev){
   document.body.className='exam '+($('cs').value||'');$('home').classList.add('hidden');$('exam').classList.remove('hidden');
   $('title').textContent=a.title;$('endText').innerHTML=rev?'Back to <u>E</u>xam List':'<u>E</u>nd Exam';
   ['prevBtn','nextBtn','navBtn','flagBtn','explainBtn','endBtn'].forEach(id=>$(id).disabled=false);
-  $('explainBtn').disabled=!rev;$('flagBtn').disabled=rev;
+  $('explainBtn').disabled=!rev;$('flagBtn').disabled=rev;$('pauseBtn').disabled=rev;$('pauseOv').classList.add('hidden');
   clearInterval(tickId);if(!rev)tickId=setInterval(tick,250);tick();
   if(rev)result();else go(0)}
-function stamp(){if(!S||S.rev)return;const now=Date.now();S.a.time[S.cur]+=(now-S.mark)/1000;S.mark=now;save()}
+function stamp(){if(!S||S.rev||S.paused)return;const now=Date.now();S.a.time[S.cur]+=(now-S.mark)/1000;S.mark=now;save()}
 function go(i){
   stamp();const a=S.a,n=a.qids.length;
   S.cur=Math.max(0,Math.min(n-1,i));S.seen[S.cur]=true;
@@ -390,7 +402,10 @@ function go(i){
   setFlagUI()}
 function setFlagUI(){const on=S.a.flag[S.cur];$('flagBtn').classList.toggle('on',on);$('flagPath').setAttribute('fill',on?'#f3e34a':'none')}
 function fmt(ms){ms=Math.max(0,ms);const s=Math.ceil(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')}
-function used(){return S.a.time.reduce((x,y)=>x+y,0)*1000+(S.rev?0:Date.now()-S.mark)}
+function used(){return S.a.time.reduce((x,y)=>x+y,0)*1000+(S.rev||S.paused?0:Date.now()-S.mark)}
+function pause(){if(!S||S.rev||S.paused)return;stamp();S.paused=true;closeNav();
+  $('pauseUsed').textContent=fmt(used());$('pauseOv').classList.remove('hidden');$('resumeBtn').focus();tick()}
+function unpause(){if(!S||!S.paused)return;S.paused=false;S.mark=Date.now();$('pauseOv').classList.add('hidden');tick()}
 function tick(){if(!S)return;
   if(S.rev){$('timerText').textContent=showTimer?'Time Used '+fmt(S.a.time.reduce((x,y)=>x+y,0)*1000):'';return}
   if(S.a.minutes){const left=S.a.minutes*60000-used();
@@ -429,6 +444,7 @@ function result(){
 
 $('nextBtn').onclick=()=>go(S.cur+1);$('prevBtn').onclick=()=>go(S.cur-1);
 $('navBtn').onclick=()=>S.rev?result():openNav();$('navClose').onclick=closeNav;
+$('pauseBtn').onclick=pause;$('resumeBtn').onclick=unpause;
 $('origBtn').onclick=()=>{const q=Q[S.a.qids[S.cur]]||{};S.orig=!S.orig;$('origBtn').classList.toggle('on',S.orig);
   $('stem').innerHTML=S.orig?'<img class="full" src="'+q.img0+'" alt="">':md(q.s);if(!S.orig)typeset($('stem'))};
 $('flagBtn').onclick=()=>{S.a.flag[S.cur]=!S.a.flag[S.cur];save();setFlagUI()};
@@ -444,9 +460,10 @@ $('endBtn').onclick=()=>{
   confirmBox('End Exam','You have chosen to end the exam.'+(inc?'<br><br><b>You have '+inc+' unseen/incomplete question'+(inc>1?'s':'')+'.</b>':'')+'<br><br>If you click Yes, you will NOT be able to return to the exam.<br><br>Are you sure you want to end the exam?',finish)};
 window.addEventListener('pagehide',()=>{if(S&&!S.rev)stamp()});
 document.addEventListener('keydown',e=>{if(!S)return;
+  if(S.paused){if(e.key==='Escape'||(e.altKey&&e.code==='KeyR')){e.preventDefault();unpause()}return}
   if(!$('confOv').classList.contains('hidden')){if(e.key==='Escape')closeConf();return}
   if(!$('navOv').classList.contains('hidden')){if(e.key==='Escape'||(e.altKey&&e.code==='KeyC')){e.preventDefault();closeNav()}return}
-  if(e.altKey){const id={KeyN:'nextBtn',KeyP:'prevBtn',KeyF:'flagBtn',KeyV:'navBtn',KeyE:'endBtn',KeyX:'explainBtn',KeyO:'origBtn'}[e.code];
+  if(e.altKey){const id={KeyN:'nextBtn',KeyP:'prevBtn',KeyF:'flagBtn',KeyV:'navBtn',KeyE:'endBtn',KeyX:'explainBtn',KeyO:'origBtn',KeyA:'pauseBtn'}[e.code];
     if(id){e.preventDefault();const b=$(id);if(!b.disabled&&!b.classList.contains('hidden'))b.click()}}});
 home();
 </script>
