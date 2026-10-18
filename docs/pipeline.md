@@ -310,6 +310,14 @@ python3 pipeline/split/recrop.py && python3 pipeline/split/recrop.py --rows
    找回了文字。`9709_s26_ms_13` 三个站点的评分细则都解析不出,该卷只有 OCR 的 `ms_latex`。
    9709 的关键词标注表(`tag.py`)没有卷 2、卷 6,`tag_batches.py` 对这两卷直接用考纲的主题。
 
+## 去除 dynamicpapers 页眉网址(2026-10-18)
+
+data 分支 `papers/` 中 344 份来自 dynamicpapers 的试卷与评分细则(9709 2021–2025 年 248 份、9618 2023–2025 年 96 份)
+每页页眉带 `www.dynamicpapers.com`。它是 Acrobat 加的页眉:页面内容末尾一段
+`/Artifact <</Contents (www.dynamicpapers.com)/Subtype /Header …>> BDC … EMC`,调用一个只画这串文字的表单对象。
+`strip_watermark.py` 删去这一段(表单对象在保存时作为无用对象丢弃);处理前后正文渲染逐像素相同,只有页眉区域变化。
+此前 skill 说明称 GitHub 源已去水印,实际只去过 papacambridge 的,现已一并处理。
+
 ## 去除 PapaCambridge 水印(2026-10-02)
 
 `pipeline/fetch/strip_watermark.py` 就地处理 `raw/pdf`、`raw/ms`、`data/papers` 中带水印的文件。

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Remove the PapaCambridge watermark from downloaded papers, in place.
+"""Remove the PapaCambridge and dynamicpapers watermarks from downloaded papers, in place.
 
     python3 pipeline/fetch/strip_watermark.py [--check] [FILE_OR_DIR ...]
 
@@ -18,6 +18,11 @@ full-page clip followed by `/gRLs0-0 gs`).
 The page content is replaced by the original layer only, and unused objects are
 dropped on save. A page with neither `/FormXob.pcm` nor that overlay is left alone.
 
+dynamicpapers adds an Acrobat header to every page: the marked-content block
+`/Artifact <</Contents (www.dynamicpapers.com)/Subtype /Header ...>> BDC ... EMC`
+at the end of the page content, which draws a form XObject holding the address.
+That block is removed; the form goes with the unused objects on save.
+
 --check only reports which files still show the watermark.
 """
 import argparse
@@ -33,6 +38,8 @@ from lib import paths  # noqa: E402
 CLIP = re.compile(rb"\nq\n0(?:\.0)? 0(?:\.0)? 595\.27\d* 841\.88\d* re\nW\nn\n")
 PAGE_CLIP = re.compile(rb"q\s+0(?:\.0)?\s+0(?:\.0)?\s+595\.27\d*\s+841\.8\d*\s+re\s+W\s+n\s")
 OVERLAY = b"/gRLs0-0 gs"
+DP_HEADER = re.compile(rb"/Artifact\s*<<[^>]*?dynamicpapers[^>]*?>>\s*BDC.*?EMC\s?", re.S | re.I)
+SITES = ("papacambridge", "dynamicpapers")
 
 
 def balanced(seg):
@@ -87,17 +94,22 @@ def page_marked(page):
     return b"/FormXob.pcm Do" in c or OVERLAY in c
 
 
+def dp_marked(page):
+    return bool(DP_HEADER.search(page.read_contents()))
+
+
 def marked(doc):
-    return any(page_marked(p) for p in doc)
+    return any(page_marked(p) or dp_marked(p) for p in doc)
 
 
 def banner(p):
     return [pymupdf.Rect(t["bbox"]) for t in p.get_texttrace() if t["type"] != 3
-            and "papacambridge" in "".join(chr(c[0]) for c in t["chars"]).lower()]
+            and any(w in "".join(chr(c[0]) for c in t["chars"]).lower() for w in SITES)]
 
 
 def visible(doc):
-    """Pages that still show a mark: the diagonal marks or the PapaCambridge banner text.
+    """Pages that still show a mark: the diagonal marks, or the PapaCambridge banner or the
+    dynamicpapers address as text.
     (A stripped page may keep the overlay's graphics-state name in its content.)"""
     return [p.number + 1 for p in doc if b"/FormXob.pcm Do" in p.read_contents() or banner(p)]
 
@@ -117,6 +129,13 @@ def strip(path):
         doc.update_stream(xrefs[0], b"q\n" + seg + b"\nQ\n")
         for x in xrefs[1:]:
             doc.update_stream(x, b"")
+    for page in doc:                     # the dynamicpapers header block
+        if dp_marked(page):
+            xrefs = page.get_contents()
+            content = DP_HEADER.sub(b"", page.read_contents())
+            doc.update_stream(xrefs[0], content)
+            for x in xrefs[1:]:
+                doc.update_stream(x, b"")
     for page in doc:                     # re-assembled pages keep the banner line: redact its text
         rects = banner(page)
         for r in rects:
