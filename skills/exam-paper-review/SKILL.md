@@ -20,14 +20,16 @@ description: "Mark handwritten answers to a past exam paper against its official
    ```
 
    文件名形如 `9231_w21_ms_13`(科目_场次年份_类型_卷种变体),`gt` 是等级线。场次:m 三月、s 五六月、w 十十一月。
-   脚本按顺序尝试四个来源,每行输出用的是哪一个:
+   脚本按顺序尝试四个来源,每行输出用的是哪一个;`--source papacambridge fraft` 只用这两个站点并按此顺序,
+   `--refresh` 重新下载已有的文件。交出的每个文件都经过 `strip_watermark.py` 去水印(需要 PyMuPDF),
+   去掉时该行带“去水印:stripped”:
 
    | 来源 | 说明 |
    |---|---|
-   | github | 题库仓库 Maimai-l/AL-questionbank 的 data 分支 `papers/`:三个站点里挑出的最好的一份,已核对、已去水印。没有等级线 |
+   | github | 题库仓库 Maimai-l/AL-questionbank 的 data 分支 `papers/`:三个站点里挑出的最好的一份,已核对。没有等级线 |
    | fraft | cie.fraft.cn。部分 2025–26 年的卷子文本层不可读或排在 Letter 纸上,脚本会跳过 |
-   | papacambridge | pastpapers.papacambridge.com。带水印,脚本下载后自动去水印(`strip_watermark.py`,需要 PyMuPDF) |
-   | dynamicpapers | dynamicpapers.com |
+   | papacambridge | pastpapers.papacambridge.com。2026 年的文件带斜向水印、横幅与二维码 |
+   | dynamicpapers | dynamicpapers.com。部分文件每页页眉带网址,脚本会去掉 |
 
    输出 missing 表示四处都没有该文件。全部来源都连不上时,脚本会列出要在网络设置里允许的域名
    (raw.githubusercontent.com、cie.fraft.cn、pastpapers.papacambridge.com、dynamicpapers.com),请用户添加。

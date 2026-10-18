@@ -10,7 +10,7 @@
 
 | 脚本 | 用途 |
 |---|---|
-| `get_paper.py` | 下载 qp、ms、等级线:先取本仓库 data 分支的 `papers/`,再依次试 fraft、papacambridge(自动去水印)、dynamicpapers |
+| `get_paper.py` | 下载 qp、ms、等级线:先取本仓库 data 分支的 `papers/`,再依次试 fraft、papacambridge、dynamicpapers;`--source` 指定站点,交出的文件都去水印 |
 | `strip_watermark.py` | `pipeline/fetch/strip_watermark.py` 的独立副本 |
 | `qbank.py` | 只下载 `caie.db`,按卷、按题、按主题取题干与评分细则 |
 

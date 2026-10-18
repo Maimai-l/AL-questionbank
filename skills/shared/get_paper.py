@@ -4,14 +4,18 @@
     python3 get_paper.py 9231_w21_ms_13 9231_w21_qp_13 9231_w21_gt --out papers
     python3 get_paper.py 9231 --years 21 22 --series w --papers 1 --variants 3 --out papers
         (the second form expands to the qp and ms of every paper, add --gt for the thresholds)
+    python3 get_paper.py 9709_s24_qp_52 --source papacambridge fraft --refresh
+        (--source: only these sites, in this order; --refresh: download again even if cached)
 
-Where each file comes from, in order:
+Where each file comes from, in order (unless --source says otherwise):
   1. github   the question bank's own copies (Maimai-l/AL-questionbank, branch data, papers/):
-              the best of the three sites, checked and with watermarks removed.
-              No grade thresholds there.
+              the best of the three sites, checked. No grade thresholds there.
   2. fraft        cie.fraft.cn
-  3. papacambridge pastpapers.papacambridge.com  (watermarked; the watermark is removed)
-  4. dynamicpapers dynamicpapers.com
+  3. papacambridge pastpapers.papacambridge.com  (diagonal marks, banner and QR code)
+  4. dynamicpapers dynamicpapers.com  (its address as a header on every page)
+Every file this script hands over, downloaded or cached, goes through strip_watermark.py,
+which removes the papacambridge and the dynamicpapers marks (needs PyMuPDF); the output
+line says "去水印:stripped" when a mark was removed.
 
 A copy is kept only if it is a PDF and, when PyMuPDF is installed, its text layer
 has words in it and its pages are A4: fraft serves some 2025-26 papers with fonts
@@ -68,11 +72,23 @@ def readable(data):
     return a4 and len(re.findall(r"[A-Za-z]{4,}", text)) > 50
 
 
-def get(name, out):
+def unmark(dest):
+    """Remove any papacambridge or dynamicpapers watermark: "" if there was none."""
+    try:
+        from strip_watermark import strip
+    except ImportError:
+        return "(未检查水印:没有 PyMuPDF 或 strip_watermark.py)"
+    res = strip(dest)
+    return "" if res == "clean" else f"(去水印:{res})"
+
+
+def get(name, out, sites=None, refresh=False):
     dest = os.path.join(out, name)
-    if os.path.exists(dest) and os.path.getsize(dest) > 20000:
-        return "cached"
+    if not refresh and os.path.exists(dest) and os.path.getsize(dest) > 20000:
+        return "cached" + unmark(dest)
     for site, tpl in SITES:
+        if sites and site not in sites:
+            continue
         if site in unreachable or (site == "github" and "_gt" in name):
             continue
         data = request(site, tpl.format(name=urllib.parse.quote(name)))
@@ -84,13 +100,7 @@ def get(name, out):
             continue
         with open(dest, "wb") as f:
             f.write(data)
-        if site == "papacambridge":
-            try:
-                from strip_watermark import strip
-                return f"{site}(去水印:{strip(dest)})"
-            except ImportError:
-                return f"{site}(带水印:没有 PyMuPDF 或 strip_watermark.py)"
-        return site
+        return site + ("" if "_gt" in name else unmark(dest))
     return "missing"
 
 
@@ -118,16 +128,22 @@ def main():
     ap.add_argument("--papers", nargs="+", default=[])
     ap.add_argument("--variants", nargs="+", default=["1", "2", "3"])
     ap.add_argument("--gt", action="store_true", help="also the grade thresholds of each series")
+    ap.add_argument("--source", nargs="+", choices=[s for s, _ in SITES],
+                    help="only these sites, tried in the order given")
+    ap.add_argument("--refresh", action="store_true", help="download again even if the file is in --out")
     a = ap.parse_args()
+    if a.source:
+        order = {s: k for k, s in enumerate(a.source)}
+        SITES.sort(key=lambda st: order.get(st[0], len(order)))
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     os.makedirs(a.out, exist_ok=True)
     got = 0
     for n in names(a):
-        res = get(n, a.out)
+        res = get(n, a.out, a.source, a.refresh)
         got += res != "missing"
         print(f"{n:28} {res}")
     print(f"{got} 个文件在 {a.out}/")
-    if len(unreachable) == len(SITES):
+    if unreachable and len(unreachable) == len(a.source or SITES):
         print("所有站点都连不上:网络设置里要允许 " + "、".join(DOMAINS), file=sys.stderr)
 
 
