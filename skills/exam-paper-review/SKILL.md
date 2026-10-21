@@ -28,7 +28,7 @@ description: "Mark handwritten answers to a past exam paper against its official
    |---|---|
    | github | 题库仓库 Maimai-l/AL-questionbank 的 data 分支 `papers/`:三个站点里挑出的最好的一份,已核对。没有等级线 |
    | fraft | cie.fraft.cn。部分 2025–26 年的卷子文本层不可读或排在 Letter 纸上,脚本会跳过 |
-   | papacambridge | pastpapers.papacambridge.com。2026 年的文件带斜向水印、横幅与二维码 |
+   | papacambridge | pastpapers.papacambridge.com。2026 年的文件带斜向水印、横幅与二维码;部分 2021 年的文件用 FPDF 重新打包，每页右下角有本站标志图。脚本都会去掉 |
    | dynamicpapers | dynamicpapers.com。部分文件每页页眉带网址,脚本会去掉 |
 
    输出 missing 表示四处都没有该文件。全部来源都连不上时,脚本会列出要在网络设置里允许的域名
