@@ -64,12 +64,13 @@ data/practice.html  刷题页;textbook.html 教材页;concepts/9618/ 9618 每章
 | 站点 | 情况 |
 |---|---|
 | `cie.fraft.cn` | 接口 `obj/Common/Fetch/renum`(按科目、年份、季度列清单,POST)与 `Fetch/redir/<文件名>`(POST 下载)。部分 2025–26 年卷子字体无 Unicode 映射(文本层是乱码),个别排在 Letter 纸上 |
-| `pastpapers.papacambridge.com` | `directories/CAIE/CAIE-pastpapers/upload/<文件名>`。有 9231 与最新一季;带水印,部分评分细则被重新拼版 |
+| `pastpapers.papacambridge.com` | `directories/CAIE/CAIE-pastpapers/upload/<文件名>`。有 9231 与最新一季;带水印,部分评分细则被重新拼版;部分 2021 年试卷用 FPDF 重新打包，每页右下角有本站标志图，文本层里没有站点名称 |
 | `dynamicpapers.com` | `wp-content/uploads/2015/09/<文件名>`。缺文件时返回 WordPress 的 500 页面而不是 404;部分文件(题库中 9709 2021–2025 年、9618 2023–2025 年)每页页眉带本站网址(Acrobat 页眉 `/Artifact … BDC … EMC`) |
 
 - 在仓库里:`pipeline/fetch/fetch_fraft.py` 按 fraft 清单补下库中没有的卷,文本层不可读时改用
   papacambridge;`pipeline/fetch/best_copy.py` 对三个站点的版本逐一试切,留下题数与总分对得上的一份;
-  `pipeline/fetch/strip_watermark.py` 去掉 papacambridge 与 dynamicpapers 的水印(`--check` 只检查)。
+  `pipeline/fetch/strip_watermark.py` 去掉 papacambridge(斜向水印、横幅、二维码，以及 FPDF 重组卷右下角的标志图)
+  与 dynamicpapers(页眉网址)的水印，并删去未画出的水印对象、指向这些站点的链接和写着站点名称的文档属性(`--check` 只检查)。
 - 不在仓库里时:本 skill 的 `scripts/get_paper.py` 依次试 GitHub(data 分支 `papers/`)、fraft、
   papacambridge、dynamicpapers,检查文本层与纸张;交出的每个文件(新下载的和已缓存的)都会去水印。
   `--source` 只用指定的站点并按给出的顺序尝试,`--refresh` 忽略已下载的文件重新下载:

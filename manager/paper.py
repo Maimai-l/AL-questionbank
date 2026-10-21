@@ -394,9 +394,9 @@ def build(s, footer=None, space=None):
     space = opts["space"] if space is None else max(0, min(len(SPACE) - 1, int(space)))
     rows = _rows(s["items"])
 
-    def stamp(r):                        # rebuilt when a crop is redone
+    def stamp(r):                        # rebuilt when a crop or the original paper is redone
         out = []
-        for p in (paths.resolve(r["image"]), paths.answer_space(r["image"])):
+        for p in (paths.resolve(r["image"]), paths.answer_space(r["image"]), bank.paper_pdf(r)):
             out.append(int(os.path.getmtime(p)) if p else 0)
         return out
     key = hashlib.sha1(json.dumps([VERSION, s["name"], s["items"], {k: opts[k] for k in opts if k not in ("theme", "space")}, SPACE[space],
