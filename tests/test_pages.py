@@ -152,6 +152,20 @@ class QueryPage(Page):
 
 
 class QueryByPaper(Page):
+    def test_pick_a_paper(self):
+        """按试卷: year, season, paper and region number, one click each, leave one paper, which
+        is picked at once with its PDFs beside it."""
+        p = self.page
+        self.go("query")
+        p.locator(".selbar").get_by_text("按试卷", exact=True).click()
+        c = p.locator(".dm-cond")
+        for sec, label in (("年份", "2024"), ("考季", "O/N"), ("试卷", "Paper 3"), ("地区号", "2")):
+            c.locator(".sec", has_text=sec).first.locator("label.check", has_text=label).first.click()
+        expect(p.locator("table tbody tr[data-k]")).to_have_count(1)
+        expect(p.locator(".detail h2")).to_have_text("9709/32/O/N/24")
+        expect(self.button("打开评分细则")).to_be_enabled()
+        expect(p.locator(".selbar b")).to_have_text("1")
+
     def test_find_a_paper(self):
         """按试卷: typing 32 24 leaves the 2024 Paper 3 variant 2 papers; the one picked shows
         its questions and opens its question paper and mark scheme; 加入题组 adds it whole."""
@@ -194,7 +208,7 @@ class SearchPage(Page):
         expect(p.locator(".hit")).to_have_count(0)
 
     def test_paper_without_keywords(self):
-        """Paper 3, O/N, variant 2 and 2024 pick one paper sat: its questions are listed with no
+        """2024, O/N, Paper 3 and region 2 pick one paper sat: its questions are listed with no
         keywords; 清除 lifts a condition."""
         from manager import bank
         p = self.page
@@ -203,10 +217,8 @@ class SearchPage(Page):
         left.locator("label.check", has_text="Paper 3").click()
         left.locator("label.check", has_text="O/N").click()
         expect(p.locator(".hit").first).to_be_visible()
-        left.locator(".sec", has_text="变体").locator("label.check", has_text="2").click()
-        for name in ("起始年份", "结束年份"):
-            left.get_by_label(name).click()
-            p.get_by_role("option", name="2024").click()
+        left.locator(".sec", has_text="地区号").locator("label.check", has_text="2").click()
+        left.locator(".sec", has_text="年份").locator("label.check", has_text="2024").click()
         n = sum(r["code"] == "9709/32/O/N/24" for r in bank.rows("9709"))
         expect(head).to_have_text(f"{n} 题")
         left.locator(".sec", has_text="考季").get_by_role("button", name="清除").click()

@@ -279,12 +279,12 @@ def _lead(text, width=160):
 
 # conditions with a count beside each choice: (request key, record field). Each count is
 # taken with every other condition applied, not its own, so a choice shows what it would add.
-FACETS = (("comps", "component"), ("seasons", "month"), ("variants", "variant"))
+FACETS = (("years", "year"), ("seasons", "month"), ("comps", "component"), ("variants", "variant"))
 
 
 def find(p, limit=200):
     """The page's search: p = {q, exam ("9709", or "*" for every exam), topics ["9709:3.5"],
-    from, to, comps, seasons [3, 6, 11], variants ["1", "2", "3"], cols, tasks,
+    years [2023, 2024], seasons [3, 6, 11], comps, variants ["1", "2", "3"] (region numbers), cols, tasks,
     expl ("any" | "y" | "n"), sort ("rel" | "year")}; a list where p has none
     of a condition, or null, sets no limit. Keywords are optional: without them the matches
     are the questions the other conditions leave, by year. Returns the count, the matches
@@ -318,7 +318,7 @@ def find(p, limit=200):
         elif neg:                            # only words to leave out
             where.append("d.rowid NOT IN (SELECT rowid FROM f WHERE f MATCH ?)")
             args.append(scope(neg))
-        for key, col, op in (("from", "year", ">="), ("to", "year", "<="), ("mmin", "marks", ">="), ("mmax", "marks", "<=")):
+        for key, col, op in (("mmin", "marks", ">="), ("mmax", "marks", "<=")):
             if str(p.get(key, "")).strip():
                 where.append(f"d.{col} {op} ?")
                 args.append(float(p[key]))

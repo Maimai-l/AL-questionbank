@@ -160,7 +160,7 @@ class SearchPage(Api):
         self.assertGreater(all_["total"], 0)
         exam = await self.find(q="integration", exam="9709")
         self.assertLessEqual(exam["total"], all_["total"])
-        for extra in ({"comps": ["3"]}, {"seasons": [11]}, {"variants": ["2"]}, {"from": 2022, "to": 2024},
+        for extra in ({"comps": ["3"]}, {"seasons": [11]}, {"variants": ["2"]}, {"years": [2022, 2024]},
                       {"cols": ["stem"]}, {"expl": "y"}, {"expl": "n"},
                       {"sort": "year"}, {"topics": ["9709:3.5"]}):
             r = await self.find(q="integration", exam="9709", **extra)
@@ -174,12 +174,12 @@ class SearchPage(Api):
             self.assertIn("total", r, q)
 
     async def test_without_keywords(self):
-        """Without keywords the conditions alone pick the questions: Paper 3, O/N, variant 2,
-        2024 is one paper sat, listed in order with its start as the line under each; a
+        """Without keywords the conditions alone pick the questions: 2024, O/N, Paper 3, region
+        2 is one paper sat, listed in order with its start as the line under each; a
         paper code typed does the same."""
         from manager import bank
         paper = [r for r in bank.rows("9709") if r["code"] == "9709/32/O/N/24"]
-        r = await self.find(exam="9709", comps=["3"], seasons=[11], variants=["2"], **{"from": 2024, "to": 2024})
+        r = await self.find(exam="9709", comps=["3"], seasons=[11], variants=["2"], years=[2024])
         self.assertEqual(r["total"], len(paper))
         self.assertEqual([x["q"] for x in r["rows"]], sorted(x["q"] for x in paper))
         self.assertTrue(all(x["snippets"] and x["snippets"][0][0] == "stem" for x in r["rows"]))
