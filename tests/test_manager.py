@@ -127,6 +127,9 @@ class QueryPage(Api):
             codes = [x["code"] for x in m["papers"]]
             self.assertEqual(len(codes), len(set(codes)), m["exam"])
             self.assertEqual(sum(x["n"] for x in m["papers"]), len(bank.rows(m["exam"])), m["exam"])
+            # the variants offered are those of the papers, 9709 has a 5 (9709/15)
+            self.assertEqual(m["variants"], sorted({x["variant"] for x in m["papers"]} - {""}), m["exam"])
+        self.assertIn("5", (await self.json("GET", "/api/meta"))[0]["variants"])
         p = next(x for x in (await self.json("GET", "/api/meta"))[0]["papers"] if x["code"] == "9709/32/O/N/24")
         self.assertTrue(p["qp"] and p["ms"])
         for kind in ("", "?kind=ms"):
@@ -380,7 +383,7 @@ class FlowsPage(Api):
     def test_season_is_written_as_the_papers_write_it(self):
         from manager import flow
         g = {"nodes": [{"id": "f", "type": "filter", "params": {"conds": [{"field": "season", "op": "=", "value": "6"}]}}]}
-        self.assertIn("考季 = M/J", flow.summary(g))
+        self.assertIn("考试季 = M/J", flow.summary(g))
         self.assertNotIn("月", flow.summary(g))
 
     async def test_builtin_is_copied_not_changed(self):

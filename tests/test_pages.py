@@ -153,13 +153,13 @@ class QueryPage(Page):
 
 class QueryByPaper(Page):
     def test_pick_a_paper(self):
-        """按试卷: year, season, paper and region number, one click each, leave one paper, which
+        """按试卷: year, season, paper and variant, one click each, leave one paper, which
         is picked at once with its PDFs beside it."""
         p = self.page
         self.go("query")
         p.locator(".selbar").get_by_text("按试卷", exact=True).click()
         c = p.locator(".dm-cond")
-        for sec, label in (("年份", "2024"), ("考季", "O/N"), ("试卷", "Paper 3"), ("地区号", "2")):
+        for sec, label in (("年份", "2024"), ("考试季", "O/N"), ("试卷", "Paper 3"), ("变体", "2")):
             c.locator(".sec", has_text=sec).first.locator("label.check", has_text=label).first.click()
         expect(p.locator("table tbody tr[data-k]")).to_have_count(1)
         expect(p.locator(".detail h2")).to_have_text("9709/32/O/N/24")
@@ -217,12 +217,12 @@ class SearchPage(Page):
         left.locator("label.check", has_text="Paper 3").click()
         left.locator("label.check", has_text="O/N").click()
         expect(p.locator(".hit").first).to_be_visible()
-        left.locator(".sec", has_text="地区号").locator("label.check", has_text="2").click()
+        left.locator(".sec", has_text="变体").locator("label.check", has_text="2").click()
         left.locator(".sec", has_text="年份").locator("label.check", has_text="2024").click()
         n = sum(r["code"] == "9709/32/O/N/24" for r in bank.rows("9709"))
         expect(head).to_have_text(f"{n} 题")
-        left.locator(".sec", has_text="考季").get_by_role("button", name="清除").click()
-        expect(left.locator(".sec", has_text="考季")).to_contain_text("不限")
+        left.locator(".sec", has_text="考试季").get_by_role("button", name="清除").click()
+        expect(left.locator(".sec", has_text="考试季")).to_contain_text("不限")
 
     def test_search_narrow_and_add(self):
         """Keywords, then the conditions on the left, a result opened, picked and added to a

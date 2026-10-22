@@ -129,6 +129,7 @@ def meta():
             "topics": [{"component": r["component"], "value": r["topic"],
                         "label": f'{r["topic"]} {r["topic_name"]}', "n": r["n"]} for r in topics],
             "papers": sorted(papers.values(), key=lambda x: (-x["year"], -x["month"], x["code"])),
+            "variants": sorted({x["variant"] for x in papers.values()} - {""}),
         })
     return out
 

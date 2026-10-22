@@ -409,15 +409,15 @@
 
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'dm-cond', 'aria-label': '查询条件' },
-        h(E.Select, { label: '考试', options: exams, value: exam, onChange: changeExam }),
-        // a paper sat is its year, season, paper and region number: one pick in each
+        h(E.Select, { label: '科目', options: exams, value: exam, onChange: changeExam }),
+        // a paper sat is its year, season, paper and variant: one pick in each
         h(FreeFacet, { title: '年份', grid: true, picked: f.years, onChange: set('years'),
           items: items('years', 'year', meta.years.slice().reverse().map((y) => ({ value: y, label: String(y) }))) }),
-        meta.cie ? h(FreeFacet, { title: '考季', line: true, picked: f.seasons, onChange: set('seasons'),
+        meta.cie ? h(FreeFacet, { title: '考试季', line: true, picked: f.seasons, onChange: set('seasons'),
           items: items('seasons', 'month', SEASONS.map(([v, label]) => ({ value: v, label }))) }) : null,
         h(FreeFacet, { title: '试卷', items: compItems, picked: f.comps, onChange: set('comps'), grid: meta.components.length > 2 }),
-        meta.cie ? h(FreeFacet, { title: '地区号', line: true, picked: f.variants, onChange: set('variants'),
-          items: items('variants', 'variant', ['1', '2', '3'].map((v) => ({ value: v, label: v }))) }) : null,
+        meta.cie ? h(FreeFacet, { title: '变体', line: true, picked: f.variants, onChange: set('variants'),
+          items: items('variants', 'variant', meta.variants.map((v) => ({ value: v, label: v }))) }) : null,
         topicItems.length ? h(FreeFacet, { title: '主题', items: topicItems, picked: f.topics, onChange: set('topics') }) : null,
         taskItems.length ? h(FreeFacet, { title: '小问类型', items: taskItems, picked: f.tasks, onChange: set('tasks') }) : null),
       h('main', { className: 'dm-results' },
@@ -441,9 +441,9 @@
             columns: [
               { key: 'code', label: '试卷代码', kind: 'id' },
               { key: 'year', label: '年份', kind: 'id', width: 96 },
-              { key: 'season', label: '考季', kind: 'id', width: 72, sortValue: (x) => x.month },
+              { key: 'season', label: '考试季', kind: 'id', width: 72, sortValue: (x) => x.month },
               { key: 'comp', label: '试卷', kind: 'id', width: 96 },
-              { key: 'variant', label: '地区号', kind: 'id', width: 72 },
+              { key: 'variant', label: '变体', kind: 'id', width: 72 },
               { key: 'n', label: '题数', kind: 'number', width: 72 },
             ].filter((c) => c.key === 'code' || c.kind !== 'id' || paperView.length < 2 || paperView.some((x) => x[c.key] !== paperView[0][c.key])),
           })
@@ -452,7 +452,7 @@
             // a column whose value is the same in every row is left out (docs/ui-text.md 4.3)
             columns: [
               { key: 'year', label: '年份', kind: 'id', width: 96 },
-              { key: 'season', label: '考季', kind: 'id', width: 72, sortValue: (r) => r.month },
+              { key: 'season', label: '考试季', kind: 'id', width: 72, sortValue: (r) => r.month },
               { key: 'paper', label: '卷号', kind: 'id', width: 64 },
               { key: 'qn', label: '题号', kind: 'id', width: 64, sortValue: (r) => r.q },
               { key: 'stem', label: '题干', kind: 'text', sortable: false },
@@ -639,7 +639,7 @@
     const allYears = [...new Set(metas.flatMap((m) => m.years))].sort();
     const [text, setText] = useState('');
     const [q, setQ] = useState('');                       // the text searched (after a pause)
-    // one exam at a time, the one used last (first 9709); 全部考试 (*) is a choice, not the default
+    // one exam at a time, the one used last (first 9709); 全部科目 (*) is a choice, not the default
     const [exam, setExamState] = useState(() => { try { const e = localStorage.getItem(EXAM_KEY); if (e === '*' || allExams.includes(e)) return e; } catch (e) {} return allExams[0]; });
     const setExam = (e) => { setExamState(e); try { localStorage.setItem(EXAM_KEY, e); } catch (x) {} };
     const exams = new Set(exam === '*' ? allExams : [exam]);
@@ -732,16 +732,16 @@
     const allOn = exams.size === allExams.length;
     return h('div', { className: 'dm-row' },
       h('aside', { className: 'dm-cond sp-left', 'aria-label': '高级搜索' },
-        h(E.Select, { label: '考试', value: exam, onChange: setExam,
-          options: metas.map((m) => ({ value: m.exam, label: m.label })).concat([{ value: '*', label: '全部考试' }]) }),
+        h(E.Select, { label: '科目', value: exam, onChange: setExam,
+          options: metas.map((m) => ({ value: m.exam, label: m.label })).concat([{ value: '*', label: '全部科目' }]) }),
         h(FreeFacet, { title: '年份', grid: true, picked: years, onChange: setYears,
           items: yearsOf(exam).slice().reverse().map((y) => ({ value: y, label: String(y), n: n('years', y), zero: zero('years', y) })) }),
-        cie ? h(FreeFacet, { title: '考季', line: true, picked: seasons, onChange: setSeasons,
+        cie ? h(FreeFacet, { title: '考试季', line: true, picked: seasons, onChange: setSeasons,
           items: SEASONS.map(([v, label]) => ({ value: v, label, n: n('seasons', v), zero: zero('seasons', v) })) }) : null,
         h(FreeFacet, { title: '试卷', grid: true, picked: comps, onChange: setComps,
           items: compOptions.map(([v, label]) => ({ value: v, label, n: n('comps', v), zero: zero('comps', v) })) }),
-        cie ? h(FreeFacet, { title: '地区号', line: true, picked: variants, onChange: setVariants,
-          items: ['1', '2', '3'].map((v) => ({ value: v, label: v, n: n('variants', v), zero: zero('variants', v) })) }) : null,
+        cie ? h(FreeFacet, { title: '变体', line: true, picked: variants, onChange: setVariants,
+          items: examMeta.variants.map((v) => ({ value: v, label: v, n: n('variants', v), zero: zero('variants', v) })) }) : null,
         h('section', { className: 'sec' }, head('主题'),
           h(MultiPick, { ariaLabel: '主题', placeholder: '全部主题', options: topicOptions, value: topics, onChange: setTopics,
             filter: topicOptions.length > 12 ? '输入主题码或名称' : null, short: (v) => (exam === '*' ? v.replace(':', ' ') : v.split(':')[1]) })),
@@ -1012,7 +1012,7 @@
                 columns: [
                   { key: 'n', label: '序号', kind: 'id', width: 80 },
                   { key: 'year', label: '年份', kind: 'id', width: 72, sortable: false },
-                  { key: 'season', label: '考季', kind: 'id', width: 72, sortable: false },
+                  { key: 'season', label: '考试季', kind: 'id', width: 72, sortable: false },
                   { key: 'paper', label: '卷号', kind: 'id', width: 64, sortable: false },
                   { key: 'qn', label: '题号', kind: 'id', sortable: false },
                 ],
@@ -1367,7 +1367,7 @@
     const p = n.params || {};
     const F = (k) => fieldLabel(cat, inType || 'q', k);
     switch (n.type) {
-      case 'bank': return `考试：${p.exam === '*' ? '全部' : p.exam || '9709'}`;
+      case 'bank': return `科目：${p.exam === '*' ? '全部' : p.exam || '9709'}`;
       case 'book': return `教材：${((cat.books.find((b) => b.value === p.book) || {}).label) || p.book || ''}`;
       case 'set': return `题组：${((sets.find((s) => s.id === p.set) || {}).name) || ''}`;
       case 'filter': return (p.conds || []).map((c) => c.field && condText(cat, inType || 'q', c)).filter(Boolean);
@@ -1709,7 +1709,7 @@
     const fieldErr = error && !/输入/.test(error) && ['bank', 'book', 'set', 'take', 'export', 'chapters'].includes(n.type) ? error : null;
     const sel = (label, value, options, onChange) => h(E.Select, { label, size: 'sm', value, options, onChange, error: fieldErr || undefined });
     let body = null;
-    if (n.type === 'bank') body = sel('考试', p.exam || '9709', [{ value: '*', label: '全部' }].concat(cat.exams.map((e) => ({ value: e, label: e }))), (v) => update(n.id, { exam: v }));
+    if (n.type === 'bank') body = sel('科目', p.exam || '9709', [{ value: '*', label: '全部' }].concat(cat.exams.map((e) => ({ value: e, label: e }))), (v) => update(n.id, { exam: v }));
     if (n.type === 'chapters') body = sel('教材', p.book || '*', [{ value: '*', label: '全部教材' }].concat(cat.books.map((b) => ({ value: b.value, label: b.label }))), (v) => update(n.id, { book: v }));
     if (n.type === 'book') body = sel('教材', p.book || '9709_p1', cat.books.map((b) => ({ value: b.value, label: b.label })), (v) => update(n.id, { book: v }));
     if (n.type === 'set') body = sel('题组', p.set || '', sets.map((s) => ({ value: s.id, label: s.name })), (v) => update(n.id, { set: v }));

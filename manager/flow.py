@@ -28,7 +28,7 @@ from manager import bank, export, paper, sets, templates
 
 BUILTIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flows")
 OUT = os.path.join(paths.FLOWS, "out")
-SEASON = {"3": "F/M", "6": "M/J", "11": "O/N"}     # 考季 as the papers write it (docs/ui-text.md)
+SEASON = {"3": "F/M", "6": "M/J", "11": "O/N"}     # 考试季 as the papers write it (docs/ui-text.md)
 EXAMS = ["9709", "9231", "9618", "TMUA", "TSA", "BMAT"]
 BOOKS = {
     "9709_p1": "9709 Pure Mathematics 1", "9709_p23": "9709 Pure Mathematics 2 & 3",
@@ -41,8 +41,8 @@ BOOKS = {
 #   enum  one of the values in the data, {field, op: = | ≠, value}   试卷 = 3
 #   text  {field, value}: contains, ignoring case                    标题 包含 integr
 #   bool  {field, value: true | false}, shown by the two labels      含图 / 不含图
-QFIELDS = [("exam", "考试", "enum"), ("component", "试卷", "enum"), ("paper", "卷号", "enum"),
-           ("year", "年份", "num"), ("season", "考季", "enum"), ("q", "题号", "num"),
+QFIELDS = [("exam", "科目", "enum"), ("component", "试卷", "enum"), ("paper", "卷号", "enum"),
+           ("year", "年份", "num"), ("season", "考试季", "enum"), ("q", "题号", "num"),
            ("position", "卷内位置", "num"), ("marks", "分值", "num"), ("parts", "小问数", "num"),
            ("topic", "主题", "enum"), ("subtopic", "子主题", "enum"),
            ("diagram", "含图", "bool"), ("explained", "有详解", "bool")]
@@ -232,7 +232,7 @@ def node_bank(p, ins):
     if exam == ALL:                          # every exam, one after another
         return [lst("q", [r for e in EXAMS for r in question_records(e)])]
     if exam not in EXAMS:
-        raise FlowError("考试不存在")
+        raise FlowError("科目不存在")
     return [lst("q", question_records(exam))]
 
 
