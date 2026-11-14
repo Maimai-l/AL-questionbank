@@ -1,5 +1,7 @@
 # 标签重做:现状、实测与下一步
 
+> 入学考试(TMUA、TSA、BMAT)已于 2026-11 归档，下文中有关入学考试的部分仅作记录。
+
 ## 之前的做法
 
 1. 手写关键词表(`pipeline/tags/tag.py`、`topics_9231.py`、`topics_9618.py`,经 `tag_any.py`)

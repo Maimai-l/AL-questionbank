@@ -333,7 +333,7 @@ function cardHtml(q, opts){
       <div class="imgwrap pane-img"${q.img ? "" : ` style="display:none"`}>
         <img class="qimg" alt="${esc(q.id)}">
         <div class="imgfail">找不到题图 <code>${esc(q.img)}</code> —
-          把 img9709 / img9231 / img9618 / img9702 / img_adm 这些图片文件夹放到这个 html 旁边就能显示。下面切到“文字版”一样能做。</div>
+          把 img9709 / img9231 / img9618 / img9702 这些图片文件夹放到这个 html 旁边就能显示。下面切到“文字版”一样能做。</div>
       </div>
       <div class="pane-txt"${q.img ? ` style="display:none"` : ""}>${richText(q.qt || "(无文字版)")}</div>
     </div>

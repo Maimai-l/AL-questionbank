@@ -1,5 +1,7 @@
 # 数据库对接契约:schema、界面与 MCP
 
+> 入学考(TMUA、TSA、BMAT)已于 2026-11 归档，下文中有关入学考的列与目录只作记录。
+
 questions 表、`data.js` 与 practice.html、MCP server 三者相互咬合,单独修改
 其中一项会导致另外两项静默出错。修改任何一项之前应先阅读本文。
 

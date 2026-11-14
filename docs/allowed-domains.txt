@@ -4,11 +4,6 @@ cie.fraft.cn
 *.fraft.cn
 pastpapers.papacambridge.com
 *.papacambridge.com
-uat-wp.s3.eu-west-2.amazonaws.com
-uat-uk.org
-*.uat-uk.org
-esat-tmua.ac.uk
-*.esat-tmua.ac.uk
 cambridgeinternational.org
 *.cambridgeinternational.org
 paddleocr.aistudio-app.com

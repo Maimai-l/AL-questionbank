@@ -32,7 +32,7 @@
 
 ## 待办
 
-按优先级排列。用户安排(2026-10-03):BMAT 不刷题,暂不处理(第 1、3 项中的 BMAT 部分);TMUA 留到以后。
+按优先级排列。
 
 ### 0. 9618 详解
 
@@ -48,48 +48,12 @@
   w21_41_q02、w21_42_q02 的 (e) 细则分值合计 9,题面为 8。
 - 9709、9231 不做详解(用户决定)。`raw/explain_9709`、`raw/explain_9231` 各有 1 批试做,未写入。
 
-### 1. BMAT 共用材料缺失(系统性问题)
+### 1. 入学考已归档
 
-原卷中几道题共用的背景材料(「Questions 8 to 11 refer to the following information」之后的文章与数据表)
-只存在组内第一题的题干里,同组其他题缺这段材料,单看一题无法作答。抽查的 105 道 BMAT 题中有 15 道属于此类。
+TMUA、TSA、BMAT 于 2026-11-14 从题库移出(用户决定不再使用),原来的第 1–4 项(BMAT 共用材料、TMUA 整体核对、
+应用抽查改正、再次抽查)不再处理，原文见 `attic/admissions/docs/` 与 `archive-admissions` 分支。
 
-做法:在 `merge_admissions.py`(或单独的脚本)中按「Questions X to Y refer to」找到每组的说明段与材料,
-复制到同组各题题干的开头,重新入库。只改代码,不需要子 agent。TSA 若有同类分组,一并处理。
-
-### 2. TMUA 错误率高,需要整体核对
-
-每份 TMUA 卷抽 2 题,36 题中 8 题有错(约 22%);TSA 抽 32 题只有 1 题有错。TMUA 的错误有:
-- 漏掉题干开头的句子:TMUA-2023-P1-q12、TMUA-2023-P2-q3;
-- 漏掉方程标号 (*):TMUA-2023-P2-q6;
-- 选项中的 ≤ 写成 <:TMUA-2020-P2-q1;
-- 选项没有拆进 option_texts:TMUA-2019-P2-q18(缺 H)、TMUA-2020-P1-q8(B–F 为空);
-- 题干句子重复:TMUA-2020-P2-q18;字符错误:TMUA-2018-P1-q11。
-
-TMUA 共 360 题,数学内容直接影响作答,建议按剑桥三科的做法逐题对照原卷重写(约 36 批)。
-已改:TMUA-2016-P1-q1 选项 A 的 `\angle` 识别错误(记在 `text_fixes.json`,数据库已改)。
-
-### 3. 应用抽查中改好的题
-
-`pipeline/admissions_rebuild/spot_check_results.json` 是入学考抽查的结果(178 题,34 题有错,`run` 字段区分两次抽样)。
-有错的题已经写出改正后的完整题干(`text`)与选项(`options`)。做完第 1 项后,把其中仍然需要的改正
-写进 `pipeline/admissions_rebuild/text_fixes.json`(格式见该文件的 `_说明`),再运行 `merge_admissions.py`。
-
-除共用材料外,其余错误是:
-- 图中数值没有写进题干(diagram):BMAT-2006-S1-q21、2011-S1-q8、2014-S1-q34、2019-S1-q20、2020-S1-q26、2020-S1-q28;
-- 混入其他题的内容或页眉(extra):BMAT-2011-S1-q7、q34,2012-S1-q7,2014-S1-q5;
-- 选项开头的单词 A 被当成选项字母:BMAT-2020-S1-q9;
-- 字词错误:BMAT-2013-S1-q12。
-
-### 4. 再次抽查的方法
-
-```
-python3 pipeline/admissions_rebuild/spot_check.py plan --exam TMUA --per-paper 2 --run NAME --seed 7
-python3 pipeline/admissions_rebuild/spot_check.py report --run NAME
-```
-
-每批交给一个 general-purpose 子 agent。换一个 `--seed` 才会抽到不同的题。
-
-### 5. 需要人看一眼的更正
+### 2. 需要人看一眼的更正
 
 - 9618_w24_23_q04:评分细则备选代码原本有逻辑错误,子 agent 改了代码结构(内层循环前先置 FALSE、删去 ELSE)。
 - 9709_w22_31_q05:评分细则中未定义的 `v` 改成了 `u²/w`,属于记号更正。

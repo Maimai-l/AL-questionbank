@@ -3,10 +3,9 @@
 
     python3 pipeline/split/to_png16.py [DIR ...] [--jobs 4]
 
-Without DIR: the CAIE crops (img9709/ img9231/ img9618/), their answer-space
-copies (img*_ans/) and the admissions crops (img_adm/). Images already in
-the 16-level format are left alone, so the run can be repeated. img_tara/
-holds colour JPEG illustrations and is not touched.
+Without DIR: the CAIE crops (img9709/ img9231/ img9618/ img9702/) and their
+answer-space copies (img*_ans/). Images already in the 16-level format are left
+alone, so the run can be repeated.
 """
 import argparse, glob, os, sys
 
@@ -14,7 +13,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
 from lib import paths, png16  # noqa: E402
 
-DIRS = ["img9709", "img9231", "img9618", "img9709_ans", "img9231_ans", "img9618_ans", "img_adm"]
+DIRS = ["img9709", "img9231", "img9618", "img9702", "img9709_ans", "img9231_ans", "img9618_ans",
+        "img9702_ans"]
 
 
 def main():

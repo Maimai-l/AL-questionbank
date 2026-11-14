@@ -29,7 +29,7 @@ from manager import bank, export, paper, sets, templates
 BUILTIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flows")
 OUT = os.path.join(paths.FLOWS, "out")
 SEASON = {"3": "F/M", "6": "M/J", "11": "O/N"}     # 考季 as the papers write it (docs/ui-text.md)
-EXAMS = ["9709", "9231", "9618", "9702", "TMUA", "TSA", "BMAT"]
+EXAMS = ["9709", "9231", "9618", "9702"]
 BOOKS = {
     "9709_p1": "9709 Pure Mathematics 1", "9709_p23": "9709 Pure Mathematics 2 & 3",
     "9709_p4": "9709 Mechanics", "9709_p5": "9709 Probability & Statistics 1",
