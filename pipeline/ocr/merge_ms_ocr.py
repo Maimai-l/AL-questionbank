@@ -24,6 +24,23 @@ from pipeline.text.flag_quality import RANK  # noqa: E402
 from pipeline.text.html_tables import convert  # noqa: E402
 
 
+def scheme_total(t, component):
+    """Marks a normalised 9702 scheme awards: its award codes ("C1", "B1 B1") in the
+    marks cell, or on paper 5 the number there."""
+    total = 0
+    for line in t.split("\n"):
+        cells = line.split("  |  ")
+        if len(cells) < 2:
+            continue
+        if component == "5":
+            m = re.fullmatch(r"\s*(\d{1,2})\s*", cells[1])
+            total += int(m.group(1)) if m else 0
+        else:
+            m = re.fullmatch(r"\s*((?:\*?D?[MABC]\d\s*)+)", cells[1])
+            total += sum(int(d) for d in re.findall(r"\d", m.group(1))) if m else 0
+    return total
+
+
 def normalise(t):
     return convert(unescape(clean(t)[0])[0])[0]
 
@@ -36,14 +53,22 @@ def main(parsed, dbpath):
         con.execute("ALTER TABLE questions ADD COLUMN ms_latex TEXT")
 
     ids = {r[0] for r in con.execute("SELECT id FROM questions")}
-    rows, missing = [], 0
+    rows, missing, short = [], 0, []
     for r in R:
         qid = (f"{r['subject']}_{r['series']}_{r['component']}{r['variant']}"
                f"_q{r['q']:02d}")
         if qid not in ids:
             missing += 1
             continue
-        rows.append((normalise(r["ms_ocr"]), qid))
+        t = normalise(r["ms_ocr"])
+        if r["subject"] == "9702":
+            # the text layer already reads every 9702 scheme row: keep the OCR only
+            # when it has all the marks (it now and then drops or doubles rows)
+            marks = con.execute("SELECT marks FROM questions WHERE id=?", (qid,)).fetchone()[0]
+            if scheme_total(t, r["component"]) != marks:
+                short.append(qid)
+                continue
+        rows.append((t, qid))
     con.executemany("UPDATE questions SET ms_latex=? WHERE id=?", rows)
 
     dropped = 0
@@ -60,6 +85,8 @@ def main(parsed, dbpath):
         else:
             con.execute("UPDATE questions SET ms_quality=? WHERE id=?", (gl, qid))
     print(f"{dropped} 题的 OCR 评分细则不如文本层,未保留")
+    if short:
+        print(f"9702 {len(short)} 题的 OCR 评分细则分值合计与题面不符，未写入:{' '.join(short[:8])} …")
 
     # let the readable version be searchable too, stripped of LaTeX punctuation
     con.executemany(

@@ -355,6 +355,33 @@ cp raw/pdf/9702_*.pdf raw/ms/9702_*.pdf data/papers/
    `chapters.py` 对按节标注的科目(`topic_model.PAPER_SECTIONS` 里的 9618、9702)统一按节存主题;
    覆盖率只有 9702 按整节的学习目标计算,9618 仍按小节。
 
+7. **OCR(同日补做)。** PaddleOCR-VL 的 token 已内置在 `pipeline/ocr/*.py`(环境变量 `PADDLE_TOKEN` 可覆盖)。
+   - 题干：逐张提交时服务端排队，每分钟只有约 3 张;`ocr.py --pack 10` 把 10 张题图合成一个 PDF 提交，每分钟约 50 张，
+     48 分钟读完 2482 张。合包时模型偶尔漏掉一段(常是开头的 (a) 或图后的问句与选项),所以
+     `apply_reocr.py --check-text` 用文本层核对：小问标号序列必须一致，选择题必须有选项字母与问句;
+     不通过的题用 `ocr.py`(不合包)单张重读，经 `--second` 再核对一次。两次读法相同而缺选项字母的选择题
+     (选项画在图里)也采用。结果 2363 题写入 `question_latex`(q_quality ok),117 题仍用文本层(partial)。
+   - 评分细则：卷 2、4、5 的 125 份整份 OCR(`ocr_ms.py`),`parse_ms_ocr.py` 对 9702 只认表头为 Question … Answer
+     的表(前面通用评分说明的编号表会被当成第 7 题)。`merge_ms_ocr.py` 对 9702 只在评分代码合计等于题面分值时
+     写入 `ms_latex`:797 题中 750 题写入，其余保留文本层版本。
+   - `split_parts.py --syllabus 9702` 重跑后，题干按小问切开 99.9%,小问有评分细则片段 99.0%。
+   - `check_latex.py`:23 题仍有 KaTeX 无法渲染的公式(细则 18 题、题干 5 题),多为 OCR 读错的
+     `\frac{{1}/{2}…}` 一类，需要对照原页更正(`latex_fix_batches.py`)。
+
+```bash
+python3 pipeline/ocr/ocr.py raw/new_papers/questions.json data/img9702 raw/ocr/q_9702.jsonl 4 --pack 10
+python3 pipeline/ocr/apply_reocr.py raw/ocr/q_9702.jsonl --check-text --failed failed.txt
+#   failed.txt 中的题：ocr.py 不加 --pack,写入 raw/ocr/q_9702_single.jsonl
+python3 pipeline/ocr/apply_reocr.py raw/ocr/q_9702.jsonl --check-text --second raw/ocr/q_9702_single.jsonl --write
+python3 pipeline/ocr/ocr_ms.py raw/ms_ocr_9702 raw/ocr/ms_9702.jsonl 2        # 卷 2/4/5 细则的链接目录
+python3 pipeline/ocr/parse_ms_ocr.py raw/ocr/ms_9702.jsonl raw/ocr/ms_9702_parsed.json
+python3 pipeline/ocr/merge_ms_ocr.py raw/ocr/ms_9702_parsed.json data/caie.db
+python3 pipeline/text/split_parts.py --syllabus 9702 --write
+```
+
+8. **旧考纲。** 2021 年的卷子按 2019–2021 考纲命题,A Level 部分还有通信(调幅、模拟与数字传输)和电子学(运算放大器)。
+   卷 4 中这 14 题在现行考纲里没有对应节，主题置空,`topic_note` 注明。
+
 教材线的文字层路线:
 
 ```bash

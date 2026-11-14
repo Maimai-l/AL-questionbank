@@ -24,6 +24,9 @@ class TableGrab(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
+        if tag == "br" and self._cell is not None:
+            self._cell.append(" ")            # "vector<br>work" is two lines, not "vectorwork"
+            return
         if tag == "table":
             self._rows = []
         elif tag == "tr" and self._rows is not None:
@@ -61,8 +64,10 @@ def strip_tables(md):
     return "\n".join(keep)
 
 
-def rows_to_questions(pages):
-    """Walk every table row in document order, attributing rows to questions."""
+def rows_to_questions(pages, need_answer=False):
+    """Walk every table row in document order, attributing rows to questions.
+    need_answer: only tables headed Question ... Answer (9702 puts its generic
+    marking principles, numbered 1-7, in a table whose heading names a question)."""
     out = collections.OrderedDict()
     current = None
     for md in pages:
@@ -75,6 +80,9 @@ def rows_to_questions(pages):
             header = [c[0].lower() for c in table[0]] if table else []
             if "question" not in " ".join(header):
                 continue                      # cover page / grade table, not a mark scheme
+            if need_answer and not (header and header[0].startswith("question")
+                                    and any("answer" in h for h in header)):
+                continue
             for row in table[1:]:
                 cells = [html.unescape(c[0]) for c in row]
                 if not any(cells):
@@ -128,7 +136,7 @@ def main(cache, out_json):
     records, empty = [], 0
     for fname, pages in sorted(per_file.items()):
         subject, series, _, comp = fname.replace(".pdf", "").split("_")
-        qs = rows_to_questions(pages)
+        qs = rows_to_questions(pages, need_answer=subject == "9702")
         if not qs:
             empty += 1
             continue
