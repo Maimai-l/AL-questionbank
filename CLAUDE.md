@@ -13,7 +13,7 @@
 
 `exam-bank-pipeline` 与 `exam-paper-review` 两个 skill 的源文件在 `skills/`,共用脚本在 `skills/shared/`
 (下载试卷、去水印、按题取文本,不依赖仓库)。改完运行 `python3 skills/build.py`,把 `exports/` 下的
-`.skill` 文件交给用户在 claude.ai 上传。`skills/shared/strip_watermark.py` 与 `pipeline/fetch/` 的那份一起改。
+`.skill` 文件(以及同内容的插件格式 `-plugin.zip`)交给用户在 claude.ai 上传。SKILL.md 正文为英文，由用户改定，修改时保留其写法。`skills/shared/strip_watermark.py` 与 `pipeline/fetch/` 的那份一起改。
 
 ## 文档
 
