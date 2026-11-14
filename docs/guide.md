@@ -181,3 +181,4 @@ python3 sync.py update --ref stable            # 代码取 stable 分支,数据�
 | 页面显示的是旧数据 | `python3 sync.py status` 看版本;刷题页 `data/practice.html` 需要强制刷新浏览器缓存 |
 | `找不到标签 data-NAME` | 先在本地运行 `python3 sync.py pin NAME` |
 | 磁盘占用越来越大 | `python3 sync.py pull --gc` |
+| `获取引用 refs/remotes/origin/main 失败：incorrect old value provided`(`cannot lock ref`) | 2026-11-14 之前的 `sync.py` 在 git 2.50 及以上会这样失败。运行一次 `git pull --ff-only` 取得新版 `sync.py`,再 `python3 sync.py pull` |

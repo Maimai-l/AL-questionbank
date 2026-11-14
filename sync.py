@@ -29,6 +29,15 @@ def git(*args, cwd=ROOT, capture=False, check=True):
     return (r.stdout or "").strip() if capture else r.returncode
 
 
+def fetch_branch(branch):
+    """Bring refs/remotes/origin/<branch> up to date. The source alone goes on the command
+    line and the tracking ref is set afterwards: with "+refs/heads/x:refs/remotes/origin/x"
+    git 2.50 and later also apply the clone's configured refspec in the same batch, update
+    the ref twice and fail with "incorrect old value provided"."""
+    git("fetch", REMOTE, f"refs/heads/{branch}")
+    git("update-ref", f"refs/remotes/{REMOTE}/{branch}", "FETCH_HEAD")
+
+
 def is_worktree():
     return os.path.exists(os.path.join(DATA, ".git"))
 
@@ -42,7 +51,7 @@ def tag(name):
 
 
 def pull(force=False, gc=False, auto=True, ref=None):
-    git("fetch", REMOTE, f"+refs/heads/{BRANCH}:refs/remotes/{REMOTE}/{BRANCH}")
+    fetch_branch(BRANCH)
     target = f"{REMOTE}/{BRANCH}"
     if ref:                              # a pinned version instead of the newest
         target = tag(ref)
@@ -76,8 +85,7 @@ def update(force=False, auto=True, ref=None):
     branch = git("rev-parse", "--abbrev-ref", "HEAD", capture=True)
     if git("status", "--porcelain", "--untracked-files=no", capture=True):
         sys.exit("代码目录有未提交的改动,先提交或撤销再 update。")
-    # an explicit refspec: a single-branch clone fetches nothing else by default
-    git("fetch", REMOTE, f"+refs/heads/{branch}:refs/remotes/{REMOTE}/{branch}")
+    fetch_branch(branch)        # by name: a single-branch clone fetches nothing else by default
     git("merge", "--ff-only", f"{REMOTE}/{branch}")
     print(f"代码: {branch} {git('log', '-1', '--format=%h %s', capture=True)}")
     pull(force=force, auto=auto, ref=ref)
@@ -109,7 +117,7 @@ def pin(name):
 def push(message):
     if not is_worktree():
         sys.exit("data/ 不是 worktree,先 python3 sync.py pull")
-    git("fetch", REMOTE, f"+refs/heads/{BRANCH}:refs/remotes/{REMOTE}/{BRANCH}")
+    fetch_branch(BRANCH)
     base = git("rev-parse", f"{REMOTE}/{BRANCH}", capture=True)
     head = git("rev-parse", "HEAD", cwd=DATA, capture=True)
     if base != head:
