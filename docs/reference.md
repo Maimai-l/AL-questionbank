@@ -3,7 +3,7 @@
 > 本文是 CAIE 三科建库时的设计记录,保留了切分、OCR、标注中各类问题的来龙去脉。
 > 其中的目录布局与命令写法是当时的状态,已经过时。当前的目录布局、运行方式与
 > 数据位置以 [README](../README.md)、[流水线说明](pipeline.md)、
-> [数据同步](data-sync.md) 为准。下文数量为 CAIE 三科,入学考见 [admissions/](admissions/题库说明.md)。
+> [数据同步](data-sync.md) 为准。下文数量为 CAIE 三科(9702 物理见 [pipeline.md](pipeline.md) 的「新增 9702 物理」);入学考已归档，见 `attic/admissions/`。
 
 **2956 道真题**,2021–2025,378 份卷子。每题含 LaTeX 题干、mark scheme、
 syllabus topic 标签、分值、是否带图,以及**无损原图**。

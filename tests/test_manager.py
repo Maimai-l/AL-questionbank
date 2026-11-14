@@ -44,8 +44,8 @@ class Paper(unittest.TestCase):
         self.assertGreater(checked, 0)
 
     def test_every_exam_lays_out(self):
-        """A set mixing every exam (CIE with answer space, admissions with blank space)
-        builds at every step."""
+        """A set mixing every exam (9702 paper 1 multiple choice among them) builds at
+        every step."""
         from manager import bank, paper, sets
         items = [r["id"] for e in bank.meta() for r in bank.rows(e["exam"])[:2]]
         s = sets.create("测试 各考试", items)
@@ -108,7 +108,7 @@ class QueryPage(Api):
 
     async def test_question_detail(self):
         """A question's panel: its text, images, mark scheme and original paper."""
-        for exam, component in (("9709", "3"), ("9618", "1"), ("TMUA", "1")):
+        for exam, component in (("9709", "3"), ("9618", "1"), ("9702", "1")):
             qid = questions(exam, component, 1)[0]
             d = await self.json("GET", f"/api/question/{qid}")
             await self.call("GET", d["image"]["src"])
@@ -134,9 +134,9 @@ class QueryPage(Api):
             self.assertTrue((await r.read()).startswith(b"%PDF"))
         d = await self.json("GET", f"/api/question/{p['qid']}")
         self.assertTrue(d["paper_pdf"] and d["ms_pdf"])
-        tmua = questions("TMUA", "1", 1)[0]
-        self.assertFalse((await self.json("GET", f"/api/question/{tmua}"))["ms_pdf"])
-        await self.call("GET", f"/paper/{tmua}?kind=ms", status=404)
+        none = "9702_s26_21_q01"                # no site has the scheme of 9702/21 June 2026
+        self.assertFalse((await self.json("GET", f"/api/question/{none}"))["ms_pdf"])
+        await self.call("GET", f"/paper/{none}?kind=ms", status=404)
 
     async def test_add_to_set(self):
         """Picked rows go into a new set, then more into it; unknown ids are left out."""

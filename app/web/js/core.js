@@ -71,7 +71,7 @@ export const remember = (patch) => {
 
 // ------------------------------------------------------------------ the exams
 
-export const EXAMS = ["9709", "9231", "9618", "9702", "TMUA", "TSA", "BMAT"];
+export const EXAMS = ["9709", "9231", "9618", "9702"];
 export const isCaie = (syl) => /^\d{4}$/.test(syl);
 const SERIES = { m: "F/M", s: "M/J", w: "O/N" };
 const SERIES_ORDER = { w: 3, s: 2, m: 1 };

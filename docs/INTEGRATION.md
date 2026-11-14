@@ -13,7 +13,7 @@
 | 时间 | ISO 8601 UTC，例如 `2026-08-18T10:30:00Z` |
 | JSON 文本列 | `parts`、`marks_parts`、`topic_all`、`mark_codes`、`qp_pages`、`options`；读取后解析 JSON |
 
-题库目前共 4,844 题：9231、9618、9709、BMAT、TMUA、TSA。不要把导出 ZIP 当作本地题库的数据源：ZIP 是可分发子集，`caie.db` 是全集。
+题库目前共 6,531 题：9231、9618、9702、9709(入学考 TMUA、TSA、BMAT 已于 2026-11 归档到 `archive-admissions` 分支)。不要把导出 ZIP 当作本地题库的数据源：ZIP 是可分发子集，`caie.db` 是全集。
 
 ## 现有数据表
 
@@ -24,12 +24,12 @@
 | 字段 | 类型 | 含义 |
 | --- | --- | --- |
 | `id` | TEXT PK | 全局题目 ID，例如 `9709_m21_12_q01`、`TSA-2023-S1-q50` |
-| `syllabus` | TEXT | `9709` / `9231` / `9618` / `TMUA` / `TSA` / `BMAT` |
+| `syllabus` | TEXT | `9709` / `9231` / `9618` / `9702` |
 | `component`, `component_name` | TEXT | 试卷组件及显示名 |
 | `paper`, `variant`, `year`, `month`, `session`, `series` | TEXT / INTEGER | 试卷来源 |
 | `q`, `parts`, `marks`, `marks_parts` | INTEGER / TEXT | 题号、小问、分值 |
 | `topic`, `topic_name`, `subtopic`, `subtopic_name` | TEXT | 知识点标签；可能为空 |
-| `qtype`, `options`, `answer` | TEXT | 题型、选择项、答案；主要适用于 admission MCQ |
+| `qtype`, `options`, `answer` | TEXT | 题型、选择项、答案；用于 9702 卷 1 选择题(qtype 为 mcq) |
 | `image` | TEXT | 主题图相对 `data/` 的路径；可能为空 |
 | `question_text`, `question_latex` | TEXT | OCR 文本 / 富文本；可能为空或含内嵌图片引用 |
 | `ms_text`, `ms_latex` | TEXT | 评分标准文本 |
@@ -45,7 +45,7 @@ FROM questions
 WHERE id = :question_id;
 ```
 
-按题图显示时，将 `image` 拼到 `data/` 下。题干 Markdown/HTML 中还可能有 `img9709/`、`img9231/`、`img9618/`、`img_adm/` 或 `img_tara/` 开头的内嵌图片路径，也以该 assets 目录为根。
+按题图显示时，将 `image` 拼到 `data/` 下。题干 Markdown/HTML 中还可能有 `img9709/`、`img9231/`、`img9618/` 或 `img9702/` 开头的内嵌图片路径，也以该 assets 目录为根。
 
 ### `chapters`（只读）
 

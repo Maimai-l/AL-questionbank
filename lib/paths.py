@@ -9,7 +9,7 @@ Environment overrides, for running against a copy without moving anything:
     CAIE_ROOT       project root (the folder holding qb.py)
     CAIE_DATA       data folder (default: <root>/data)
     CAIE_DB         database file (default: <data>/caie.db)
-    CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img9702/ img_adm/ img_tara/
+    CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img9702/
     QB_WORK         what practising produces: handwriting boards, attempts
                     (default: qb-work/ next to the project folder)
     CAIE_EXPORTS    distribution ZIPs (default: exports/ next to the project folder)
@@ -31,10 +31,11 @@ EXPORTS = os.environ.get("CAIE_EXPORTS") or os.path.join(os.path.dirname(ROOT), 
 RAW = os.environ.get("CAIE_RAW") or os.path.join(ROOT, "raw")  # pipeline inputs: PDFs, OCR
 SYLLABUS = os.path.join(ROOT, "syllabus.json")
 
-# Admissions pipeline (pipeline/admissions_rebuild/). Its tracked intermediates
-# (questions_adm.json, answers.json, ms_tmua.json, retag_*.json) sit next to the
-# scripts; the downloaded papers and their page OCR are inputs under raw/.
-ADM = os.path.join(ROOT, "pipeline", "admissions_rebuild")
+# Admissions pipeline, archived 2026-11 (attic/admissions/; the data is on the
+# archive-admissions branch). Its tracked intermediates (questions_adm.json,
+# answers.json, ms_tmua.json, retag_*.json) sit next to the scripts; the
+# downloaded papers and their page OCR are inputs under raw/.
+ADM = os.path.join(ROOT, "attic", "admissions", "admissions_rebuild")
 BANK = os.path.join(RAW, "bank")            # manifest.py: papers, keys, specs
 BANK_OCR = os.path.join(RAW, "bank_ocr")    # ocr_bank.py: one markdown per page
 IMG_ADM = os.path.join(DATA, "img_adm")     # render_adm_imgs.py: one PNG per question

@@ -15,18 +15,17 @@
 
 ## data/ 的内容
 
+入学考(TMUA、TSA、BMAT)的数据于 2026-11 移到 `archive-admissions` 分支(`img_adm/`、`img_tara/`、`papers/bank/`、刷题页)。
+
 | 路径 | 内容 | 由谁生成 |
 |---|---|---|
-| `caie.db` | 主库:questions、chapters、attempts、q_fts | `pipeline/db/combine.py`、`pipeline/admissions_rebuild/merge_admissions.py` 等 |
-| `img9709/` `img9231/` `img9618/` | CAIE 逐题裁图,16 级灰度 PNG(`lib/png16.py`,下同) | `pipeline/split/crop.py` |
-| `img9709_ans/` `img9231_ans/` `img9618_ans/` | 带答题区的裁图,刷题页白板以此为底图;只收题图漏掉了点线答题行的题,文件名与题图相同 | `pipeline/split/recrop.py --rows` |
-| `img_adm/` | 入学考逐题原页图 | `pipeline/admissions_rebuild/render_adm_imgs.py` |
-| `img_tara/` | 入学考题干中引用的插图 | `pipeline/admissions_rebuild/merge_admissions.py` |
+| `caie.db` | 主库:questions、chapters、attempts、q_fts | `pipeline/db/combine.py`、`pipeline/db/add_papers.py` 等 |
+| `img9709/` `img9231/` `img9618/` `img9702/` | CAIE 逐题裁图,16 级灰度 PNG(`lib/png16.py`,下同) | `pipeline/split/crop.py` |
+| `img9709_ans/` `img9231_ans/` `img9618_ans/` `img9702_ans/` | 带答题区的裁图,刷题页白板以此为底图;只收题图漏掉了点线答题行的题,文件名与题图相同 | `pipeline/split/recrop.py --rows` |
 | `books/<书>/` | 教材章节 Markdown 与插图 | `pipeline/books/split_chapters.py` |
-| `papers/` | 原卷与评分细则 PDF,文件名即 `questions.qp_pdf`、`questions.ms_pdf`(入学考在 `papers/bank/…`);数据管理页打开原卷、整卷题目卷直接用原卷 | 从 `raw/pdf`、`raw/ms`、`raw/bank` 复制 |
+| `papers/` | 原卷与评分细则 PDF,文件名即 `questions.qp_pdf`、`questions.ms_pdf`;数据管理页打开原卷、整卷题目卷直接用原卷 | 从 `raw/pdf`、`raw/ms` 复制 |
 | `data.js` `textbooks.js` | 页面读取的数据 | `pipeline/export/build_site.py` |
-| `adm_practice.js` | TMUA / TARA 刷题页的题目数据 | `pipeline/export/export_adm_practice.py` |
-| `practice.html` `textbook.html` `adm_practice.html` `vendor/` | 从 `assets/` 复制的页面 | `pipeline/export/build_site.py` |
+| `practice.html` `textbook.html` `vendor/` | 从 `assets/` 复制的页面 | `pipeline/export/build_site.py` |
 
 `questions.image` 与 `chapters.path` 中存放的都是相对 `data/` 的路径。
 

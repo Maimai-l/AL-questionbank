@@ -107,44 +107,12 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
   (2026-09,874 题,Sonnet);卷 4 未做。
 - `build_site.py` 必须最后运行,否则页面读到的是旧数据。
 
-## 入学考选择题线(TMUA / TSA / BMAT)
+## 入学考(已归档)
 
-脚本位于 `pipeline/admissions_rebuild/`,路径经 `lib/paths.py` 解析,可在任意目录下运行:
-原卷在 `raw/bank/`(`paths.BANK`),逐页 OCR 在 `raw/bank_ocr/`(`paths.BANK_OCR`),
-跟踪的中间结果(`questions_adm.json`、`answers.json`、`ms_tmua.json`、`retag_*.json`)
-在脚本旁(`paths.ADM`),题图在 `data/img_adm/`(`paths.IMG_ADM`)。
-
-```bash
-A=pipeline/admissions_rebuild
-python3 $A/manifest.py                      # 0. 下载 PDF 与考纲,支持续跑
-python3 $A/ocr_bank.py                      # 1. 按页 OCR(第三个参数为并发数,默认 4)
-python3 $A/parse_keys.py                    # 2. 答案键 → answers.json
-python3 $A/page_batches.py plan --out raw/page_batches/runN   # 2b. 切不好的页交给转录员
-python3 $A/page_batches.py apply --out raw/page_batches/runN  #     收回,写入 page_fixes.json
-python3 $A/split_admissions.py              # 3. 切题 → questions_adm.json,逐卷校验
-python3 $A/attach_ms.py                     # 4. 挂接 TMUA 官方详解
-python3 $A/tag_admissions.py                # 5. 主题标注与 PS/CT 配比校验
-python3 $A/render_adm_imgs.py               # 6. 逐题原页图
-python3 $A/audit_adm_imgs.py                #    裁图审计,全部通过后再推送
-python3 $A/merge_admissions.py              # 7. 合并进 data/caie.db(重建入学考行,再写回模型标签)
-python3 pipeline/export/build_site.py       # 8. 出页面
-```
-
-`page_fixes.json`(跟踪)是对照页面图像修正过的逐页识别文本,`split_admissions.py`
-与 `attach_ms.py` 读页时优先使用(`page_fixes.py`)。`page_batches.py plan` 先切到临时
-文件,与跟踪的 `questions_adm.json` 逐题比较(缺题、答案字母不在选项中、文本短一半以上、
-与原题用词重合不足一半即错位),把相关页面渲染成图片,连同识别文本和"重点核对"提示分批
-交给转录员子 agent;`apply` 只收下保留了全部 `<img>`、长度未缩短三分之一以上的页面。
-`option_texts.py` 从题干按规则取出每个选项的文字,写 `option_texts`(图形选项为 null),
-`merge_admissions.py` 插入时同样调用。
-
-`review_batches.py` 负责把需要读图判断的题目分批、生成给 agent 的提示词,并在回收时
-用不变量校验结果。改判结果写入 `retag_tmua.json` 与 `retag_tara.json`,不要直接改
-`questions_adm.json`,后者在重跑时会被覆盖。
-
-`spot_check.py` 是入学考抽查:每份试卷按固定种子抽题(默认 5 题,`--exam` 限定考试,`--run` 另存一组),子 agent 对照题图核对题干、
-选项与答案字母,结果写在 `raw/adm_check/out/`;`report` 按试卷与考试统计有错的题与错误类型,
-用来决定哪些试卷要整份重新转录。
+TMUA、TSA、BMAT 于 2026-11-14 从题库移出(用户决定不再使用)。1888 题的数据库行、题图(`img_adm/`、`img_tara/`)、
+原卷(`papers/bank/`)与刷题页在 `archive-admissions` 分支，恢复方法见该分支的 README.md;
+流水线脚本在 `attic/admissions/`,原来这里的两节说明移到 `attic/admissions/pipeline.md`。
+选择题的通用支持(`answer`、`qtype='mcq'`、`options` 列，做题页与刷题页的选项判分)保留，供 9702 卷 1 使用。
 
 ## 教材线
 
@@ -168,10 +136,8 @@ python3 -m pipeline.books.chapters coverage
 |---|---|
 | `build_site.py` | `data/` 下的 data.js、textbooks.js 与页面 |
 | `export_web.py` | `data/data.js`,可单独运行 |
-| `export_adm_practice.py` | `data/adm_practice.js`(TMUA / TARA 刷题页的题目数据),可单独运行 |
 | `export_textbooks.py` | `data/textbooks.js`,可单独运行 |
 | `export_all_chapters.py` | 每章一个 ZIP,放在 `exports/chapters/<考试>/`(9231、9618、9709 三个文件夹),文件名为 `<教材>_<两位章号>_<标题>.zip`,例如 `9709/9709_p1_09_Integration.zip`;旧版按教材分散存放的同一章文件在写新文件后删除。含章节正文、同主题真题、题图与评分细则;只有部分小问属于本章的题,只给这些小问及其评分细则(`part_data`)。教材插图中的 JPEG 以质量 75 重新压缩(更小时才替换,文件名不变)。数据管理页批量生成的「章节包」节点用同一函数 `write_chapter()` 写同样的 ZIP。`--syllabus`、`--chapter` 限定范围,`--no-images` 不含任何图片,文件名以 `_no_images` 结尾 |
-| `export_admissions_banks.py` | TMUA 包与 TARA(TSA 加 BMAT)包 |
 | `export_9709_p1.py` | 9709 P1 文本包与图片包 |
 | `export_curated_hard_papers.py` | 六套人工精选难卷 |
 | `export_cs_code_questions.py` | 9618 中要求实际编写代码的题目(整题规则加小问任务类型),列出代码小问 |
@@ -217,22 +183,6 @@ python3 pipeline/split/recrop.py && python3 pipeline/split/recrop.py --rows
 
 刷题页的白板以带答题区的裁图为底图(没有时用题图),每个小问下方保留原卷的答题区,
 底图以下的画布仍可继续书写。题图本身保持紧凑,供阅读、导出与 OCR 使用。
-
-## 入学考题图(img_adm)
-
-`render_adm_imgs.py` 读 `raw/bank/` 下的原卷(`manifest.py raw/bank` 下载),写入
-`data/img_adm/`。与 CAIE 裁图的做法相同:
-
-- 页面固定元素:页码、各年份写法不同的页脚、页眉横线、页顶标志、BLANK PAGE
-- 题号在全卷范围内按 1、2、3… 依次认领,选项旁的数值不会被当成题号。文本层损坏
-  的三种情况都能还原:UCLES 老卷的 29 位偏移、TMUA 2016/2017 的 CambriaMath
-  数字(U+0372 起)、字形缺失的空白题号
-- 共享材料跨页时,续页顶部的材料段同样拼到每道相关题前面
-- 下一题题号在下一页顶端时,那一页不属于本题
-
-`audit_adm_imgs.py` 检查:题号序列是否完整且有序、裁图内是否有别题的题号、固定元素
-是否残留(逐像素)、题目页上的内容是否被遗漏、有没有按整页输出的题。当前 55 份试卷、
-1888 题全部通过。
 
 ## 已知问题
 

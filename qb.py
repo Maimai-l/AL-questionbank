@@ -21,10 +21,7 @@ DB = paths.DB
 
 SYLLABUS = {"9709": "Mathematics", "9231": "Further Mathematics",
             "9618": "Computer Science",
-            "9702": "Physics",
-            "TMUA": "Mathematics Admissions Test",
-            "TSA": "Thinking Skills Assessment (TARA preparation)",
-            "BMAT": "BMAT Section 1 (TARA preparation)"}
+            "9702": "Physics"}
 
 PAPER_TOTAL = {
     ("9709", "1"): 75, ("9709", "3"): 75, ("9709", "4"): 50, ("9709", "5"): 50,

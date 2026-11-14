@@ -9,8 +9,8 @@
     --explain to add the worked explanation (9618 only)
 
 The bank (caie.db, about 80 MB) is downloaded once from GitHub into --cache
-(default ~/.cache/qbank). It holds 9709, 9231, 9618 and 9702 papers 2021-2026 and
-TMUA, TSA, BMAT. Question and scheme text was checked against the original papers
+(default ~/.cache/qbank). It holds 9709, 9231, 9618 and 9702 papers 2021-2026
+(the admissions tests were archived in 2026-11). Question and scheme text was checked against the original papers
 (not yet for 9702: its text is OCR or, where q_quality is partial, the PDF text layer);
 diagrams are described in the text only, so look at the PDF when a question has one
 (has_diagram = 1). Mark scheme text is the scheme as printed, split by question.

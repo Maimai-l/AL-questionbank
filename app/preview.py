@@ -20,7 +20,7 @@ from lib import db, paths  # noqa: E402
 from app import marking, server  # noqa: E402
 
 WEB = server.WEB
-SAMPLE = ["9709_s23_12_", "9709_w22_32_", "9231_s23_31_", "9618_s23_12_", "TMUA-2023-P1-"]
+SAMPLE = ["9709_s23_12_", "9709_w22_32_", "9231_s23_31_", "9618_s23_12_", "9702_s23_11_"]
 LIST_FIELDS = ("id", "paper", "series", "component", "variant", "session", "year", "q", "marks",
                "topic", "topic_name")
 
