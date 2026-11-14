@@ -151,6 +151,10 @@ def index_folder(db, folder, syllabus, components=None, book=None):
     if syllabus not in models:
         sys.exit(f"没有 {syllabus} 的大纲数据,先跑 syllabus.py")
     model = models[syllabus]
+    # 9618 and 9702 tag questions by syllabus section ("1"), not by the
+    # subtopic ("1.3"): a chapter is a section, its best subtopic is kept
+    # in `subtopic`; for 9702 coverage is checked against the whole section
+    sectioned = syllabus in topic_model.PAPER_SECTIONS
     book = book or os.path.basename(folder.rstrip("/"))
 
     idx = {}
@@ -185,7 +189,7 @@ def index_folder(db, folder, syllabus, components=None, book=None):
         # the chapter's own title, weighed against each candidate's name
         boosted = []
         for s, c, h in agg.values():
-            name = (model.topics[c]["component_name"] if syllabus == "9618"
+            name = (model.topics[c]["component_name"] if sectioned
                     else model.topics[c]["name"])
             boosted.append((s * (1 + 3 * title_match(title, name)), s, c, h))
         boosted.sort(key=lambda r: -r[0])
@@ -196,19 +200,19 @@ def index_folder(db, folder, syllabus, components=None, book=None):
         if boosted:
             top = boosted[0][0]
             topname = (model.topics[boosted[0][2]]["component_name"]
-                       if syllabus == "9618" else model.topics[boosted[0][2]]["name"])
+                       if sectioned else model.topics[boosted[0][2]]["name"])
             # 9709 P2 and P3 are the same syllabus text twice over, so 2.5 and
             # 3.5 are both called "Integration". Same name means the choice is
             # between papers, not between topics — settle it on where the
             # questions are, however wide the score gap.
             same = [b for b in boosted
-                    if (model.topics[b[2]]["component_name"] if syllabus == "9618"
+                    if (model.topics[b[2]]["component_name"] if sectioned
                         else model.topics[b[2]]["name"]) == topname]
             close = [b for b in boosted if b[0] >= top * 0.85]
             close = same if len(same) > 1 else close
             if len(close) > 1:
                 def nq(code):
-                    key = code.split(".")[0] if syllabus == "9618" else code
+                    key = code.split(".")[0] if sectioned else code
                     return con.execute(
                         "SELECT COUNT(*) FROM questions WHERE syllabus=? AND topic=?",
                         (syllabus, key)).fetchone()[0]
@@ -222,7 +226,12 @@ def index_folder(db, folder, syllabus, components=None, book=None):
         best = scored[0] if scored else None
         shortlist = [c for _s, c, _h in scored[:3]]
         topic = best[1] if best else None
-        outcomes = model.topics[topic]["outcomes"] if topic else []
+        if topic and syllabus == "9702":   # 9618 keeps its coverage by subtopic
+            sec = topic.split(".")[0]
+            outcomes = [o for c in model.topics if c.split(".")[0] == sec
+                        for o in model.topics[c]["outcomes"]]
+        else:
+            outcomes = model.topics[topic]["outcomes"] if topic else []
         cov = outcome_coverage(text, outcomes)
         weak = [c for c in cov if c["score"] < 0.4]
         overall = round(sum(c["score"] for c in cov) / len(cov), 2) if cov else None
@@ -234,11 +243,11 @@ def index_folder(db, folder, syllabus, components=None, book=None):
             len(WORD.findall(plain(text))),
             # 9618's questions are tagged by syllabus section, so a chapter has
             # to be too or the join finds nothing
-            (topic.split(".")[0] if (topic and syllabus == "9618") else topic),
-            ((model.topics[topic]["component_name"] if syllabus == "9618"
+            (topic.split(".")[0] if (topic and sectioned) else topic),
+            ((model.topics[topic]["component_name"] if sectioned
               else model.topics[topic]["name"]) if topic else None),
-            topic if (topic and syllabus == "9618") else None,
-            model.topics[topic]["name"] if (topic and syllabus == "9618") else None,
+            topic if (topic and sectioned) else None,
+            model.topics[topic]["name"] if (topic and sectioned) else None,
             json.dumps(shortlist), round(best[0], 3) if best else None,
             json.dumps([c["outcome"] for c in cov if c["score"] >= 0.4], ensure_ascii=False),
             json.dumps(weak, ensure_ascii=False), overall,

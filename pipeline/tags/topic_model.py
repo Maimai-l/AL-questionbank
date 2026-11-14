@@ -85,6 +85,12 @@ PAPER_SECTIONS = {
              "2": [str(i) for i in range(9, 13)],
              "3": [str(i) for i in range(13, 21)],
              "4": ["19", "20"]},
+    # 9702: papers 1 and 2 are AS (sections 1-11), paper 4 A Level (12-25, AS
+    # assumed but not examined as such), paper 5 planning across the whole syllabus
+    "9702": {"1": [str(i) for i in range(1, 12)],
+             "2": [str(i) for i in range(1, 12)],
+             "4": [str(i) for i in range(12, 26)],
+             "5": [str(i) for i in range(1, 26)]},
 }
 
 

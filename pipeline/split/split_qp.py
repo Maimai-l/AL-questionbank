@@ -322,6 +322,8 @@ def split_paper(path):
                 marks.append(int(m.group(1)))
         if not marks:
             marks = [int(m) for m in MARKS_RE.findall(text)]
+        if subject == "9702" and comp[0] == "1":
+            marks = [1]                      # multiple choice: one mark, no tariff printed
         questions.append({
             "subject": subject,
             "paper": f"{subject}/{comp}",

@@ -148,12 +148,14 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--syllabus", nargs="*", default=["9709", "9231", "9618", "9702"],
+                    help="only these syllabuses, e.g. --syllabus 9702")
     a = ap.parse_args()
     con = db.connect()
     db.add_column(con, "questions", "part_data")
     rows = con.execute("SELECT id, syllabus, q, marks, marks_parts, topic, topic_parts, question_latex, "
                        "question_text, ms_latex, ms_text FROM questions "
-                       "WHERE syllabus IN ('9709','9231','9618')").fetchall()
+                       f"WHERE syllabus IN ({','.join('?' * len(a.syllabus))})", a.syllabus).fetchall()
     upd, split_ok, ms_ok, nparts = [], 0, 0, 0
     for r in rows:
         d = split(r)

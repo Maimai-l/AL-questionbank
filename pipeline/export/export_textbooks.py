@@ -24,7 +24,7 @@ PAPER_9709 = {"1": "Pure Mathematics 1", "2": "Pure Mathematics 2",
               "3": "Pure Mathematics 3", "4": "Mechanics",
               "5": "Probability & Statistics 1", "6": "Probability & Statistics 2"}
 SUBJECT = {"9231": "Further Mathematics", "9618": "Computer Science",
-           "9709": "Mathematics"}
+           "9702": "Physics", "9709": "Mathematics"}
 
 
 def book_name(syllabus, book):

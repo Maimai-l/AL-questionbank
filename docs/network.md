@@ -14,7 +14,7 @@
 | `bestexamhelp.com` | 9231 的旧来源,已由 papacambridge 取代 | — | 被拦截 |
 | `esat-tmua.ac.uk` | TMUA 官方站点,查找新卷子链接时使用 | — | 可访问 |
 | `www.uat-uk.org` | 入学考官方站点,查找新卷子链接时使用 | — | 被拦截 |
-| `www.cambridgeinternational.org` | CAIE 大纲 PDF(9709/9231/9618 syllabus) | `pipeline/tags/syllabus.py` 的输入,手动下载 | 可访问(2026-09-29 加入白名单后) |
+| `www.cambridgeinternational.org` | CAIE 大纲 PDF(9709/9231/9618/9702 syllabus;9702 用 2025–2027 版 664565) | `pipeline/tags/syllabus.py` 的输入,手动下载 | 可访问(2026-09-29 加入白名单后) |
 | `pypi.org` `files.pythonhosted.org` | 安装 PyMuPDF、requests | `pip` | 默认放行 |
 | `archive.ubuntu.com` `security.ubuntu.com` | 安装 poppler-utils(`pdftotext`) | `apt-get` | 默认放行 |
 | `github.com` | 推送 `main` 与 `data` 分支 | `git` | 可访问 |

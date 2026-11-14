@@ -108,7 +108,7 @@ def main(db=None, dry=False):
     changed, upd, method_count, moved = 0, [], Counter(), Counter()
     for r in rows:
         syl = r["syllabus"]
-        if syl not in models:
+        if syl not in models or syl == "9702":   # 9702: pipeline/tags/physics_topics.py
             continue
         pick, shortlist, margin, method, submap = combined(
             syl, r["component"], r["q"], r["ms"], models)

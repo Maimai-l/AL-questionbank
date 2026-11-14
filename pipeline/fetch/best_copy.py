@@ -31,7 +31,8 @@ SOURCES = {
 }
 TOTAL = {"9709": {"1": 75, "2": 50, "3": 75, "4": 50, "5": 50, "6": 50},
          "9231": {"1": 75, "2": 75, "3": 50, "4": 50},
-         "9618": {"1": 75, "2": 75, "3": 75, "4": 75}}
+         "9618": {"1": 75, "2": 75, "3": 75, "4": 75},
+         "9702": {"1": 40, "2": 60, "4": 100, "5": 30}}
 
 
 def fetch(url):
@@ -142,7 +143,7 @@ def main():
         con = db.connect()
         want = {r[0] for r in con.execute(
             "SELECT DISTINCT substr(id, 1, 11) FROM questions WHERE ms_text IS NULL "
-            "AND syllabus IN ('9709','9231','9618')")}
+            "AND syllabus IN ('9709','9231','9618','9702')")}
         names = [f for f in sorted(os.listdir(os.path.join(paths.RAW, "ms")))
                  if "_ms_" in f and f.replace("_ms_", "_")[:-4] in want]
     if a.only:

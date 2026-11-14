@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Query the CAIE question bank (9709 Maths, 9231 Further Maths, 9618 Computer Science).
+"""Query the CAIE question bank (9709 Maths, 9231 Further Maths, 9618 Computer Science, 9702 Physics).
 
   qb.py stats                                        what is in the bank
   qb.py topics --syllabus 9231                       topic codes and counts
@@ -21,6 +21,7 @@ DB = paths.DB
 
 SYLLABUS = {"9709": "Mathematics", "9231": "Further Mathematics",
             "9618": "Computer Science",
+            "9702": "Physics",
             "TMUA": "Mathematics Admissions Test",
             "TSA": "Thinking Skills Assessment (TARA preparation)",
             "BMAT": "BMAT Section 1 (TARA preparation)"}
@@ -29,6 +30,7 @@ PAPER_TOTAL = {
     ("9709", "1"): 75, ("9709", "3"): 75, ("9709", "4"): 50, ("9709", "5"): 50,
     ("9231", "1"): 75, ("9231", "2"): 75, ("9231", "3"): 50, ("9231", "4"): 50,
     ("9618", "1"): 75, ("9618", "2"): 75, ("9618", "3"): 75, ("9618", "4"): 75,
+    ("9702", "1"): 40, ("9702", "2"): 60, ("9702", "4"): 100, ("9702", "5"): 30,
 }
 
 
@@ -167,7 +169,7 @@ def main():
     f.add_argument("--syllabus", choices=list(SYLLABUS))
     f.add_argument("--component")
     f.add_argument("--topic")
-    f.add_argument("--subtopic", help="9618 only: syllabus sub-topic, e.g. 15.2")
+    f.add_argument("--subtopic", help="9618 and 9702: syllabus sub-topic, e.g. 15.2")
     f.add_argument("--paper")
     f.add_argument("--marks", help="5 | 5-8 | >=6 | <=4")
     f.add_argument("--text", help="full-text search over question + mark scheme")

@@ -10,7 +10,8 @@ Three kinds, by the exam:
   points  9618: the marking points of the worked explanation (explain_batches
           .py), each with how it is awarded ("1", "1 per bullet, max 2");
           the part scores at most its marks.
-  choice  TMUA / TSA / BMAT: the options and the key; the page marks it.
+  choice  TMUA / TSA / BMAT and 9702 paper 1: the options and the key; the page
+          marks it. (9702 also awards C1, a compensation mark, which depends on nothing.)
 
 Where the scheme lists alternative methods, the items of the first method
 are used (the shortest run of rows worth the part's marks).
@@ -21,7 +22,7 @@ marks) is marked by entering a score, "score".
 import json
 import re
 
-CODE = r"\*?(?:DM|DB|SC ?B|M|A|B)\d(?:,\d)*(?:FT|ft)?"
+CODE = r"\*?(?:DM|DB|SC ?B|M|A|B|C)\d(?:,\d)*(?:FT|ft)?"
 CODE_CELL = re.compile(rf"(?:{CODE})+")
 CODE_TOKEN = re.compile(CODE)
 
@@ -91,8 +92,10 @@ def point_items(points):
 def parts(row):
     """[{label, marks, kind, items, max}] for one question row (sqlite3.Row / dict)."""
     syl = row["syllabus"]
-    if syl in ("TMUA", "TSA", "BMAT"):
+    if syl in ("TMUA", "TSA", "BMAT") or row["qtype"] == "mcq":
         opts = json.loads(row["option_texts"]) if row["option_texts"] else None
+        if opts is None and syl == "9702" and row["options"]:   # the options are in the image
+            opts = {letter: "" for letter in json.loads(row["options"])}
         return [{"label": "", "marks": 1, "kind": "choice", "options": opts,
                  "answer": (row["answer"] or "").strip()}]
     pd = json.loads(row["part_data"]) if row["part_data"] else {}

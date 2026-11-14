@@ -78,7 +78,7 @@ def main():
     ap.add_argument("--jobs", type=int, default=4)
     a = ap.parse_args()
     ids = {r[0] for r in db.connect().execute(
-        "SELECT id FROM questions WHERE syllabus IN ('9709', '9231', '9618')")}
+        "SELECT id FROM questions WHERE syllabus IN ('9709', '9231', '9618', '9702')")}
     pdfdir = os.path.join(paths.RAW, "pdf")
     files = [os.path.join(pdfdir, p) for p in a.papers] or \
         sorted(glob.glob(os.path.join(pdfdir, "*_qp_*.pdf")))

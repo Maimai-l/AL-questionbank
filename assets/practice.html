@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>CAIE 刷题 · 9709 / 9231 / 9618</title>
+<title>CAIE 刷题 · 9709 / 9231 / 9618 / 9702</title>
 <!-- KaTeX ships in vendor/ so the page works with no network at all; the CDN
      is only a fallback for when this file is moved away from that folder. -->
 <link rel="stylesheet" href="vendor/katex/katex.min.css">
@@ -179,7 +179,7 @@ try { PROG = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { PROG =
 function saveProg(){ try{ localStorage.setItem(KEY, JSON.stringify(PROG)); }catch(e){} }
 
 /* ------------------------------------------------------------- images ----
-   The crops sit in img9709/ img9231/ img9618/ next to this file, but the
+   The crops sit in img9709/ img9231/ img9618/ img9702/ next to this file, but the
    folder may equally be one level up if the page was dropped inside qb/.
    Try each candidate in turn rather than making the user rearrange folders. */
 const IMG_ROOTS = ["", "../", "./images/", "../images/"];
@@ -333,7 +333,7 @@ function cardHtml(q, opts){
       <div class="imgwrap pane-img"${q.img ? "" : ` style="display:none"`}>
         <img class="qimg" alt="${esc(q.id)}">
         <div class="imgfail">找不到题图 <code>${esc(q.img)}</code> —
-          把 img9709 / img9231 / img9618 / img_adm 这些图片文件夹放到这个 html 旁边就能显示。下面切到“文字版”一样能做。</div>
+          把 img9709 / img9231 / img9618 / img9702 / img_adm 这些图片文件夹放到这个 html 旁边就能显示。下面切到“文字版”一样能做。</div>
       </div>
       <div class="pane-txt"${q.img ? ` style="display:none"` : ""}>${richText(q.qt || "(无文字版)")}</div>
     </div>
@@ -418,8 +418,9 @@ function drawDrill(){
 /* --------------------------------------------------------------- paper --- */
 const TOTAL = {"9709":{"1":75,"3":75,"4":50,"5":50},
                "9231":{"1":75,"2":75,"3":50,"4":50},
-               "9618":{"1":75,"2":75,"3":75,"4":75}};
-const DURATION = {75:110, 50:75};   // minutes, per the CAIE timetable
+               "9618":{"1":75,"2":75,"3":75,"4":75},
+               "9702":{"1":40,"2":60,"4":100,"5":30}};
+const DURATION = {75:110, 50:75, 40:75, 60:75, 100:120, 30:75};   // minutes, per the CAIE timetable
 let paperState = null, tick = null;
 
 function buildPaper(syl, comp, excludeYear){
@@ -439,7 +440,8 @@ function buildPaper(syl, comp, excludeYear){
   }
   // top up to the official total with the largest questions that still fit
   let guard = 0;
-  while (used < target && picked.length < 16 && guard++ < 60){
+  const most = target === 40 ? 40 : 16;   // 9702 paper 1: forty one-mark questions
+  while (used < target && picked.length < most && guard++ < 60){
     const opts = cand.filter(q => !seen.has(q.id) && used+q.m <= target)
                      .sort((a,b)=> b.m-a.m || Math.random()-.5);
     if (!opts.length) break;
@@ -454,7 +456,7 @@ function drawPaper(){
   const v = $("view");
   const p = paperState;
   if (!TOTAL[paperSel.syl][paperSel.comp]) paperSel.comp = Object.keys(TOTAL[paperSel.syl])[0];
-  const sylOpts = ["9709","9231","9618"].map(s=>`<option ${paperSel.syl===s?"selected":""}>${s}</option>`).join("");
+  const sylOpts = ["9709","9231","9618","9702"].map(s=>`<option ${paperSel.syl===s?"selected":""}>${s}</option>`).join("");
   const compOpts = Object.keys(TOTAL[paperSel.syl])
     .map(c=>`<option ${paperSel.comp===c?"selected":""}>${c}</option>`).join("");
   v.innerHTML = `

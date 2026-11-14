@@ -9,7 +9,7 @@ Environment overrides, for running against a copy without moving anything:
     CAIE_ROOT       project root (the folder holding qb.py)
     CAIE_DATA       data folder (default: <root>/data)
     CAIE_DB         database file (default: <data>/caie.db)
-    CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img_adm/ img_tara/
+    CAIE_IMG_ROOT   folder holding img9709/ img9231/ img9618/ img9702/ img_adm/ img_tara/
     QB_WORK         what practising produces: handwriting boards, attempts
                     (default: qb-work/ next to the project folder)
     CAIE_EXPORTS    distribution ZIPs (default: exports/ next to the project folder)
