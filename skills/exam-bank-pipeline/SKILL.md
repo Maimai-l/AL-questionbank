@@ -93,7 +93,7 @@ python3 sync.py push -m "<message>"            # replaces the single commit on t
 Review, tag re-checks, worked solutions and revision pages all follow the same pattern. The script's `plan` command writes batch files. Each batch goes to one subagent, which writes only its own result file (or only returns JSON). The script's `verify` or `check` command validates the results, and the main process writes them all with `apply`.
 
 - Agents never modify the database or shared files directly. A faulty batch can then be rolled back on its own, and the validation numbers show which batch caused a problem.
-- Use 10 to 15 questions per batch. In larger batches, agents start guessing on the later questions instead of checking them.
+- Use 20 questions per batch. An experiment on 40 physics questions (2026-11, Haiku subagents, batches of 5, 10, 20 and 40) found 20 the cheapest per question: smaller batches repeat the fixed prompt cost more often, and larger ones reread a growing context after every image. Quality did not fall with batch size in that sample. The table is in `docs/pipeline.md`.
 - Validate results before writing them. Redo any batch that fails; never edit numbers by hand to get past validation.
 - After collecting results, spot-check about 5% yourself. Agent errors follow patterns, so a sample is enough to find them.
 

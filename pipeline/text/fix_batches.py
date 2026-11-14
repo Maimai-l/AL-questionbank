@@ -2,7 +2,7 @@
 """Rewrite CAIE question text and mark schemes against the original pages, through
 sub-agents, and keep the result as replayable corrections.
 
-    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--component 3] [--size 10] [--out run1] [--skip-done] [--focus diagrams|errata] [--notes N.json] [ID ...]
+    python3 pipeline/text/fix_batches.py plan --syllabus 9618 [--component 3] [--size 20] [--out run1] [--skip-done] [--focus diagrams|errata] [--notes N.json] [ID ...]
     python3 pipeline/text/fix_batches.py verify raw/text_fix/run1/out/batch_01.json
     python3 pipeline/text/fix_batches.py apply [--write]
 
@@ -44,6 +44,16 @@ WORK = os.path.join(paths.RAW, "text_fix")
 PAGES = os.path.join(WORK, "pages")
 FIXES = os.path.join(os.path.dirname(os.path.abspath(__file__)), "text_fixes.jsonl")
 WORD = re.compile(r"[A-Za-z]{4,}")
+
+PHYSICS = """## 9702 评分细则的格式(优先于下文「评分细则的写法」第 1–2 条)
+
+9702 的评分细则保持现有的**行格式**,不要改成分块格式:每个评分点一行,写成 `答案  |  评分码  |  说明`
+(两侧各两个空格的竖线;没有说明时省略第二个竖线),评分码照原页写 `B1`、`C1`、`A1`、`M1`(一行有两个码写成 `C1 C1`),
+卷 5 写分数(`|  1`)。每个小问的第一行以小问标签加两个空格开头(如 `3(b)(ii)  `),同一评分点的续行与 `or`
+另起一行、不带竖线。原页列出几种答法时，各答法之间单独一行写 `OR`。各评分码合计等于题目分值(另一种答法不重复计)。
+**当前评分细则格式正确、内容与原页一致时写 `null`,不要只为了改格式而重写。**
+
+"""
 
 FOCUS = """## 本批是图示复核
 
@@ -206,6 +216,8 @@ def plan(a):
         if a.focus:
             focus = {"diagrams": FOCUS, "errata": ERRATA}[a.focus]
             text[0] = text[0].replace("## 每题的材料", focus + "## 每题的材料", 1)
+        if rows[b]["syllabus"] == "9702":
+            text[0] = text[0].replace("## 输出", PHYSICS + "## 输出", 1)
         for r in rows[b:b + a.size]:
             crop = paths.resolve(r["image"])
             ms = _pdf(ms_name(r), "ms")
@@ -229,6 +241,42 @@ def plan(a):
 
 
 LABEL = re.compile(r"^\s*\d+(\([a-z]+\)(\([ivx]+\))?(\s{2}|\s*$)|\s{2}\S)")   # 3(b)(ii), or a bare 3 and two spaces
+
+
+CODES = re.compile(r"\*?D?[MABC](\d)(?:FT)?")
+ALT = re.compile(r"(?mi)^\s*(?:or|alternative)\b")
+
+
+def check_scheme_rows(text, marks):
+    """Problems with a 9702 scheme in its row format: one marking point per line,
+    `answer  |  B1  |  guidance` (manager's code-by-code marking reads it), under a
+    part label. The codes add up to the question's marks; where the scheme lists
+    alternative methods ("OR" lines) they may add up to more. Codes in brackets, "(C1)",
+    belong to an alternative method and paper 5's detail points D1-D10 award only some of
+    their number, so neither is counted. Lines whose second cell is not a code are tables
+    inside the scheme or guidance on a line of its own; a code lost from a row shows in the
+    total."""
+    problems, total, rows = [], 0, 0
+    lettered = bool(re.search(r"\|\s*\*?D?[MABC]\d", text))  # else paper 5, a number beside each point
+    for line in text.splitlines():
+        if not scheme.is_row(line):
+            continue
+        cells = scheme.cells(line)
+        code = cells[1].strip() if len(cells) > 1 else ""
+        if re.fullmatch(r"\d{1,2}", code) and not lettered:
+            total += int(code)
+        elif re.fullmatch(r"(?:\*?D?[MABC]\d(?:FT)?\s*)+", code):
+            total += sum(int(d) for d in CODES.findall(code))
+        elif re.fullmatch(r"\((?:\*?D?[MABC]\d(?:FT)?\s*)+\)|D\d{1,2}", code):
+            pass        # (C1): an alternative method's mark; D1-D10: paper 5's detail points, some of them
+        else:       # a table inside the scheme, or guidance carried onto its own line
+            continue
+        rows += 1
+    if not rows:
+        problems.append("没有 `答案  |  评分码` 行")
+    elif marks and total != marks and not (total > marks and ALT.search(text)):
+        problems.append(f"评分码合计 {total},题目共 {marks} 分")
+    return problems
 
 
 def check_scheme(text, marks):
@@ -314,7 +362,8 @@ def verify_file(path):
                 texts[(r["id"], "question_latex")] = q
         if x.get("scheme"):
             s = x["scheme"].strip() + "\n"
-            for p in check_scheme(s, r["marks"]):
+            check = check_scheme_rows if r["syllabus"] == "9702" else check_scheme
+            for p in check(s, r["marks"]):
                 report.append(f"{r['id']} 评分细则:{p}")
             lines.append({"id": r["id"], "column": mcol(r), "base": sha(r[mcol(r)]), "text": s, "why": x.get("why", "")})
             if mcol(r) == "ms_latex":
@@ -386,7 +435,8 @@ def main():
     p.add_argument("ids", nargs="*")
     p.add_argument("--syllabus", default="9618")
     p.add_argument("--component", help="only this paper (component), e.g. 3")
-    p.add_argument("--size", type=int, default=10)
+    # 20: the cheapest per question in the 2026-11 experiment (docs/pipeline.md)
+    p.add_argument("--size", type=int, default=20)
     p.add_argument("--out", default="run1")
     p.add_argument("--skip-done", action="store_true", help="leave out questions already in text_fixes.jsonl")
     p.add_argument("--focus", choices=["diagrams", "errata"],
