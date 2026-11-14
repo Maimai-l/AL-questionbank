@@ -39,6 +39,7 @@ from lib import db, paths, scheme  # noqa: E402
 from manager import bank  # noqa: E402
 from pipeline.ocr.latex_fix_batches import _pdf, scheme_pages  # noqa: E402
 from pipeline.text import check_latex  # noqa: E402
+from pipeline.text.audit_text import classify_ms, classify_q  # noqa: E402
 
 WORK = os.path.join(paths.RAW, "text_fix")
 PAGES = os.path.join(WORK, "pages")
@@ -383,6 +384,17 @@ def verify(a):
     print(f"{len(ok)} 条可用")
 
 
+def regrade(con, f):
+    """The grade flag_quality.py would give the rewritten text: a question that was
+    'partial' (no OCR version, text layer only) is not partial once it has been rewritten."""
+    if f["column"].startswith("question"):
+        con.execute("UPDATE questions SET q_quality = ? WHERE id = ?", (classify_q(f["text"]), f["id"]))
+    else:
+        syl = con.execute("SELECT syllabus FROM questions WHERE id = ?", (f["id"],)).fetchone()[0]
+        con.execute("UPDATE questions SET ms_quality = ? WHERE id = ?",
+                    (classify_ms(f["text"], syl in ("9709", "9231")), f["id"]))
+
+
 def replay(write):
     con = db.connect()
     done = skipped = 0
@@ -398,6 +410,7 @@ def replay(write):
             continue
         if write:
             con.execute(f"UPDATE questions SET {f['column']} = ? WHERE id = ?", (f["text"], f["id"]))
+            regrade(con, f)
         done += 1
     if write:
         con.commit()
