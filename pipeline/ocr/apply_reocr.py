@@ -20,15 +20,15 @@ Anything else keeps the old text and is listed. Dry run by default; q_fts is
 rebuilt on --write.
 
 --check-text also holds a result against the PDF text layer, which is complete
-though flat: every part label of the text layer ("(b)", "(ii)") must be in the
-new text, and for a multiple-choice question the option letter D and the
+though flat: the part labels of the text layer ("(b)", "(ii)"), in order, must
+be those of the new text, and for a multiple-choice question the option letter D and the
 question it asks (its last sentence ending in "?"). The model
 now and then drops a passage after a diagram (9702_s23_11_q24 lost its question
 and options, 9702_m26_22_q07 its part (b)). --failed FILE writes those ids, one
 per line, to be read again one crop at a time (ocr.py without --pack); --second
-CACHE then takes that second reading when it passes, or when it says the same
-as the first (difflib ratio >= 0.9): the check fails there because the options
-are drawn, not written (9702_s21_11_q12). --strip-bank also drops the answer lines from every other
+CACHE then takes that second reading when it passes or, for a multiple-choice
+question without its option letters, when it says the same as the first (difflib
+ratio >= 0.9): there the options are drawn, not written (9702_s21_11_q12). --strip-bank also drops the answer lines from every other
 row's question_latex (29 rows in 2026-09; 9709_w23_13_q02 alone 11 000 chars).
 """
 import argparse, json, os, re, sys
@@ -62,8 +62,9 @@ def incomplete(new, text, mcq):
     if not text:
         return None
     new = re.sub(r"\$\s*\\mathbf\{([A-D])\}\s*\$", r"\1", new)   # option letters set in bold
-    missing = sorted(set(LABEL.findall(text)) - set(LABEL.findall(new)))
-    if missing:
+    want, got = LABEL.findall(text), LABEL.findall(new)
+    if want != got:                     # in order: (c)(i) can go while (b)(i) stays
+        missing = sorted(set(want) - set(got)) or ["顺序或个数不同"]
         return "缺小问 " + " ".join(missing)
     if mcq:
         if not OPTION_D.search(new):
@@ -102,6 +103,8 @@ def main():
             d = json.loads(ln)
             if d.get("latex"):
                 second[d["id"]] = d
+        for qid, d in second.items():          # read only one crop at a time
+            got.setdefault(qid, d)
     con = db.connect()
     upd, kept, failed = [], [], []
     for qid, d in sorted(got.items()):
@@ -120,7 +123,9 @@ def main():
             if why and qid in second:
                 import difflib
                 alt = normalise(second[qid]["latex"])
-                same = difflib.SequenceMatcher(None, new, alt).ratio() >= 0.9
+                # the same reading twice passes only where the options are drawn: two
+                # readings can drop the same part (9702_m21_22_q06 lost (a) both times)
+                same = why == "缺选项" and difflib.SequenceMatcher(None, new, alt).ratio() >= 0.9
                 if classify_q(alt) == "ok" and (
                         not incomplete(alt, r["question_text"], r["qtype"] == "mcq") or same):
                     new, d, why = alt, second[qid], None

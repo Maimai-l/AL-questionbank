@@ -55,8 +55,9 @@ data/practice.html  刷题页;textbook.html 教材页;concepts/9618/ 9618 每章
   `question_text`、`ms_text` 是 PDF 文本层,只作兜底。
 - 原卷的印刷错误已按正确写法更正,依据写在 `pipeline/text/text_fixes.jsonl` 各行的 `why`。
 - 9618 有逐小问详解(`explanation` 列,970 题中 968 题);9709、9231 不做详解(用户决定)。
-- 9702 物理(2026-11 加入)只收卷 1、2、4、5(卷 3 实验操作卷不收)。尚未 OCR,也未对照原卷审校:
-  题干与评分细则只有文本层,`q_quality` 为 partial(上下标、分式被压平),以题图为准。
+- 9702 物理(2026-11 加入)只收卷 1、2、4、5(卷 3 实验操作卷不收)。已 OCR(2363 题题干、750 题评分细则为 LaTeX),
+  未对照原卷审校;其余题干与细则是文本层(q_quality partial,上下标、分式被压平),以题图为准。
+  2021 年卷 4 的 14 道通信、电子学题属旧考纲，主题为空。
   卷 1 是 40 道选择题,`answer`、`qtype='mcq'`、`options` 与入学考相同。主题按节(1–25),
   由 `pipeline/tags/physics_topics.py` 用教材正文加考纲标注(人工抽查 100 题 86 题正确)。
 - 仍待处理的事项(BMAT 共用材料、TMUA 整体核对、9702 OCR 等)见 `docs/status.md`。
