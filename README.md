@@ -1,18 +1,17 @@
 # AL Question Bank
 
-离线题库,共 5937 题:
+离线题库,共 6531 题:
 
 | 科目 | 题数 | 卷子 | 年份 | 核对情况 |
 |---|---:|---:|---|---|
 | 9709 Mathematics | 2070 | 252 | 2021–2026 | 题干、评分细则与图示已逐题对照原卷 |
 | 9231 Further Mathematics | 1009 | 144 | 2021–2026 | 同上 |
 | 9618 Computer Science | 970 | 130 | 2021–2026 | 同上;卷 1–3 有分小问详解 |
-| TMUA | 360 | 18 | 2016–2023 | 只做过结构检查与抽查,抽查错误率约 22% |
-| TSA Section 1 | 800 | 16 | 2008–2023 | 只做过结构检查与抽查,抽查错误率约 3% |
-| BMAT Section 1 | 728 | 21 | 2003–2023 | 只做过结构检查与抽查,共用材料缺失 |
+| 9702 Physics(卷 1、2、4、5) | 2482 | 168 | 2021–2026 | 已 OCR,未对照原卷审校 |
 
-另有 81 章教材正文(Markdown),以及官方大纲的解析结果。数据现状与待办见
-[docs/status.md](docs/status.md)。
+另有 107 章教材正文(Markdown),以及官方大纲的解析结果。
+入学考(TMUA、TSA、BMAT)已于 2026-11 归档：数据在 `archive-admissions` 分支，脚本在 `attic/admissions/`。
+数据现状与待办见 [docs/status.md](docs/status.md)。
 
 ## 仓库的组织方式
 
@@ -44,7 +43,7 @@ python3 sync.py pull
 python3 sync.py pull
 ```
 
-打开 `data/practice.html` 刷题(TMUA / TARA 用 `data/adm_practice.html`),打开 `data/textbook.html` 看教材。两个页面均可离线使用。
+打开 `data/practice.html` 刷题，打开 `data/textbook.html` 看教材。两个页面均可离线使用。
 
 `data/` 在本地是只读副本。`sync.py pull` 会覆盖其中的改动,有未提交改动时会先拒绝执行。
 题库有更新时,`sync.py pull` 随后运行自动流程,把章节包写到 `exports/chapters/`。
@@ -90,10 +89,9 @@ pipeline/
   tags/               大纲解析、主题标注、先修关系
   books/              教材分页、分章、章节入库
   db/                 单科建库与合库
-  admissions_rebuild/ TMUA / TSA / BMAT 选择题的完整流程
   export/             生成页面数据与各类分发 ZIP
-assets/               页面源文件 practice.html、textbook.html、adm_practice.html 与离线 KaTeX
-attic/                暂不使用的 MCP server、做题记录模块与已被取代的脚本
+assets/               页面源文件 practice.html、textbook.html 与离线 KaTeX
+attic/                暂不使用的 MCP server、做题记录模块、已被取代的脚本与归档的入学考流程(admissions/)
 docs/                 文档
 .claude/agents/       流水线用的子 agent 定义(explainer、tagger、termwriter、transcriber)
 syllabus.json         官方大纲解析结果
@@ -110,7 +108,6 @@ data/                 data 分支的 worktree(不属于 main)
 - [docs/network.md](docs/network.md):流水线需要访问的站点
 - [docs/INTEGRATION.md](docs/INTEGRATION.md):数据库 schema 与对接契约
 - [docs/reference.md](docs/reference.md):CAIE 三科的设计与数据质量记录
-- [docs/admissions/题库说明.md](docs/admissions/题库说明.md):入学考题库的来源与结构
 
 ## 版权
 
