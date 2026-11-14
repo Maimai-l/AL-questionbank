@@ -33,10 +33,12 @@ from lib import db, paths
 from app import marking, store
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
-IMG_DIRS = ("img9709", "img9231", "img9618", "img_adm", "img_tara",
-            "img9709" + paths.ANS_SUFFIX, "img9231" + paths.ANS_SUFFIX, "img9618" + paths.ANS_SUFFIX)
+IMG_DIRS = ("img9709", "img9231", "img9618", "img9702", "img_adm", "img_tara",
+            "img9709" + paths.ANS_SUFFIX, "img9231" + paths.ANS_SUFFIX, "img9618" + paths.ANS_SUFFIX,
+            "img9702" + paths.ANS_SUFFIX)
 BOARD_WIDTH = 800          # board units the question image spans
 EXAMS = {"9709": "Mathematics", "9231": "Further Mathematics", "9618": "Computer Science",
+         "9702": "Physics",
          "TMUA": "TMUA", "TSA": "TSA", "BMAT": "BMAT"}
 # Minutes allowed for each paper, from the syllabuses (CAIE 2020-on; admissions
 # tests as last set). The page divides them by the paper's marks to give each
@@ -45,6 +47,7 @@ MINUTES = {
     "9709": {"1": 110, "2": 75, "3": 110, "4": 75, "5": 75, "6": 75},
     "9231": {"1": 120, "2": 120, "3": 90, "4": 90},
     "9618": {"1": 90, "2": 120, "3": 90, "4": 150},
+    "9702": {"1": 75, "2": 75, "4": 120, "5": 75},
     "TMUA": {"1": 75, "2": 75},
     "TSA": {"1": 90},
     "BMAT": {"1": 60},

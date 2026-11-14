@@ -10,8 +10,9 @@ import unicodedata
 from lib import db, paths, scheme
 
 EXAMS = [("9709", "9709 Mathematics"), ("9231", "9231 Further Mathematics"),
-         ("9618", "9618 Computer Science"), ("TMUA", "TMUA"), ("TSA", "TSA"), ("BMAT", "BMAT")]
-CIE = {"9709", "9231", "9618"}
+         ("9618", "9618 Computer Science"), ("9702", "9702 Physics"),
+         ("TMUA", "TMUA"), ("TSA", "TSA"), ("BMAT", "BMAT")]
+CIE = {"9709", "9231", "9618", "9702"}
 SEASON = {"m": "F/M", "s": "M/J", "w": "O/N"}
 MONTH = {"m": 3, "s": 6, "w": 11}
 

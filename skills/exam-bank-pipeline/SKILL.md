@@ -1,6 +1,6 @@
 ---
 name: "exam-bank-pipeline"
-description: CAIE(9709/9231/9618)与入学考(TMUA/TSA/BMAT)题库的建库流水线与数据,代码与数据在 GitHub 仓库 Maimai-l/AL-questionbank(main 分支是代码,data 分支是 caie.db、题图、原卷 PDF 与页面)。涵盖抓卷(三个站点与去水印)、OCR、题目切分、对照原卷审校、主题标注、详解、复习页与导出。凡涉及这套题库的操作——新增卷子、修复切坏的题、答案或标签对不上、重跑 OCR、改动 schema 或页面、按题取题干与评分细则——均应加载本 skill。
+description: CAIE(9709/9231/9618/9702)与入学考(TMUA/TSA/BMAT)题库的建库流水线与数据,代码与数据在 GitHub 仓库 Maimai-l/AL-questionbank(main 分支是代码,data 分支是 caie.db、题图、原卷 PDF 与页面)。涵盖抓卷(三个站点与去水印)、OCR、题目切分、对照原卷审校、主题标注、详解、复习页与导出。凡涉及这套题库的操作——新增卷子、修复切坏的题、答案或标签对不上、重跑 OCR、改动 schema 或页面、按题取题干与评分细则——均应加载本 skill。
 ---
 
 # 题库流水线
@@ -40,14 +40,14 @@ python3 $S/qbank.py find --syllabus 9709 --topic 1.7 --text "tangent"
 网络受限时,需要在环境的网络设置里允许 `github.com`、`*.githubusercontent.com`;
 抓新卷还要允许三个试卷站点(见第三节)。
 
-## 二、题库现状(2026-10)
+## 二、题库现状(2026-11)
 
 ```
-data/caie.db        5937 题:9709(2070) 9231(1009) 9618(970)  2021–2026 年
+data/caie.db        8419 题:9709(2070) 9231(1009) 9618(970) 9702(2482)  2021–2026 年
                               TMUA(360) TSA(800) BMAT(728)
-data/papers/        原卷与评分细则 PDF:CAIE 1052 份,入学考 55 份在 bank/ 下,均已去水印
-data/img9709 …      逐题题图;data/img_adm、img_tara 入学考题图
-data/books/         81 章教材正文(markdown)
+data/papers/        原卷与评分细则 PDF:CAIE 1387 份,入学考 55 份在 bank/ 下,均已去水印
+data/img9709 …      逐题题图(img9702 为物理);data/img_adm、img_tara 入学考题图
+data/books/         107 章教材正文(markdown,物理 26 章在 books/9702/)
 data/practice.html  刷题页;textbook.html 教材页;concepts/9618/ 9618 每章复习页
 ```
 
@@ -55,7 +55,11 @@ data/practice.html  刷题页;textbook.html 教材页;concepts/9618/ 9618 每章
   `question_text`、`ms_text` 是 PDF 文本层,只作兜底。
 - 原卷的印刷错误已按正确写法更正,依据写在 `pipeline/text/text_fixes.jsonl` 各行的 `why`。
 - 9618 有逐小问详解(`explanation` 列,970 题中 968 题);9709、9231 不做详解(用户决定)。
-- 仍待处理的事项(BMAT 共用材料、TMUA 整体核对等)见 `docs/status.md`。
+- 9702 物理(2026-11 加入)只收卷 1、2、4、5(卷 3 实验操作卷不收)。尚未 OCR,也未对照原卷审校:
+  题干与评分细则只有文本层,`q_quality` 为 partial(上下标、分式被压平),以题图为准。
+  卷 1 是 40 道选择题,`answer`、`qtype='mcq'`、`options` 与入学考相同。主题按节(1–25),
+  由 `pipeline/tags/physics_topics.py` 用教材正文加考纲标注(人工抽查 100 题 86 题正确)。
+- 仍待处理的事项(BMAT 共用材料、TMUA 整体核对、9702 OCR 等)见 `docs/status.md`。
 
 ## 三、试卷来源与去水印
 

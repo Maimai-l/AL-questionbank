@@ -34,7 +34,7 @@ from pipeline.db import build_db  # noqa: E402
 from pipeline.split import crop, split_ms, split_qp  # noqa: E402
 from pipeline.tags import topic_model  # noqa: E402
 
-SUBJECTS = ("9709", "9231", "9618")
+SUBJECTS = ("9709", "9231", "9618", "9702")
 OUT = os.path.join(paths.RAW, "new_papers")
 
 
@@ -49,11 +49,25 @@ def new_papers(con):
             if "_qp_" in f and f[:4] in SUBJECTS and paper_id(f) not in have]
 
 
+_physics = None
+
+
 def tag(models, q, ms_text):
-    """Topic from the syllabus model, within the component's own topics."""
+    """Topic from the syllabus model, within the component's own topics (9702: from
+    the coursebook and the syllabus together, physics_topics.py)."""
+    global _physics
+    if q["subject"] == "9702":
+        if _physics is None:
+            from pipeline.tags.physics_topics import Classifier
+            _physics = Classifier()
+        r = _physics.classify(q["text"], ms_text, q["component"])
+        q.update(topic=r["topic"], topic_name=r["topic_name"], topics_all=r["topics_all"],
+                 topic_confident=0, topic_margin=r["topic_margin"], topic_source="syllabus",
+                 subtopic=r["subtopic"])
+        return
     m = models[q["subject"]]
     scored = m.score(q["text"], q["component"], ms_text or "")
-    if q["subject"] == "9618":                 # 9618 tags at section level
+    if q["subject"] in ("9618", "9702"):       # 9618 and 9702 tag at section level
         best = {}
         for s, c, _h in scored:
             k = c.split(".")[0]
@@ -116,7 +130,7 @@ def add(a):
         done = list(ex.map(one_paper, files, [a.write] * len(files)))
     by_subject, ms_by_subject, short = {}, {}, []
     for f, qs, ms in done:
-        if len(qs) < 4:
+        if len(qs) < (2 if f.startswith("9702") and "_qp_5" in f else 4):   # 9702 paper 5 has two
             short.append(f"{f}: {len(qs)} 题")
         by_subject.setdefault(f[:4], []).extend(qs)
         ms_by_subject.setdefault(f[:4], []).extend(ms)
@@ -147,9 +161,17 @@ def add(a):
             ids += [r[0] for r in con.execute("SELECT id FROM new.questions")]
             con.commit()
             con.execute("DETACH DATABASE new")
+        names = {c: t["name"] for c, t in topic_model.load()[subject].topics.items()}
         for q in qs:
             qid = f"{subject}_{q['series']}_{q['component']}{q['variant']}_q{q['q']:02d}"
-            con.execute("UPDATE questions SET subtopic=? WHERE id=?", (q.get("subtopic"), qid))
+            con.execute("UPDATE questions SET subtopic=?, subtopic_name=? WHERE id=?",
+                        (q.get("subtopic"), names.get(q.get("subtopic")), qid))
+        # 9702 paper 1 is multiple choice: the key letter, as the admissions tests store it
+        keys = {(m["series"], m["component"], m["variant"], m["q"]): m.get("answer")
+                for m in ms_by_subject.get(subject, []) if m.get("answer")}
+        for (series, comp, var, qn), letter in keys.items():
+            con.execute("UPDATE questions SET answer=?, qtype='mcq', options=? WHERE id=?",
+                        (letter, json.dumps(list("ABCD")), f"{subject}_{series}_{comp}{var}_q{qn:02d}"))
         allq += qs
     con.commit()
     json.dump(allq, open(os.path.join(OUT, "questions.json"), "w"), ensure_ascii=False, indent=1)
@@ -160,12 +182,20 @@ def add(a):
 def finish(a):
     from pipeline.text.audit_text import classify_ms, classify_q
     from pipeline.text.flag_quality import RANK
+    from pipeline.text.clean_encoding import clean
     ids = open(os.path.join(OUT, "new_ids.txt")).read().split()
     con = db.connect()
     upd, dropped = [], 0
     for qid in ids:
-        syl, ql, qt, ml, mt = con.execute(
-            "SELECT syllabus, question_latex, question_text, ms_latex, ms_text "
+        # Symbol-font glyphs come out of pdftotext as private-use codepoints
+        # (9702: λ, ×, Δ); clean_encoding.py restores them, here for the new rows
+        for f in ("question_text", "ms_text"):
+            old = con.execute(f"SELECT {f} FROM questions WHERE id=?", (qid,)).fetchone()[0]
+            new, changed = clean(old)
+            if changed:
+                upd.append((f"UPDATE questions SET {f}=? WHERE id=?", (new, qid)))
+        syl, ql, qt, ml, mt, answer = con.execute(
+            "SELECT syllabus, question_latex, question_text, ms_latex, ms_text, answer "
             "FROM questions WHERE id=?", (qid,)).fetchone()
         maths = syl in ("9709", "9231")
         gl = classify_ms(ml, maths) if ml else "missing"
@@ -173,8 +203,16 @@ def finish(a):
         if ml and RANK[gl] > RANK[gt]:
             upd.append(("UPDATE questions SET ms_latex=NULL WHERE id=?", (qid,)))
             ml, dropped = None, dropped + 1
-        upd.append(("UPDATE questions SET q_quality=?, ms_quality=? WHERE id=?",
-                     (classify_q(ql), gl if ml else gt, qid)))
+        gq = classify_q(ql)
+        if syl == "9702" and not ql:
+            # no OCR yet: the page shows the text layer, whose superscripts and
+            # fractions are flattened (10² reads 102), so it is at best partial
+            gq = classify_q(qt)
+            gq = "partial" if gq == "ok" else gq
+        gm = gl if ml else gt
+        if answer and gm == "missing":       # 9702 paper 1: the scheme is the key letter
+            gm = "ok"
+        upd.append(("UPDATE questions SET q_quality=?, ms_quality=? WHERE id=?", (gq, gm, qid)))
     grades = [u[1][0] for u in upd if u[0].startswith("UPDATE questions SET q_quality")]
     import collections
     print(f"{len(ids)} 道新题;题干 {dict(collections.Counter(grades))};"

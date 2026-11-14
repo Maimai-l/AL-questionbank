@@ -26,7 +26,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
 单次 OCR 不得超过 100 页,否则会超时,整个任务作废。`ocr_ms.py` 中的
 `MAX_PAGES = 100` 即此限制。
 
-## CAIE 长题线(9709 / 9231 / 9618)
+## CAIE 长题线(9709 / 9231 / 9618 / 9702)
 
 按必须的执行顺序排列:
 
@@ -309,6 +309,60 @@ python3 pipeline/split/recrop.py && python3 pipeline/split/recrop.py --rows
    `9709_m21_qp_22` q6(b)、`9709_s21_qp_21` q7(c) 连同分值一起丢失;修正后全库 237 题的题干
    找回了文字。`9709_s26_ms_13` 三个站点的评分细则都解析不出,该卷只有 OCR 的 `ms_latex`。
    9709 的关键词标注表(`tag.py`)没有卷 2、卷 6,`tag_batches.py` 对这两卷直接用考纲的主题。
+
+## 新增 9702 物理(2026-11-14)
+
+只收卷 1(选择题，40 分)、卷 2(AS 结构题，60 分)、卷 4(A Level 结构题，100 分)、卷 5(实验设计与数据分析，30 分),
+不收卷 3 实验操作卷(用户决定)。2021–2026 年 168 份试卷、2482 题;未用子 agent。
+
+```bash
+python3 pipeline/tags/syllabus.py <664565-2025-2027-syllabus.pdf>    # 只追加 9702,其他科目保留
+python3 pipeline/fetch/fetch_fraft.py 9702 --papers 1 2 4 5 --years 2021-2026
+python3 pipeline/fetch/strip_watermark.py raw/pdf raw/ms
+python3 pipeline/db/add_papers.py add --write && python3 pipeline/db/add_papers.py finish --write
+python3 pipeline/tags/physics_topics.py --write                       # 需要 chapters 表里的 9702 教材
+python3 pipeline/text/split_parts.py --syllabus 9702 --write
+cp raw/pdf/9702_*.pdf raw/ms/9702_*.pdf data/papers/
+```
+
+1. **考纲。** `syllabus.py` 新增 `parse_9702`:节标题("1 Physical quantities and units")与小节标题("1.1 Physical
+   quantities")都是粗体，学习目标用细体编号，跨行时编号在两行之间，按距离归到最近的编号。76 个小节、300 条学习目标，
+   第 1–11 节为 AS,12–25 节为 A Level。`topic_model.PAPER_SECTIONS` 加 9702:卷 1、2 用 1–11 节，卷 4 用 12–25 节。
+2. **来源。** fraft 上的 9702 全部被重排到 Letter 纸上，脚本全部改用 papacambridge。其中 49 份是已知的水印格式;
+   2026 年的 19 份评分细则和 5 份卷 1 是新格式：叠加层画浅色斜向 "PapaCambridge" 轮廓、页脚
+   "9702/22 Mark Scheme June 2026"、隐形的 "Trace ID: PC-…" 与 "Re-uploading, mirroring … traceable",
+   页面框写成 `0 0 595 842`(评分细则横向为 `0 0 841.92 595.32`),旧规则只认 `595.27 841.89`,没有截掉叠加层。
+   `strip_watermark.py` 已放宽页面框的写法，并把这几种文字加入检查。处理后 335 份文件的全部对象中无站点名与追踪文字。
+   `9702_s26_ms_21` 三个站点都没有。
+3. **切分。** `split_qp.py` 不用改：卷 2、4、5 的题号、分值与总分全部正确;卷 1 每题记 1 分。
+   `split_ms.py` 对 9702 另用一套规则(其他科目 526 份评分细则的解析结果逐字节不变):表头 "Mark" 为单数;
+   评分代码含 C1(补偿分);没有小问小计，以评分代码合计为细则总分;卷 5 每个得分点旁写 1,按行相加;
+   2026 年多了 Guidance 列，说明文字也会以 "C1 …" 开头，所以先按每张表求出评分代码所在的列，只认该列上的代码;
+   答题行写成 `答案  |  代码  |  说明`(`lib/scheme.py` 的格式),页面与逐项打分可以直接用;卷 1 读出答案字母。
+   结果:2477 题有评分细则,2475 题分值与题面一致(不一致的是 `9702_m26_22_q05`、`9702_s26_42_q10`)。
+4. **入库。** `add_papers.py` 支持 9702:卷 1 写 `answer`、`qtype='mcq'`、`options`;`finish` 对新行用
+   `clean_encoding.clean` 还原 Symbol 字体的私用区字符(λ、×、Δ);没有 OCR 时 9702 题干评为 partial
+   (文本层的上下标与分式被压平，页面提示以原题图为准),卷 1 有答案的细则评为 ok。物理卷的答题区在每问之下、
+   以 "答案 = …… [分值]" 结束，这一行属于题目，所以题图已含答题区,`img9702_ans` 只有卷 5 的 42 张。
+5. **主题。** 只用考纲原文打分(`topic_model.py`)时，人工判定的 100 题中 70 题节号正确(例如 "density" 也出现在第 9 节)。
+   `physics_topics.py` 用教材各章正文加考纲原文做 TF-IDF 余弦相似度，再加 `terms_9702.py` 的各节术语，节号正确 86 题
+   (另取的 40 题新样本上 34 题，原方法 26 题)。卷 5 的候选不含第 1 节(实验设计题总在谈不确定度与测量)。
+   小节取考纲模型在该节内的最高分。`retag.py` 跳过 9702。
+6. **教材。** 物理教材(Crundell & Goodwin,第 3 版)由子 agent 处理:PDF 自带文字层，新脚本 `pipeline/books/text_layer.py`
+   按字体、字号与基线读出，上下标转 LaTeX、叠排分式按分数线重建为 `\frac`;按书签切成 26 章,`chapters.py index
+   --syllabus 9702 --components 2,4` 映射到第 1–25 节。已知不足：根号是画出来的，读不到;并排的两张表会合成一张。
+   第 26 章 Practical work 在考纲里没有对应节，主题置空(重新 index 后要再置空一次)。
+   `chapters.py` 对按节标注的科目(`topic_model.PAPER_SECTIONS` 里的 9618、9702)统一按节存主题;
+   覆盖率只有 9702 按整节的学习目标计算,9618 仍按小节。
+
+教材线的文字层路线:
+
+```bash
+python3 -m pipeline.books.text_layer chapters <pdf> <chapters.json>
+python3 -m pipeline.books.text_layer pages <pdf> <页面目录> --from 17 --to 451
+python3 -m pipeline.books.split_chapters <pdf> <页面目录> data/books/9702 --prefix 9702 --table <chapters.json>
+python3 -m pipeline.books.chapters index data/caie.db data/books/9702 --syllabus 9702 --components 2,4
+```
 
 ## 清除残留水印(2026-10-21)
 

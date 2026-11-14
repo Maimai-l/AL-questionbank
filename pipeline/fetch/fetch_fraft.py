@@ -2,6 +2,9 @@
 """Download the papers cie.fraft.cn lists that the bank does not have yet.
 
     python3 pipeline/fetch/fetch_fraft.py 9709 9231 9618 --years 2021-2026 [--dry-run]
+    python3 pipeline/fetch/fetch_fraft.py 9702 --papers 1 2 4 5
+
+--papers keeps only the given components (the first digit of the variant).
 
 The site (Frank 的 CIE 工坊) lists every file of a subject, year and season:
 POST obj/Common/Fetch/renum with subject, year, season (Mar/Jun/Nov). Each
@@ -71,6 +74,7 @@ def main():
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("subjects", nargs="+")
     ap.add_argument("--years", default="2021-2026")
+    ap.add_argument("--papers", nargs="*", help="components to keep, e.g. 1 2 4 5")
     ap.add_argument("--dry-run", action="store_true")
     a = ap.parse_args()
     y0, y1 = (int(x) for x in a.years.split("-"))
@@ -86,6 +90,8 @@ def main():
             for season in ("Mar", "Jun", "Nov"):
                 files = set(listing(s, y, season))
                 for f in sorted(files):
+                    if a.papers and f.rsplit("_", 1)[-1][:1] not in a.papers:
+                        continue
                     if "_qp_" in f and f.replace("_qp_", "_")[:-4] not in have:
                         todo.append(f)
                         ms = f.replace("_qp_", "_ms_")

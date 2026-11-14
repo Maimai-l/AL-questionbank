@@ -11,6 +11,9 @@ the original (`/R` plus the page's header, footer and margin XObjects R0..),
 then a second overlay (a faint large mark, a banner and a QR code below the
 footer). The original layer starts at the clip `q 0 0 595.27559 841.88976 re W n`
 that precedes `/R Do`; the second overlay starts at the next full-page clip.
+The 2026 copies of 9702 (the mark schemes and paper 1) are drawn the same inline way, with
+a faint diagonal "PapaCambridge" in outlines, a footer "9702/22 Mark Scheme June 2026" and
+an invisible line "Trace ID: PC-..." in the overlay, and a page box written "595 842".
 Pages PapaCambridge re-assembled (the mark schemes, and six compact question papers
 whose content separates operators with spaces) have no `/R`: there the diagonal marks,
 if any, are dropped and the content is cut where the second overlay begins (the
@@ -46,7 +49,14 @@ import re
 import pymupdf
 
 CLIP = re.compile(rb"\nq\n0(?:\.0)? 0(?:\.0)? 595\.27\d* 841\.88\d* re\nW\nn\n")
-PAGE_CLIP = re.compile(rb"q\s+0(?:\.0)?\s+0(?:\.0)?\s+595\.27\d*\s+841\.8\d*\s+re\s+W\s+n\s")
+# the 2026 copies of 9702 write the page box rounded ("0 0 595 842 re W n") and the
+# mark schemes are landscape ("0 0 841.92 595.32 re W n")
+PAGE_CLIP = re.compile(rb"q\s+0(?:\.0)?\s+0(?:\.0)?\s+(?:595|84[12])(?:\.\d+)?\s+"
+                       rb"(?:595|84[12])(?:\.\d+)?\s+re\s+W\s+n\s")
+# text the overlay adds without the site's name: an invisible trace line and a footer
+# ("9702/22 Mark Scheme June 2026"; Cambridge's own header reads "... – Mark Scheme  May/June 2026")
+TRACE = re.compile(r"Trace ID: PC-|Re-uploading, mirroring or re-hosting|"
+                   r"\b\d{4}/\d{2} (?:Question Paper|Mark Scheme) (?:March|June|November) \d{4}\b")
 OVERLAY = b"/gRLs0-0 gs"
 DP_HEADER = re.compile(rb"/Artifact\s*<<[^>]*?dynamicpapers[^>]*?>>\s*BDC.*?EMC\s?", re.S | re.I)
 SITES = ("papacambridge", "dynamicpapers")
@@ -155,13 +165,17 @@ def banner(p):
             and any(w in "".join(chr(c[0]) for c in t["chars"]).lower() for w in SITES)]
 
 
+def trace_text(page):
+    return bool(TRACE.search(page.get_text()))
+
+
 def visible(doc):
     """Pages that still show or hold a mark: the diagonal marks, the PapaCambridge banner or
     the dynamicpapers address as text, the FPDF logo, an unused watermark object or a link to
     a site; [0] when only the document properties name a site.
     (A stripped page may keep the overlay's graphics-state name in its content.)"""
     pages = [p.number + 1 for p in doc if b"/FormXob.pcm Do" in p.read_contents()
-             or fpdf_marked(p) or banner(p) or leftover(p) or site_links(p)]
+             or fpdf_marked(p) or banner(p) or leftover(p) or site_links(p) or trace_text(p)]
     return pages or ([0] if doc_marked(doc) else [])
 
 

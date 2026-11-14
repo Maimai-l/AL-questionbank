@@ -148,9 +148,83 @@ def paragraphs(lines):
     return merged
 
 
+def parse_9702(doc):
+    """9702 (Physics) sets its section headings in bold ("1<TAB>" and the name on one
+    visual line) and its topic headings in bold too ("1.1<TAB> Physical quantities").
+    Outcomes are numbered in the light face, one column: the number at x 62, the text
+    from x 85, and for a wrapped outcome the number sits between its lines, so each
+    text line goes to the nearest number. Text before a topic's first number (a
+    section's introduction, "An understanding of ... is assumed") is a note.
+    Sections 1-11 are AS, 12-25 A Level."""
+    topics, sec, sec_name, cur, level = {}, None, None, None, None
+    levels, pending = {}, []
+    for pno, page in enumerate(doc):
+        if not is_content_page(page):
+            continue
+        rows = []
+        for b in page.get_text("dict")["blocks"]:
+            for l in b.get("lines", []):
+                text = "".join(sp["text"] for sp in l["spans"]).replace("\x07", "").strip()
+                if text:
+                    bold = any(sp["font"].endswith("Bd") for sp in l["spans"])
+                    rows.append((l["bbox"][1], l["bbox"][0], text, bold))
+        rows.sort(key=lambda r: (round(r[0]), r[1]))
+        heads = []                       # a bold number and its name share a row
+        for y, x, t, bold in rows:
+            if bold and heads and abs(heads[-1][0] - y) <= 3 and heads[-1][2].isdigit():
+                heads[-1] = (heads[-1][0], heads[-1][1], heads[-1][2] + "\t" + t, True)
+            else:
+                heads.append((y, x, t, bold))
+        for y, x, t, bold in heads:
+            if y < HEAD_Y or y > FOOT_Y or SKIP.search(t) or "Subject content" in t:
+                continue
+            m = re.match(r"^(AS|A) Level subject content", t)
+            if m:
+                level = "AS" if m.group(1) == "AS" else "A Level"
+                levels[level] = t
+                continue
+            if bold:
+                m = re.match(r"^(\d{1,2})\.(\d{1,2})\s+(\S.*)$", t)
+                if m:
+                    cur = f"{m.group(1)}.{m.group(2)}"
+                    topics[cur] = {"code": cur, "name": m.group(3).strip(),
+                                   "component": sec, "component_name": sec_name,
+                                   "level": level, "_num": [], "_text": [],
+                                   "notes": pending}
+                    pending = []
+                    continue
+                m = re.match(r"^(\d{1,2})\s+(\S.*)$", t)
+                if m:
+                    sec, sec_name, cur, pending = m.group(1), m.group(2).strip(), None, []
+                    continue
+            if STOP.search(t):
+                continue
+            key = pno * 1000 + y
+            if cur and x < 80 and t.isdigit():
+                topics[cur]["_num"].append(key)
+            elif cur:
+                topics[cur]["_text"].append((key, t))
+            elif sec:
+                pending.append(t)
+    for tp in topics.values():
+        nums, outs, notes = tp.pop("_num"), {}, list(tp["notes"])
+        for key, t in tp.pop("_text"):
+            if nums and key > nums[0] - 12:
+                n = min(nums, key=lambda k: abs(k - key))
+                outs.setdefault(n, []).append(t)
+            else:
+                notes.append(t)
+        tp["outcomes"] = [re.sub(r"\s{2,}", " ", " ".join(outs[n])).strip()
+                          for n in sorted(outs)]
+        tp["notes"] = [" ".join(notes).strip()] if notes else []
+    return "9702", topics, [], "", sorted(levels)
+
+
 def parse(path):
     doc = fitz.open(path)
-    code = re.search(r"\b(9709|9231|9618)\b", doc[0].get_text()).group(1)
+    code = re.search(r"\b(9709|9231|9618|9702)\b", doc[0].get_text()).group(1)
+    if code == "9702":
+        return parse_9702(doc)
 
     topics, comp_no, comp_name, cur = {}, None, None, None
     prereqs, prior_block = [], []
@@ -221,7 +295,8 @@ def parse(path):
 
 def main(pdfs, out=None):
     out = out or project_paths.SYLLABUS
-    all_ = {}
+    # other subjects already in the file are kept: one syllabus can be added alone
+    all_ = json.load(open(out, encoding="utf-8")) if os.path.exists(out) else {}
     for p in pdfs:
         code, topics, prereqs, prior, levels = parse(p)
         all_[code] = {"source": p.rsplit("/", 1)[-1], "topics": topics,
