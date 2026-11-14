@@ -12,7 +12,7 @@
 |---|---|
 | `get_paper.py` | 下载 qp、ms、等级线:先取本仓库 data 分支的 `papers/`,再依次试 fraft、papacambridge、dynamicpapers;`--source` 指定站点,交出的文件都去水印 |
 | `strip_watermark.py` | `pipeline/fetch/strip_watermark.py` 的独立副本 |
-| `qbank.py` | 只下载 `caie.db`,按卷、按题、按主题取题干与评分细则 |
+| `qbank.py` | 只下载 `caie.db`,按卷、按题、按主题取题干与评分细则;`chapter` 按主题列出教材章节，取单章正文(`--save` 连同插图写到目录) |
 
 改完后打包,在 claude.ai 的 设置 → 功能 → Skills 里上传,替换同名的 skill:
 

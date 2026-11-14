@@ -145,7 +145,7 @@ Combine all changes into a single script and run it once. Before each replacemen
 | The user asks for | What to do |
 |---|---|
 | Topic practice or a targeted practice paper | Make the paper in Typst; see `references/练习材料.md`. Samples and scripts are in `assets/` |
-| A list of gaps to fill | Mark each item "concept work" or "practice"; practice items name the specific paper and question number |
+| A list of gaps to fill | Mark each item "concept work" or "practice"; practice items name the specific paper and question number, and concept items name the textbook chapter (`qbank.py chapter --syllabus … --topic …` finds it) |
 | Trends, correlations or other statistics | Answer in the reply, and write the conclusion into the relevant part of the record |
 | A summary of key points | Group by syllabus chapter. Each item gives the sentence to remember, how to answer, and the source paper and question number. List items lost repeatedly and items already fixed separately |
 | Advice on which papers to do | List candidate questions with `qbank.py find --syllabus … --topic …`, total the marks each paper offers on the weak subsections, and then recommend; do not judge by how new or old a paper is |
