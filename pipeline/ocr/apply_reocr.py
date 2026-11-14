@@ -61,6 +61,7 @@ def incomplete(new, text, mcq):
     text layer's last sentence ending in "?", by its words of four letters or more)."""
     if not text:
         return None
+    new = re.sub(r"\$\s*\\mathbf\{([A-D])\}\s*\$", r"\1", new)   # option letters set in bold
     missing = sorted(set(LABEL.findall(text)) - set(LABEL.findall(new)))
     if missing:
         return "缺小问 " + " ".join(missing)
