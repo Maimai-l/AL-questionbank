@@ -163,11 +163,14 @@ def sha(text):
 
 
 def qcol(r):
-    return "question_latex" if r["question_latex"] else "question_text"
+    """The column a rewrite goes to. 9702 keeps its PDF text layer in question_text and
+    ms_text (the mark codes and totals are read from it): a rewrite of a question that
+    has no OCR version yet goes to the LaTeX column, which the pages read first."""
+    return "question_latex" if r["question_latex"] or r["syllabus"] == "9702" else "question_text"
 
 
 def mcol(r):
-    return "ms_latex" if r["ms_latex"] else "ms_text"
+    return "ms_latex" if r["ms_latex"] or r["syllabus"] == "9702" else "ms_text"
 
 
 def ms_name(r):
@@ -358,18 +361,17 @@ def verify_file(path):
             for p in check_question(q, r):
                 report.append(f"{r['id']} 题干:{p}")
             lines.append({"id": r["id"], "column": qcol(r), "base": sha(r[qcol(r)]), "text": q, "why": x.get("why", "")})
-            if qcol(r) == "question_latex":
-                texts[(r["id"], "question_latex")] = q
+            texts[(r["id"], "question_latex")] = q      # checked as shown, whichever column it goes to
         if x.get("scheme"):
             s = x["scheme"].strip() + "\n"
             check = check_scheme_rows if r["syllabus"] == "9702" else check_scheme
             for p in check(s, r["marks"]):
                 report.append(f"{r['id']} 评分细则:{p}")
             lines.append({"id": r["id"], "column": mcol(r), "base": sha(r[mcol(r)]), "text": s, "why": x.get("why", "")})
-            if mcol(r) == "ms_latex":
-                texts[(r["id"], "ms_latex")] = s
+            texts[(r["id"], "ms_latex")] = s
         ok += lines
-    for i, errs in check_latex.check({i for i, _ in texts}, texts).items():
+    # only this file's texts: check_latex.check with no ids reads the whole table
+    for i, errs in (check_latex.check({i for i, _ in texts}, texts) if texts else {}).items():
         for e in errs:
             report.append(f"{i} {e['column']}: 公式无法渲染({e['error'][:60]}):{e['tex'][:80]!r}")
     return ok, report
