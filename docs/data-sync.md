@@ -50,6 +50,13 @@ python3 sync.py pull --ref NAME # 取回标签 data-NAME 的那一版;update 同
 `push` 使用 `--force-with-lease`,并在推送前检查远程版本是否仍是上次 `pull` 的
 版本。若远程已被别处更新,`push` 会中止,避免覆盖对方的结果。
 
+取回时 `sync.py` 把分支取到专用引用 `refs/sync/<分支>`,再复制到 `refs/remotes/origin/<分支>`。
+它不读 `.git/FETCH_HEAD`:这个文件为所有取回共用，另一个终端同时运行 `git fetch` 会改写它。
+2026-11-14 的一个版本读了它,`origin/data` 和 `data/` 因此被设成了 main 的提交。
+
+数据提交的根目录一定有 `caie.db`。`pull` 在重置 `data/` 之前、`push` 与 `pin` 在动手之前都检查这一点，
+目标不是数据提交就中止，不改动 `data/`,也不推送。测试见 `tests/test_sync.py`。
+
 ## 修改数据后的标准步骤(云端)
 
 ```bash

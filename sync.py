@@ -19,6 +19,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 DATA = os.path.join(ROOT, "data")
 BRANCH = "data"
 REMOTE = "origin"
+MARK = "caie.db"          # every data commit has it at the root (lib/paths.py DB)
 
 
 def git(*args, cwd=ROOT, capture=False, check=True):
@@ -30,12 +31,26 @@ def git(*args, cwd=ROOT, capture=False, check=True):
 
 
 def fetch_branch(branch):
-    """Bring refs/remotes/origin/<branch> up to date. The source alone goes on the command
-    line and the tracking ref is set afterwards: with "+refs/heads/x:refs/remotes/origin/x"
-    git 2.50 and later also apply the clone's configured refspec in the same batch, update
-    the ref twice and fail with "incorrect old value provided"."""
-    git("fetch", REMOTE, f"refs/heads/{branch}")
-    git("update-ref", f"refs/remotes/{REMOTE}/{branch}", "FETCH_HEAD")
+    """Bring refs/remotes/origin/<branch> up to date. The fetch writes a ref of its own,
+    refs/sync/<branch>, which is then copied to the tracking ref:
+    - "+refs/heads/x:refs/remotes/origin/x" on the command line fails on git 2.50 and
+      later when the clone's configured refspec maps the same ref ("incorrect old value
+      provided": one batch updates the ref twice);
+    - .git/FETCH_HEAD is shared: a fetch in another terminal rewrites it in between, and
+      origin/data once became main's commit that way."""
+    git("fetch", REMOTE, f"+refs/heads/{branch}:refs/sync/{branch}")
+    git("update-ref", f"refs/remotes/{REMOTE}/{branch}", f"refs/sync/{branch}")
+
+
+def is_data(commit, cwd=ROOT):
+    """A commit of the data branch has the database at its root; a code commit does not."""
+    return git("cat-file", "-e", f"{commit}:{MARK}", cwd=cwd, check=False) == 0
+
+
+def require_data(commit, what, cwd=ROOT):
+    if not is_data(commit, cwd):
+        sys.exit(f"{what} ({git('log', '-1', '--format=%h %s', commit, cwd=cwd, capture=True)}) "
+                 f"根目录没有 {MARK},不是数据提交。已中止，没有改动 data/。")
 
 
 def is_worktree():
@@ -58,6 +73,7 @@ def pull(force=False, gc=False, auto=True, ref=None):
         git("fetch", REMOTE, f"+refs/tags/{target}:refs/tags/{target}", check=False)
         if git("rev-parse", "-q", "--verify", f"refs/tags/{target}", capture=True, check=False) == "":
             sys.exit(f"找不到标签 {target}。先在有这一版数据的机器上运行 python3 sync.py pin {ref}")
+    require_data(target, target)
     if not is_worktree():
         if os.path.exists(DATA) and os.listdir(DATA):
             sys.exit(f"{DATA} 已存在且不是 worktree。先把它移走再 pull。")
@@ -107,6 +123,7 @@ def pin(name):
         sys.exit("data/ 不是 worktree,先 python3 sync.py pull")
     if dirty():
         sys.exit("data/ 里有未提交的改动,先 push 或 pull 再打标签。")
+    require_data("HEAD", "data/ 当前的提交", cwd=DATA)
     t = tag(name)
     git("tag", "-f", t, "HEAD", cwd=DATA)
     git("push", "-f", REMOTE, f"refs/tags/{t}", cwd=DATA)
@@ -118,6 +135,10 @@ def push(message):
     if not is_worktree():
         sys.exit("data/ 不是 worktree,先 python3 sync.py pull")
     fetch_branch(BRANCH)
+    require_data(f"{REMOTE}/{BRANCH}", f"{REMOTE}/{BRANCH}")
+    require_data("HEAD", "data/ 当前的提交", cwd=DATA)
+    if not os.path.exists(os.path.join(DATA, MARK)):
+        sys.exit(f"data/ 里没有 {MARK},不像数据目录。已中止，没有推送。")
     base = git("rev-parse", f"{REMOTE}/{BRANCH}", capture=True)
     head = git("rev-parse", "HEAD", cwd=DATA, capture=True)
     if base != head:
