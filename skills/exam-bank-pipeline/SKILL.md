@@ -31,7 +31,11 @@ If you only need question text, you do not need the whole repository. Use this s
 S=$(dirname "$(find / -path '*exam-bank-pipeline/scripts/qbank.py' 2>/dev/null | head -1)")
 python3 $S/qbank.py paper 9618_s24_11          # whole paper: question text, marks, mark scheme
 python3 $S/qbank.py find --syllabus 9709 --topic 1.7 --text "tangent"
+python3 $S/qbank.py chapter --syllabus 9702 --topic 17   # textbook chapters for a syllabus topic
+python3 $S/qbank.py chapter 9702 17                      # one chapter as markdown; --save DIR also writes its figures
 ```
+
+`chapter` downloads only the chapters asked for. The books are 9709_p1, 9709_p23, 9709_p4, 9709_p5, 9231, 9618 and 9702; the 9702 chapters are text only, without figures. Add `--refresh` to download the bank again after it has been updated.
 
 Single files can be downloaded directly from `https://raw.githubusercontent.com/Maimai-l/AL-questionbank/data/<path>`, for example `caie.db`, `papers/9618_s24_qp_11.pdf` or `img9618/…` on the `data` branch.
 
@@ -127,4 +131,4 @@ A wrong question count is more dangerous than a wrong answer: one missing questi
 |---|---|
 | `get_paper.py` | Downloads question papers, mark schemes and grade thresholds, trying GitHub, fraft, papacambridge and dynamicpapers in turn (`--source` sets which sites and in what order); every file it hands over has its watermarks removed |
 | `strip_watermark.py` | Removes papacambridge and dynamicpapers watermarks (requires PyMuPDF); `--check` only reports |
-| `qbank.py` | Gets question text and mark schemes by paper, question or topic from caie.db alone, without the repository |
+| `qbank.py` | Gets question text and mark schemes by paper, question or topic from caie.db alone, without the repository; `chapter` lists textbook chapters by topic and prints or saves one chapter |
