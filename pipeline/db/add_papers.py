@@ -60,10 +60,10 @@ def tag(models, q, ms_text):
         if _physics is None:
             from pipeline.tags.physics_topics import Classifier
             _physics = Classifier()
-        r = _physics.classify(q["text"], ms_text, q["component"])
+        r = _physics.classify(q["text"], ms_text, q["component"], 2000 + int(q["series"][1:]))
         q.update(topic=r["topic"], topic_name=r["topic_name"], topics_all=r["topics_all"],
                  topic_confident=0, topic_margin=r["topic_margin"], topic_source="syllabus",
-                 subtopic=r["subtopic"])
+                 subtopic=r["subtopic"], topic_note=r["topic_note"])
         return
     m = models[q["subject"]]
     scored = m.score(q["text"], q["component"], ms_text or "")

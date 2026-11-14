@@ -17,6 +17,11 @@ Paper 1 and 2 questions compete among sections 1-11, paper 4 among 12-25 and pap
 5 among 2-25: a planning question always talks about uncertainty and measurement,
 so section 1 would win every time. Paper 1 is scored on the question alone (its
 scheme is a letter). Rows whose topic_source is 'model' are left alone.
+
+The 2021 papers were set on the 2019-2021 syllabus, whose A Level part still had
+communication (amplitude modulation, analogue and digital transmission) and
+electronics (the operational amplifier). Those 14 paper 4 questions have no
+section in the current syllabus: their topic is left empty, with a topic_note.
 """
 import argparse, collections, json, math, os, re, sqlite3, sys
 
@@ -29,6 +34,8 @@ from pipeline.tags.terms_9702 import TERMS  # noqa: E402
 SECTIONS = {"1": [str(i) for i in range(1, 12)], "2": [str(i) for i in range(1, 12)],
             "4": [str(i) for i in range(12, 26)], "5": [str(i) for i in range(2, 26)]}
 TERM_WEIGHT = 0.15          # chosen on the first 60 hand-checked questions
+OLD_SYLLABUS = re.compile(r"operational amplifier|op-amp|modulat|analogue signal", re.I)
+OLD_NOTE = "2019–2021 考纲的通信或电子学内容，现行考纲(2022 年起)已删除"
 STOP = set("the a an of to and in is are be by for on at as with that this which what from "
            "it its or not their they was were has have will can each than then when where how "
            "into these there also any all two one more most such may must".split())
@@ -75,8 +82,11 @@ class Classifier:
         norm = math.sqrt(sum(x * x for x in w.values())) or 1.0
         return {k: x / norm for k, x in w.items()}
 
-    def classify(self, text, ms, component):
+    def classify(self, text, ms, component, year=None):
         comp = str(component)
+        if year and int(year) <= 2021 and comp == "4" and OLD_SYLLABUS.search(text):
+            return {"topic": None, "topic_name": None, "topics_all": [], "topic_margin": None,
+                    "subtopic": None, "subtopic_name": None, "topic_note": OLD_NOTE}
         body = text + " " + (ms or "" if comp != "1" else "")
         q, terms = self._unit(collections.Counter(tokens(body))), term_scores(body)
         ranked = sorted(((sum(x * self.vec[s].get(k, 0) for k, x in q.items())
@@ -89,7 +99,7 @@ class Classifier:
         return {"topic": sec, "topic_name": self.sec_name.get(sec),
                 "topics_all": [s for _x, s in ranked[:3]],
                 "topic_margin": round(ranked[0][0] - ranked[1][0], 4) if len(ranked) > 1 else None,
-                "subtopic": sub, "subtopic_name": self.sub_name.get(sub)}
+                "subtopic": sub, "subtopic_name": self.sub_name.get(sub), "topic_note": None}
 
 
 def main():
@@ -99,20 +109,20 @@ def main():
     a = ap.parse_args()
     con = sqlite3.connect(paths.DB)
     clf = Classifier(con)
-    rows = con.execute("SELECT id, component, question_text, ms_text, topic FROM questions "
+    rows = con.execute("SELECT id, component, question_text, ms_text, topic, year FROM questions "
                        "WHERE syllabus = '9702' AND COALESCE(topic_source, '') != 'model'").fetchall()
     upd, moved = [], 0
-    for qid, comp, text, ms, old in rows:
-        r = clf.classify(text or "", ms, comp)
+    for qid, comp, text, ms, old, year in rows:
+        r = clf.classify(text or "", ms, comp, year)
         moved += r["topic"] != old
         upd.append((r["topic"], r["topic_name"], json.dumps(r["topics_all"]), r["topic_margin"],
-                    r["subtopic"], r["subtopic_name"], qid))
-    print(f"9702 {len(rows)} 题;节变动 {moved} 题")
+                    r["subtopic"], r["subtopic_name"], r["topic_note"], qid))
+    print(f"9702 {len(rows)} 题;节变动 {moved} 题;旧考纲内容 {sum(1 for u in upd if u[6])} 题")
     if not a.write:
         print("(dry run;加 --write 写入)")
         return
     con.executemany("UPDATE questions SET topic=?, topic_name=?, topic_all=?, topic_margin=?, "
-                    "topic_source='syllabus', subtopic=?, subtopic_name=? WHERE id=?", upd)
+                    "topic_source='syllabus', subtopic=?, subtopic_name=?, topic_note=? WHERE id=?", upd)
     con.executemany("UPDATE q_fts SET topic_name=? WHERE id=?", [(u[1], u[-1]) for u in upd])
     con.commit()
     print("已写入")
