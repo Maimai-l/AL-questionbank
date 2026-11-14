@@ -1,85 +1,81 @@
 ---
 name: "exam-paper-review"
-description: "Mark handwritten answers to a past exam paper against its official mark scheme, explain every lost mark, and update a running record of results; also produce targeted practice papers from that record. Use when answer scans (images, PDF or zip) are uploaded for marking, or when practice material based on earlier marking is requested."
+description: "Use when marking the user's answers to a past exam paper, or when they ask for practice or analysis that follows from that marking."
 ---
 
-# 真题卷判分与薄弱项分析
+# Past-paper marking and weak-area analysis
 
-一个会话对应一门卷子（例如某科目的某一 paper），会话内持续积累该卷的数据。本 skill 只包含与具体卷子无关的流程、规则和技术经验；知识板块、题型特征等卷子相关内容在会话中依据该卷 syllabus 现场建立，不预先存储。
+Each session is dedicated to one paper (for example, one particular paper of one syllabus), and that paper's data builds up over the session. This skill contains only the process, rules and technical lessons that do not depend on a particular paper. Paper-specific material, such as topic areas and the characteristics of its question types, is worked out during the session from that paper's syllabus; it is not stored in advance.
 
-## 用户立下的硬性规则
+## Hard rules set by the user
 
-以下规则来自用户的明确要求或纠正，优先级高于一般判断。
+These rules come from the user's explicit requests or corrections, and they override general judgement.
 
-1. **mark scheme 必须下载后再判分**,禁止凭记忆判分。下载只用本 skill 的 `scripts/get_paper.py`,不要自己写下载代码:
+1. **Download the mark scheme before marking.** Never mark from memory. Download only with this skill's `scripts/get_paper.py`; do not write your own download code:
 
    ```bash
    S=$(dirname "$(find / -path '*exam-paper-review/scripts/get_paper.py' 2>/dev/null | head -1)")
    python3 $S/get_paper.py 9231_w21_qp_13 9231_w21_ms_13 9231_w21_gt --out /home/claude/papers
-   # 或按卷种批量:9231 --years 21 --series w --papers 1 --variants 3 --gt
+   # or in bulk for one component: 9231 --years 21 --series w --papers 1 --variants 3 --gt
    ```
 
-   文件名形如 `9231_w21_ms_13`(科目_场次年份_类型_卷种变体),`gt` 是等级线。场次:m 三月、s 五六月、w 十十一月。
-   脚本按顺序尝试四个来源,每行输出用的是哪一个;`--source papacambridge fraft` 只用这两个站点并按此顺序,
-   `--refresh` 重新下载已有的文件。交出的每个文件都经过 `strip_watermark.py` 去水印(需要 PyMuPDF),
-   去掉时该行带“去水印:stripped”:
+   Filenames take the form `9231_w21_ms_13` (syllabus_series and year_type_paper and variant); `gt` is the grade thresholds. Series: m is March, s is May/June, w is October/November.
+   The script tries four sources in order, and each output line names the source it used. `--source papacambridge fraft` uses only those two sites, in that order; `--refresh` downloads files again even if they already exist. Every file the script hands over goes through `strip_watermark.py` (requires PyMuPDF), and the output line says so when a watermark was removed:
 
-   | 来源 | 说明 |
+   | Source | Notes |
    |---|---|
-   | github | 题库仓库 Maimai-l/AL-questionbank 的 data 分支 `papers/`:三个站点里挑出的最好的一份,已核对。没有等级线 |
-   | fraft | cie.fraft.cn。部分 2025–26 年的卷子文本层不可读或排在 Letter 纸上,脚本会跳过 |
-   | papacambridge | pastpapers.papacambridge.com。2026 年的文件带斜向水印、横幅与二维码;部分 2021 年的文件用 FPDF 重新打包，每页右下角有本站标志图。脚本都会去掉 |
-   | dynamicpapers | dynamicpapers.com。部分文件每页页眉带网址,脚本会去掉 |
+   | github | `papers/` on the data branch of the question bank repository, Maimai-l/AL-questionbank: the best of the three sites' copies, already checked. Has no grade thresholds |
+   | fraft | cie.fraft.cn. Some 2025-26 papers have an unreadable text layer or are laid out on Letter paper; the script skips these |
+   | papacambridge | pastpapers.papacambridge.com. 2026 files carry a diagonal watermark, a banner and a QR code. Some 2021 files were repackaged with FPDF and have the site's logo in the bottom-right corner of every page. The script removes all of these |
+   | dynamicpapers | dynamicpapers.com. In some files every page header carries the site's URL; the script removes it |
 
-   输出 missing 表示四处都没有该文件。全部来源都连不上时,脚本会列出要在网络设置里允许的域名
-   (raw.githubusercontent.com、cie.fraft.cn、pastpapers.papacambridge.com、dynamicpapers.com),请用户添加。
+   `missing` in the output means none of the four sources has the file. If none of the sources can be reached, the script lists the domains that must be allowed in the network settings (raw.githubusercontent.com, cie.fraft.cn, pastpapers.papacambridge.com, dynamicpapers.com); ask the user to add them.
 
-   **按题取 mark scheme 文本**:`scripts/qbank.py` 从同一个仓库取题库(caie.db,约 75 MB,首次下载后缓存),
-   直接给出每题的题干与评分细则,文本已逐题对照原卷核对过:
+   **Mark scheme text for each question:** `scripts/qbank.py` gets the question bank (caie.db, about 65 MB, cached after the first download) from the same repository and prints each question's text and mark scheme. The text has been checked question by question against the original paper, except for 9702, whose text is OCR'd but not yet checked:
 
    ```bash
-   python3 $S/qbank.py paper 9231_w21_13            # 整卷:题干、分值、评分细则
-   python3 $S/qbank.py show 9231_w21_13_q05         # 单题
+   python3 $S/qbank.py paper 9231_w21_13            # whole paper: question text, marks, mark scheme
+   python3 $S/qbank.py show 9231_w21_13_q05         # one question
    ```
 
-   判分以 PDF 为准:qbank 的文本用来快速对照采分点,题目带图(输出标有「有图」)或文本与 PDF 不一致时看 PDF。
-   覆盖范围:9709、9231、9618、9702(物理，卷 1/2/4/5)的 2021–2026 年。范围外的卷子只用 get_paper.py。
+   The PDF is authoritative for marking. Use the qbank text to check marking points quickly, and look at the PDF when a question has a diagram (the output header flags it) or when the text and the PDF disagree.
+   Coverage: 9709, 9231, 9618 and 9702 (physics, papers 1, 2, 4 and 5) for 2021-2026. For papers outside this range, use only get_paper.py.
 
-2. **不质疑用户对难度和费力程度的主观感受。** 用户说某题费力，就按费力记录，不得用“这题做对了”反驳。
-3. **费力程度看涂改面积，不看对错。** 用户做对难题往往是因为查过资料或问过方法。对错与费力程度是两个独立维度，分开统计。
-4. **涂改指数只适用于纸质扫描件。** iPad 等可擦除设备上的卷子没有涂改痕迹，不得据此得出结论。不确定时询问书写介质。
-5. **用户已自行批改或修改过的卷子只记录，不判分。** 原始作答与订正无法区分，判分结果不准。
-6. **练习材料的题目与答案必须是两个 PDF。**
-7. **书写空间按题目实际步骤数分配**，禁止统一给固定行数。作图区不小于官方原卷，且与官方一致只留空白，不预画坐标轴。
-8. **用户要求出练习卷时直接出卷**，不要换成引导式教学。
-9. **用户指定要记住的方法，按原话记入记录**，之后出题和讲解优先覆盖。
-10. **分析结果写进刷卷记录，不生成 HTML 报告**，除非用户明确要求。
+2. **Do not question the user's own sense of how hard a question was or how much effort it took.** If the user says a question took effort, record it as such; never counter with "but you got it right".
+3. **Judge effort by the area of crossing-out, not by whether the answer is right.** When the user gets a hard question right, it is often because they looked something up or asked how to do it. Correctness and effort are two independent dimensions and are tallied separately.
+4. **The crossing-out index applies only to scans of paper.** Work done on an iPad or another erasable device leaves no crossing-out, so draw no conclusions from it. If you are unsure, ask what the user wrote on.
+5. **Papers the user has already marked or corrected are recorded but not marked.** The original answers cannot be told apart from the corrections, so any marking would be inaccurate.
+6. **Questions and answers for practice material must be two separate PDFs.**
+7. **Size the writing space to the number of steps each question actually needs**; never give every question the same fixed number of lines. Graph areas must be at least as large as in the official paper and, as in the official paper, left blank with no pre-drawn axes.
+8. **When the user asks for a practice paper, make the paper.** Do not switch to guided teaching instead.
+9. **When the user names a method to remember, record it in their own words**, and give it priority in later questions and explanations.
+10. **Write the analysis into the record; do not produce an HTML report** unless the user explicitly asks for one.
 
-## 一、收到一套作答卷
+## 1. When a set of answers arrives
 
-### 1. 四轮流程
+### 1.1 The four rounds
 
-所有无依赖关系的调用放进同一个块，Read 与 Bash 可以混放。
+Issue all calls that do not depend on each other in the same block; Read and Bash calls can be mixed.
 
-| 轮 | 内容 |
+| Round | Contents |
 |---|---|
-| 1 | 一个 bash：解压、`get_paper.py` 下载 ms 与等级线、裁边、切半页、`qbank.py paper` 打印逐题评分细则(范围外的卷子用 `pdftotext`)与 A 线 |
-| 2 | 在一个块里并行发出全部半页的 Read，加上 ms 中图表页渲染出的图 |
-| 3 | 一个脚本：更新记录并重算核对 |
+| 1 | One bash call: unzip, download the mark scheme and grade thresholds with `get_paper.py`, crop the margins, split each page into halves, and print the per-question mark scheme with `qbank.py paper` (use `pdftotext` for papers outside its range) and the A threshold |
+| 2 | One block containing a Read of every half page in parallel, plus renders of the mark scheme pages that contain diagrams |
+| 3 | One script: update the record and recompute the checks |
 | 4 | SendUserFile |
 
-禁止逐页串行，禁止分批发送。
+Never read pages one after another, and never split the Reads across several blocks.
 
-### 2. 解析输入
+### 1.2 Reading the input
 
-- 解压时文件名可能含中文和空格，并混有 macOS 的 `._` 文件：
+- When unzipping, filenames may contain Chinese characters and spaces, and macOS `._` files may be mixed in:
   ```bash
   i=1; find raw -iname '*.jpg' ! -name '._*' -print0 | sort -z | while IFS= read -r -d '' f; do cp "$f" "p/$(printf '%02d' $i).jpg"; i=$((i+1)); done
   ```
-- 确定科目代码、卷号、场次。卷面看不出时询问用户，不要猜。
-- 记录用户附带的主观感受（用时、状态、哪题最难）。这些感受是输入，不是待验证的说法。
+- Identify the syllabus code, paper number and series. If the pages do not show them, ask the user; do not guess.
+- Record any subjective notes the user includes (time taken, how they felt, which question was hardest). These notes are input, not claims to be checked.
 
-### 3. 裁边与切半页（并入第 1 轮）
+### 1.3 Cropping and half pages (part of round 1)
 
 ```bash
 python3 -I - <<'PY'
@@ -96,62 +92,62 @@ for f in sorted(glob.glob('raw/*.jpg')):
 PY
 ```
 
-- 裁掉页边的竖排文字、顶部条形码、底部页脚。裁切比例按考试局版式调整，裁完抽查一页。
-- 上下各取 55%，重叠 10%，避免一段推导被切断。
-- A4 扫描件在图像尺寸上限内。切半页不增加像素，只提高单块区域在画面中所占的比例，用于减少因读不清而重新放大的次数。不要换成放大或超采样。
-- 跳过封面和没有手写内容的题干页（指令集表、公式表）。用墨量自动判别不准，按页码人工指定。
-- 不要把多页拼成一张图。拼图减少 token，不减少轮数，且每页的分辨率随布局下降。
+- Crop off the vertical text in the margins, the barcode at the top and the footer. Adjust the crop ratios to the exam board's layout, and check one page after cropping.
+- The top and bottom halves each take 55% of the page, overlapping by 10%, so that no line of working is cut in two.
+- An A4 scan is within the image size limit. Splitting into halves adds no pixels; it only makes each region fill more of the image, which means fewer re-zooms to read unclear writing. Do not replace it with upscaling or supersampling.
+- Skip the cover and any question pages with no handwriting (instruction pages, formula lists). Detecting them automatically by ink coverage is unreliable; list them by page number.
+- Do not combine several pages into one image. Combining saves tokens but not rounds, and each page loses resolution in the combined layout.
 
-细节仍然存疑时，从原图裁出小块，多处在同一个块里裁完。
+If a detail is still unclear, crop small regions from the original image, doing all of them in the same block.
 
-**划改线优先核对。** 划改线压在已有墨迹上，对比度最低；划掉的内容与保留的内容在判分上含义相反。字迹有歧义时报告“分辨不出”，不给确定的读数。
+**Check crossed-out work first.** A line crossing out writing sits on top of existing ink and has the lowest contrast, and crossed-out work and kept work mean opposite things for marking. If the writing is ambiguous, report that it cannot be made out instead of giving a definite reading.
 
-### 4. 判分
+### 1.4 Marking
 
-- 按 mark scheme 逐个 M/A/B 采分点判定，注意 FT、AG、OE、CAO、SOI、ISW、WWW 等标注。
-- 超出扫描边界、写在附加页、划掉的内容要专门查找。
-- 从宽给分之处单独列出，并给出严格判分下的分数。
+- Judge each M, A and B mark against the mark scheme, paying attention to annotations such as FT, AG, OE, CAO, SOI, ISW and WWW.
+- Look specifically for work that runs past the edge of the scan, work on additional pages, and crossed-out work.
+- List separately every place where you marked leniently, and give the score under strict marking as well.
 
-### 5. 对话里的输出形式
+### 1.5 What to write in the reply
 
-按以下顺序写，不堆砌小标题：
+Write in this order, without piling up subheadings:
 
-1. **总分与等级线：**得分、该场次 A 线、高出多少分，一句话。
-2. **逐题讲解：**只讲丢分的小问。每处写出学生写了什么、错在哪一步、正确做法、mark scheme 对应哪一条。表述不规范但未扣分的地方也指出。
-3. **薄弱项分析：**三个维度分开写。
-   - 知识板块：本套各板块得分，与累计对比。
-   - 失分性质：七类标签，见 `references/记录格式.md`。区分“不会”（概念）与“会做但执行出错”（其余六类）。
-   - 涂改面积：0 到 3 级人工评级，自动检测不准。仅纸质扫描件适用。
-4. **结论：**这套暴露的问题中，哪些是已有机制的重复，哪些是新增的。
+1. **Score and threshold:** the score, the A threshold for that series, and the margin above it, in one sentence.
+2. **Question-by-question explanation:** cover only the parts where marks were lost. For each one, say what the student wrote, which step went wrong, what the correct method is, and which line of the mark scheme applies. Also point out wording that was not standard but did not lose marks.
+3. **Weak-area analysis:** three dimensions, each written separately.
+   - Topic areas: this paper's score in each topic area, compared with the running totals.
+   - Nature of lost marks: the seven labels, defined in `references/记录格式.md`. Distinguish "did not know how" (the concept label) from "knew how but made an error in execution" (the other six labels).
+   - Area of crossing-out: rated by hand from 0 to 3, because automatic detection is unreliable. Applies only to scans of paper.
+4. **Conclusion:** which of the problems this paper revealed repeat mechanisms already recorded, and which are new.
 
-分析时的注意事项：
+Points to keep in mind in the analysis:
 
-- 样本量不足时写明统计结论的可信度。
-- 涂改指数与得分率组合成四类：涂改多且得分低的需要增加练习量；涂改少但得分低的属于方向性或概念性错误，学生自查发现不了，需要补概念。
-- 用户质疑分数下降或卷子变难时用数据回答：得分对做题顺序的回归、得分与等级线的相关性、题目特征（例如 in terms of 出现次数）与分项得分率的对比。
-- 累计失分中“概念”一类往往不到一半，其余属于“会做但没拿到”。这两类的比例是复习优先级的主要依据，每套更新后写一次。
+- When the sample is too small, state how reliable the statistical conclusions are.
+- Combine the crossing-out index with the score rate to form four groups. Heavy crossing-out with a low score calls for more practice. Light crossing-out with a low score points to an error of approach or concept, which the student cannot find by checking their own work; it calls for concept work.
+- When the user questions why their scores have dropped or whether the papers have got harder, answer with data: regress the score against the order in which questions were attempted, correlate scores with grade thresholds, and compare question features (for example, how often "in terms of" appears) with the score rate on each part.
+- Concept errors usually account for less than half of all marks lost so far; the rest were marks the student could have got but did not. The ratio between these two is the main basis for revision priorities; restate it each time a paper is added.
 
-### 6. 更新刷卷记录
+### 1.6 Updating the record
 
-判完立即更新记录文件并交付。格式与维护方式见 `references/记录格式.md`，完整样例见 `references/记录样例.md`，维护方法见 `references/记录方法.md`。记录是唯一的常规交付物，也是会话被压缩后恢复上下文的依据。
+As soon as marking is finished, update the record file and deliver it. The format and how to maintain it are in `references/记录格式.md`, a complete sample is in `references/记录样例.md`, and the maintenance method is in `references/记录方法.md`. The record is the only routine deliverable, and it is what context is rebuilt from after the session is compacted.
 
-所有改动合并成一个脚本一次执行。每处替换前用 `assert old in s` 检查原文存在；脚本末尾从逐题表重算总分、机制、标签并打印，不单独占一轮。含全角引号和 `−` 的替换字符串在脚本里用 `\u` 转义写。
+Combine all changes into a single script and run it once. Before each replacement, check with `assert old in s` that the original text is present. At the end, the script recomputes the totals, mechanisms and labels from the per-question tables and prints them, so this does not take a separate round. In the script, write replacement strings that contain full-width quotation marks or `−` using `\u` escapes.
 
-## 二、关于“粗心”
+## 2. On "careless mistakes"
 
-- 把粗心拆成可观测的机制，至少区分**转写错误**（工作行正确，搬到答案行时出错）与**目标错误**（计算正确但求错对象、条件没用上、答案不完整）。
-- 另有一类独立机制：**题目点名了两个对象或两个小问，答案只覆盖一个**。常见形式：把只适合 (ii) 的答案写在 (i)，(ii) 处无内容可写；或者“A and B”的解释题只写了 A。对策是动笔前圈出各小问的限定词，再分配答案。这类失分涉及的知识学生通常是掌握的，不归入“概念”。
-- 每条对策绑定到具体一次失分。优先推荐**代数值验算**：求和公式代 n=1；部分分式两边代同一个数；逆矩阵乘回看是否得到单位阵；含参数的式子取参数为 0 或 1；改变上下限的求和取 f(r)=1 数项数。验算结果必须与题目给出的数一致；验算本身算错且未发现，记为一次失分机制。
-- 对策一次只给一条，学生形成自动动作后再加下一条。每套卷记录各机制的失分，作为对策是否生效的依据。
+- Break carelessness down into mechanisms that can be observed. At a minimum, distinguish **transcription errors** (the working is correct, but it goes wrong when copied to the answer line) from **target errors** (the calculation is correct, but the wrong thing is found, a condition is left unused, or the answer is incomplete).
+- There is also a separate mechanism: **the question names two objects or two parts, and the answer covers only one.** Typical forms: an answer that only suits (ii) is written under (i), leaving nothing to write under (ii); or an explanation asked for "A and B" covers only A. The fix is to circle each part's qualifying words before starting to write, and then decide which answer goes where. The student usually does know the material involved, so these losses do not go under the concept label.
+- Tie each fix to one specific lost mark. Recommend **numerical checks** first: substitute n=1 into a summation formula; substitute the same number into both sides of a partial-fraction identity; multiply an inverse matrix back and see whether the identity results; set a parameter in an expression to 0 or 1; for a sum with changed limits, take f(r)=1 to count the terms. The result of the check must agree with the values given in the question. If the check itself is miscalculated and the error goes unnoticed, record that as a mechanism of lost marks.
+- Give only one fix at a time, and add the next only once the student does the first automatically. Record the marks lost to each mechanism on every paper, as evidence of whether a fix is working.
 
-## 三、按需产出
+## 3. Output on request
 
-| 用户要求 | 做法 |
+| The user asks for | What to do |
 |---|---|
-| 专题练习、针对性练习卷 | Typst 出卷，见 `references/练习材料.md`，样例与脚本在 `assets/` |
-| 补漏清单 | 每条标注“补概念”或“做题”，做题条目给出具体卷号题号 |
-| 趋势、相关性等统计 | 在对话里回答，结论写进记录的相应位置 |
-| 知识点总表 | 按 syllabus 章节归类，每条写“要记的那句话、怎么答、来源卷号题号”，单独列出重复丢分项与已修正项 |
-| 选卷建议 | 用 `qbank.py find --syllabus … --topic …` 列出候选题，按弱项小节统计各卷覆盖的分值再推荐，不凭卷号新旧判断 |
+| Topic practice or a targeted practice paper | Make the paper in Typst; see `references/练习材料.md`. Samples and scripts are in `assets/` |
+| A list of gaps to fill | Mark each item "concept work" or "practice"; practice items name the specific paper and question number |
+| Trends, correlations or other statistics | Answer in the reply, and write the conclusion into the relevant part of the record |
+| A summary of key points | Group by syllabus chapter. Each item gives the sentence to remember, how to answer, and the source paper and question number. List items lost repeatedly and items already fixed separately |
+| Advice on which papers to do | List candidate questions with `qbank.py find --syllabus … --topic …`, total the marks each paper offers on the weak subsections, and then recommend; do not judge by how new or old a paper is |
 
-自行出题的答案必须逐个用 sympy 或数值计算验证后才能交付。
+Every answer to a question you write yourself must be checked, one by one, with sympy or numerical computation before it is delivered.

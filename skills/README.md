@@ -17,7 +17,7 @@
 改完后打包,在 claude.ai 的 设置 → 功能 → Skills 里上传,替换同名的 skill:
 
 ```bash
-python3 skills/build.py        # 生成 exports/exam-bank-pipeline.skill 与 exam-paper-review.skill
+python3 skills/build.py        # 生成 exports/<名称>.skill 与插件格式 <名称>-plugin.zip(.claude-plugin/plugin.json + skills/<名称>/)
 ```
 
 `strip_watermark.py` 与仓库里的那份要一起改。

@@ -8,7 +8,7 @@
     add --json for machine-readable output, --no-ms to leave the mark scheme out,
     --explain to add the worked explanation (9618 only)
 
-The bank (caie.db, about 80 MB) is downloaded once from GitHub into --cache
+The bank (caie.db, about 65 MB) is downloaded once from GitHub into --cache
 (default ~/.cache/qbank). It holds 9709, 9231, 9618 and 9702 papers 2021-2026
 (the admissions tests were archived in 2026-11). Question and scheme text was checked against the original papers
 (not yet for 9702: its text is OCR or, where q_quality is partial, the PDF text layer);
