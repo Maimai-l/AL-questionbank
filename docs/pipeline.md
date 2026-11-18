@@ -405,6 +405,15 @@ python3 pipeline/export/build_site.py
 6. **章节包。** `export_all_chapters.py` 与 `manage.py auto` 会为 WPH 各章也写 ZIP(`exports/chapters/WPH/`),
    因为没有主题，包里只有章节正文和插图，没有真题。
 
+7. **校对(2026-11-18)。** `pipeline/books/proof_batches.py` 取章节中有公式的页(304 页;`--all-pages` 取全部 419 页)渲染原页，
+   每批 20 页交给 Haiku 子 agent,只交回逐处的 `old → new`;`verify` 要求 `old` 在页内唯一、不动插图、不新增 KaTeX 错误;
+   `apply --write` 记入 `pipeline/books/book_fixes.jsonl` 并重放到章节文件(重新切章后再跑一次即可)。16 批分两个用量窗口跑完，
+   实测每页约 3.2 万输入 token 当量(输入 1、写缓存 1.25、读缓存 0.1、输出 5),共约 900 万。改正 304 条，另手工 6 条
+   (`\,^{\circ}` 缺底数 3 处、美元金额的 `$` 被当成公式定界符 2 处、多余的 `}` 1 处),教材页 KaTeX 报错从 8 处降为 0。
+   主要改正：速度 v 读成 ν 或 V、加速度 a 读成 α、中微子 ν 读成 v、反粒子的横线、核对用的 ✓ 读成 ↙、Exam practice 缺的分值 [n]、
+   重复的句子与多出的竖式。抽查 12 处，撤掉 1 处(第 225 页 agent 在看不清时把 "that" 猜成 "that that")。
+   子 agent 会照 CLAUDE.md 的会话约定运行 `sync.py pull`,批次说明里已写明不要运行 `sync.py` 与 git。
+
 ## 子 agent 批次大小实验(2026-11-14)
 
 问题：审校批次每批放几题最省钱、质量又不下降。做法：同一组 40 道 9702 题(卷 2、4、5,含 4 处已核实的错误)

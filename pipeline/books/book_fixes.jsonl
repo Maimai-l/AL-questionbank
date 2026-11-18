@@ -1,0 +1,310 @@
+{"book": "edx_ial_phy1", "page": 18, "old": "then there are:\n\nStep 2:", "new": "then there are:\n\n$ \\frac{750\\,000}{10} = 75\\,000 $ pianos\n\nStep 2:", "why": "图中有 750 000 ÷ 10 = 75 000 台钢琴的算式,OCR 漏掉"}
+{"book": "edx_ial_phy1", "page": 21, "old": "☑ Calculate values", "new": "■ Calculate values", "why": "学习目标的项目符号是方块,OCR 读成 ☑"}
+{"book": "edx_ial_phy1", "page": 24, "old": "\\ddots\\quad d=v\\times t", "new": "\\therefore\\quad d=v\\times t", "why": "∴ 被读成 \\ddots,应为 \\therefore"}
+{"book": "edx_ial_phy1", "page": 24, "old": "DISTANCE TRAVELLED FROM v-t GRAPHs", "new": "DISTANCE TRAVELLED FROM v-t GRAPHS", "why": "标题末字母大小写读错,原页为大写 S"}
+{"book": "edx_ial_phy1", "page": 25, "old": "the d-graph in fig F", "new": "the d-t graph in fig F", "why": "原页为 d–t 图,漏掉 t"}
+{"book": "edx_ial_phy1", "page": 29, "old": "inding the centre of gravity of an irregular rod (broom)", "new": "Finding the centre of gravity of an irregular rod (broom)", "why": "图注首字母 F 缺失,应为 Finding"}
+{"book": "edx_ial_phy1", "page": 32, "old": "\\alpha \\propto F", "new": "a \\propto F", "why": "加速度 a 读成希腊字母 α"}
+{"book": "edx_ial_phy1", "page": 34, "old": "\\boldsymbol{V}=\\frac{\\boldsymbol{S}}{t}", "new": "\\boldsymbol{v}=\\frac{\\boldsymbol{s}}{t}", "why": "速度与位移公式为小写 v、s,OCR 读成大写"}
+{"book": "edx_ial_phy1", "page": 34, "old": "\\alpha-acceleration", "new": "a-acceleration", "why": "变量表中加速度为 a,不是 α"}
+{"book": "edx_ial_phy1", "page": 34, "old": "\\alpha = g = 9.81", "new": "a = g = 9.81", "why": "自由落体条件应为 a = g,不是 α"}
+{"book": "edx_ial_phy1", "page": 37, "old": "# IA 7 RESOLVING VECTORS", "new": "# 1A 7 RESOLVING VECTORS", "why": "章节号 1A 读成 IA"}
+{"book": "edx_ial_phy1", "page": 37, "old": "rigonometry reminder", "new": "Trigonometry reminder", "why": "图注首字母 T 缺失,应为 Trigonometry"}
+{"book": "edx_ial_phy1", "page": 41, "old": "\\nu=u+at", "new": "v=u+at", "why": "速度 v 被读成希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 43, "old": "\\nu $?", "new": "v $?", "why": "题干中速度 v 被读成希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 43, "old": "E_{k}\\nu $", "new": "E_{k}v $", "why": "选项 A 中 v 被读成 ν"}
+{"book": "edx_ial_phy1", "page": 43, "old": "E_{k}\\nu^{2}", "new": "E_{k}v^{2}", "why": "选项 B 中 v 被读成 ν"}
+{"book": "edx_ial_phy1", "page": 43, "old": "\\sqrt{\\nu}", "new": "\\sqrt{v}", "why": "选项 C 中 v 被读成 ν"}
+{"book": "edx_ial_phy1", "page": 43, "old": "\\frac{1}{\\nu}", "new": "\\frac{1}{v}", "why": "选项 D 中 v 被读成 ν"}
+{"book": "edx_ial_phy1", "page": 49, "old": "trampolின்", "new": "trampolinist", "why": "误识别为泰米尔文字，原页为 trampolinist"}
+{"book": "edx_ial_phy1", "page": 53, "old": "\\nu=u+at", "new": "v=u+at", "why": "速度 v 被读成希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 53, "old": "\\nu=0+875(0.05)", "new": "v=0+875(0.05)", "why": "速度 v 被读成希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 60, "old": "\\frac{\\dot{q}p}{dt}", "new": "\\frac{\\mathrm{d}p}{\\mathrm{d}t}", "why": "dp/dt 被 OCR 误读为 \\dot{q}p"}
+{"book": "edx_ial_phy1", "page": 62, "old": "momentum~before=560kg\\cdot s^{-1}}", "new": "momentum~before=560kg\\,m\\,s^{-1}}", "why": "单位漏了 m，原页为 kg m s^-1，OCR 误作 kg·s^-1"}
+{"book": "edx_ial_phy1", "page": 64, "old": "travelling at 4.1 ms $ ^{-1} $ when caught", "new": "travelling at 4.1 m s $ ^{-1} $ when caught", "why": "速度单位应为 m s^-1，ms 会被读成毫秒"}
+{"book": "edx_ial_phy1", "page": 67, "old": "A 4.4 kg m $ ^{s^{-1}} $", "new": "A 4.4 kg m s $ ^{-1} $", "why": "选项单位 s 原页在基线上，不是指数"}
+{"book": "edx_ial_phy1", "page": 67, "old": "B 62.4 kg m $ ^{s^{-2}} $", "new": "B 62.4 kg m s $ ^{-2} $", "why": "选项单位 s 原页在基线上，不是指数"}
+{"book": "edx_ial_phy1", "page": 67, "old": "D 8880 kg m $ ^{-1} $ [1]", "new": "D 8880 kg m s $ ^{-1} $ [1]", "why": "选项单位漏了 s"}
+{"book": "edx_ial_phy1", "page": 72, "old": "15.8₩", "new": "15.8\\mathrm{~N}", "why": "单位 N 被读成 ₩"}
+{"book": "edx_ial_phy1", "page": 79, "old": "a 1 mm radius ball bearing:\n $ v_{term} = \\frac{2r^2g(\\rho_s - \\rho_t)", "new": "a 1 mm radius ball bearing:\n $ v_{term} = \\frac{2r^2g(\\rho_s - \\rho_f)", "why": "流体密度下标原页为 f，OCR 误作 t"}
+{"book": "edx_ial_phy1", "page": 79, "old": "a 2 mm radius ball bearing:\n $ v_{term} = \\frac{2r^2g(\\rho_s - \\rho_t)", "new": "a 2 mm radius ball bearing:\n $ v_{term} = \\frac{2r^2g(\\rho_s - \\rho_f)", "why": "流体密度下标原页为 f，OCR 误作 t"}
+{"book": "edx_ial_phy1", "page": 79, "old": "\\frac{2g(\\rho_s - \\rho_t)}", "new": "\\frac{2g(\\rho_s - \\rho_f)}", "why": "流体密度下标原页为 f，OCR 误作 t"}
+{"book": "edx_ial_phy1", "page": 83, "old": "(Total for Question 2 = 1 mark)\n\n(Total for Question 2 = 1 mark)", "new": "(Total for Question 2 = 1 mark)", "why": "同一行重复出现，原页只有一处"}
+{"book": "edx_ial_phy1", "page": 84, "old": "$ ater=1.0\\times10^{3}kg m^{-3} $", "new": "$ density~of~water=1.0\\times10^{3}kg m^{-3} $", "why": "漏掉了 density of water 的前半部分"}
+{"book": "edx_ial_phy1", "page": 88, "old": "0.075⌋", "new": "0.075\\,\\mathrm{J}", "why": "能量单位 J 被读成 ⌋"}
+{"book": "edx_ial_phy1", "page": 88, "old": "GRAPHES", "new": "GRAPHS", "why": "标题拼写，原页为 GRAPHS"}
+{"book": "edx_ial_phy1", "page": 90, "old": "$ {}_{strain} $ is a measure", "new": "**strain** is a measure", "why": "粗体关键词 strain 被读成下标公式，改回正文"}
+{"book": "edx_ial_phy1", "page": 93, "old": "\\sigma_{0,2}", "new": "\\sigma_{0.2}", "why": "下标 0.2 的小数点被读成逗号"}
+{"book": "edx_ial_phy1", "page": 94, "old": "fig D is used in experiments", "new": "fig D is is used in experiments", "why": "原页为 is is，OCR 漏读一个 is"}
+{"book": "edx_ial_phy1", "page": 94, "old": "`drop box` on", "new": "‘drop box’ on", "why": "原页为引号而非代码格式"}
+{"book": "edx_ial_phy1", "page": 94, "old": "`drop zone'.", "new": "‘drop zone’.", "why": "原页为引号而非代码格式"}
+{"book": "edx_ial_phy1", "page": 97, "old": "$ ^{-2} $ [1", "new": "$ ^{-2} $ [1]", "why": "括号未闭合，原页为 [1]"}
+{"book": "edx_ial_phy1", "page": 97, "old": "$ 250\\,000\\ N\\ m^{-1} $", "new": "$ 250\\,000\\ N\\ m^{-1} $ [1]", "why": "漏掉本题分值 [1]"}
+{"book": "edx_ial_phy1", "page": 97, "old": "(Total for Question 3 = 1 mark)", "new": "[1]\n\n(Total for Question 3 = 1 mark)", "why": "漏掉本题分值 [1]"}
+{"book": "edx_ial_phy1", "page": 97, "old": "(Total for Question 5 = 1 mark)", "new": "[1]\n\n(Total for Question 5 = 1 mark)", "why": "漏掉本题分值 [1]"}
+{"book": "edx_ial_phy1", "page": 97, "old": "(b) State one safety precaution you would take.", "new": "(b) State one safety precaution you would take. [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 97, "old": "ensure you obtain accurate results.", "new": "ensure you obtain accurate results. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(a) Explain whether the spring obeys Hooke's law.", "new": "(a) Explain whether the spring obeys Hooke's law. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(b) Show that the spring constant k of the spring is about  $ 20 \\, N \\, m^{-1} $.", "new": "(b) Show that the spring constant k of the spring is about  $ 20 \\, N \\, m^{-1} $. [3]", "why": "漏掉分值 [3]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(ii) Calculate the energy stored in the spring when it is compressed to fit into the tin.", "new": "(ii) Calculate the energy stored in the spring when it is compressed to fit into the tin. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(a) State two equations that show the relationship between the forces acting on the submarine.", "new": "(a) State two equations that show the relationship between the forces acting on the submarine. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(a) Show that the force constant for the spring is about 1000 N m $ ^{-1} $.", "new": "(a) Show that the force constant for the spring is about 1000 N m $ ^{-1} $. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(i) Show that the maximum speed at which they can be launched is about  $ 15 \\, m s^{-1} $.", "new": "(i) Show that the maximum speed at which they can be launched is about  $ 15 \\, m s^{-1} $. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(ii) State an assumption that you have made.", "new": "(ii) State an assumption that you have made. [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 98, "old": "(i) Calculate the velocity of the disc as it hits the wall. Ignore the effects of air resistance.", "new": "(i) Calculate the velocity of the disc as it hits the wall. Ignore the effects of air resistance. [4]", "why": "漏掉分值 [4]"}
+{"book": "edx_ial_phy1", "page": 101, "old": "GRAPHing WAVES", "new": "GRAPHING WAVES", "why": "标题字母大小写读错"}
+{"book": "edx_ial_phy1", "page": 109, "old": "D $A = 8\\mathrm{~cm};\\ \\lambda = 40\\mathrm{~cm}$", "new": "D $A = 8\\mathrm{~cm};\\ \\lambda = 40\\mathrm{~cm}$ [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "D Sea waves with a speed of  $ 2.8 \\, m s^{-1} $ and a wavelength of  $ 4.4 \\, m $", "new": "D Sea waves with a speed of  $ 2.8 \\, m s^{-1} $ and a wavelength of  $ 4.4 \\, m $ [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "\\nu = f\\lambda", "new": "v = f\\lambda", "why": "速度符号为拉丁字母 v，非希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 109, "old": "\\nu = \\frac{f}{\\lambda}", "new": "v = \\frac{f}{\\lambda}", "why": "速度符号为拉丁字母 v，非希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 109, "old": "\\frac{\\lambda}{\\nu} $", "new": "\\frac{\\lambda}{v} $ [1]", "why": "速度符号改为 v，并补漏掉的分值 [1]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "(a) Explain why the echo has a smaller amplitude than the emitted pulse.", "new": "(a) Explain why the echo has a smaller amplitude than the emitted pulse. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "(b) Calculate the thickness of this steel rail.", "new": "(b) Calculate the thickness of this steel rail. [3]", "why": "漏掉分值 [3]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "(a) Describe how sound waves travel through air.", "new": "(a) Describe how sound waves travel through air. [3]", "why": "漏掉分值 [3]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "(b) State what is meant by frequency.", "new": "(b) State what is meant by frequency. [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 109, "old": "Calculate the speed of infrasound in the ground.", "new": "Calculate the speed of infrasound in the ground. [2]", "why": "漏掉分值 [2]"}
+{"book": "edx_ial_phy1", "page": 110, "old": "(i) The ultrasound used has a frequency of 4.5 MHz. State why waves of this frequency are called ultrasound.", "new": "(i) The ultrasound used has a frequency of 4.5 MHz. State why waves of this frequency are called ultrasound. [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 110, "old": "Average speed of ultrasound in the body = 1500 m s^{-1}", "new": "Average speed of ultrasound in the body = 1500 m s^{-1} [3]", "why": "漏掉分值 [3]"}
+{"book": "edx_ial_phy1", "page": 110, "old": "(b) (i) Why does only one trace on the oscilloscope show the sound wave?", "new": "(b) (i) Why does only one trace on the oscilloscope show the sound wave? [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 110, "old": "(ii) Describe how the student should change the experimental set up in order to be able to measure the speed of sound.", "new": "(ii) Describe how the student should change the experimental set up in order to be able to measure the speed of sound. [1]", "why": "漏掉分值 [1]"}
+{"book": "edx_ial_phy1", "page": 117, "old": "V=\\sqrt{\\frac{T}{\\mu}}", "new": "v=\\sqrt{\\frac{T}{\\mu}}", "why": "速度符号为小写 v"}
+{"book": "edx_ial_phy1", "page": 118, "old": "V=\\sqrt{\\frac{T}{\\mu}}", "new": "v=\\sqrt{\\frac{T}{\\mu}}", "why": "速度符号为小写 v"}
+{"book": "edx_ial_phy1", "page": 118, "old": "`drop box' below", "new": "‘drop box’ below", "why": "原页为引号而非代码格式"}
+{"book": "edx_ial_phy1", "page": 119, "old": "☑", "new": "■", "why": "学习目标的项目符号为实心方块"}
+{"book": "edx_ial_phy1", "page": 120, "old": "OR:", "new": "OR:\n\n$$d = \\frac{1\\times10^{-3}}{\\text{number per millimetre}}$$", "why": "漏掉第二个公式 d = 1×10⁻³/每毫米线数"}
+{"book": "edx_ial_phy1", "page": 128, "old": "V=\\sqrt{\\frac{T}{\\mu}}", "new": "v=\\sqrt{\\frac{T}{\\mu}}", "why": "速度符号为小写 v"}
+{"book": "edx_ial_phy1", "page": 144, "old": "couloms", "new": "coulombs", "why": "单位拼写应为 coulombs"}
+{"book": "edx_ial_phy1", "page": 147, "old": "\\hbar f", "new": "hf", "why": "原页为普通 h，不是 ħ"}
+{"book": "edx_ial_phy1", "page": 147, "old": "3.68\\times10^{-19}⌋", "new": "3.68\\times10^{-19}J", "why": "乱码字符改为单位 J"}
+{"book": "edx_ial_phy1", "page": 149, "old": "\\lambda = \\frac{n}{p}", "new": "\\lambda = \\frac{h}{p}", "why": "de Broglie 公式分子为普通 h"}
+{"book": "edx_ial_phy1", "page": 151, "old": "☑ Calculate", "new": "■ Calculate", "why": "要点符号为实心方块"}
+{"book": "edx_ial_phy1", "page": 151, "old": "\\textit{excitation}", "new": "excitation", "why": "正文普通词，去掉未渲染的 LaTeX"}
+{"book": "edx_ial_phy1", "page": 151, "old": "$ (-2.18 \\times 10^{-18} $ J)", "new": "($ -2.18 \\times 10^{-18} $ J)", "why": "括号未配对，括号移到公式外"}
+{"book": "edx_ial_phy1", "page": 151, "old": "$ (-5.45 \\times 10^{-19} $ J)", "new": "($ -5.45 \\times 10^{-19} $ J)", "why": "括号未配对，括号移到公式外"}
+{"book": "edx_ial_phy1", "page": 152, "old": "10^{-19}⋯", "new": "10^{-19}J", "why": "乱码字符改为单位 J"}
+{"book": "edx_ial_phy1", "page": 154, "old": "P=1\\times A", "new": "P=I\\times A", "why": "worked example 中 I 被读成 1,应为 I × A"}
+{"book": "edx_ial_phy1", "page": 157, "old": "\\mathbf{C}~3.08\\times10^{15}", "new": "\\mathbf{A}~8.20\\times10^{-20}\\mathrm{H z}\\quad\\mathbf{B}~2.42\\times10^{-6}\\mathrm{H z}\\quad\\mathbf{C}~3.08\\times10^{15}", "why": "第 2 题漏掉选项 A、B"}
+{"book": "edx_ial_phy1", "page": 162, "old": "N=8.1\\times10^{10}e l e c t r o n s", "new": "N=8.1\\times10^{10}\\text{ electrons}", "why": "单位词 electrons 被读成公式内逐字母斜体,改为正文"}
+{"book": "edx_ial_phy1", "page": 163, "old": "How many coulomb s of charge", "new": "How many coulombs of charge", "why": "coulombs 被断成 coulomb s"}
+{"book": "edx_ial_phy1", "page": 165, "old": "1.6\\times10^{-19}⊥", "new": "1.6\\times10^{-19}J", "why": "单位 J 被读成 ⊥"}
+{"book": "edx_ial_phy1", "page": 166, "old": "1\\ m e g a\\ e l e c t r o n v o l t=1\\ M e V", "new": "1\\text{ mega electronvolt}=1\\text{ MeV}", "why": "公式内逐字母拆开的词句,改为正文单位写法"}
+{"book": "edx_ial_phy1", "page": 167, "old": "$ \\backslash $working range'", "new": "‘working range’", "why": "引号被读成 \\backslash 公式,改回引号"}
+{"book": "edx_ial_phy1", "page": 168, "old": "x-axis, l = 0,", "new": "x-axis, I = 0,", "why": "电流符号 I 读成小写 l"}
+{"book": "edx_ial_phy1", "page": 173, "old": "$$ \\begin{aligned}V&=\\frac{I}{nAe}", "new": "$$ \\mathrm{wire~radius}=0.11\\mathrm{~mm}=1.1\\times10^{-4}\\mathrm{~m} $$\n\n $$ A=\\pi r^{2}=\\pi\\times(1.1\\times10^{-4})^{2}=3.8\\times10^{-8}\\mathrm{~m}^{2} $$\n\n $$ I=nAve $$\n\n $$ \\begin{aligned}v&=\\frac{I}{nAe}", "why": "速度 v 被读成大写 V;补回原页的半径、面积、I=nAve 步骤"}
+{"book": "edx_ial_phy1", "page": 173, "old": "v=9.67\\times10^{-4}m s^{-1} $$", "new": "v=9.67\\times10^{-4}m s^{-1} $$\n\n $$ v=0.97\\,mm\\,s^{-1} $$", "why": "补回原页的 v = 0.97 mm s⁻¹ 换算结果"}
+{"book": "edx_ial_phy1", "page": 174, "old": "transport equation $l = nAvq$", "new": "transport equation $I = nAvq$", "why": "电流符号 I 读成小写 l"}
+{"book": "edx_ial_phy1", "page": 174, "old": "electric current, $l$,", "new": "electric current, $I$,", "why": "电流符号 I 读成小写 l"}
+{"book": "edx_ial_phy1", "page": 181, "old": "An approximate value of  $ \\nu $ for a sample of silicon", "new": "An approximate value of  $ v $ for a sample of silicon", "why": "原页为斜体 v(速度符号),OCR 误读为希腊字母 ν"}
+{"book": "edx_ial_phy1", "page": 187, "old": "$$ \\begin{array}{r} 1 \\\\ 4 \\overline{) 3 } \\\\ 4 \\\\ \\hline 1 \\end{array} $$", "new": "", "why": "原页该处没有长除法草算,为 OCR 多出的公式,删去"}
+{"book": "edx_ial_phy1", "page": 188, "old": "▲ fig1 Calculate the total resistance", "new": "▲ fig I Calculate the total resistance", "why": "图号为 fig I(图中标注),不是 fig1"}
+{"book": "edx_ial_phy1", "page": 188, "old": "## ▲ fig1", "new": "## ▲ fig J", "why": "此图为 fig J(图下标注),不是 fig1"}
+{"book": "edx_ial_phy1", "page": 190, "old": "use Ohm's law to find the current through ammeter.", "new": "use Ohm's law to find the current through ammeter $ A_{2} $.", "why": "原题写明电流表为 A2,漏掉下标符号"}
+{"book": "edx_ial_phy1", "page": 197, "old": "Q=1\\times t", "new": "Q=I\\times t", "why": "电流定义为 Q = I × t,OCR 把 I 读成 1"}
+{"book": "edx_ial_phy1", "page": 197, "old": "W=49.6⌋", "new": "W=49.6\\,\\text{J}", "why": "原页结果为 49.6 J,OCR 多出乱码符号并漏掉单位"}
+{"book": "edx_ial_phy1", "page": 208, "old": "## 4 Calculate and check ___", "new": "## 4 Calculate and check", "why": "去掉 OCR 误加的下划线"}
+{"book": "edx_ial_phy1", "page": 208, "old": "check whether you have used the correct units.", "new": "check whether you have used the correct units.\n\n$ x = 0.5 \\times 12 \\, m = 6 \\, m $", "why": "原页 step 4 有 x = 0.5 × 12 m = 6 m 一行，OCR 漏掉"}
+{"book": "edx_ial_phy1", "page": 209, "old": "cos 45 = -0.707", "new": "cos 45 = −0.707", "why": "负号应为 −，不是连字符 -"}
+{"book": "edx_ial_phy1", "page": 209, "old": "(3 - 0.707)", "new": "(3 − 0.707)", "why": "减号应为 −，不是连字符 -"}
+{"book": "edx_ial_phy1", "page": 210, "old": "\n\ncross-sectional area A.\n\nHe measures", "new": "\n\nHe measures", "why": "OCR 重复了一行 cross-sectional area A."}
+{"book": "edx_ial_phy1", "page": 210, "old": "is about m = 11.7 \\Omega m^{-1} and hence calculate a value for the resistivity", "new": "is about $ m = 11.7 \\, \\Omega \\, m^{-1} $ and hence calculate a value for the resistivity", "why": "公式未加 $ 定界，KaTeX 不渲染"}
+{"book": "edx_ial_phy1", "page": 211, "old": "multiple-choiceshort openopen-responsecalculationextended writing</td><td style='text-align: center; word-wrap: break-word;'>multiple-choiceshort openopen-responsecalculationextended writing</td><td style='text-align: center; word-wrap: break-word;'>short openopen-responsecalculationextended writing", "new": "multiple-choice short open open-response calculation extended writing</td><td style='text-align: center; word-wrap: break-word;'>multiple-choice short open open-response calculation extended writing</td><td style='text-align: center; word-wrap: break-word;'>short open open-response calculation extended writing", "why": "题型词粘连，原页各词分行，补空格分开"}
+{"book": "edx_ial_phy1", "page": 213, "old": "0.1sC^{-1}", "new": "$ 0.1 s C^{-1} $", "why": "上标公式未加 $ 定界，KaTeX 不渲染"}
+{"book": "edx_ial_phy2", "page": 16, "old": "☑ Calculate impulses", "new": "Calculate impulses", "why": "学习目标前的 ☑ 是 OCR 把项目符号读成的符号"}
+{"book": "edx_ial_phy2", "page": 16, "old": "= change in momentum (kg m s^{-1})", "new": "= change in momentum (kg m $ s^{-1} $)", "why": "上标未加 $ 定界"}
+{"book": "edx_ial_phy2", "page": 18, "old": "\\frac{7.69 \\times 10^{14}}{10} \\text{kg}", "new": "7.69 \\times 10^{14} \\text{kg}", "why": "原页为 7.69×10^14 kg m s^-1，OCR 误加了分式 /10"}
+{"book": "edx_ial_phy2", "page": 18, "old": "=1.79\\times10^{-6}^{\\circ}", "new": "=1.79\\times10^{-6}{}^{\\circ}", "why": "双上标导致 KaTeX 报错，度号须单独写"}
+{"book": "edx_ial_phy2", "page": 22, "old": "is about 120 m s^{-1}", "new": "is about 120 m $ s^{-1} $", "why": "上标未加 $ 定界"}
+{"book": "edx_ial_phy2", "page": 23, "old": "where u = 1.66 × 10^{-27}kg", "new": "where $ u = 1.66 \\times 10^{-27} $ kg", "why": "上标未加 $ 定界"}
+{"book": "edx_ial_phy2", "page": 27, "old": "$ \\nu = \\frac{s}{t} $", "new": "$ v = \\frac{s}{t} $", "why": "速度符号 v 被读成希腊字母 ν"}
+{"book": "edx_ial_phy2", "page": 27, "old": "$ s = r\\theta $.", "new": "$ s = r\\theta $.\n\nThus:  $$ v=\\frac{r\\theta}{t} $$", "why": "原页此处有 Thus: v = rθ/t 一步推导,OCR 漏掉"}
+{"book": "edx_ial_phy2", "page": 27, "old": "\\nu=r\\omega=", "new": "v=r\\omega=", "why": "速度符号 v 被读成 ν"}
+{"book": "edx_ial_phy2", "page": 27, "old": "\\nu=3050m", "new": "v=3050m", "why": "速度符号 v 被读成 ν"}
+{"book": "edx_ial_phy2", "page": 28, "old": "$ \\alpha $", "new": "$ a $", "why": "向心加速度符号为 a,不是 α"}
+{"book": "edx_ial_phy2", "page": 30, "old": "\\nu = r\\omega", "new": "v = r\\omega", "why": "速度符号 v 被读成 ν"}
+{"book": "edx_ial_phy2", "page": 34, "old": "A rad min^{-1}", "new": "A rad min $ ^{-1} $", "why": "单位指数 -1 未排成上标"}
+{"book": "edx_ial_phy2", "page": 34, "old": "C rad s", "new": "C rad s $ ^{-1} $", "why": "单位 rad s 缺少指数 -1"}
+{"book": "edx_ial_phy2", "page": 41, "old": "6\\pi\\eta|v_{term}r", "new": "6\\pi\\eta v_{term}r", "why": "公式中多出竖线 |"}
+{"book": "edx_ial_phy2", "page": 41, "old": "\\frac{6\\pi r\\vert v_{term}rd}{V}", "new": "\\frac{6\\pi\\eta v_{term}rd}{V}", "why": "η 被读成 r\\vert,应为 6πη v_term r d / V"}
+{"book": "edx_ial_phy2", "page": 42, "old": "9\\uppi v_{term}", "new": "9\\eta v_{term}", "why": "粘度符号 η 被读成 π"}
+{"book": "edx_ial_phy2", "page": 44, "old": "is:\n\nk (Coulomb's constant). The value for k is:", "new": "is:", "why": "同一句正文重复出现,删去多出的一行"}
+{"book": "edx_ial_phy2", "page": 45, "old": "(8.99\\times10^{19})", "new": "(8.99\\times10^{9})", "why": "库仑常数 8.99×10^9 的指数读错"}
+{"book": "edx_ial_phy2", "page": 46, "old": "ESTIMATED EXAMPLE 2\nEstimate the height", "new": "Estimate the height", "why": "原页标题为 WORKED EXAMPLE 2,OCR 多出一行错误标题"}
+{"book": "edx_ial_phy2", "page": 50, "old": "$1.44 \\times 10^{9}$ N", "new": "$1.44 \\times 10^{9}$ N [1]", "why": "补漏掉的本题分值 [1]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "(Total for Question 5 = 1 mark)", "new": "[1]\n\n(Total for Question 5 = 1 mark)", "why": "补漏掉的本题分值 [1]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "(a) Explain what is meant by a uniform electric field.", "new": "(a) Explain what is meant by a uniform electric field. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "Label your diagram with the names of the forces.", "new": "Label your diagram with the names of the forces. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "$ 3 \\times 10^{-2} $ N.", "new": "$ 3 \\times 10^{-2} $ N. [3]", "why": "补漏掉的小题分值 [3]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "$ 2 \\times 10^{-2} $ N.", "new": "$ 2 \\times 10^{-2} $ N. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "(iii) Calculate the charge on each ball.", "new": "(iii) Calculate the charge on each ball. [3]", "why": "补漏掉的小题分值 [3]"}
+{"book": "edx_ial_phy2", "page": 50, "old": "greater than the charge given to ball N.", "new": "greater than the charge given to ball N. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 51, "old": "(a) Calculate the charge on the sphere.", "new": "(a) Calculate the charge on the sphere. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 51, "old": "(b) State whether the charge on the oil drop is positive or negative.", "new": "(b) State whether the charge on the oil drop is positive or negative. [1]", "why": "补漏掉的小题分值 [1]"}
+{"book": "edx_ial_phy2", "page": 51, "old": "(d) (i) Calculate the magnitude of the charge on the oil drop.", "new": "(d) (i) Calculate the magnitude of the charge on the oil drop. [4]", "why": "补漏掉的小题分值 [4]"}
+{"book": "edx_ial_phy2", "page": 55, "old": "E=0.045\\rbrack", "new": "E=0.045\\ J", "why": "单位读错：\\rbrack 应为 J"}
+{"book": "edx_ial_phy2", "page": 56, "old": "\\left(\\frac{V}{n}\\right)", "new": "\\left(\\frac{V}{R}\\right)", "why": "分母的 R 读成 n"}
+{"book": "edx_ial_phy2", "page": 58, "old": "$ R_{C} $", "new": "$ RC $", "why": "RC 被读成下标，改回 RC"}
+{"book": "edx_ial_phy2", "page": 59, "old": "☑ Derive", "new": "■ Derive", "why": "学习目标前的项目符号应为实心方块"}
+{"book": "edx_ial_phy2", "page": 60, "old": "1=6.2m A", "new": "I=6.2 mA", "why": "结果符号 I 读成 1，单位写法修正"}
+{"book": "edx_ial_phy2", "page": 61, "old": "V = V_{o} e^{-t/RC}", "new": "V = V_{0} e^{-t/RC}", "why": "下标 0 读成字母 o"}
+{"book": "edx_ial_phy2", "page": 63, "old": "very high capabilities possible", "new": "very high capacitances possible", "why": "capacitances 读成 capabilities"}
+{"book": "edx_ial_phy2", "page": 64, "old": "Explain what happens to the capacitor when the switch is closed.", "new": "Explain what happens to the capacitor when the switch is closed. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 65, "old": "(b) the maximum energy it can store.", "new": "(b) the maximum energy it can store. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 65, "old": "Calculate a theoretical value for the time constant for this circuit.", "new": "Calculate a theoretical value for the time constant for this circuit. [1]", "why": "补漏掉的小题分值 [1]"}
+{"book": "edx_ial_phy2", "page": 65, "old": "What is the significance of the time constant for such a discharge?", "new": "What is the significance of the time constant for such a discharge? [1]", "why": "补漏掉的小题分值 [1]"}
+{"book": "edx_ial_phy2", "page": 65, "old": "Use the extra column in a table like that above for your processed data.", "new": "Use the extra column in a table like that above for your processed data. [4]", "why": "补漏掉的小题分值 [4]"}
+{"book": "edx_ial_phy2", "page": 65, "old": "Use your graph to determine another value for time constant.", "new": "Use your graph to determine another value for time constant. [2]", "why": "补漏掉的小题分值 [2]"}
+{"book": "edx_ial_phy2", "page": 65, "old": "Choose the value of R she should use.", "new": "Choose the value of R she should use. [1]", "why": "补漏掉的小题分值 [1]"}
+{"book": "edx_ial_phy2", "page": 68, "old": "$ 1\\ cm^{-2} $", "new": "$ 1\\ cm^{2} $", "why": "面积单位指数读成 -2，应为 cm²"}
+{"book": "edx_ial_phy2", "page": 72, "old": "\\boldsymbol{l}", "new": "\\boldsymbol{I}", "why": "公式中的电流 I 读成小写 l"}
+{"book": "edx_ial_phy2", "page": 134, "old": "v_{4}{}^{2}=297\\ 025;\\\\ \\therefore{}^{2}_{2}351\\ 001", "new": "v_{4}{}^{2}=297\\ 025;", "why": "删去 OCR 误入的乱码公式，v5² = 251 001 已在下一行。"}
+{"book": "edx_ial_phy2", "page": 134, "old": "(<c> $)", "new": "(<c>) $", "why": "补全括号配对。"}
+{"book": "edx_ial_phy2", "page": 140, "old": "D It would double.", "new": "D It would double. [1]", "why": "原页该选项后有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 140, "old": "D 2300 J", "new": "D 2300 J [1]", "why": "原页该选项后有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "in this investigation.", "new": "in this investigation. [2]", "why": "原页 (a) 小题有分值 [2]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "same number of molecules of hydrogen gas.", "new": "same number of molecules of hydrogen gas. [1]", "why": "原页 (d)(i) 小题有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "Draw the electrical circuit he should use.", "new": "Draw the electrical circuit he should use. [1]", "why": "原页 (a) 小题有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "accurate value for the specific heat capacity of aluminium.", "new": "accurate value for the specific heat capacity of aluminium. [6]", "why": "原页第 7 题 (b) 有分值 [6]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "is about 140.", "new": "is about 140. [3]", "why": "原页 (a) 小题有分值 [3]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "Calculate the new pressure exerted by the air in the globe.", "new": "Calculate the new pressure exerted by the air in the globe. [2]", "why": "原页 (b) 小题有分值 [2]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 141, "old": "increases. [", "new": "increases. [4]", "why": "分值 [4] 被截断，按原页补全。"}
+{"book": "edx_ial_phy2", "page": 145, "old": "\\textit{decay}", "new": "**decay**", "why": "\\textit 在正文中会原样显示，原页为粗体关键词，改回 Markdown 粗体。"}
+{"book": "edx_ial_phy2", "page": 145, "old": "\\textit{alpha} ( $ \\alpha $), \\textit{beta} ( $ \\beta $) and \\textit{gamma}", "new": "**alpha** ( $ \\alpha $), **beta** ( $ \\beta $) and **gamma**", "why": "\\textit 在正文中会原样显示，原页为粗体关键词，改回 Markdown 粗体。"}
+{"book": "edx_ial_phy2", "page": 146, "old": "\\overline{\\mathrm{v}}", "new": "\\overline{\\nu}", "why": "反中微子符号应为希腊字母 ν，不是拉丁字母 v。"}
+{"book": "edx_ial_phy2", "page": 146, "old": "does not change the structure or a nucleus", "new": "does not change the structure of a nucleus", "why": "原页为 of，OCR 读成 or。"}
+{"book": "edx_ial_phy2", "page": 147, "old": "keeping the distance from the source", "new": "Keeping the distance from the source", "why": "句首大写 K 漏识。"}
+{"book": "edx_ial_phy2", "page": 147, "old": "radiation, l) and", "new": "radiation, I) and", "why": "光强符号为大写 I，不是小写 l。"}
+{"book": "edx_ial_phy2", "page": 147, "old": "$ l \\propto e^{-\\mu x} $", "new": "$ I \\propto e^{-\\mu x} $", "why": "光强符号为大写 I，不是小写 l。"}
+{"book": "edx_ial_phy2", "page": 148, "old": "=0.384฿", "new": "=0.384\\ \\mathrm{Bq}", "why": "单位读错（泰铢符号 ฿），应为 Bq。"}
+{"book": "edx_ial_phy2", "page": 148, "old": " $$ \\bullet \\quad \\bullet $$", "new": "", "why": "删去 OCR 误入的两个圆点，原页此处没有内容。"}
+{"book": "edx_ial_phy2", "page": 148, "old": "\\lambda r_{ 半 }", "new": "\\lambda t_{\\frac{1}{2}}", "why": "下标误识为乱码字符，应为 t½。"}
+{"book": "edx_ial_phy2", "page": 148, "old": "$ t_{1} $. This is the time", "new": "$ t_{\\frac{1}{2}} $. This is the time", "why": "半衰期符号下标应为 ½，不是 1。"}
+{"book": "edx_ial_phy2", "page": 148, "old": "half of the nuclei of that nuclei within", "new": "half of the nuclei of that nuclide within", "why": "原页为 nuclide，OCR 读成 nuclei。"}
+{"book": "edx_ial_phy2", "page": 148, "old": "t_{2}=\\frac{\\ln2}{\\lambda}", "new": "t_{\\frac{1}{2}}=\\frac{\\ln2}{\\lambda}", "why": "半衰期下标应为 ½，原文丢失分数。"}
+{"book": "edx_ial_phy2", "page": 148, "old": "\\lambda=\\frac{\\ln2}{t_{2}}", "new": "\\lambda=\\frac{\\ln2}{t_{\\frac{1}{2}}}", "why": "半衰期下标应为 ½，原文丢失分数。"}
+{"book": "edx_ial_phy2", "page": 149, "old": "proctastinium-234m", "new": "protactinium-234m", "why": "元素名拼写错误，应为 protactinium。"}
+{"book": "edx_ial_phy2", "page": 150, "old": "a radioactive nuclei to reduce", "new": "a radioactive nuclide to reduce", "why": "原页为 nuclide，OCR 读成 nuclei。"}
+{"book": "edx_ial_phy2", "page": 151, "old": "mass unit,  $ = 1.66 \\times 10^{-27} \\, \\text{kg} $. The exact", "new": "mass unit, u (  $ = 1.66 \\times 10^{-27} \\, \\text{kg} $). The exact", "why": "漏掉原子质量单位符号 u，原页为 u (= 1.66 × 10⁻²⁷ kg)。"}
+{"book": "edx_ial_phy2", "page": 152, "old": "Note that in calculations of both mass deficit and binding energy, you need to use as many significant figures as possible, only rounding off at the very end of the calculation. The difference in\n\n", "new": "", "why": "删去重复的半段正文，该段在下一段已完整出现。"}
+{"book": "edx_ial_phy2", "page": 155, "old": "^{X} R b +^{139}Cs +2n+e n e r g y}", "new": "^{X}\\mathrm{Rb} +^{139}\\mathrm{Cs} +2n+\\mathrm{energy}}", "why": "元素符号 Rb 与单词 energy 被拆开成单个字母，按原页恢复。"}
+{"book": "edx_ial_phy2", "page": 158, "old": "D 1.73 Bq", "new": "D 1.73 Bq [1]", "why": "原页该选项后有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 158, "old": "D 1700 000 MeV", "new": "D 1700 000 MeV [1]", "why": "原页该选项后有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 158, "old": "D nuclear power and nuclear weapons", "new": "D nuclear power and nuclear weapons [1]", "why": "原页该选项后有分值 [1]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 158, "old": "half-life of 5700 years.", "new": "half-life of 5700 years. [4]", "why": "原页第 5 题 (a) 有分值 [4]，漏抄。"}
+{"book": "edx_ial_phy2", "page": 199, "old": "1 parse = 3.27 light years", "new": "1 parsec = 3.27 light years", "why": "漏字：parsec 读成 parse"}
+{"book": "edx_ial_phy2", "page": 200, "old": "\\begin{aligned}a&=1.5\\times10^{-10}\\\\I&=", "new": "\\begin{aligned}I&=", "why": "多出一行 a=1.5×10^-10，原页没有"}
+{"book": "edx_ial_phy2", "page": 200, "old": "d^{2}=\\frac{L}{4\\pi l}", "new": "d^{2}=\\frac{L}{4\\pi I}", "why": "符号 I 读成 l"}
+{"book": "edx_ial_phy2", "page": 205, "old": "Note that the speed was found in $\\text{km} \\, \\text{s}^{-1}$, as we have the Hubble\n\nNote that the speed", "new": "Note that the speed", "why": "同一句重复，前一句残缺，删去"}
+{"book": "edx_ial_phy2", "page": 205, "old": " $$ \\begin{array}{r} 1 \\\\ + \\quad 6 \\\\ \\hline 17 \\end{array} $$ \n\n", "new": "", "why": "多出一个原页没有的竖式（1+6=17）"}
+{"book": "edx_ial_phy2", "page": 214, "old": "will be years $ ^{1} $.", "new": "will be years $ ^{-1} $.", "why": "指数负号丢失"}
+{"book": "edx_ial_phy2", "page": 218, "old": "(a) Sketch a graph of / against t.", "new": "(a) Sketch a graph of I against t.", "why": "符号 I 读成 /"}
+{"book": "edx_ial_phy2", "page": 218, "old": "a graph of  $ \\ln l $ against t will", "new": "a graph of  $ \\ln I $ against t will", "why": "符号 I 读成 l"}
+{"book": "edx_ial_phy2", "page": 218, "old": "a graph of  $ \\ln l $ against t to", "new": "a graph of  $ \\ln I $ against t to", "why": "符号 I 读成 l"}
+{"book": "edx_ial_phy2", "page": 218, "old": "plot  $ \\ln l $ on the y-axis", "new": "plot  $ \\ln I $ on the y-axis", "why": "符号 I 读成 l"}
+{"book": "edx_ial_phy2", "page": 218, "old": "graph of  $ \\ln l $ vs t.", "new": "graph of  $ \\ln I $ vs t.", "why": "符号 I 读成 l"}
+{"book": "edx_ial_phy2", "page": 219, "old": "figJ Graph showing how velocity", "new": "fig J Graph showing how velocity", "why": "图号 fig J 少空格"}
+{"book": "edx_ial_phy2", "page": 206, "old": "<tr><td style='text-align: center; word-wrap: break-word;'>WMAP9/2014 $ ^{b} $</td><td style='text-align: center; word-wrap: break-word;'>69.4  $ \\pm $ 2.2</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td></tr>", "new": "<tr><td style='text-align: center; word-wrap: break-word;'>WMAP9/2014 $ ^{b} $</td><td style='text-align: center; word-wrap: break-word;'>69.4  $ \\pm $ 2.2</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'></td></tr>", "why": "表 A 中 WMAP9/2014 一行的 ✓ 位置读错，改为原页所示列"}
+{"book": "edx_ial_phy2", "page": 206, "old": "<tr><td style='text-align: center; word-wrap: break-word;'>ACT+SPT/2014 $ ^{d} $</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td></tr>", "new": "<tr><td style='text-align: center; word-wrap: break-word;'>ACT+SPT/2014 $ ^{d} $</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'></td></tr>", "why": "表 A 中 ACT+SPT/2014 一行的 ✓ 位置读错，改为原页所示列"}
+{"book": "edx_ial_phy2", "page": 206, "old": "<tr><td style='text-align: center; word-wrap: break-word;'>BAO/2014 $ ^{e} $</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td></tr>", "new": "<tr><td style='text-align: center; word-wrap: break-word;'>BAO/2014 $ ^{e} $</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'></td></tr>", "why": "表 A 中 BAO/2014 一行的 ✓ 位置读错，改为原页所示列"}
+{"book": "edx_ial_phy2", "page": 206, "old": "<tr><td style='text-align: center; word-wrap: break-word;'>$ H_{{0}} $, Reiss (2014)</td><td style='text-align: center; word-wrap: break-word;'>73.0  $ \\pm $ 2.4</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td></tr>", "new": "<tr><td style='text-align: center; word-wrap: break-word;'>$ H_{{0}} $, Reiss (2014)</td><td style='text-align: center; word-wrap: break-word;'>73.0  $ \\pm $ 2.4</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'></td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'>✓</td><td style='text-align: center; word-wrap: break-word;'></td></tr>", "why": "表 A 中 , Reiss (2014) 一行的 ✓ 位置读错，改为原页所示列"}
+{"book": "edx_ial_phy2", "page": 224, "old": "phase difference=2\\pi\\times\\left(\\frac{path difference}{wavelength}\\right)", "new": "\\text{phase difference}=2\\pi\\times\\left(\\frac{\\text{path difference}}{\\text{wavelength}}\\right)", "why": "公式中的文字词被读成了斜体变量相连，改用 \\text 保留原页的正文词语与间距。"}
+{"book": "edx_ial_phy2", "page": 75, "old": "\\mathrm{d}(N\\phi)", "new": "\\mathrm{d}(N\\Phi)", "why": "φ 应为大写 Φ(磁通量)"}
+{"book": "edx_ial_phy2", "page": 75, "old": "$ F = Bq\\nu $ actually", "new": "$ F = Bqv $ actually", "why": "ν 应为字母 v(速度)"}
+{"book": "edx_ial_phy2", "page": 75, "old": "$ F = Bq\\nu\\sin\\theta $", "new": "$ F = Bqv\\sin\\theta $", "why": "ν 应为字母 v"}
+{"book": "edx_ial_phy2", "page": 77, "old": "prin th the supply", "new": "primary coil the first coil in a transformer, through which the supply current passes", "why": "词汇表漏掉并读错 primary coil 条目"}
+{"book": "edx_ial_phy2", "page": 77, "old": "second which the", "new": "secondary coil the second coil in a transformer, through which the output current passes", "why": "词汇表漏掉并读错 secondary coil 条目"}
+{"book": "edx_ial_phy2", "page": 80, "old": "D 14.4 V", "new": "D 14.4 V [1]", "why": "选项行漏掉分数 [1]"}
+{"book": "edx_ial_phy2", "page": 80, "old": "$ N\\Phi $.", "new": "$ N\\Phi $. [2]", "why": "小题 (a) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 80, "old": "Explain the origin of this potential difference.", "new": "Explain the origin of this potential difference. [4]", "why": "小题 (a) 漏掉分数 [4]"}
+{"book": "edx_ial_phy2", "page": 80, "old": "Calculate the angular velocity of an LP.", "new": "Calculate the angular velocity of an LP. [2]", "why": "小题 (b)(i) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 81, "old": "at a constant speed.", "new": "at a constant speed. [4]", "why": "小题 (b) 漏掉分数 [4]"}
+{"book": "edx_ial_phy2", "page": 81, "old": "State what is meant by a magnetic field.", "new": "State what is meant by a magnetic field. [2]", "why": "小题 (a) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 81, "old": "State the charge on the particle.", "new": "State the charge on the particle. [1]", "why": "小题 (b)(i) 漏掉分数 [1]"}
+{"book": "edx_ial_phy2", "page": 81, "old": "r=\\frac{mv}{Bq} $$", "new": "r=\\frac{mv}{Bq} $$\n\n[2]", "why": "小题 (b)(iii) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 87, "old": "{}_{2}^{4}\\mathrm{a}", "new": "{}_{2}^{4}\\alpha", "why": "a 应为希腊字母 α(α 粒子)"}
+{"book": "edx_ial_phy2", "page": 87, "old": "{}_{8}^{\\mathrm{A}}", "new": "{}_{\\mathrm{B}}^{\\mathrm{A}}", "why": "下标 8 应为字母 B(题目问 A 与 B)"}
+{"book": "edx_ial_phy2", "page": 87, "old": "neutron number the total number of neutrons within a given nucleus", "new": "neutron number the total number of neutrons within a given nucleus\n\n$ ^{*} $ You do not need to revise this term for your exam.", "why": "漏掉词汇表脚注"}
+{"book": "edx_ial_phy2", "page": 89, "old": "3.2\\times10^{-16}]", "new": "3.2\\times10^{-16}J", "why": "末尾多出的 ] 应为单位 J"}
+{"book": "edx_ial_phy2", "page": 92, "old": "$ 1.56 \\times 10^{22} $ V", "new": "$ 1.56 \\times 10^{22} $ V [1]", "why": "选项行漏掉分数 [1]"}
+{"book": "edx_ial_phy2", "page": 92, "old": "$ \\alpha $-particle.", "new": "$ \\alpha $-particle. [1]", "why": "小题 (c)(i) 漏掉分数 [1]"}
+{"book": "edx_ial_phy2", "page": 92, "old": "structure of gold atoms.", "new": "structure of gold atoms. [5]", "why": "第 4 题漏掉分数 [5]"}
+{"book": "edx_ial_phy2", "page": 92, "old": "Label the force F.", "new": "Label the force F. [2]", "why": "小题 (c)(ii) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 92, "old": "is drawn in the diagram.", "new": "is drawn in the diagram. [2]", "why": "小题 (c)(iii) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 93, "old": "wavelength of the electrons used?", "new": "wavelength of the electrons used? [1]", "why": "小题 (a) 漏掉分数 [1]"}
+{"book": "edx_ial_phy2", "page": 93, "old": "Calculate the momentum of electrons with this de Broglie wavelength.", "new": "Calculate the momentum of electrons with this de Broglie wavelength. [2]", "why": "小题 (b)(ii) 漏掉分数 [2]"}
+{"book": "edx_ial_phy2", "page": 93, "old": "Calculate the kinetic energy of this electron in electronvolts.", "new": "Calculate the kinetic energy of this electron in electronvolts. [3]", "why": "小题 (a)(ii) 漏掉分数 [3]"}
+{"book": "edx_ial_phy2", "page": 96, "old": "width=\"81%\" /></div>", "new": "width=\"81%\" /></div>\n\n<div style=\"text-align: center;\">fig A The structure of a linear accelerator.</div>", "why": "漏掉图 A 说明文字"}
+{"book": "edx_ial_phy2", "page": 112, "old": "8.2\\times10^{-14}⌋", "new": "8.2\\times10^{-14}\\,\\text{J}", "why": "公式末尾的乱码字符 ⌋ 应为单位 J"}
+{"book": "edx_ial_phy2", "page": 113, "old": "hypothesesis", "new": "hypothesises", "why": "拼写 OCR 误读"}
+{"book": "edx_ial_phy2", "page": 115, "old": "\\vec{d}", "new": "\\bar{d}", "why": "反 d 夸克符号应为上横线 \\bar{d},不是箭头"}
+{"book": "edx_ial_phy2", "page": 116, "old": "( $ ud $)", "new": "( $ u\\bar{d} $)", "why": "π⁺ 应为 u 与反 d 组成,漏了 d 上的横线"}
+{"book": "edx_ial_phy2", "page": 116, "old": "$ \\mathrm{exchange} $ bosons", "new": "**exchange** bosons", "why": "图中为粗体关键词,不是公式"}
+{"book": "edx_ial_phy2", "page": 118, "old": "&{-{}^{0}_{-1}\\mathrm{\\beta}}&{+}&{{}^{0}_{0}\\overline{{\\mathrm{\\upsilon}}}_{\\mathrm{e}}}", "new": "&{{}^{0}_{-1}\\mathrm{\\beta}}&{+}&{{}^{0}_{0}\\overline{{\\mathrm{\\nu}}}_{\\mathrm{e}}}", "why": "β 前多出一个负号;υ 应为 ν̄e"}
+{"book": "edx_ial_phy2", "page": 118, "old": "+0\\ \\ \\swarrow", "new": "+0\\ \\ \\checkmark", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "\\mathrm{B}^{+}+_{0}^{0}\\mathrm{v}_{\\mathrm{e}}", "new": "\\beta^{+}+_{0}^{0}\\nu_{e}", "why": "正电子应为 β⁺,中微子应为 ν_e"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+7\\Rightarrow+6++1+0\\quad\\swarrow", "new": "+7\\Rightarrow+6++1+0\\quad\\checkmark", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "\\mu^{-}+\\mathbf{\\nabla}_{0}^{0}\\mathbf{v}_{\\mu} $$", "new": "\\mu^{-}+{}^{0}_{0}\\nu_{\\mu} $$\n\nAnswer: $ +1 \\Rightarrow -1 + 0 $ ✗", "why": "中微子 ν_μ 误读为 ∇ 和 v;漏掉原页的答案行 ✗"}
+{"book": "edx_ial_phy2", "page": 119, "old": "$$ -1\\beta $$", "new": "$$ {}^{0}_{-1}\\beta^{-} \\qquad {}^{0}_{+1}\\beta^{+} $$", "why": "提示框漏掉了 β⁺ 的符号"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+2 & \\swarrow", "new": "+2 & \\checkmark", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+4 & \\swarrow", "new": "+4 & \\checkmark", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+ \\quad 0 & \\swarrow", "new": "+ \\quad 0 & \\checkmark", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "14\\mathsf{C}&\\Rightarrow&14\\mathsf{N}&+&0\\beta&+&0\\overline{\\mathsf{v}}_{\\mathrm{e}}", "new": "{}^{14}_{6}\\mathsf{C}&\\Rightarrow&{}^{14}_{7}\\mathsf{N}&+&{}^{0}_{-1}\\beta&+&{}^{0}_{0}\\overline{\\nu}_{e}", "why": "β 衰变式的上下标丢失,并把 ν̄e 的 v 改为 ν"}
+{"book": "edx_ial_phy2", "page": 119, "old": "6& \\Rightarrow &+7&+&-1&+&0& &\\swarrow&", "new": "+6& \\Rightarrow &+7&+&-1&+&0& &\\checkmark&", "why": "电荷守恒行缺 +,核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+14&\\Rightarrow&+14&+&0&+&0& &\\swarrow&", "new": "+14&\\Rightarrow&+14&+&0&+&0& &\\checkmark&", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "0&\\Rightarrow&0&+&+1&+&-1& &\\swarrow&", "new": "0&\\Rightarrow&0&+&+1&+&-1& &\\checkmark&", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "0&\\Rightarrow+1&+--1\\quad+\\quad0&\\swarrow", "new": "0&\\Rightarrow+1&+ -1\\quad+\\quad0&\\checkmark", "why": "电荷 -1 误写为 --1;核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+1&\\Rightarrow+1&+0&+0&\\swarrow", "new": "+1&\\Rightarrow+1&+0&+0&\\checkmark", "why": "核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "0&\\Rightarrow0&++1&+--1&\\swarrow", "new": "0&\\Rightarrow0&+ +1&+ -1&\\checkmark", "why": "轻子数 -1 误写为 --1;核对符号 ✓ 被读成 ↙"}
+{"book": "edx_ial_phy2", "page": 119, "old": "\\overline{\\mathsf{v}}_{\\mathsf{e}}", "new": "\\overline{\\nu}_{e}", "why": "反中微子应为 ν̄e,不是 v̄e"}
+{"book": "edx_ial_phy2", "page": 119, "old": "<td style='text-align: center; word-wrap: break-word;'>v_{e}</td>", "new": "<td style='text-align: center; word-wrap: break-word;'>$ \\nu_{e} $</td>", "why": "电子中微子符号应为 ν_e,并补上公式定界符"}
+{"book": "edx_ial_phy2", "page": 119, "old": "<td style='text-align: center; word-wrap: break-word;'>v_{\\mu}</td>", "new": "<td style='text-align: center; word-wrap: break-word;'>$ \\nu_{\\mu} $</td>", "why": "μ 中微子符号应为 ν_μ,并补上公式定界符"}
+{"book": "edx_ial_phy2", "page": 119, "old": "<td style='text-align: center; word-wrap: break-word;'>v_{\\tau}</td>", "new": "<td style='text-align: center; word-wrap: break-word;'>$ \\nu_{\\tau} $</td>", "why": "τ 中微子符号应为 ν_τ,并补上公式定界符"}
+{"book": "edx_ial_phy2", "page": 119, "old": "+1</td><td style='text-align: center; word-wrap: break-word;'>0</td><td style='text-align: center; word-wrap: break-word;'>-1</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>neutron</td>", "new": "-1</td><td style='text-align: center; word-wrap: break-word;'>0</td><td style='text-align: center; word-wrap: break-word;'>-1</td></tr><tr><td style='text-align: center; word-wrap: break-word;'>neutron</td>", "why": "反质子电荷应为 -1"}
+{"book": "edx_ial_phy2", "page": 119, "old": "$ \\pm\\frac{1}{3} $</td><td style='text-align: center; word-wrap: break-word;'>anti-down</td>", "new": "$ +\\frac{1}{3} $</td><td style='text-align: center; word-wrap: break-word;'>anti-down</td>", "why": "下夸克重子数为 +1/3,不是 ±1/3"}
+{"book": "edx_ial_phy2", "page": 119, "old": "$ \\bar{d} $</td><td style='text-align: center; word-wrap: break-word;'>$ \\pm\\frac{1}{3} $", "new": "$ \\bar{d} $</td><td style='text-align: center; word-wrap: break-word;'>$ +\\frac{1}{3} $", "why": "反下夸克电荷为 +1/3,不是 ±1/3"}
+{"book": "edx_ial_phy2", "page": 120, "old": "\\overline{{\\mathbf{v}} } _ { \\mathbf{e}}", "new": "\\overline{\\nu}_{e}", "why": "反中微子应为 ν̄e"}
+{"book": "edx_ial_phy2", "page": 120, "old": "\\downarrow & \\to &  + \\frac{2}{3} &- & 1 &+ & 0", "new": "-\\frac{1}{3} & \\Rightarrow &  +\\frac{2}{3} &- & 1 &+ & 0", "why": "电荷行应为 -1/3 ⇒ +2/3 - 1 + 0,箭头与首项读错"}
+{"book": "edx_ial_phy2", "page": 120, "old": "\\downarrow & \\to &  + \\frac{1}{3} &+ & 0 &+ & 0", "new": "+\\frac{1}{3} & \\Rightarrow &  +\\frac{1}{3} &+ & 0 &+ & 0", "why": "重子数行应为 +1/3 ⇒ +1/3 + 0 + 0"}
+{"book": "edx_ial_phy2", "page": 120, "old": "- 1 \\\\  \\downarrow & \\swarrow &  \\downarrow &+ & + &+ & - 1 \\end{array}  \\quad \\mathrm{o} \\quad \\begin{array}{c} \\mathcal{d} \\\\ \\mathcal{e} \\end{array}", "new": "- 1 \\end{array}", "why": "删去 OCR 多出的重复行和乱码 o、de 片段,原页无此内容"}
+{"book": "edx_ial_phy2", "page": 120, "old": "or d̄)", "new": "or dd̄)", "why": "中性 π 介子为 uū 或 dd̄,漏了一个 d"}
+{"book": "edx_ial_phy2", "page": 120, "old": "\\textit{strangeness}, S.", "new": "**strangeness**, S.", "why": "原页为粗体关键词,Markdown 中的 \\textit 不会渲染"}
+{"book": "edx_ial_phy2", "page": 121, "old": "\\mathrm{\\Phi}_{+1}^{0}\\mathrm{\\beta}+\\mathrm{\\Phi}_{0}^{0}\\mathrm{V_{e}}", "new": "{}^{0}_{+1}\\beta^{+}+{}^{0}_{0}\\nu_{e}", "why": "乱码 \\Phi 应为 ⁰ 上下标,正电子为 β⁺,中微子为 ν_e"}
+{"book": "edx_ial_phy2", "page": 121, "old": "2^1n \\Rightarrow^1\\Lambda + 2^0K +^0e^+ +^0\\overline{U}_e", "new": "{}^1_0n \\Rightarrow {}^1_0\\Lambda + 2\\,{}^0_0K + {}^0_{+1}e^+ + {}^0_0\\overline{\\nu}_e", "why": "中子与 Λ 的下标丢失,K 的系数 2 位置错,反中微子应为 ν̄e"}
+{"book": "edx_ial_phy2", "page": 119, "old": "^{235}_{92}\\text{U}&\\Rightarrow\\quad^{231}_{90}\\text{Th}", "new": "{}^{235}_{92}\\text{U}&\\Rightarrow\\quad{}^{231}_{90}\\text{Th}", "why": "上下标缺少底数,公式无法渲染"}
+{"book": "edx_ial_phy2", "page": 119, "old": "^{1}_{0}\\mathsf{n}&\\Rightarrow\\ ^{1}_{1}\\mathsf{p}", "new": "{}^{1}_{0}\\mathsf{n}&\\Rightarrow\\ {}^{1}_{1}\\mathsf{p}", "why": "上下标缺少底数,公式无法渲染"}
+{"book": "edx_ial_phy2", "page": 119, "old": "\\quad _{0}^{0}", "new": "\\quad {}_{0}^{0}", "why": "上下标缺少底数,公式无法渲染"}
+{"book": "edx_ial_phy2", "page": 122, "old": "$ \\underline{\\text{real stuff}} $", "new": "**real stuff**", "why": "原页为粗体,不是下划线公式"}
+{"book": "edx_ial_phy2", "page": 122, "old": "needed with nuclear reactions.", "new": "needed with nuclear reactions.\n\nExtract from the NASA website, at http://www.nasa.gov/centers/glenn/technology/warp/antistat.html posted on 2 May 2008. The article has since been updated with a focus on warp-drive technology.", "why": "补上原页末尾的出处说明"}
+{"book": "edx_ial_phy2", "page": 125, "old": "+ \\frac{2}{3} $ means.", "new": "+ \\frac{2}{3} $ means. [1]", "why": "补上原页的分值 [1]"}
+{"book": "edx_ial_phy2", "page": 125, "old": "$ \\bar{s} $ particle.", "new": "$ \\bar{s} $ particle. [2]", "why": "补上原页的分值 [2]"}
+{"book": "edx_ial_phy2", "page": 125, "old": "to kg.", "new": "to kg. [3]", "why": "补上原页的分值 [3]"}
+{"book": "edx_ial_phy2", "page": 125, "old": "appropriate boxes.", "new": "appropriate boxes. [2]", "why": "补上原页的分值 [2]"}
+{"book": "edx_ial_phy2", "page": 125, "old": "momenta of J3 and J4.", "new": "momenta of J3 and J4. [2]", "why": "补上原页的分值 [2]"}
+{"book": "edx_ial_phy2", "page": 125, "old": "momentum of the muon neutrino.", "new": "momentum of the muon neutrino. [1]", "why": "补上原页的分值 [1]"}
+{"book": "edx_ial_phy2", "page": 125, "old": "in GeV/c^{2}.", "new": "in GeV/c^{2}. [1]", "why": "补上原页的分值 [1]"}
+{"book": "edx_ial_phy2", "page": 133, "old": "\\frac{1}{2}m < c^2 $,", "new": "\\frac{1}{2}m < c^2 > $,", "why": "平均动能 ½m<c²> 缺少右尖括号"}
+{"book": "edx_ial_phy2", "page": 159, "old": "\\mathrm{\\Lambda}^{1}_{0}\\mathrm{n}", "new": "\\mathrm{^{1}_{0}n}", "why": "Λ 为 OCR 误读，中子符号应为 ¹₀n"}
+{"book": "edx_ial_phy2", "page": 159, "old": "\\mathrm{\\Lambda}^{-}_{92}\\mathrm{U}", "new": "\\mathrm{^{236}_{92}U}", "why": "Λ 与缺失的质量数：中间核为 ²³⁶₉₂U（235+1）"}
+{"book": "edx_ial_phy2", "page": 159, "old": "\\mathrm{\\Lambda}^{138}_{\\_}\\mathrm{Cs}", "new": "\\mathrm{^{138}_{55}Cs}", "why": "Cs 的质子数应为 55，原文丢失"}
+{"book": "edx_ial_phy2", "page": 159, "old": "\\mathrm{\\Lambda}^{96}_{37}\\mathrm{Rb}", "new": "\\mathrm{^{96}_{37}Rb}", "why": "Λ 误读，应为 ⁹⁶₃₇Rb"}
+{"book": "edx_ial_phy2", "page": 159, "old": "\\mathrm{\\Lambda}^{1}\\mathrm{_{n}^{1}}", "new": "2\\mathrm{^{1}_{0}n}", "why": "Λ 误读；裂变放出两个中子（235+1=138+96+2）"}
+{"book": "edx_ial_phy2", "page": 163, "old": "-8∩", "new": "-8\\,\\mathrm{N}", "why": "∩ 为 OCR 误读，单位应为 N"}
+{"book": "edx_ial_phy2", "page": 163, "old": "\\sqrt{\\frac{I}{g}}", "new": "\\sqrt{\\frac{l}{g}}", "why": "I 应为摆长 l"}
+{"book": "edx_ial_phy2", "page": 165, "old": "SHM GRAPHES", "new": "SHM GRAPHS", "why": "标题拼写 GRAPHES 应为 GRAPHS"}
+{"book": "edx_ial_phy2", "page": 168, "old": "0.125∫", "new": "0.125J", "why": "∫ 应为单位 J"}
+{"book": "edx_ial_phy2", "page": 168, "old": "0.125⋅⋅", "new": "0.125J", "why": "⋅⋅ 应为单位 J"}
+{"book": "edx_ial_phy2", "page": 168, "old": "V_{max}=\\sqrt", "new": "v_{max}=\\sqrt", "why": "速度应为小写 v"}
+{"book": "edx_ial_phy2", "page": 176, "old": "W = mag.", "new": "W = mg.", "why": "重力公式应为 mg"}
+{"book": "edx_ial_phy2", "page": 180, "old": "[ +11 ]", "new": "[ 411 ]", "why": "页码 411 误读为 +11"}
+{"book": "edx_ial_phy2", "page": 180, "old": "Prop. VII. Thor. VII", "new": "Prop. VII. Theor. VII", "why": "标题 Theor. 误写为 Thor."}
+{"book": "edx_ial_phy2", "page": 180, "old": "Prop. VII. Threc. VIII", "new": "Prop. VII. Theor. VIII", "why": "标题 Theor. 误写为 Threc."}
+{"book": "edx_ial_phy2", "page": 180, "old": "& ette in parte iugulas reciproc", "new": "& ette in parte iugulas reciproc\n\nfig C As with much of modern science, the law of the force of gravity between two objects was first published by Sir Isaac Newton.", "why": "原页图注漏掉，补在插图之后"}
+{"book": "edx_ial_phy2", "page": 181, "old": "pieces of rock and dust, due to the force of gravity", "new": "accrete to grow slowly by attracting and joining with many small pieces of rock and dust, due to the force of gravity", "why": "词条 accrete 的前半句漏掉"}
+{"book": "edx_ial_phy2", "page": 181, "old": "object takes", "new": "orbit the curved path that a planet, satellite or similar object takes around another object in space", "why": "词条 orbit 的释义被截断，补全"}
+{"book": "edx_ial_phy2", "page": 185, "old": "$ κg^{-1}. $", "new": "4 We say that the gravitational field strength at the Earth's surface is 9.81 N kg $ ^{-1} $.", "why": "OCR 乱码；原页为第 4 题题干，补全"}
+{"book": "edx_ial_phy2", "page": 187, "old": "{G M}}}}", "new": "{G M}}}", "why": "多余的一个 }，公式无法渲染"}
+{"book": "edx_ial_phy1", "page": 80, "old": "20\\,^{\\circ}", "new": "20\\,{}^{\\circ}", "why": "上标前缺底数,KaTeX 无法渲染"}
+{"book": "edx_ial_phy1", "page": 94, "old": "750\\,^{\\circ}\\mathrm{C}", "new": "750\\,{}^{\\circ}\\mathrm{C}", "why": "上标前缺底数,KaTeX 无法渲染"}
+{"book": "edx_ial_phy2", "page": 140, "old": "15\\,^{\\circ}\\mathrm{C}", "new": "15\\,{}^{\\circ}\\mathrm{C}", "why": "上标前缺底数,KaTeX 无法渲染"}
+{"book": "edx_ial_phy1", "page": 155, "old": "cost $250, the total cost would be $767 billion", "new": "cost $\\$$250, the total cost would be $\\$$767 billion", "why": "美元金额的 $ 被当成公式定界符;按仓库写法改为 $\\$$"}
+{"book": "edx_ial_phy1", "page": 155, "old": "spent $3600 billion", "new": "spent $\\$$3600 billion", "why": "美元金额的 $ 被当成公式定界符;按仓库写法改为 $\\$$"}
+{"book": "edx_ial_phy2", "page": 46, "old": "floor~electron}\\\\", "new": "floor~electron\\\\", "why": "多出一个 },aligned 无法渲染"}
