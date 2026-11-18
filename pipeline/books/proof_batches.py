@@ -113,7 +113,8 @@ PROMPT = """# 教材页校对批次 {n}
 - 一处错误一项；同一行有几处错误可以合成一项。
 - 写完运行 `python3 pipeline/books/proof_batches.py verify {out}`,按报告修正直到「全部通过」。
 
-只写这一个 JSON 文件，不改其他任何文件。
+只写这一个 JSON 文件，不改其他任何文件;不要运行 sync.py、git 或其他改动 data/ 的命令(CLAUDE.md 的会话约定是给主会话的)。
+原页图看不清时不要猜，不写这一条。
 
 """
 
