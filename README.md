@@ -9,7 +9,7 @@
 | 9618 Computer Science | 970 | 130 | 2021–2026 | 同上;卷 1–3 有分小问详解 |
 | 9702 Physics(卷 1、2、4、5) | 2482 | 168 | 2021–2026 | 已 OCR,未对照原卷审校 |
 
-另有 107 章教材正文(Markdown),以及官方大纲的解析结果。
+另有 136 章教材正文(Markdown,含 Edexcel IAL 物理两册 29 章),以及官方大纲的解析结果。
 入学考(TMUA、TSA、BMAT)已于 2026-11 归档：数据在 `archive-admissions` 分支，脚本在 `attic/admissions/`。
 数据现状与待办见 [docs/status.md](docs/status.md)。
 

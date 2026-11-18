@@ -128,7 +128,8 @@ function typeset(node){
 }
 
 let curBook = "", cur = null;
-const key = c => c.s + " · " + c.book;
+/* Edexcel 的书名里已带规格代码("Edexcel International A Level Physics (WPH) Book 2"),不再加前缀 */
+const key = c => c.book.includes("(" + c.s + ")") ? c.book : c.s + " · " + c.book;
 const books = () => [...new Set(CHAPTERS.map(key))];
 const chaptersOf = k => CHAPTERS.filter(c => key(c) === k);
 

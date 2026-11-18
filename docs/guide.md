@@ -68,7 +68,7 @@ git -C data log -1 --format='%h %s' && python3 qb.py stats
 | 文件 | 内容 |
 |---|---|
 | `data/practice.html` | 刷题页:按科目、试卷、主题筛题,看题干、评分细则与详解 |
-| `data/textbook.html` | 教材页:107 章教材正文(含物理 26 章),与题目按主题关联 |
+| `data/textbook.html` | 教材页:136 章教材正文(含 9702 物理 26 章、Edexcel IAL 物理 Book 1/2 共 29 章),与题目按主题关联 |
 | `data/concepts/9618/index.html` | 9618 每章复习页:先背什么、图、评分细则英文原话、常考题型;点概念名看英文定义 |
 
 直接用浏览器打开,可以离线使用。

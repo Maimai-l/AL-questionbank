@@ -126,6 +126,9 @@ python3 -m pipeline.books.chapters coverage
 `--components` 不能省略:"Integration" 在 P1 是 1.8,在 P2 是 2.5,在 P3 是 3.5,
 仅凭章节正文无法区分。
 
+超过 100 页的书用 `pipeline/books/ocr_book_pages.py`(分段提交、按 PDF 页码命名、插图加页码前缀),见
+「Edexcel 物理教材(2026-11)」。
+
 `ocr_books.py` 会输出 `_raw.jsonl`(接口原始返回),应当保留:重新落盘时可以免费
 从它重建。接口的一行 JSONL 包含多页,必须从 `layoutParsingResults` 中逐页取出,
 按行写文件会只留下每组的最后一页。
@@ -340,6 +343,67 @@ python3 -m pipeline.books.text_layer pages <pdf> <页面目录> --from 17 --to 4
 python3 -m pipeline.books.split_chapters <pdf> <页面目录> data/books/9702 --prefix 9702 --table <chapters.json>
 python3 -m pipeline.books.chapters index data/caie.db data/books/9702 --syllabus 9702 --components 2,4
 ```
+
+## Edexcel 物理教材(2026-11)
+
+Pearson Edexcel International A Level Physics(IAL,规格 WPH)Student Book 1、2(Miles Hudson),用户考 IAL。
+题库里没有 Edexcel 的考纲和试卷，这次只加教材：教材页、chapters 表与 `qbank.py chapter` 可用，主题等考纲字段为空。
+
+| 书 id | 来源 | PDF | 章 | OCR 页 |
+|---|---|---|---|---|
+| `edx_ial_phy1` | https://github.com/Maimai-l/blender-workspace/releases/download/temp-blobs/edexcel-international-a-level-physics-student-book-.pdf.zip 中的 `edexcel-international-a-level-physics-student-book-.pdf` | 225 页，扫描件 | 14 | PDF 13–215 |
+| `edx_ial_phy2` | https://github.com/Maimai-l/blender-workspace/releases/download/temp-blobs/physics2.zip 中的 `268-edexcel-international-a-level-physics-student-book-2-in-pdf.pdf` | 237 页，扫描件 | 15 | PDF 12–227 |
+
+两本都没有文字层，书签无用(Book 2 是逐页的 "combined-001",Book 1 是 xhtml 文件名),章节按目录页(Book 1 第 4–6 页、
+Book 2 第 3–5 页)手工写成 `pipeline/books/tables/<书>.json`。章按书内 Topic 下的章划分(1A、1B…、5A、5B…),
+章号从 1 连续编;Book 1 另有「Working as a physicist」(第 1 章，单位与估算)。两本的「Maths skills」各为一章,
+「Preparing for your exams」连同其后的「Sample exam answers」为最后一章。不作为章节的有 Course structure、About this book、
+Practical skills、Assessment overview 等前言页，以及 Command words、Glossary、Index。Topic 的扉页并入该 Topic 第一章。
+书内页码 = PDF 页码 − 11(Book 1)、− 10(Book 2),用 OCR 结果中标为 `number` 的页码块逐页核对(Book 1 有 94 页、
+Book 2 有 107 页印着页码),全部一致。
+
+```bash
+cp <Book 1>.pdf raw/textbooks/edx_ial_phy1.pdf          # paths.TEXTBOOKS;数据管理页的章节 PDF 也从这里切
+cp <Book 2>.pdf raw/textbooks/edx_ial_phy2.pdf
+H1='^(\d{1,2}[A-D] )?[1-9] [A-Z][^.]*$'; H2='^(\d{1,2}[A-D] )?(THINKING BIGGER|EXAM PRACTICE)$'
+python3 -I pipeline/books/ocr_book_pages.py ocr raw/textbooks/edx_ial_phy1.pdf edx_ial_phy1 --from 13 --to 215 --chunk 68 --keep-header "$H1" --keep-header "$H2"
+python3 -I pipeline/books/ocr_book_pages.py ocr raw/textbooks/edx_ial_phy2.pdf edx_ial_phy2 --from 12 --to 227 --chunk 72 --keep-header "$H1" --keep-header "$H2"
+for b in edx_ial_phy1 edx_ial_phy2; do
+  python3 -I pipeline/books/split_chapters.py raw/textbooks/$b.pdf raw/book_ocr/$b/pages data/books/$b --prefix $b --table pipeline/books/tables/$b.json
+  python3 pipeline/books/chapters.py index data/caie.db data/books/$b --syllabus WPH --no-topics
+done
+python3 pipeline/export/build_site.py
+```
+
+(`python3 -I -m pipeline.…` 找不到模块:`-I` 不把当前目录放进 `sys.path`,所以用脚本路径。)
+
+1. **OCR 脚本。** `ocr_books.py` 把整本 PDF 作为一个任务提交，超过 100 页的上限;插图又按页内方框命名
+   (`img_in_image_box_75_120_320_313.jpg`),不同页同一位置的图会互相覆盖。新脚本 `pipeline/books/ocr_book_pages.py`
+   沿用 `ocr_books.py` 的提交、轮询、下载与插图函数，把页码范围切成不超过 `--chunk` 页的子 PDF 各自提交，
+   每份接口原始返回存为 `raw/book_ocr/<书>/parts/<书>_pNNNN-NNNN/_raw.jsonl`;页文件按 PDF 页码命名
+   (`pages/page_0084.md`),插图改名为 `imgs/p0084_<原名>` 并同步改写 Markdown。`pages` 子命令只从 `_raw.jsonl`
+   重建，不再调用接口。共 419 页、6 个任务:Book 2 216 页 9.5 分钟，Book 1 203 页 14.5 分钟，另各约 1 分钟下载插图
+   (343 张、415 张)。耗时主要在上传:30–37 MB 的子 PDF 上传要 1–7 分钟，识别每 70 页只要 1.3–3 分钟。
+   先试读了 Book 2 第 14–16 页，公式、上下标与矢量粗体都读成了 LaTeX,质量够用后再整本提交。
+2. **页眉。** 页眉、页脚与页码被模型标为 `header`/`footer`/`number`,不进 Markdown,所以不用另去。但每节开头的色带
+   ("5A 1 ENERGY IN COLLISIONS"、"2 CENTRIPETAL FORCE"、"6A THINKING BIGGER")有时也被标为 `header`,节标题随之丢失。
+   `--keep-header` 把匹配的 `header` 块放回页首作 `## …`;两条规则只认「章号 + 一位节号 + 标题」与
+   「章号 + THINKING BIGGER/EXAM PRACTICE」,不认带点的眉题("5A.1 ENERGY IN COLLISIONS")与带页码的眉题
+   ("104 3B.1 …");相邻两页相同的只保留第一次。规则存在 `raw/book_ocr/<书>/_book.json`,重跑 `pages` 时沿用。
+3. **水印。** 两本没有逐页水印;Book 2 封面的 "PDF COMPILED BY SAAD" 不在章节范围内。`--strip REGEX` 留给有逐页
+   网址水印的书用(正文里 Thinking Bigger 引文的出处网址是原书内容，保留)。
+4. **入库。** `chapters.py index` 新增 `--no-topics`:不加载考纲模型,topic、subtopic、覆盖率等字段置空，只记标题、
+   页码与词数;`chapters.id` 为 `WPH_edx_ial_phy1_ch01` 这样。`export_textbooks.py` 把 `edx_ial_phy<N>` 显示为
+   "Edexcel International A Level Physics (WPH) Book <N>",教材页的下拉框在书名已含 "(WPH)" 时不再加 "WPH · " 前缀
+   (CAIE 各书不变)。`manager/flow.py` 的 `BOOKS` 加了这两本，数据管理页的「教材」节点可以选。
+5. **抽查。** 每本 3 页对照原页(Book 1:1A.6 运动学公式、2B.2 应力应变、4B.3 分压电路;Book 2:6B.3 电容放电、
+   9A.2 半衰期、11B.2 恒星分类表),正文、公式与表格都对得上;各章首页与末页(Exam practice)与目录一致。
+   已知的识别问题：个别斜体粗体字母读错(1A.6 的 $v=s/t$ 读成大写 $V=S/t$,加速度 a 读成 α);粗体关键词偶尔被读成下标
+   (`{}_{strain}`);"1A" 偶尔读成 "IA";侧栏(Exam hint)的标题与正文顺序会被正文隔开;Exam practice 中的
+   "(Total for Question N = 1 mark)" 与 Thinking Bigger 引文出处有几处被标为页脚而丢失;教材页渲染 KaTeX 约 2750 处，
+   8 处出错(Book 1 两处、Book 2 六处)。插图 758 张中 29 张没有被 Markdown 引用(被并进了更大的图框),随目录一并复制。
+6. **章节包。** `export_all_chapters.py` 与 `manage.py auto` 会为 WPH 各章也写 ZIP(`exports/chapters/WPH/`),
+   因为没有主题，包里只有章节正文和插图，没有真题。
 
 ## 子 agent 批次大小实验(2026-11-14)
 

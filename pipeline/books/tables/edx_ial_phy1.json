@@ -1,0 +1,100 @@
+[
+ {
+  "chapter": 1,
+  "title": "Working as a physicist",
+  "page_from": 13,
+  "page_to": 18,
+  "printed": "2-7"
+ },
+ {
+  "chapter": 2,
+  "title": "1A Motion",
+  "page_from": 19,
+  "page_to": 44,
+  "printed": "8-33"
+ },
+ {
+  "chapter": 3,
+  "title": "1B Energy",
+  "page_from": 45,
+  "page_to": 56,
+  "printed": "34-45"
+ },
+ {
+  "chapter": 4,
+  "title": "1C Momentum",
+  "page_from": 57,
+  "page_to": 68,
+  "printed": "46-57"
+ },
+ {
+  "chapter": 5,
+  "title": "2A Fluids",
+  "page_from": 69,
+  "page_to": 84,
+  "printed": "58-73"
+ },
+ {
+  "chapter": 6,
+  "title": "2B Solid material properties",
+  "page_from": 85,
+  "page_to": 98,
+  "printed": "74-87"
+ },
+ {
+  "chapter": 7,
+  "title": "3A Basic waves",
+  "page_from": 99,
+  "page_to": 110,
+  "printed": "88-99"
+ },
+ {
+  "chapter": 8,
+  "title": "3B The behaviour of waves",
+  "page_from": 111,
+  "page_to": 128,
+  "printed": "100-117"
+ },
+ {
+  "chapter": 9,
+  "title": "3C More wave properties of light",
+  "page_from": 129,
+  "page_to": 140,
+  "printed": "118-129"
+ },
+ {
+  "chapter": 10,
+  "title": "3D Quantum physics",
+  "page_from": 141,
+  "page_to": 158,
+  "printed": "130-147"
+ },
+ {
+  "chapter": 11,
+  "title": "4A Electrical quantities",
+  "page_from": 159,
+  "page_to": 182,
+  "printed": "148-171"
+ },
+ {
+  "chapter": 12,
+  "title": "4B Complete electrical circuits",
+  "page_from": 183,
+  "page_to": 204,
+  "printed": "172-193"
+ },
+ {
+  "chapter": 13,
+  "title": "Maths skills",
+  "page_from": 205,
+  "page_to": 210,
+  "printed": "194-199"
+ },
+ {
+  "chapter": 14,
+  "title": "Preparing for your exams",
+  "page_from": 211,
+  "page_to": 215,
+  "printed": "200-204"
+ }
+]

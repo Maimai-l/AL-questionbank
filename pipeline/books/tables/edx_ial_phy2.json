@@ -1,0 +1,107 @@
+[
+ {
+  "chapter": 1,
+  "title": "5A Further momentum",
+  "page_from": 12,
+  "page_to": 23,
+  "printed": "2-13"
+ },
+ {
+  "chapter": 2,
+  "title": "5B Circular motion",
+  "page_from": 24,
+  "page_to": 35,
+  "printed": "14-25"
+ },
+ {
+  "chapter": 3,
+  "title": "6A Electric fields",
+  "page_from": 36,
+  "page_to": 51,
+  "printed": "26-41"
+ },
+ {
+  "chapter": 4,
+  "title": "6B Capacitors",
+  "page_from": 52,
+  "page_to": 65,
+  "printed": "42-55"
+ },
+ {
+  "chapter": 5,
+  "title": "6C Electromagnetic effects",
+  "page_from": 66,
+  "page_to": 81,
+  "printed": "56-71"
+ },
+ {
+  "chapter": 6,
+  "title": "7A Probing matter",
+  "page_from": 82,
+  "page_to": 93,
+  "printed": "72-83"
+ },
+ {
+  "chapter": 7,
+  "title": "7B Particle accelerators and detectors",
+  "page_from": 94,
+  "page_to": 109,
+  "printed": "84-99"
+ },
+ {
+  "chapter": 8,
+  "title": "7C The particle zoo",
+  "page_from": 110,
+  "page_to": 125,
+  "printed": "100-115"
+ },
+ {
+  "chapter": 9,
+  "title": "8A Heat and temperature",
+  "page_from": 126,
+  "page_to": 141,
+  "printed": "116-131"
+ },
+ {
+  "chapter": 10,
+  "title": "9A Radioactivity",
+  "page_from": 142,
+  "page_to": 159,
+  "printed": "132-149"
+ },
+ {
+  "chapter": 11,
+  "title": "10A Oscillations",
+  "page_from": 160,
+  "page_to": 177,
+  "printed": "150-167"
+ },
+ {
+  "chapter": 12,
+  "title": "11A Gravitational fields",
+  "page_from": 178,
+  "page_to": 187,
+  "printed": "168-177"
+ },
+ {
+  "chapter": 13,
+  "title": "11B Space",
+  "page_from": 188,
+  "page_to": 213,
+  "printed": "178-203"
+ },
+ {
+  "chapter": 14,
+  "title": "Maths skills",
+  "page_from": 214,
+  "page_to": 219,
+  "printed": "204-209"
+ },
+ {
+  "chapter": 15,
+  "title": "Preparing for your exams",
+  "page_from": 220,
+  "page_to": 227,
+  "printed": "210-217"
+ }
+]

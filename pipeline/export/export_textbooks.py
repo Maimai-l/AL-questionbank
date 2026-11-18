@@ -4,6 +4,9 @@
 The book shown in the page's drop-down is its name, not the folder the
 chapters sit in: 9709_p1 -> "Paper 1 · Pure Mathematics 1", 9709_p23 ->
 "Paper 2/3 · Pure Mathematics 2 & 3". The folder stays in book_id.
+Books for other boards carry their full name, syllabus code included:
+edx_ial_phy2 -> "Edexcel International A Level Physics (WPH) Book 2"; the page
+then shows it without the "WPH · " in front.
 """
 import json
 import re
@@ -25,10 +28,15 @@ PAPER_9709 = {"1": "Pure Mathematics 1", "2": "Pure Mathematics 2",
               "5": "Probability & Statistics 1", "6": "Probability & Statistics 2"}
 SUBJECT = {"9231": "Further Mathematics", "9618": "Computer Science",
            "9702": "Physics", "9709": "Mathematics"}
+# Edexcel International A Level (IAL) Physics, specification WPH: edx_ial_phy<N>
+EDEXCEL_IAL = re.compile(r"edx_ial_phy(\d)")
 
 
 def book_name(syllabus, book):
     """9709_p23 -> 'Paper 2/3 · Pure Mathematics 2 & 3'; 9231 -> 'Further Mathematics'."""
+    e = EDEXCEL_IAL.fullmatch(book)
+    if e:
+        return f"Edexcel International A Level Physics ({syllabus}) Book {e.group(1)}"
     m = re.fullmatch(r"\d{4}_p(\d+)", book)
     if not m or syllabus != "9709":
         return SUBJECT.get(book, book)

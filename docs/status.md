@@ -1,5 +1,12 @@
 # 数据现状与待办(2026-11-14)
 
+## Edexcel IAL 物理教材(2026-11-18 加入)
+
+Pearson Edexcel International A Level Physics(WPH)Student Book 1(`edx_ial_phy1`,14 章)与 Book 2(`edx_ial_phy2`,
+15 章)已 OCR 成带插图、公式为 LaTeX 的 Markdown,进了教材页与 chapters 表(syllabus 为 WPH,主题等考纲字段为空)。
+题库里没有 Edexcel 的考纲和试卷。做法与已知的识别问题见 `docs/pipeline.md` 的「Edexcel 物理教材(2026-11)」;
+教材页 KaTeX 有 8 处公式无法渲染，未改。
+
 ## 9702 物理(2026-11-14 加入)
 
 卷 1、2、4、5,2021–2026 年 168 份试卷、2482 题(卷 1 选择题 1680 题、卷 2 281 题、卷 4 437 题、卷 5 84 题),
