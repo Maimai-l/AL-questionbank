@@ -17,11 +17,14 @@ The bank (caie.db, about 65 MB) is downloaded once from GitHub into --cache
 diagrams are described in the text only, so look at the PDF when a question has one
 (has_diagram = 1). Mark scheme text is the scheme as printed, split by question.
 
-Textbook chapters (books 9709_p1, 9709_p23, 9709_p4, 9709_p5, 9231, 9618, 9702) are
+Textbook chapters (books 9709_p1, 9709_p23, 9709_p4, 9709_p5, 9231, 9618, 9702, and
+edx_ial_phy1 and edx_ial_phy2: Edexcel International A Level Physics Books 1 and 2,
+syllabus WPH) are
 markdown files on the same branch. `chapter` downloads only the chapters asked for into
 the cache and prints them, with figure links pointing at GitHub; --save DIR writes the
-chapter and its figures to DIR instead (the 9702 chapters are text only). Each chapter
-is mapped to a syllabus topic: list with --topic to find the chapter for a weak topic.
+chapter and its figures to DIR instead (the 9702 chapters are text only). Each CAIE chapter
+is mapped to a syllabus topic: list with --topic to find the chapter for a weak topic
+(the bank holds no Edexcel syllabus or papers, so the WPH chapters have no topic).
 --refresh downloads again what the command uses (the bank changes as it is checked).
 """
 import argparse, json, os, re, sqlite3, sys, urllib.error, urllib.parse, urllib.request

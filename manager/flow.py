@@ -35,6 +35,8 @@ BOOKS = {
     "9709_p4": "9709 Mechanics", "9709_p5": "9709 Probability & Statistics 1",
     "9231": "9231 Further Mathematics", "9618": "9618 Computer Science",
     "9702": "9702 Physics",
+    "edx_ial_phy1": "WPH Edexcel International A Level Physics Book 1",
+    "edx_ial_phy2": "WPH Edexcel International A Level Physics Book 2",
 }
 
 # fields: key, label, kind. The kind decides a filter condition (docs/data-manager.md):

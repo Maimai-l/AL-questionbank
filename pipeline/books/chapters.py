@@ -23,6 +23,11 @@ from it.
     python3 chapters.py index caie.db books/9709_p1  --syllabus 9709 --components 1
     python3 chapters.py index caie.db books/9709_p23 --syllabus 9709 --components 2,3
     python3 chapters.py coverage caie.db [--syllabus 9709]
+    python3 chapters.py index caie.db books/edx_ial_phy2 --syllabus WPH --book edx_ial_phy2 --no-topics
+
+--no-topics is for a book whose syllabus the bank does not hold (Edexcel WPH):
+the chapters are indexed with their titles, pages and word counts, and every
+syllabus field (topic, subtopic, coverage) is left empty.
 """
 import json, os, re, sqlite3, sys
 
@@ -144,13 +149,15 @@ def store_path(p):
     return paths.relative_to_data(p)
 
 
-def index_folder(db, folder, syllabus, components=None, book=None):
+def index_folder(db, folder, syllabus, components=None, book=None, topics=True):
     con = sqlite3.connect(db)
     con.executescript(SCHEMA)
-    models = topic_model.load()
-    if syllabus not in models:
-        sys.exit(f"没有 {syllabus} 的大纲数据,先跑 syllabus.py")
-    model = models[syllabus]
+    model = None
+    if topics:
+        models = topic_model.load()
+        if syllabus not in models:
+            sys.exit(f"没有 {syllabus} 的大纲数据,先跑 syllabus.py(或加 --no-topics)")
+        model = models[syllabus]
     # 9618 and 9702 tag questions by syllabus section ("1"), not by the
     # subtopic ("1.3"): a chapter is a section, its best subtopic is kept
     # in `subtopic`; for 9702 coverage is checked against the whole section
@@ -177,6 +184,14 @@ def index_folder(db, folder, syllabus, components=None, book=None):
         # Scope to the book's own papers. "Integration" is 1.8 in Pure 1,
         # 2.5 in Pure 2 and 3.5 in Pure 3 — the chapter text alone cannot tell
         # them apart, and without this a Pure 2&3 chapter lands on 1.8.
+        if model is None:          # --no-topics: index the file, leave the syllabus fields empty
+            rows.append((f"{syllabus}_{book}_ch{no:02d}" if no else f"{syllabus}_{book}_{f}",
+                         syllabus, book, no, title, store_path(os.path.join(folder, f)),
+                         meta.get("page_from"), meta.get("page_to"),
+                         len(WORD.findall(plain(text))),
+                         None, None, None, None, None, None, None, None, None,
+                         __import__("datetime").date.today().isoformat()))
+            continue
         body = plain(text)[:120000]
         scored = []
         for comp in (components or [None]):
@@ -261,7 +276,7 @@ def index_folder(db, folder, syllabus, components=None, book=None):
     print(f"{'章':<4}{'标题':<34}{'词数':>7}{'主题':>7}  {'覆盖':>5}  可疑的 learning outcome")
     for r in rows:
         no, title, words, topic, cov = r[3], r[4], r[8], r[9], r[17]
-        weak = json.loads(r[16])
+        weak = json.loads(r[16] or "[]")
         print(f"{no or '?':<4}{title[:32]:<34}{words:>7}{(topic or '?'):>7}  "
               f"{(f'{cov:.0%}' if cov is not None else '  -'):>5}  "
               f"{len(weak)} 条" + (" ← 看一下" if weak else ""))
@@ -352,7 +367,8 @@ if __name__ == "__main__":
         comps = None
         if "--components" in sys.argv:
             comps = sys.argv[sys.argv.index("--components") + 1].split(",")
-        index_folder(a[1], a[2], syl, comps)
+        bk = sys.argv[sys.argv.index("--book") + 1] if "--book" in sys.argv else None
+        index_folder(a[1], a[2], syl, comps, bk, "--no-topics" not in sys.argv)
     elif a[0] == "coverage":
         report(a[1] if len(a) > 1 else paths.DB, syl)
     else:
