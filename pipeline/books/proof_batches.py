@@ -206,8 +206,10 @@ def replay(write):
         text = texts.get(path) or open(path, encoding="utf-8").read()
         seg = [(s, e) for page, s, e in segments(text) if page == f["page"]]
         s, e = seg[0]
+        if f["new"] in text[s:e]:          # already applied ("inding" -> "Finding" still holds "inding")
+            continue
         if text[s:e].count(f["old"]) != 1:
-            skipped += f["new"] not in text[s:e]          # already applied is not a skip
+            skipped += 1
             continue
         texts[path] = text[:s] + text[s:e].replace(f["old"], f["new"]) + text[e:]
         done += 1

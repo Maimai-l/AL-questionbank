@@ -1,0 +1,12 @@
+{"book": "edx_ial_phy1", "page": 18, "old": "then there are:\n\nStep 2:", "new": "then there are:\n\n$ \\frac{750\\,000}{10} = 75\\,000 $ pianos\n\nStep 2:", "why": "图中有 750 000 ÷ 10 = 75 000 台钢琴的算式,OCR 漏掉"}
+{"book": "edx_ial_phy1", "page": 21, "old": "☑ Calculate values", "new": "■ Calculate values", "why": "学习目标的项目符号是方块,OCR 读成 ☑"}
+{"book": "edx_ial_phy1", "page": 24, "old": "\\ddots\\quad d=v\\times t", "new": "\\therefore\\quad d=v\\times t", "why": "∴ 被读成 \\ddots,应为 \\therefore"}
+{"book": "edx_ial_phy1", "page": 24, "old": "DISTANCE TRAVELLED FROM v-t GRAPHs", "new": "DISTANCE TRAVELLED FROM v-t GRAPHS", "why": "标题末字母大小写读错,原页为大写 S"}
+{"book": "edx_ial_phy1", "page": 25, "old": "the d-graph in fig F", "new": "the d-t graph in fig F", "why": "原页为 d–t 图,漏掉 t"}
+{"book": "edx_ial_phy1", "page": 29, "old": "inding the centre of gravity of an irregular rod (broom)", "new": "Finding the centre of gravity of an irregular rod (broom)", "why": "图注首字母 F 缺失,应为 Finding"}
+{"book": "edx_ial_phy1", "page": 32, "old": "\\alpha \\propto F", "new": "a \\propto F", "why": "加速度 a 读成希腊字母 α"}
+{"book": "edx_ial_phy1", "page": 34, "old": "\\boldsymbol{V}=\\frac{\\boldsymbol{S}}{t}", "new": "\\boldsymbol{v}=\\frac{\\boldsymbol{s}}{t}", "why": "速度与位移公式为小写 v、s,OCR 读成大写"}
+{"book": "edx_ial_phy1", "page": 34, "old": "\\alpha-acceleration", "new": "a-acceleration", "why": "变量表中加速度为 a,不是 α"}
+{"book": "edx_ial_phy1", "page": 34, "old": "\\alpha = g = 9.81", "new": "a = g = 9.81", "why": "自由落体条件应为 a = g,不是 α"}
+{"book": "edx_ial_phy1", "page": 37, "old": "# IA 7 RESOLVING VECTORS", "new": "# 1A 7 RESOLVING VECTORS", "why": "章节号 1A 读成 IA"}
+{"book": "edx_ial_phy1", "page": 37, "old": "rigonometry reminder", "new": "Trigonometry reminder", "why": "图注首字母 T 缺失,应为 Trigonometry"}
