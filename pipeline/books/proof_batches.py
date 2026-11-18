@@ -206,10 +206,12 @@ def replay(write):
         text = texts.get(path) or open(path, encoding="utf-8").read()
         seg = [(s, e) for page, s, e in segments(text) if page == f["page"]]
         s, e = seg[0]
-        if f["new"] in text[s:e]:          # already applied ("inding" -> "Finding" still holds "inding")
-            continue
-        if text[s:e].count(f["old"]) != 1:
-            skipped += 1
+        seg, old, new = text[s:e], f["old"], f["new"]
+        n = seg.count(old)
+        if old in new and n and n == seg.count(new):
+            continue                        # applied: "inding" -> "Finding" leaves "inding" inside "Finding"
+        if n != 1:
+            skipped += new not in seg       # gone and its replacement there: applied
             continue
         texts[path] = text[:s] + text[s:e].replace(f["old"], f["new"]) + text[e:]
         done += 1
@@ -229,7 +231,11 @@ def apply(a):
     added = 0
     with open(FIXES, "a", encoding="utf-8") as out:
         for path in sorted(glob.glob(os.path.join(WORK, "*", "out", "batch_*.json"))):
-            ok, report = check(json.load(open(path, encoding="utf-8")))
+            items = [x for x in json.load(open(path, encoding="utf-8"))
+                     if (x.get("book"), x.get("page"), x.get("old")) not in have]   # recorded: checked then
+            if not items:
+                continue
+            ok, report = check(items)
             for r in report:
                 print(f"{rel(path)}: {r}")
             for f in ok:
