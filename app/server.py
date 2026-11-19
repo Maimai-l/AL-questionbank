@@ -9,8 +9,9 @@ Everything the page needs comes from this one server, as inksync requires
   /vendor/               KaTeX (assets/vendor/)
   /q/<imgNNNN>/<file>    question crops, from data/ (paths.resolve), and the
                          answer-space crops in imgNNNN_ans/ the board is laid over
-  /api/filters           subjects, papers, topics and years for the filters
+  /api/filters           subjects, papers, topics, years and tags for the filters
   /api/questions         the question list, with each question's last attempt
+                         (?syllabus=&component=&year=&topic=&tag=&text=&status=)
   /api/question/<id>     one question: text, image, parts and what to tick,
                          scheme, worked explanation, attempts
   /api/attempt           POST {qid, new: true} starts an attempt on a new board;
@@ -33,12 +34,14 @@ from lib import db, paths
 from app import marking, store
 
 WEB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "web")
-IMG_DIRS = ("img9709", "img9231", "img9618", "img9702",
+IMG_DIRS = ("img9709", "img9231", "img9618", "img9702", "imgWPH",
             "img9709" + paths.ANS_SUFFIX, "img9231" + paths.ANS_SUFFIX, "img9618" + paths.ANS_SUFFIX,
             "img9702" + paths.ANS_SUFFIX)
 BOARD_WIDTH = 800          # board units the question image spans
 EXAMS = {"9709": "Mathematics", "9231": "Further Mathematics", "9618": "Computer Science",
-         "9702": "Physics"}
+         "9702": "Physics", "WPH": "Edexcel A Level Physics"}
+# what the overview's masthead says above a subject that is not a CAIE exam
+KICKER = {"WPH": "精选 · 教材练习题"}
 # Minutes allowed for each paper, from the syllabuses (CAIE 2020-on; admissions
 # tests as last set). The page divides them by the paper's marks to give each
 # question a time budget.
@@ -68,12 +71,18 @@ async def filters(request):
     out = {}
     for r in rows:
         s = out.setdefault(r["syllabus"], {"name": EXAMS.get(r["syllabus"], r["syllabus"]),
+                                           "kicker": KICKER.get(r["syllabus"]),
                                            "components": {}, "years": set(), "topics": {},
-                                           "minutes": MINUTES.get(r["syllabus"], {})})
+                                           "tags": {}, "minutes": MINUTES.get(r["syllabus"], {})})
         s["components"][r["component"]] = r["component_name"]
         s["years"].add(r["year"])
         if r["topic"]:
             s["topics"][r["topic"]] = r["topic_name"]
+    # tags and how many questions of each subject carry them ("精选": 220)
+    for syl, tags in con.execute(f"SELECT syllabus, {db.tags_column(con)} FROM questions"):
+        for t in db.tags_of(tags):
+            if syl in out:
+                out[syl]["tags"][t] = out[syl]["tags"].get(t, 0) + 1
     for s in out.values():
         s["years"] = sorted(y for y in s["years"] if y)
     return web.json_response(out)
@@ -90,10 +99,14 @@ async def questions(request):
         where.append("id IN (SELECT id FROM q_fts WHERE q_fts MATCH ?)")
         args.append(q["text"])
     con = db.connect()
+    if q.get("tag"):
+        cond, extra = db.tag_clause(con, q["tag"])
+        where.append(cond)
+        args += extra
     try:
         rows = con.execute(
             "SELECT id, paper, series, component, variant, session, year, q, marks, topic, "
-            "topic_name, q_quality "
+            f"topic_name, q_quality, {db.tags_column(con)} "
             f"FROM questions WHERE {' AND '.join(where)} ORDER BY year DESC, series, paper, q",
             args).fetchall()
     except Exception:                          # a search the full-text index cannot parse
@@ -103,6 +116,7 @@ async def questions(request):
     out = []
     for r in rows:
         d = dict(r)
+        d["tags"] = db.tags_of(d["tags"])
         d["attempt"] = done.get(r["id"])
         if status == "new" and d["attempt"]:
             continue
@@ -133,6 +147,7 @@ def detail(r, attempts, current, image_prefix="/q/"):
     return {
         "id": r["id"], "syllabus": r["syllabus"], "paper": r["paper"], "session": r["session"],
         "q": r["q"], "marks": r["marks"], "topic": r["topic"], "topic_name": r["topic_name"],
+        "tags": db.tags_of(r["tags"]) if "tags" in r.keys() else [],
         "text": r["question_latex"] or r["question_text"], "q_quality": r["q_quality"],
         "image": image_info(img, image_prefix),
         "board_image": image_info(paths.answer_space(r["image"]), image_prefix),

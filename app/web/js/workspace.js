@@ -119,7 +119,7 @@ export function workspace(app, createInkPad) {
       const max = items.reduce((s, r) => s + (r.marks || 1), 0);
       put(railHead, h("div.code", paperCode(me)),
         h("div.title", isCaie(app.exam) ? f.components[me.component] : f.name),
-        h("div.meta.num", h("span", sessionShort(me)), min ? h("span", `${min} min`) : null, h("span", `${max}${isCaie(app.exam) ? " 分" : " 题"}`)),
+        h("div.meta.num", h("span", sessionShort(me)), min ? h("span", `${min} min`) : null, h("span", `${max}${isCaie(app.exam) || f.kicker ? " 分" : " 题"}`)),
         mode);
     }
     put(qrows, ...items.map((r) => {

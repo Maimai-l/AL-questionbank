@@ -29,7 +29,7 @@ from manager import bank, export, paper, sets, templates
 BUILTIN = os.path.join(os.path.dirname(os.path.abspath(__file__)), "flows")
 OUT = os.path.join(paths.FLOWS, "out")
 SEASON = {"3": "F/M", "6": "M/J", "11": "O/N"}     # 考季 as the papers write it (docs/ui-text.md)
-EXAMS = ["9709", "9231", "9618", "9702"]
+EXAMS = ["9709", "9231", "9618", "9702", "WPH"]
 BOOKS = {
     "9709_p1": "9709 Pure Mathematics 1", "9709_p23": "9709 Pure Mathematics 2 & 3",
     "9709_p4": "9709 Mechanics", "9709_p5": "9709 Probability & Statistics 1",
@@ -44,11 +44,12 @@ BOOKS = {
 #   enum  one of the values in the data, {field, op: = | ≠, value}   试卷 = 3
 #   text  {field, value}: contains, ignoring case                    标题 包含 integr
 #   bool  {field, value: true | false}, shown by the two labels      含图 / 不含图
+# An enum field may hold a list (tags): = means the list contains the value.
 QFIELDS = [("exam", "考试", "enum"), ("component", "试卷", "enum"), ("paper", "卷号", "enum"),
            ("year", "年份", "num"), ("season", "考季", "enum"), ("q", "题号", "num"),
            ("position", "卷内位置", "num"), ("marks", "分值", "num"), ("parts", "小问数", "num"),
            ("topic", "主题", "enum"), ("subtopic", "子主题", "enum"),
-           ("diagram", "含图", "bool"), ("explained", "有详解", "bool")]
+           ("diagram", "含图", "bool"), ("explained", "有详解", "bool"), ("tags", "标签", "enum")]
 CFIELDS = [("book", "教材", "enum"), ("chapter", "章号", "num"), ("title", "标题", "text"), ("topic", "主题", "enum")]
 FFIELDS = [("name", "文件名", "text")]
 FIELDS = {"q": QFIELDS, "c": CFIELDS, "f": FFIELDS}
@@ -95,12 +96,13 @@ def question_records(exam):
                     "position": r["position"], "marks": r["marks"] or 0, "parts": r["parts"] or 0,
                     "topic": r["topic"] or "", "topic_name": names.get(r["topic"]) or "", "subtopic": r["subtopic"] or "",
                     "diagram": bool(r["diagram"]), "explained": bool(r["explanation"]),
-                    "topics": r["topics"]})
+                    "topics": r["topics"], "tags": r["tags"]})
     return out
 
 
 def _records_by_id(ids):
-    exams = {q[:4] if re.match(r"\d{4}_", q) else q.split("-")[0] for q in ids}
+    # 9709_s23_12_q05 and WPH_hb1_ch03_q16 by the part before "_"; TMUA-... by the part before "-"
+    exams = {q.split("_")[0] if re.match(r"(\d{4}|[A-Z]{2,5})_", q) else q.split("-")[0] for q in ids}
     by = {}
     for e in exams:
         for r in question_records(e):
@@ -200,6 +202,8 @@ def _test(rec, kind, c):
     if kind == "bool":
         return bool(have) == c["value"]
     if kind == "enum":
+        if isinstance(have, list):           # tags: = contains, ≠ does not contain
+            return any(_text(x).lower() == c["value"].lower() for x in have) == (c["op"] == "=")
         return (_text(have).lower() == c["value"].lower()) == (c["op"] == "=")
     return c["value"].lower() in str(have or "").lower()
 
@@ -291,6 +295,8 @@ def node_take(p, ins):
 
 
 def _group_name(value):
+    if isinstance(value, list):              # tags: the record's tags together
+        return "、".join(_text(x) for x in value if _text(x)) or "无"
     return _text(value) or "无"
 
 
@@ -567,8 +573,10 @@ def _values(t, items):
             continue
         seen = {}
         for r in items:
-            v = _text(r.get(key))
-            if v and v not in seen:
+            have = r.get(key)
+            for v in ([_text(x) for x in have] if isinstance(have, list) else [_text(have)]):
+                if not v or v in seen:
+                    continue
                 seen[v] = (f"{v} {r['topic_name']}" if key == "topic" and r.get("topic_name") else
                            SEASON.get(v, v) if key == "season" else BOOKS.get(v, v) if key == "book" else v)
         out[key] = [[v, seen[v]] for v in sorted(seen, key=lambda n: (_num(n) is None, _num(n) or 0, n))]

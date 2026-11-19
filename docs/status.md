@@ -1,4 +1,17 @@
-# 数据现状与待办(2026-11-14)
+# 数据现状与待办(2026-11-19)
+
+## 精选题:Hodder Edexcel A Level Physics 1(2026-11-19 加入)
+
+Hodder 版 Edexcel A Level Physics Student Book 1(英国 9PH0 Year 1)16 章的章末 Exam practice(202 题)与
+Stretch and challenge(18 题)共 220 题进了题库:syllabus `WPH`,`tags` 为 `["精选", "Hodder Edexcel A Level Physics 1"]`,
+一章一「卷」(`component` 为章号)。题图在 `data/imgWPH/`,题干已 OCR 成 LaTeX 并保留插图(`data/imgWPH/fig/`,102 张;
+220 题 ok,10 题对照题图核对过),
+`part_data` 已切。书中没有答案，所以没有评分细则(`ms_quality='missing'`),也没有选择题答案;主题为空，等 WPH 考纲。
+标签机制(`questions.tags`)与各页面的标签筛选见 `docs/pipeline.md` 的「精选题:Hodder Edexcel A Level Physics 1」。
+
+- 待办:WPH 考纲加入后给这些题打主题(现在 `topic_note` 写着「按教材章节分组」)。
+- 待办(可选):自己写参考答案或评分要点;5 道题引用前面的题(如第 8 章第 15 题要用第 3 题的数据表),题图里没有被引用的题。
+- claude.ai 的 skill(`skills/shared/qbank.py` 的说明)仍写着题库里没有 Edexcel 的题，下次改 skill 时一并更新。
 
 ## Edexcel IAL 物理教材(2026-11-18 加入)
 

@@ -42,7 +42,8 @@ CREATE TABLE questions (
   image         TEXT,            -- img9709/<file>.png  loss-free crop
   qp_pdf        TEXT,
   ms_pdf        TEXT,
-  qp_pages      TEXT             -- JSON list of 0-based page indices
+  qp_pages      TEXT,            -- JSON list of 0-based page indices
+  tags          TEXT DEFAULT NULL -- JSON list of labels ("精选", the source); NULL on past-paper rows
 );
 CREATE INDEX idx_topic     ON questions(component, topic);
 CREATE INDEX idx_marks     ON questions(marks);

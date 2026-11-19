@@ -63,13 +63,30 @@
     return hash;
   }
 
-  /** Text with $...$ and $$...$$ rendered by KaTeX. */
+  // a figure the OCR kept in a question's text (the textbook exercises, ocr.py --figures):
+  // <img src="imgWPH/fig/..."> relative to data/, served under /q/
+  const FIGURE = /(?:<div[^>]*>\s*)?<img\s[^>]*?src="(img\w+\/[^"]+)"[^>]*>(?:\s*<\/div>)?/gi;
+
+  /** Text with $...$ and $$...$$ rendered by KaTeX, and its figures shown. */
   function Tex({ text, className, tag }) {
     const ref = useRef(null);
     useEffect(() => {
       const el = ref.current;
       if (!el) return;
-      el.textContent = text || '';
+      const t = text || '';
+      el.textContent = '';
+      let last = 0;
+      for (const m of t.matchAll(FIGURE)) {
+        el.append(document.createTextNode(t.slice(last, m.index)));
+        const img = document.createElement('img');
+        img.src = '/q/' + m[1];
+        img.alt = '插图';
+        img.className = 'dm-fig';
+        Object.assign(img.style, { display: 'block', maxWidth: '80%', margin: '8px auto' });
+        el.append(img);
+        last = m.index + m[0].length;
+      }
+      el.append(document.createTextNode(t.slice(last)));
       const go = () => window.renderMathInElement && window.renderMathInElement(el, {
         delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
         throwOnError: false,
@@ -304,7 +321,7 @@
     const clearSearch = () => { setText(''); setSearch(''); };
     const meta = metas.find((m) => m.exam === exam);
     // every condition starts with nothing picked, which sets no limit
-    const blank = (m) => ({ comps: [], seasons: [], variants: [], topics: [], tasks: [], from: m.years[0], to: m.years[m.years.length - 1] });
+    const blank = (m) => ({ comps: [], seasons: [], variants: [], topics: [], tasks: [], tags: [], from: m.years[0], to: m.years[m.years.length - 1] });
     const [rowsByExam, setRowsByExam] = useState({});
     const [f, setF] = useState(() => blank(meta));
     const set = (k) => (v) => setF((o) => ({ ...o, [k]: v }));
@@ -337,7 +354,8 @@
       && (skip === 'variants' || !f.variants.length || f.variants.includes(variantOf(r)))
       && r.year >= f.from && r.year <= f.to
       && (skip === 'topics' || !f.topics.length || f.topics.includes(r.topic))
-      && (skip === 'tasks' || !f.tasks.length || !r.tasks.length || r.tasks.some((t) => f.tasks.includes(t)));
+      && (skip === 'tasks' || !f.tasks.length || !r.tasks.length || r.tasks.some((t) => f.tasks.includes(t)))
+      && (skip === 'tags' || !f.tags.length || (r.tags || []).some((t) => f.tags.includes(t)));
     // A paper code (s23 12 q5, 9709/12/M/J/23) finds that paper or question whatever the
     // conditions on the left; words narrow the questions the conditions select.
     const isHit = (r) => {
@@ -397,6 +415,8 @@
     const taskList = [...new Set(allRows.flatMap((r) => r.tasks))]
       .sort((a, b) => Object.keys(TASK).indexOf(a) - Object.keys(TASK).indexOf(b)).map((t) => ({ value: t, label: TASK[t] || t }));
     const taskItems = mode === 'q' ? items('tasks', 'tasks', taskList) : [];
+    // tags (精选 and the source): the questions' tags column, only where some question has one
+    const tagItems = mode === 'q' ? items('tags', 'tags', (meta.tags || []).map((t) => ({ value: t.value, label: t.label }))) : [];
     const years = meta.years.map((y) => ({ value: String(y), label: String(y) }));
     const exams = metas.map((m) => ({ value: m.exam, label: m.label }));
     const one = pickedPapers.length === 1 ? pickedPapers[0] : null;
@@ -419,7 +439,8 @@
             h('span', null, '至'),
             h(E.Select, { ariaLabel: '结束年份', size: 'sm', options: years, value: String(f.to), onChange: (v) => setF({ ...f, to: +v, from: Math.min(+v, f.from) }) }))),
         topicItems.length ? h(FreeFacet, { title: '主题', items: topicItems, picked: f.topics, onChange: set('topics') }) : null,
-        taskItems.length ? h(FreeFacet, { title: '小问类型', items: taskItems, picked: f.tasks, onChange: set('tasks') }) : null),
+        taskItems.length ? h(FreeFacet, { title: '小问类型', items: taskItems, picked: f.tasks, onChange: set('tasks') }) : null,
+        tagItems.length ? h(FreeFacet, { title: '标签', items: tagItems, picked: f.tags, onChange: set('tags') }) : null),
       h('main', { className: 'dm-results' },
         h('div', { className: 'headline' },
           h('span', null, mode === 'p' ? `${paperView.length} 份试卷` : `${view.length} 题`)),
@@ -839,7 +860,8 @@
       h('div', { className: 'detail-tabs' },
         h(E.Tabs, { variant: 'line', items: tabs, value: tab, onChange: setTab, ariaLabel: '题目资料' })),
       h('div', { className: 'detail-body', ref: body },
-        tab === 'ms' ? (d.scheme ? h(Scheme, { rows: d.scheme }) : h(Markdown, { text: d.solution })) : null,
+        tab === 'ms' ? (d.scheme ? h(Scheme, { rows: d.scheme }) : d.solution ? h(Markdown, { text: d.solution })
+          : h('p', { className: 'dm-prose noms' }, '本题没有评分细则(教材未附答案)。')) : null,
         tab === 'text' ? h(Tex, { tag: 'div', className: 'dm-prose', text: d.text }) : null,
         tab === 'ex' && hasEx ? d.explanation.parts.map((p, i) => h(ExPart, { key: i, p })) : null));
   }
@@ -955,7 +977,7 @@
     useEffect(() => { if (rename) { setRenaming(true); onRename(); } }, [rename]);
 
     useEffect(() => {
-      const exams = [...new Set(s.items.map((q) => (/^\d{4}_/.test(q) ? q.slice(0, 4) : q.split('-')[0])))];
+      const exams = [...new Set(s.items.map((q) => (/^(\d{4}|[A-Z]{2,5})_/.test(q) ? q.split('_')[0] : q.split('-')[0])))];
       Promise.all(exams.map((e) => api('/api/questions?exam=' + e))).then((lists) => {
         const by = {};
         lists.flat().forEach((r) => { by[r.id] = r; });

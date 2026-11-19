@@ -151,6 +151,76 @@ class QueryPage(Page):
 
 
 
+class QueryByTag(Page):
+    def test_tag_facet(self):
+        """WPH: the 标签 facet lists 精选 with its count; ticking it keeps those questions, and
+        one of them opens in the panel without a mark scheme."""
+        from lib import db
+        con = db.connect()
+        cond, args = db.tag_clause(con, "精选")
+        n = con.execute(f"SELECT COUNT(*) FROM questions WHERE syllabus = 'WPH' AND {cond}", args).fetchone()[0]
+        p = self.page
+        self.go("query")
+        rows = p.locator("table tbody tr[data-k]")
+        expect(rows.first).to_be_visible()
+        expect(p.locator(".dm-cond .sec", has_text="标签")).to_have_count(0)      # 9709 has no tags
+        p.locator(".dm-cond .select").first.click()
+        p.get_by_role("option", name="WPH Edexcel Physics · 精选").click()
+        tag = p.locator(".dm-cond label.check", has_text="精选")
+        expect(tag).to_be_visible()
+        tag.click()
+        expect(p.locator(".headline")).to_have_text(f"{n} 题")
+        qid = con.execute("SELECT id FROM questions WHERE syllabus = 'WPH' AND "
+                          "question_latex LIKE '%<img src=\"imgWPH/fig/%' ORDER BY id LIMIT 1").fetchone()[0]
+        p.locator(f"table tbody tr[data-k='{qid}']").click()
+        expect(p.locator(".detail .qimg").first).to_be_visible()
+        p.get_by_role("tab", name="题干文字").click()                # its figures show in the text
+        fig = p.locator(".detail img.dm-fig").first
+        expect(fig).to_be_visible()
+        self.assertGreater(fig.evaluate("i => i.naturalWidth"), 0)
+        p.get_by_role("tab", name="答案与解析").click()
+        expect(p.locator(".detail .noms")).to_contain_text("本题没有评分细则")
+
+
+class PracticePage(unittest.TestCase):
+    """data/practice.html (the offline page, built by build_site.py) opened from disk."""
+
+    @unittest.skipUnless(READY, "needs Playwright and data/")
+    def test_tag_and_no_scheme(self):
+        """标签 = 精选 lists the textbook exercises (只看有答案的 is cleared for them), and a
+        question without a mark scheme says so instead of showing one."""
+        from lib import paths
+        page_file = os.path.join(paths.DATA, "practice.html")
+        if not os.path.exists(os.path.join(paths.DATA, "data.js")):
+            self.skipTest("data.js missing: python3 pipeline/export/build_site.py")
+        ctx = BROWSER.new_context()
+        p = ctx.new_page()
+        errors = []
+        p.on("pageerror", lambda e: errors.append(str(e)))
+        p.goto("file://" + page_file)
+        expect(p.locator("#fTag option", has_text="精选")).to_have_count(1)
+        p.select_option("#fTag", "精选")
+        expect(p.locator("#fMs")).not_to_be_checked()
+        expect(p.locator("#count")).to_contain_text("/")
+        card = p.locator(".card[data-id^='WPH_']")
+        expect(card).to_be_visible()
+        expect(card.locator(".noms")).to_contain_text("本题没有评分细则")
+        expect(card.locator("details.msbox")).to_have_count(0)
+        # a figure the OCR kept in the text shows in 文字版
+        from lib import db
+        qid = db.connect().execute("SELECT id FROM questions WHERE syllabus = 'WPH' AND "
+                                   "question_latex LIKE '%<img src=\"imgWPH/fig/%' LIMIT 1").fetchone()[0]
+        p.fill("#fText", qid)
+        card = p.locator(f".card[data-id='{qid}']")
+        expect(card).to_be_visible()
+        card.locator(".viewsw button[data-mode=txt]").click()
+        fig = card.locator(".pane-txt img.figimg").first
+        expect(fig).to_be_visible()
+        self.assertGreater(fig.evaluate("i => i.naturalWidth"), 0)
+        ctx.close()
+        self.assertEqual(errors, [])
+
+
 class QueryByPaper(Page):
     def test_find_a_paper(self):
         """按试卷: typing 32 24 leaves the 2024 Paper 3 variant 2 papers; the one picked shows

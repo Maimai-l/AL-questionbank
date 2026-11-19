@@ -36,6 +36,15 @@ from lib import db  # noqa: E402
 
 ROMAN = ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x"]
 LABEL = re.compile(r"(?:(?<=^)|(?<=[\s>|]))\(\s*([a-h]|i{1,3}|iv|vi{0,3}|ix|x)\s*\)(?=\s|$)", re.M)
+# Textbook questions (syllabus WPH, pipeline/books/book_questions.py) write "a)", "ii)"
+# at the start of a line, and part (i) after (h); read them as "(a)" for these only.
+CAIE = {"9709", "9231", "9618", "9702"}
+BARE = re.compile(r"(?:(?<=^)|(?<=[\s>|$]))\(?([a-i]|i{1,3}|iv|vi{0,3}|ix|x)\)(?=\s)", re.M)
+
+
+def bare_labels(t):
+    t = re.sub(r"\$\s*\\mathbf\{\s*([a-i]|[ivx]+)\s*\)?\s*\}\s*\)?\s*\$", r"\1)", t)
+    return BARE.sub(r"(\1)", t)
 
 # The task of a part, from its command words; the first pattern that matches
 # its text (intro + text, or the whole question) wins, so the more specific
@@ -111,6 +120,8 @@ def ms_rows(ms, q):
 
 def split(row):
     t = row["question_latex"] or row["question_text"] or ""
+    if row["syllabus"] not in CAIE:
+        t = bare_labels(t)
     marks = json.loads(row["marks_parts"] or "[]")
     tp = {p["part"]: p for p in json.loads(row["topic_parts"] or "[]")}
     ms = ms_rows(row["ms_latex"] or row["ms_text"], row["q"])
@@ -148,7 +159,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--write", action="store_true")
-    ap.add_argument("--syllabus", nargs="*", default=["9709", "9231", "9618", "9702"],
+    ap.add_argument("--syllabus", nargs="*", default=["9709", "9231", "9618", "9702", "WPH"],
                     help="only these syllabuses, e.g. --syllabus 9702")
     a = ap.parse_args()
     con = db.connect()

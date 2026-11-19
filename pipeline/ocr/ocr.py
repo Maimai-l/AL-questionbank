@@ -15,10 +15,22 @@ nothing.
 job, splitting the result back by page. The service queues jobs, so 2 482 single
 crops for 9702 went at about 3 a minute while one job takes 25 seconds; packed,
 the job count drops N-fold.
+
+--figures DIR keeps the figures. Without it (the CAIE runs) every figure the
+layout model cuts out becomes "[DIAGRAM]". With it, each figure the markdown
+places (markdown.images in the response, as pipeline/ocr/ocr_books.py saves
+them for the textbooks) is downloaded to DIR/<question id>_<n>.jpg, n counting
+the figures in reading order, and its <img src> is rewritten to that file's path
+relative to data/ (imgWPH/fig/WPH_hb1_ch03_q11_01.jpg), as the textbook markdown
+links its figures; has_diagram is then whether any figure was kept, and the cache
+line lists them under "figures". DIR must be under data/.
 """
 import json, os, re, sys, threading, time
 from concurrent.futures import ThreadPoolExecutor
 import requests
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+from lib import paths  # noqa: E402
 
 JOB = "https://paddleocr.aistudio-app.com/api/v2/ocr/jobs"
 TOKEN = os.environ.get("PADDLE_TOKEN", "f976c86061d646ba2294e0a5a951893ac2e9d383")
@@ -36,17 +48,19 @@ IMG_RE = re.compile(r"<img\s", re.I)
 lock = threading.Lock()
 
 
-def clean(md):
+def clean(md, figures=False):
     md = TRAIL_RE.sub("", md)
     md = re.sub(r'<div style="text-align: center;">\s*(\[\d+\])\s*</div>', r" \1", md)
-    md = re.sub(r'<div style="text-align: center;">\s*<img[^>]*>\s*</div>',
-                "\n[DIAGRAM]\n", md)
+    if not figures:
+        md = re.sub(r'<div style="text-align: center;">\s*<img[^>]*>\s*</div>',
+                    "\n[DIAGRAM]\n", md)
     md = re.sub(r"\n{3,}", "\n\n", md)
     return md.strip()
 
 
-def run_job(path):
-    """Markdown of each page of one submitted file."""
+def run_job(path, full=False):
+    """Markdown of each page of one submitted file; with full, {text, images} per page
+    (images: the markdown's figure paths -> their download URLs)."""
     with open(path, "rb") as f:
         r = requests.post(JOB, headers=HEADERS,
                           data={"model": MODEL, "optionalPayload": json.dumps(OPT)},
@@ -60,7 +74,9 @@ def run_job(path):
             pages = []
             for ln in requests.get(d["resultUrl"]["jsonUrl"], timeout=120).text.strip().split("\n"):
                 for res in json.loads(ln)["result"]["layoutParsingResults"]:
-                    pages.append(res["markdown"]["text"])
+                    md = res["markdown"]
+                    pages.append({"text": md["text"], "images": md.get("images") or {}} if full
+                                 else md["text"])
             return pages
         if d["state"] == "failed":
             raise RuntimeError("job failed: " + str(d.get("errorMsg"))[:120])
@@ -68,7 +84,47 @@ def run_job(path):
     raise TimeoutError("poll timeout")
 
 
-def ocr_pack(paths, tries=3):
+FIG_SRC = re.compile(r'(<img\s[^>]*?src=")([^"]+)(")', re.I)
+
+
+def save_figures(text, images, qid, figdir):
+    """Download the figures the markdown places, in order, to figdir/<qid>_<n>.jpg and
+    point their <img src> there (relative to data/). Returns (text, [paths])."""
+    saved = []
+
+    def one(m):
+        url = images.get(m.group(2))
+        if not url:
+            return m.group(0)
+        dst = os.path.join(figdir, f"{qid}_{len(saved) + 1:02d}.jpg")
+        for a in range(3):
+            try:
+                r = requests.get(url, timeout=120)
+                r.raise_for_status()
+                os.makedirs(figdir, exist_ok=True)
+                with open(dst, "wb") as f:
+                    f.write(r.content)
+                break
+            except Exception:
+                if a == 2:
+                    raise
+                time.sleep(2 * (a + 1))
+        rel = paths.relative_to_data(dst).replace(os.sep, "/")
+        saved.append(rel)
+        return m.group(1) + rel + m.group(3)
+    return FIG_SRC.sub(one, text), saved
+
+
+def result(page, qid=None, figdir=None):
+    """The cache line for one crop's page: a str (no figures) or {text, images}."""
+    if figdir is None:
+        t = page if isinstance(page, str) else page["text"]
+        return {"latex": clean(t), "has_diagram": bool(IMG_RE.search(t))}
+    text, figs = save_figures(page["text"], page["images"], qid, figdir)
+    return {"latex": clean(text, figures=True), "has_diagram": bool(figs), "figures": figs}
+
+
+def ocr_pack(paths, tries=3, qids=None, figdir=None):
     """One job for several crops: a PDF with one crop per page. A result per crop."""
     import tempfile
     from PIL import Image
@@ -78,17 +134,17 @@ def ocr_pack(paths, tries=3):
                 pdf = os.path.join(tmp, "pack.pdf")
                 ims = [Image.open(p).convert("RGB") for p in paths]
                 ims[0].save(pdf, "PDF", save_all=True, append_images=ims[1:], resolution=200)
-                pages = run_job(pdf)
+                pages = run_job(pdf, full=figdir is not None)
             if len(pages) != len(paths):
                 raise RuntimeError(f"{len(pages)} pages back for {len(paths)} crops")
-            return [{"latex": clean(t), "has_diagram": bool(IMG_RE.search(t))} for t in pages]
+            return [result(t, qid, figdir) for t, qid in zip(pages, qids or [None] * len(pages))]
         except Exception as e:
             if attempt == tries - 1:
                 return [{"error": f"{type(e).__name__}: {e}"} for _ in paths]
             time.sleep(5 * (attempt + 1))
 
 
-def ocr_one(path, tries=3):
+def ocr_one(path, tries=3, qid=None, figdir=None):
     for attempt in range(tries):
         try:
             with open(path, "rb") as f:
@@ -102,13 +158,15 @@ def ocr_one(path, tries=3):
                 d = requests.get(f"{JOB}/{jid}", headers=HEADERS, timeout=90).json()["data"]
                 st = d["state"]
                 if st == "done":
-                    parts = []
+                    parts, images = [], {}
                     for ln in requests.get(d["resultUrl"]["jsonUrl"], timeout=90) \
                                        .text.strip().split("\n"):
                         for res in json.loads(ln)["result"]["layoutParsingResults"]:
                             parts.append(res["markdown"]["text"])
+                            images.update(res["markdown"].get("images") or {})
                     raw = "\n".join(parts)
-                    return {"latex": clean(raw), "has_diagram": bool(IMG_RE.search(raw))}
+                    return result(raw if figdir is None else {"text": raw, "images": images},
+                                  qid, figdir)
                 if st == "failed":
                     raise RuntimeError("job failed: " + str(d.get("errorMsg"))[:120])
                 time.sleep(3)
@@ -119,7 +177,7 @@ def ocr_one(path, tries=3):
             time.sleep(4 * (attempt + 1))
 
 
-def main(qjson, imgdir, cache, workers, pack=1):
+def main(qjson, imgdir, cache, workers, pack=1, figdir=None):
     Q = json.load(open(qjson))
     done = {}
     if os.path.exists(cache):
@@ -148,10 +206,12 @@ def main(qjson, imgdir, cache, workers, pack=1):
                       f"eta {(len(todo)-n[0])/rate/60:.0f} min", flush=True)
 
     def work(q):
-        record(q["image"][:-4], ocr_one(os.path.join(imgdir, q["image"])))
+        record(q["image"][:-4], ocr_one(os.path.join(imgdir, q["image"]),
+                                        qid=q["image"][:-4], figdir=figdir))
 
     def work_pack(group):
-        for q, res in zip(group, ocr_pack([os.path.join(imgdir, q["image"]) for q in group])):
+        for q, res in zip(group, ocr_pack([os.path.join(imgdir, q["image"]) for q in group],
+                                          qids=[q["image"][:-4] for q in group], figdir=figdir)):
             record(q["image"][:-4], res)
 
     with ThreadPoolExecutor(max_workers=workers) as ex:
@@ -166,9 +226,15 @@ def main(qjson, imgdir, cache, workers, pack=1):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    pack = 1
+    pack, figdir = 1, None
     if "--pack" in args:
         i = args.index("--pack")
         pack = int(args[i + 1])
         del args[i:i + 2]
-    main(args[0], args[1], args[2], int(args[3]) if len(args) > 3 else 6, pack)
+    if "--figures" in args:
+        i = args.index("--figures")
+        figdir = os.path.abspath(args[i + 1])
+        del args[i:i + 2]
+        if not figdir.startswith(os.path.abspath(paths.DATA) + os.sep):
+            sys.exit("--figures 的目录须在 data/ 下(题干里的路径相对 data/)")
+    main(args[0], args[1], args[2], int(args[3]) if len(args) > 3 else 6, pack, figdir)

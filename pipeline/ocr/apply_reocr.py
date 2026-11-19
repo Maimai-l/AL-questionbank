@@ -28,7 +28,10 @@ and options, 9702_m26_22_q07 its part (b)). --failed FILE writes those ids, one
 per line, to be read again one crop at a time (ocr.py without --pack); --second
 CACHE then takes that second reading when it passes or, for a multiple-choice
 question without its option letters, when it says the same as the first (difflib
-ratio >= 0.9): there the options are drawn, not written (9702_s21_11_q12). --strip-bank also drops the answer lines from every other
+ratio >= 0.9): there the options are drawn, not written (9702_s21_11_q12). --syllabus S
+takes only that subject's rows and rebuilds only their rows of q_fts; --keep-diagram
+leaves has_diagram as it is (textbook questions: pipeline/books/book_questions.py);
+a textbook's bare labels ("a)", "ii)") are compared as "(a)", "(ii)". --strip-bank also drops the answer lines from every other
 row's question_latex (29 rows in 2026-09; 9709_w23_13_q02 alone 11 000 chars).
 """
 import argparse, json, os, re, sys
@@ -52,16 +55,24 @@ def normalise(latex):
 
 
 LABEL = re.compile(r"\((?:[a-h]|i{1,3}|iv|vi{0,3}|ix|x)\)")
+# a textbook writes its labels bare, "a)" and "ii)" at the start of a line; read as "(a)"
+BARE = re.compile(r"(?:(?<=^)|(?<=[\s>|$]))\(?((?:[a-i]|i{1,3}|iv|vi{0,3}|ix|x))\)(?=\s)", re.M)
+
+
+def bare_labels(t):
+    return BARE.sub(r"(\1)", re.sub(r"\$\s*\\mathbf\{\s*([a-i]|[ivx]+)\s*\)?\s*\}\s*\)?\s*\$", r"\1)", t))
 OPTION_D = re.compile(r"(?:^|\n|\|)\s*D(?:\s|$|\|)|\sD\s")
 
 
-def incomplete(new, text, mcq):
+def incomplete(new, text, mcq, bare=False):
     """What the PDF text layer has that the new text lacks: part labels or, for a
     multiple-choice question, the option letter D and the question it asks (the
     text layer's last sentence ending in "?", by its words of four letters or more)."""
     if not text:
         return None
     new = re.sub(r"\$\s*\\mathbf\{([A-D])\}\s*\$", r"\1", new)   # option letters set in bold
+    if bare:
+        new, text = bare_labels(new), bare_labels(text)
     want, got = LABEL.findall(text), LABEL.findall(new)
     if want != got:                     # in order: (c)(i) can go while (b)(i) stays
         missing = sorted(set(want) - set(got)) or ["顺序或个数不同"]
@@ -90,6 +101,9 @@ def main():
                     help="对照文本层：小问标号与选择题选项 D 必须都在")
     ap.add_argument("--failed", help="把不完整的题号写到这个文件")
     ap.add_argument("--second", help="不完整的题单张重读的缓存")
+    ap.add_argument("--syllabus", help="只处理这一科的题;只重建这些题的全文索引行,不动其他科")
+    ap.add_argument("--keep-diagram", action="store_true",
+                    help="不用 OCR 的判断改写 has_diagram(教材题按题内插图判定)")
     a = ap.parse_args()
 
     got = {}
@@ -108,18 +122,21 @@ def main():
     con = db.connect()
     upd, kept, failed = [], [], []
     for qid, d in sorted(got.items()):
-        r = con.execute("SELECT question_latex, q_quality, question_text, qtype "
+        r = con.execute("SELECT question_latex, q_quality, question_text, qtype, syllabus, has_diagram "
                         "FROM questions WHERE id=?", (qid,)).fetchone()
         if r is None:
             kept.append(f"{qid}: 库中没有")
             continue
+        if a.syllabus and r["syllabus"] != a.syllabus:
+            continue
+        bare = a.syllabus is not None and not LABEL.search(r["question_text"] or "")
         new = normalise(d["latex"])
         grade = classify_q(new)
         if grade != "ok":
             kept.append(f"{qid}: 新结果评为 {grade},保留旧文本({r['q_quality']})")
             continue
         if a.check_text:
-            why = incomplete(new, r["question_text"], r["qtype"] == "mcq")
+            why = incomplete(new, r["question_text"], r["qtype"] == "mcq", bare)
             if why and qid in second:
                 import difflib
                 alt = normalise(second[qid]["latex"])
@@ -127,7 +144,7 @@ def main():
                 # readings can drop the same part (9702_m21_22_q06 lost (a) both times)
                 same = why == "缺选项" and difflib.SequenceMatcher(None, new, alt).ratio() >= 0.9
                 if classify_q(alt) == "ok" and (
-                        not incomplete(alt, r["question_text"], r["qtype"] == "mcq") or same):
+                        not incomplete(alt, r["question_text"], r["qtype"] == "mcq", bare) or same):
                     new, d, why = alt, second[qid], None
             if why:
                 kept.append(f"{qid}: {why},保留旧文本")
@@ -138,7 +155,8 @@ def main():
             kept.append(f"{qid}: 新结果 {len(new)} 字,旧文本去掉答题线后 "
                         f"{len(strip_answer_lines(old))} 字,保留旧文本")
             continue
-        upd.append((new, int(bool(d.get("has_diagram"))), "ok", qid,
+        dia = r["has_diagram"] if a.keep_diagram else int(bool(d.get("has_diagram")))
+        upd.append((new, dia, "ok", qid,
                     len(old), len(new), r["q_quality"]))
 
     ratios = sorted(u[5] / max(u[4], 1) for u in upd)
@@ -170,10 +188,17 @@ def main():
     con.executemany("UPDATE questions SET question_latex=?, has_diagram=?, q_quality=? "
                     "WHERE id=?", [u[:4] for u in upd])
     con.executemany("UPDATE questions SET question_latex=? WHERE id=?", stripped)
-    con.execute("DELETE FROM q_fts")
-    con.execute("INSERT INTO q_fts(id,question_text,ms_text,topic_name) SELECT id, "
-                "COALESCE(question_latex,question_text), COALESCE(ms_latex,ms_text), "
-                "topic_name FROM questions")
+    if a.syllabus:                       # only this subject's rows of the index
+        con.execute("DELETE FROM q_fts WHERE id IN (SELECT id FROM questions WHERE syllabus = ?)",
+                    (a.syllabus,))
+        con.execute("INSERT INTO q_fts(id,question_text,ms_text,topic_name) SELECT id, "
+                    "COALESCE(question_latex,question_text), COALESCE(ms_latex,ms_text), "
+                    "topic_name FROM questions WHERE syllabus = ?", (a.syllabus,))
+    else:
+        con.execute("DELETE FROM q_fts")
+        con.execute("INSERT INTO q_fts(id,question_text,ms_text,topic_name) SELECT id, "
+                    "COALESCE(question_latex,question_text), COALESCE(ms_latex,ms_text), "
+                    "topic_name FROM questions")
     con.commit()
     print("已写入")
 

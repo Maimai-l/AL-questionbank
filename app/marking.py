@@ -17,7 +17,8 @@ Where the scheme lists alternative methods, the items of the first method
 are used (the shortest run of rows worth the part's marks).
 
 A part whose scheme gives no items (or items that do not add up to its
-marks) is marked by entering a score, "score".
+marks) is marked by entering a score, "score"; so is every part of a question
+with no scheme at all (the textbook exercises tagged 精选), multiple choice included.
 """
 import json
 import re
@@ -92,7 +93,9 @@ def point_items(points):
 def parts(row):
     """[{label, marks, kind, items, max}] for one question row (sqlite3.Row / dict)."""
     syl = row["syllabus"]
-    if syl in ("TMUA", "TSA", "BMAT") or row["qtype"] == "mcq":
+    # a multiple-choice question without a key (textbook exercises, syllabus WPH) is
+    # marked by entering a score, below
+    if syl in ("TMUA", "TSA", "BMAT") or (row["qtype"] == "mcq" and (row["answer"] or "").strip()):
         opts = json.loads(row["option_texts"]) if row["option_texts"] else None
         if opts is None and syl == "9702" and row["options"]:   # the options are in the image
             opts = {letter: "" for letter in json.loads(row["options"])}

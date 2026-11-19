@@ -184,7 +184,15 @@ def write_chapter(con: sqlite3.Connection, chapter, out: Path, images: bool = Tr
                     image_link = str(Path("images/questions") / question["image"])
                 else:
                     stats["missing_question_images"] += 1
-            question_parts += ["", markdown_question(question, image_link, chapter["topic"]).rstrip()]
+            qmd = markdown_question(question, image_link, chapter["topic"]).rstrip()
+            # figures kept in the text (textbook exercises): into images/questions/ too
+            if images:
+                for rel in question_md.figures(qmd):
+                    add_file(zf, ASSETS / rel, f"{package_root}/images/questions/{rel}", added)
+                qmd = question_md.relink(qmd, lambda rel: f"images/questions/{rel}")
+            else:
+                qmd = question_md.relink(qmd, None)
+            question_parts += ["", qmd]
             stats["question_placements"] += 1
         zf.writestr(chapter_arc, original.rstrip() + "\n", compress_type=zipfile.ZIP_DEFLATED)
         zf.writestr(f"{package_root}/questions.md", "\n".join(question_parts) + "\n", compress_type=zipfile.ZIP_DEFLATED)

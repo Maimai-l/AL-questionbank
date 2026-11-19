@@ -71,7 +71,7 @@ class BoardPolicy(DefaultPolicy):
 
     def can_edit_meta(self, who, meta, patch):
         return False
-IMG_DIRS = {"img9709", "img9231", "img9618", "img9702",
+IMG_DIRS = {"img9709", "img9231", "img9618", "img9702", "imgWPH",
             "img9709" + paths.ANS_SUFFIX, "img9231" + paths.ANS_SUFFIX, "img9618" + paths.ANS_SUFFIX,
             "img9702" + paths.ANS_SUFFIX}
 

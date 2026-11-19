@@ -5,6 +5,7 @@
   qb.py topics --syllabus 9231                       topic codes and counts
   qb.py find --syllabus 9709 --topic 1.7 --marks 6-8
   qb.py find --text "recursion" --syllabus 9618
+  qb.py find --tag 精选 --marks 1                     textbook exercises (WPH), by tag
   qb.py show 9709_s23_12_q05 --full                  one question + mark scheme
   qb.py paper --syllabus 9231 --component 3          assemble a mock paper
   qb.py chapters                                     教材章节体检(主题码 / 标题 / 能配上多少题)
@@ -15,13 +16,14 @@ Add --json to any command for machine-readable output.
 import argparse, json, sqlite3, sys
 
 from lib import paths
-from lib.db import connect
+from lib.db import connect, tag_clause, tags_of
 
 DB = paths.DB
 
 SYLLABUS = {"9709": "Mathematics", "9231": "Further Mathematics",
             "9618": "Computer Science",
-            "9702": "Physics"}
+            "9702": "Physics",
+            "WPH": "Edexcel Physics (textbook, 精选)"}
 
 PAPER_TOTAL = {
     ("9709", "1"): 75, ("9709", "3"): 75, ("9709", "4"): 50, ("9709", "5"): 50,
@@ -59,6 +61,9 @@ def do_find(a):
                      ("paper", a.paper)):
         if val:
             sql += f" AND {col} = ?"; args.append(val)
+    if getattr(a, "tag", None):
+        cond, extra = tag_clause(con(), a.tag)
+        sql += f" AND {cond.replace('questions.tags', 'tags')}"; args += extra
     c, ar = marks_clause(a.marks); sql += c; args += ar
     if a.year_from:
         sql += " AND year >= ?"; args.append(a.year_from)
@@ -101,6 +106,9 @@ def fmt(rows, full=False):
         flag = "  [has diagram]" if r.get("has_diagram") else ""
         if r.get("image") and not paths.resolve(r["image"]):
             flag += "  [IMAGE NOT FOUND — run `python3 sync.py pull`]"
+        tags = tags_of(r.get("tags"))
+        if tags:
+            flag += "  [" + ", ".join(tags) + "]"
         src = "" if r.get("topic_source") != "model" else \
               f"  [topic verified: {r.get('topic_note') or 'model-read'}]"
         out.append(f"  image: {r['image']}{flag}{src}")
@@ -168,6 +176,7 @@ def main():
     f.add_argument("--topic")
     f.add_argument("--subtopic", help="9618 and 9702: syllabus sub-topic, e.g. 15.2")
     f.add_argument("--paper")
+    f.add_argument("--tag", help="questions carrying this tag, e.g. 精选")
     f.add_argument("--marks", help="5 | 5-8 | >=6 | <=4")
     f.add_argument("--text", help="full-text search over question + mark scheme")
     f.add_argument("--year-from", type=int)

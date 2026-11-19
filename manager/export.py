@@ -19,6 +19,7 @@ import pymupdf
 
 from lib import paths
 from manager import bank, docs, paper
+from pipeline.export import question_md as qmd  # figures in a question's text
 
 ANSWERS = os.path.join(paths.WORK, "answers")      # F5 writes <set id>.pdf here
 STAMP = (1980, 1, 1, 0, 0, 0)
@@ -127,7 +128,16 @@ def plan(s, settings, body):
                 img = _image(r, kind == "image_with_space")
                 put("question.png", img and ("file", img))
             elif kind == "text":
-                put("question.md", question_md(r))
+                md = question_md(r)
+                # figures kept in the text (textbook exercises): beside it, linked from it
+                figs = qmd.figures(md)
+                for rel in figs:
+                    src = paths.resolve(rel)
+                    put(f"fig/{os.path.basename(rel)}", src and ("file", src))
+                if figs:
+                    base = "fig/" if folder else f"{name}_fig/"
+                    md = qmd.relink(md, lambda rel: base + os.path.basename(rel))
+                put("question.md", md)
             elif kind == "mark_scheme":
                 put("mark_scheme.md", scheme_md(r))
             elif kind == "explanation":

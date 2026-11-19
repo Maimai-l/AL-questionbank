@@ -12,6 +12,26 @@ columns part_data (pipeline/text/split_parts.py), q_quality and ms_quality.
   the whole text is given with the chosen labels named.
 """
 import json
+import re
+
+# A figure kept in the question's text by the OCR (ocr.py --figures, the textbook
+# exercises): <img src="imgWPH/fig/<id>_01.jpg" ...>, the path relative to data/.
+# An export puts the file in its archive and points the link at it (relink).
+FIGURE = re.compile(r'(<img\s[^>]*?src=")(img\w+/[^"]+)(")', re.I)
+FIGURE_LINE = re.compile(r'^[ \t]*(?:<div[^>]*>)?\s*<img\s[^>]*src="img\w+/[^>]*>\s*(?:</div>)?[ \t]*\n?', re.I | re.M)
+
+
+def figures(text):
+    """data/-relative paths of the figures in a question's text, in order."""
+    return list(dict.fromkeys(m.group(2) for m in FIGURE.finditer(text or "")))
+
+
+def relink(text, to):
+    """The text with each figure's src passed through to(path); to=None drops the figures."""
+    if to is None:
+        return FIGURE_LINE.sub("", text or "")
+    return FIGURE.sub(lambda m: m.group(1) + to(m.group(2)) + m.group(3), text or "")
+
 
 IMAGE_ONLY = ("missing", "garbled", "partial")
 NO_TEXT = "_题干文本不可用(识别质量:{q}),请以原题图为准。_"

@@ -210,6 +210,12 @@ input, select { font: inherit; color: inherit; }
 }
 .masthead h1 em { font-style: italic; color: var(--ink-3); }
 .masthead .sub { margin-top: 10px; color: var(--ink-2); }
+.tagbar { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.tagbar button { padding: 3px 10px; border: 1px solid var(--rule); border-radius: 999px; background: var(--raised);
+  color: var(--ink-2); font-size: 12.5px; cursor: pointer; }
+.tagbar button.on { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+.tagbar .num { color: var(--ink-3); }
+.mark .noms { margin: 0 0 10px; color: var(--ink-3); font-size: 13px; }
 .figures { display: flex; gap: 28px; }
 .fig { display: flex; flex-direction: column; gap: 2px; min-width: 64px; }
 .fig b { font: 400 30px/1 var(--serif); font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }

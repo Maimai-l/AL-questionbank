@@ -377,6 +377,66 @@ class FlowsPage(Api):
         await self.json("DELETE", f"/api/flows/{g['id']}")
         await self.call("GET", f"/api/flows/{g['id']}", status=404)
 
+    async def test_filter_by_tag(self):
+        """题库(全部)→ 筛选 标签 = 精选 → 新建题组, 导出, 练习卷: the textbook exercises and
+        nothing else; they have no mark scheme, and the set, ZIP and paper still come out."""
+        from lib import db
+        con = db.connect()
+        cond, args = db.tag_clause(con, "精选")
+        tagged = {r[0] for r in con.execute(f"SELECT id FROM questions WHERE {cond}", args)}
+        self.assertTrue(tagged)
+        catalog = await self.json("GET", "/api/flows/catalog")
+        self.assertIn(["tags", "标签", "enum"], catalog["fields"]["q"])
+        node = lambda nid, kind, **params: {"id": nid, "type": kind, "x": 0, "y": 0, "params": params}
+        link = lambda a, b: {"from": [a, 0], "to": [b, 0]}
+        g = {"name": "测试 精选", "nodes": [
+            node("bank", "bank", exam="*"),
+            node("filter", "filter", conds=[{"field": "tags", "op": "=", "value": "精选"}]),
+            node("take", "take", n=4), node("set", "newset"), node("out", "export", template="default"),
+            node("paper", "paper")],
+            "links": [link("bank", "filter"), link("filter", "take"), link("take", "set"),
+                      link("take", "out"), link("take", "paper")]}
+        g = await self.json("POST", "/api/flows", g)
+        r = await self.json("POST", "/api/flows/eval", g)
+        self.assertEqual(r["errors"], {})
+        self.assertEqual(r["ports"]["filter"][0]["count"], len(tagged))
+        self.assertIn(["精选", "精选"], r["ports"]["bank"][0]["values"]["tags"])
+        r = await self.json("POST", f"/api/flows/{g['id']}/run", g)
+        self.assertEqual(r["errors"], {})
+        self.assertEqual(sorted(o["kind"] for o in r["outputs"]), ["pdf", "set", "zip"])
+        sid = next(o["set"] for o in r["outputs"] if o["kind"] == "set")
+        s = await self.json("GET", f"/api/sets/{sid}")
+        self.assertEqual(s["count"], 4)
+        self.assertTrue(set(s["items"]) <= tagged)
+        # the query page: the exam's tags with counts, each row's tags, a question's panel
+        meta = next(m for m in await self.json("GET", "/api/meta") if m["exam"] == "WPH")
+        self.assertEqual({t["value"]: t["n"] for t in meta["tags"]}["精选"], len(tagged))
+        rows = await self.json("GET", "/api/questions?exam=WPH")
+        self.assertTrue(all("精选" in r["tags"] for r in rows))
+        d = await self.json("GET", f"/api/question/{s['items'][0]}")
+        self.assertIn("精选", d["tags"])
+        await self.call("GET", d["image"]["src"])
+        # a figure the OCR kept in the text is served, and an export of the text carries it
+        from manager import export, sets, templates
+        fig = con.execute("SELECT id, question_latex FROM questions WHERE syllabus = 'WPH' "
+                          "AND question_latex LIKE '%<img src=\"imgWPH/fig/%' LIMIT 1").fetchone()
+        self.assertIsNotNone(fig)
+        d = await self.json("GET", f"/api/question/{fig['id']}")
+        rel = d["text"].split('src="', 1)[1].split('"', 1)[0]
+        self.assertTrue(rel.startswith("imgWPH/fig/"))
+        await self.call("GET", "/q/" + rel)
+        t = templates.get("default")
+        for layout, link in (("folder_per_question", "fig/"), ("flat", "_fig/")):
+            st = templates.clean(dict(t["settings"], per_question=["image", "text"], layout=layout))
+            files = dict(export.plan(sets.create("测试 插图", [fig["id"]]), st, t["body"])[0])
+            name = rel.rsplit("/", 1)[1]
+            self.assertTrue(any(p.endswith(f"fig/{name}") for p in files), layout)
+            md = next(c for p, c in files.items() if p.endswith("question.md"))
+            self.assertIn(link + name, md.decode() if isinstance(md, bytes) else md)
+        cond9709 = [m for m in await self.json("GET", "/api/meta") if m["exam"] == "9709"][0]
+        self.assertEqual(cond9709["tags"], [])
+        await self.json("DELETE", f"/api/flows/{g['id']}")
+
     def test_season_is_written_as_the_papers_write_it(self):
         from manager import flow
         g = {"nodes": [{"id": "f", "type": "filter", "params": {"conds": [{"field": "season", "op": "=", "value": "6"}]}}]}
@@ -426,3 +486,51 @@ class Ipad(Api):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@NEED
+class PracticeServer(unittest.IsolatedAsyncioTestCase):
+    """The practice server (app/server.py, qb.py serve): narrowing a list by tag, and
+    marking a question that has no mark scheme (the textbook exercises tagged 精选)."""
+
+    def _setupAsyncioRunner(self):
+        super()._setupAsyncioRunner()
+        self._asyncioRunner.get_loop().set_debug(False)
+
+    async def asyncSetUp(self):
+        from aiohttp.test_utils import TestClient, TestServer
+        from app import server
+        self.client = TestClient(TestServer(server.make_app()))
+        await self.client.start_server()
+
+    async def asyncTearDown(self):
+        await self.client.close()
+
+    async def get(self, url):
+        r = await self.client.get(url)
+        self.assertEqual(r.status, 200, url)
+        return await r.json()
+
+    async def test_tag_and_no_scheme(self):
+        f = await self.get("/api/filters")
+        self.assertGreater(f["WPH"]["tags"].get("精选", 0), 0)
+        self.assertEqual(f["9709"]["tags"], {})
+        rows = await self.get("/api/questions?syllabus=WPH&tag=" + "精选")
+        self.assertEqual(len(rows), f["WPH"]["tags"]["精选"])
+        self.assertEqual(await self.get("/api/questions?syllabus=9709&tag=精选"), [])
+        from lib import db
+        mcq = db.connect().execute("SELECT id FROM questions WHERE syllabus = 'WPH' AND qtype = 'mcq' "
+                                   "AND (answer IS NULL OR answer = '') LIMIT 1").fetchone()[0]
+        for qid in (mcq, max(rows, key=lambda r: r["marks"] or 0)["id"]):
+            d = await self.get(f"/api/question/{qid}")
+            self.assertIsNone(d["scheme"])
+            self.assertTrue(all(p["kind"] == "score" for p in d["parts"]), qid)
+            r = await self.client.get(d["image"]["src"])
+            self.assertEqual(r.status, 200)
+            a = await (await self.client.post("/api/attempt", json={"qid": qid, "new": True})).json()
+            marks = {p["label"]: {"score": 0} for p in d["parts"]}
+            r = await self.client.post("/api/attempt", json={"id": a["id"], "qid": qid, "marks": marks,
+                                                             "score": 0, "max": d["marks"] or 0})
+            self.assertEqual(r.status, 200)
+        review = await self.get("/api/review?syllabus=WPH")
+        self.assertTrue(review["history"])

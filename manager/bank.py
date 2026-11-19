@@ -10,16 +10,20 @@ import unicodedata
 from lib import db, paths, scheme
 
 EXAMS = [("9709", "9709 Mathematics"), ("9231", "9231 Further Mathematics"),
-         ("9618", "9618 Computer Science"), ("9702", "9702 Physics")]
+         ("9618", "9618 Computer Science"), ("9702", "9702 Physics"),
+         ("WPH", "WPH Edexcel Physics · 精选")]      # textbook exercises, tagged (questions.tags)
 CIE = {"9709", "9231", "9618", "9702"}
 SEASON = {"m": "F/M", "s": "M/J", "w": "O/N"}
 MONTH = {"m": 3, "s": 6, "w": 11}
 
 
 def paper_code(r):
-    """9709/12/M/J/23 for CAIE; TMUA/1/2016 for the admissions tests."""
+    """9709/12/M/J/23 for CAIE; WPH/3/HB1 for chapter 3 of a textbook (series hb1);
+    TMUA/1/2016 for the admissions tests."""
     if r["syllabus"] in CIE:
         return f'{r["paper"]}/{SEASON.get(r["series"][0], "?")}/{r["series"][1:]}'
+    if re.match(r"hb\d", r["series"] or ""):
+        return f'{r["paper"]}/{r["series"].upper()}'
     return f'{r["paper"]}/{r["year"]}'
 
 
@@ -71,7 +75,7 @@ def rows(exam):
     qs = con.execute(
         "SELECT id, syllabus, component, paper, series, year, month, q, marks, parts, topic, "
         "topic_name, subtopic, has_diagram, part_data, COALESCE(question_latex, question_text) AS qtext, "
-        "explanation IS NOT NULL AND explanation != '' AS has_expl "
+        f"explanation IS NOT NULL AND explanation != '' AS has_expl, {db.tags_column(con)} "
         "FROM questions WHERE syllabus = ?", (exam,)).fetchall()
     last = {}
     for r in qs:
@@ -90,6 +94,7 @@ def rows(exam):
             "tasks": _tasks(r["part_data"]),
             "diagram": bool(r["has_diagram"]), "explanation": bool(r["has_expl"]),
             "topics": sorted({t for t in [r["topic"]] + _part_topics(r["part_data"]) if t}),
+            "tags": db.tags_of(r["tags"]),
         })
     return out
 
@@ -122,8 +127,13 @@ def meta():
                 x["q"] = r["q"]
                 x["qid"] = con.execute("SELECT id FROM questions WHERE syllabus = ? AND paper = ? AND series = ? AND q = ?",
                                        (exam, r["paper"], r["series"], r["q"])).fetchone()[0]
+        tags = {}
+        for (t,) in con.execute(f"SELECT {db.tags_column(con)} FROM questions WHERE syllabus = ?", (exam,)):
+            for x in db.tags_of(t):
+                tags[x] = tags.get(x, 0) + 1
         out.append({
             "exam": exam, "label": label, "cie": exam in CIE, "years": years,
+            "tags": [{"value": t, "label": t, "n": n} for t, n in sorted(tags.items())],
             "components": [{"value": r["component"], "label": _component_label(exam, r), "n": r["n"]}
                            for r in comps],
             "topics": [{"component": r["component"], "value": r["topic"],
@@ -226,7 +236,7 @@ def detail(qid):
     return {
         "id": r["id"], "exam": r["syllabus"], "code": paper_code(r), "q": r["q"],
         "marks": r["marks"], "topic": r["topic"], "topic_name": r["topic_name"],
-        "diagram": bool(r["has_diagram"]),
+        "diagram": bool(r["has_diagram"]), "tags": db.tags_of(r["tags"]) if "tags" in r.keys() else [],
         "image": _image(img), "image_space": _image(paths.answer_space(r["image"])),
         "text": _breaks(r["question_latex"] or r["question_text"]),
         "scheme": scheme_rows(r["ms_latex"] or r["ms_text"]) if r["syllabus"] in CIE else None,
