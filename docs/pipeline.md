@@ -37,7 +37,7 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/split/split_ms.py         评分细则 → 按题号切开(需 pdftotext)
 3  裁图      pipeline/split/crop.py             按 bbox 渲染 PNG
             pipeline/fetch/fix_names.py        修正裁图文件名引用
-4  转写      pipeline/ocr/ocr.py                题干 → LaTeX(PaddleOCR-VL)
+4  转写      pipeline/ocr/ocr.py                题干 → LaTeX(PaddleOCR-VL);插图写成 [DIAGRAM],--figures DIR 时另存插图并在原位写 <img>
             pipeline/ocr/merge_ocr.py          写回
             pipeline/ocr/ocr_ms.py             评分细则整份 OCR
             pipeline/ocr/parse_ms_ocr.py       解析返回的 HTML 表格
@@ -79,6 +79,8 @@ python3 pipeline/tags/retag.py        # 在任意目录下均可
             pipeline/explain/concept_pages.py  9618 每章复习页:子 agent 以第 1 章为范本写页面(plan / check --render / build),外壳在 assets/concepts/ → data/concepts/9618/
             pipeline/explain/glossary.py       9618 卷 2 词汇:卷 2 题目与评分细则里答题必须知道含义、字面看不出意思的术语(清单 glossary_p2.json,人工挑选,原句逐条核对)→ data/concepts/9618/glossary.html
 12 出页面    pipeline/export/build_site.py      data.js、textbooks.js 与页面 → data/
+
+精选题(教材练习题,syllabus WPH,带 tags)另走 pipeline/books/book_questions.py,见「精选题:Hodder Edexcel A Level Physics 1」。
 ```
 
 执行顺序上的约束:
@@ -413,6 +415,104 @@ python3 pipeline/export/build_site.py
    主要改正：速度 v 读成 ν 或 V、加速度 a 读成 α、中微子 ν 读成 v、反粒子的横线、核对用的 ✓ 读成 ↙、Exam practice 缺的分值 [n]、
    重复的句子与多出的竖式。抽查 12 处，撤掉 1 处(第 225 页 agent 在看不清时把 "that" 猜成 "that that")。
    子 agent 会照 CLAUDE.md 的会话约定运行 `sync.py pull`,批次说明里已写明不要运行 `sync.py` 与 git。
+
+## 精选题:Hodder Edexcel A Level Physics 1(2026-11)
+
+Edexcel A Level Physics Student Book 1(Hodder,Mike Benn、Graham George,2015,英国本土 9PH0 Year 1)每章末的
+「Exam practice questions」与「Stretch and challenge」作为精选题收进题库(syllabus `WPH`,用户考 Edexcel IAL;WPH 的考纲与
+真题以后另加)。书中没有答案。来源:https://github.com/Maimai-l/blender-workspace/releases/download/temp-blobs/as1.Edexcel.A.Level.Physics.Student.pdf
+(814 页 US Letter 电子书排版，有文字层，书签给出 19 章的起始页)。
+
+```bash
+cp <as1.pdf> raw/textbooks/hodder_edx_al1.pdf                      # paths.TEXTBOOKS
+python3 -I pipeline/books/book_questions.py extract raw/textbooks/hodder_edx_al1.pdf --book hodder_edx_al1
+python3 pipeline/books/book_questions.py add --write                 # 先备份 data/caie.db;同一本书的旧行整体替换
+python3 -c "import json; d=json.load(open('raw/book_questions/hodder_edx_al1/questions.json'))['questions']; \
+  json.dump([{'image': r['image'].split('/')[1]} for r in d], open('raw/book_questions/hodder_edx_al1/ocr_input.json', 'w'))"
+python3 pipeline/ocr/ocr.py raw/book_questions/hodder_edx_al1/ocr_input.json data/imgWPH raw/ocr/q_WPH_hb1_fig.jsonl 4 --pack 10 \
+  --figures data/imgWPH/fig                                          # 插图存 data/imgWPH/fig/<题号>_<序号>.jpg
+python3 pipeline/books/book_questions.py marks raw/ocr/q_WPH_hb1_fig.jsonl --out raw/ocr/q_WPH_hb1_fig_marked.jsonl
+python3 pipeline/ocr/apply_reocr.py raw/ocr/q_WPH_hb1_fig_marked.jsonl --syllabus WPH --check-text --write
+python3 pipeline/books/book_questions.py fixes raw/ocr/q_WPH_hb1_fig_marked.jsonl pipeline/books/hodder_edx_al1_ocr_fixes.jsonl \
+  --out raw/ocr/q_WPH_hb1_fig_fixed.jsonl                           # --check-text 拒收、对照题图后认可或改正的题
+python3 pipeline/ocr/apply_reocr.py raw/ocr/q_WPH_hb1_fig_fixed.jsonl --syllabus WPH --write
+python3 pipeline/text/split_parts.py --syllabus WPH --write
+python3 pipeline/export/build_site.py
+```
+
+| 章 | Exam practice | Stretch and challenge | 章 | Exam practice | Stretch and challenge |
+|---|---:|---|---|---:|---|
+| 1 Quantities and units | 1–8 | 无 | 10 Resistance and resistivity | 1–11 | 12 |
+| 3 Rectilinear motion | 1–15 | 16 | 11 Internal resistance … potential divider | 1–13 | 14、15、16 |
+| 4 Momentum | 1–19 | 20 | 12 Fluids | 1–10 | 11 |
+| 5 Forces | 1–14 | 15 | 13 Solid materials | 1–10 | 11 |
+| 6 Work, energy and power | 1–14 | 15 | 14 Nature of waves | 1–11 | 12 |
+| 7 Charge and current | 1–9 | 10 | 15 Transmission and reflection of waves | 1–16 | 17 |
+| 8 Potential difference, e.m.f. and power | 1–15 | 16 | 16 Superposition of waves | 1–15 | 16 |
+| 9 Current–potential difference relationships | 1–9 | 10 | 17 Particle nature of light | 1–13 | 14、15 |
+
+共 202 + 18 = 220 题，各章题号连续、无跳号。第 2 章(Practical skills)、第 18 章(Maths in physics)、第 19 章
+(Preparing for the exams,其中是带评语的样卷答案)没有这两节。Stretch and challenge 共 15 节 18 题(第 11 章 3 题、第 17 章 2 题)。
+
+1. **题号与字段。** id 为 `WPH_hb1_ch<章>_q<题号>`。书中 Stretch and challenge 的题号本来就接在该章 Exam practice 之后
+   (第 3 章是 1–15 与 16),所以直接用书上的题号，不另加 `_s`。`component` 为章号(`"3"`),`component_name` 为章名;
+   试卷字段照 CAIE 的格式填，让现有代码不必区分：`paper` 为 `WPH/<章>`(科目/卷号 + 空变体，练习工作台的题墙按
+   `paper|series` 找格子),`variant` 为空，`series` 为 `hb1`,`session` 为书名,`year` 为出版年 2015,`month` 为 0,
+   `q` 为书上的题号,`qp_pdf` 为 `hodder_edx_al1.pdf`,`qp_pages` 为题图用到的页(从 0 起)。`topic` 为空,
+   `topic_note` 为「按教材章节分组;WPH 考纲加入后再定主题」。`ms_text`、`ms_latex` 为空,`ms_quality='missing'`。
+   `qb.py stats`、`qb.py find --tag`、刷题页、练习工作台、数据管理页(查询、题组、导出、练习卷、批量生成)、`build_site.py`
+   都用这批数据跑过;`export_all_chapters.py` 按主题配题，精选题没有主题，不进章节包。
+2. **切题。** 按书签分章，在章内找字号大于 16 的「Exam practice questions」「Stretch and challenge」标题;题目从左边距的
+   粗体题号开始(必须按 1、2、3… 连续),到它最后一个「[Total n Marks]」为止。电子书把图表常排在 [Total] 之后，所以 [Total]
+   与下一题之间的内容默认归前一题;写明题号的句子(「Use Figure 9.17 to answer Questions 4 and 5」「This information is
+   for use in Questions 1 and 5」「Questions 2–4: …」)连同其后的材料归它点名的题;句子跨行时从句首算起。三处图在
+   [Total] 之后、却属于前面几题，写在脚本的 `shared` 里(9.16 → 第 9 章 1–3 题，9.17 → 4–5 题，10.17 → 第 10 章 1–3 题)。
+   题干引用章节正文里的图时，把那张图拼在题后(`extra`:10.6、10.1b、11.10、11.43)。
+3. **题图。** 与 9702 相同:150 dpi、16 级灰度(`lib/png16.py`),横向固定裁 66–546 pt(正文栏 72–540),每页一段按
+   内容上下界加 4 pt,跨页的上下拼接，不同来源(共用材料、本题、正文插图)之间留 12 pt 空白。存为 `data/imgWPH/<id>.png`,
+   220 张、6.5 MB,宽 1001 px。整题题图照旧保留;题干里的插图另存(见下一条)。`has_diagram` 按 OCR 切出的插图判定:
+   71 题有插图(入库时先按题内 50×120 pt 以上的位图粗判为 73 题,OCR 写回后以插图为准;差的 2 题是第 10 章第 7 题的数据表
+   与第 13 章第 11 题的电子表格，都是表格图片，被读成了表格)。
+4. **题干。** `question_text` 为文字层，一行一行，上标写成 `^`(`m s^−1`),粗体选项字母与正文之间补空格。
+   `question_latex` 用 PaddleOCR,保留插图:`ocr.py` 新增 `--figures DIR`(不加时照旧，插图写成 `[DIAGRAM]`,CAIE 四科不变),
+   像 `ocr_books.py` / `ocr_book_pages.py` 那样下载接口返回的 `markdown.images`(版面检测切出的插图),按阅读顺序存为
+   `DIR/<题号>_<序号>.jpg`,并把 markdown 里原位置的 `<img src>` 改成相对 data/ 的路径(`<img src="imgWPH/fig/WPH_hb1_ch03_q11_01.jpg" …>`,
+   与教材 markdown 的写法一致);缓存行的 `has_diagram` 为是否存下了插图,`figures` 列出这些文件。`apply_reocr.py` 的规整
+   去掉外层 `<div>`,`<img>` 单独成行。102 张插图、71 题、2.4 MB。刷题页的文字版、数据管理页的「题干文字」显示这些图
+   (相对 data/,数据管理页经 `/q/` 取);导出时数据管理页把题干里的插图放进 ZIP(每题文件夹的 `fig/`,平铺时 `<文件名>_fig/`)
+   并改写链接，章节包(`export_all_chapters.py`,经 `question_md.figures/relink`)放进 `images/questions/`。
+   第一次 OCR 没有保留插图(`raw/ocr/q_WPH_hb1.jsonl`,22 个任务 6.5 分钟，其中一个任务服务端 500,重跑 0.4 分钟;10 张单张重读
+   1.7 分钟);保留插图重读一遍用了 3.8 分钟(22 个任务，无错误)。共提交 460 张题图。OCR 把右对齐的 [n] 与 [Total n Marks]
+   当页面装饰丢掉(163 题少了分值),
+   `book_questions.py marks` 按文字层把它们放回：分值放在 OCR 文本中「文字层里分值前一行」所在段落之后(按字母数字比对，
+   去掉 LaTeX 命令),放回后 218 题的分值序列与文字层一致，余下 2 题是计数误判(`\sqrt[4]{…}` 与文字层丢了「[」)。
+   `apply_reocr.py` 新增 `--syllabus`(只处理该科、只重建该科的全文索引行，不碰 CAIE)、`--keep-diagram`(不改 has_diagram;
+   这本书最后没有用),并把书里的裸标号 `a)`、`ii)` 当作 `(a)`、`(ii)` 比对。`--check-text` 拒收 10 题(两次 OCR 都是这 10 题),
+   逐题对照题图后记在 `pipeline/books/hodder_edx_al1_ocr_fixes.jsonl`(每行 `id`、`why`,改正的另有 `find`/`replace`;
+   `book_questions.py fixes` 从 OCR 缓存取出这些题、套用改正，再不带 `--check-text` 写回;重新 OCR 后找不到 `find` 的会列出):
+   6 题是选项写在 `$$\begin{aligned}…$$` 或 `\mathbf{}` 里、检查误报;第 6 章第 3 题书上选项印成 A、B、C、C(没有 D),照印;
+   第 10 章第 7 题 OCR 读出了表格图片里的 (i)–(v),比文字层全;第 3 章第 14 题与第 12 章第 9 题把 iii) 读成 ii),已改;
+   第 4 章第 2 题与第 8 章第 1 题评为 degraded(单位上标在公式外),改写成 `\mathrm{}`;另有 2 处 KaTeX 修正(`\,^{\circ}` 缺底数)。
+   结果 220 题 `q_quality='ok'`,没有 `[DIAGRAM]`,`check_latex.py` 无报错。
+5. **分值与小问。** `marks` 为各 [Total] 之和(第 1 章第 1 题 a–d 各一个 [Total 1 Mark],共 4 分);没有 [Total] 时为各 [n]
+   之和。第 11 章第 16 题(Stretch and challenge)书上没有印分值,`marks` 为空。`parts` 为最低一级标号(与 `split_parts.py`
+   一致,`7(a)`、`6(b)(ii)`;h) 之后的 i) 是小问 (i) 而不是罗马数字),`marks_parts` 为每个小问后面印的分值;书上几个小问
+   合印一个分值时(如 `a) … b) … [Total 2 Marks]`、`(i)(ii) … [4]`),没印的记 `null`,印的那个记在最后一个小问上，非空值之和等于
+   `marks`,45 题有 `null`。选择题:1 分、无小问、有 A–D 选项的 43 题，加上选项画在图里的 8 题(第 9 章 1–5、第 10 章 1–3),
+   共 51 题 `qtype='mcq'`,`options` 为 `["A","B","C","D"]`,文字选项存在 `option_texts`(字母 → 文字),`answer` 为空。
+   第 1 章第 1 题、第 3 章第 1 题、第 5 章第 1 与第 4 题、第 12 章第 1 题、第 13 章第 1 题由几道选择题组成((a)(b)…各 1 分),
+   按结构题存(`qtype` 为空)。
+6. **拆小问。** `split_parts.py` 对非 CAIE 科目先把行首的 `a)`、`ii)` 改写成 `(a)`、`(ii)` 再切(CAIE 不变),默认科目加了 WPH。
+   220 题 576 个小问,219 题按小问切开;第 10 章第 7 题表格单元格里的 (i)–(v) 被当成小问标号，与分值对不上，只保留标号与分值。
+7. **标签。** `questions.tags`:JSON 数组，默认 NULL,由 `lib/db.ensure_tags` 加列(`book_questions.py add` 调用;`build_db.py`
+   的表结构也加了这一列),CAIE 各行仍为 NULL。读的一方用 `db.tags_column(con)`,没有这一列的旧库读作 NULL。这本书的题为
+   `["精选", "Hodder Edexcel A Level Physics 1"]`。`data.js` 每题多一个 `tg`(只有带标签的题有);刷题页筛选栏有「标签」,
+   选了全部没有评分细则的标签或科目时自动取消「只看有答案的」,没有评分细则的题写「本题没有评分细则(教材未附答案)」。
+   练习工作台:`/api/filters` 带各科标签与题数,`/api/questions?tag=` 筛选，总览标题下有标签按钮;没有答案的选择题与
+   没有评分细则的小问一律「填分」判分(`app/marking.py`)。数据管理页：查询页「标签」条件，批量生成的筛选字段「标签」
+   (列表字段，「是」= 含有),题组、导出与练习卷可以放精选题;`qb.py find --tag 精选`。
+8. **没有做的。** 题目之间的引用没有拼进题图:第 7 章第 5 题(引用第 1 题，共用数据已在图中)、第 8 章第 9 题(第 7 题)、
+   第 11 题(第 10 题)、第 15 题(第 3 题的数据表)、第 9 章第 7 题(第 6 题)。题号前的彩色圆点(前言说练习题按难度分级)没有记录。
 
 ## 子 agent 批次大小实验(2026-11-14)
 

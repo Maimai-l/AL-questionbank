@@ -67,7 +67,7 @@ git -C data log -1 --format='%h %s' && python3 qb.py stats
 
 | 文件 | 内容 |
 |---|---|
-| `data/practice.html` | 刷题页:按科目、试卷、主题筛题,看题干、评分细则与详解 |
+| `data/practice.html` | 刷题页:按科目、标签、试卷、主题筛题,看题干、评分细则与详解;标签选「精选」得到教材练习题(没有评分细则,会自动取消「只看有答案的」) |
 | `data/textbook.html` | 教材页:136 章教材正文(含 9702 物理 26 章、Edexcel IAL 物理 Book 1/2 共 29 章),与题目按主题关联 |
 | `data/concepts/9618/index.html` | 9618 每章复习页:先背什么、图、评分细则英文原话、常考题型;点概念名看英文定义 |
 
@@ -80,6 +80,8 @@ python3 qb.py serve            # 默认端口 8900,自动打开浏览器
 ```
 
 总览、练习(白板作答、按评分细则判分、看详解)与复盘三个视图。作答与手写记录存在 `qb-work/`。
+顶栏的 WPH 是精选题(Hodder Edexcel A Level Physics 1 章末练习,一章一卷);总览标题下的标签按钮按标签筛选。
+这些题没有评分细则，判分时每个小问直接填得分。
 说明见 [app/README.md](../app/README.md)。
 
 ### 数据管理页(`manager/`)
@@ -92,7 +94,8 @@ python3 manage.py auto                   # 题库更新后运行自动流程;题
 python3 manage.py auto --force           # 不论题库是否更新都运行
 ```
 
-查询、题组、题目卷与评分细则 PDF、导出、批量生成、iPad 白板。说明见
+查询、题组、题目卷与评分细则 PDF、导出、批量生成、iPad 白板。查询页的考试选「WPH Edexcel Physics · 精选」
+后左侧有「标签」条件;批量生成的「筛选」节点可用字段「标签」(如 标签 = 精选,题库节点选「全部」时跨科)。说明见
 [data-manager.md](data-manager.md)。
 
 ### 命令行(`qb.py`)
@@ -103,6 +106,7 @@ python3 manage.py auto --force           # 不论题库是否更新都运行
 | `python3 qb.py topics --syllabus 9231` | 某科的主题码与题数 |
 | `python3 qb.py find --syllabus 9709 --topic 1.7 --marks 6-8` | 按主题、分值等筛题 |
 | `python3 qb.py find --text "recursion" --syllabus 9618` | 全文搜索 |
+| `python3 qb.py find --tag 精选 --marks 1` | 按标签筛题(精选题) |
 | `python3 qb.py show 9709_s23_12_q05 --full` | 显示一题的题干与评分细则 |
 | `python3 qb.py paper --syllabus 9231 --component 3` | 组一套模拟卷 |
 | `python3 qb.py chapters` | 教材章节与主题码的对应情况 |

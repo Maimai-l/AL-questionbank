@@ -9,7 +9,7 @@ import json, os, sqlite3, sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))))
-from lib import paths  # noqa: E402
+from lib import db as libdb, paths  # noqa: E402
 
 FIELDS = ["id", "syllabus", "component", "component_name", "paper", "year",
           "session", "series", "q", "marks", "topic", "topic_name",
@@ -24,8 +24,10 @@ def main(db=paths.DB, out=os.path.join(paths.DATA, "data.js")):
     con = sqlite3.connect(db)
     con.row_factory = sqlite3.Row
     rows = []
-    for r in con.execute(f"SELECT {','.join(FIELDS)} FROM questions ORDER BY id"):
+    cols = ",".join(FIELDS + [libdb.tags_column(con)])
+    for r in con.execute(f"SELECT {cols} FROM questions ORDER BY id"):
         d = dict(r)
+        tags = libdb.tags_of(d.pop("tags"))
         ms = d.pop("ms_latex") or d.pop("ms_text", None)
         d.pop("ms_text", None)
         rows.append({
@@ -44,6 +46,8 @@ def main(db=paths.DB, out=os.path.join(paths.DATA, "data.js")):
             "ans": d["answer"], "qty": d["qtype"],
             "opt": json.loads(d["options"] or "[]"),
         })
+        if tags:                      # "精选" and the source; left out on CAIE rows
+            rows[-1]["tg"] = tags
     with open(out, "w") as f:
         f.write("window.QB=")
         json.dump(rows, f, ensure_ascii=False, separators=(",", ":"))

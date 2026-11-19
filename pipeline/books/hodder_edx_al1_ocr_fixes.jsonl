@@ -1,0 +1,18 @@
+{"id": "WPH_hb1_ch03_q14", "why": "a)(iii) 读成 ii),对照题图改", "find": "ii) the vertical downward", "replace": "iii) the vertical downward"}
+{"id": "WPH_hb1_ch12_q09", "why": "e)(iii) 读成 ii),对照题图改", "find": "ii) Some motor oils", "replace": "iii) Some motor oils"}
+{"id": "WPH_hb1_ch12_q09", "why": "\\,^{\\circ} 缺底数,KaTeX 报错", "find": "30\\,^{\\circ}\\mathrm{C}", "replace": "30\\,{}^{\\circ}\\mathrm{C}"}
+{"id": "WPH_hb1_ch15_q17", "why": "\\,^{\\circ} 缺底数,KaTeX 报错", "find": "7.0\\,^{\\circ}", "replace": "7.0^{\\circ}"}
+{"id": "WPH_hb1_ch04_q02", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "A 1800 kg m s $ ^{-1} $", "replace": "A $1800\\ \\mathrm{kg\\,m\\,s^{-1}}$"}
+{"id": "WPH_hb1_ch04_q02", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "B 900 kg m s $ ^{-1} $", "replace": "B $900\\ \\mathrm{kg\\,m\\,s^{-1}}$"}
+{"id": "WPH_hb1_ch04_q02", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "C 300 kg m s $ ^{-1} $", "replace": "C $300\\ \\mathrm{kg\\,m\\,s^{-1}}$"}
+{"id": "WPH_hb1_ch04_q02", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "D 90 kg m s $ ^{-1} $", "replace": "D $90\\ \\mathrm{kg\\,m\\,s^{-1}}$"}
+{"id": "WPH_hb1_ch08_q01", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "A A s^{-1}\n", "replace": "A $\\mathrm{A\\,s^{-1}}$\n"}
+{"id": "WPH_hb1_ch08_q01", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "B A s\n", "replace": "B $\\mathrm{A\\,s}$\n"}
+{"id": "WPH_hb1_ch08_q01", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "C A^{-1} s^{-1}\n", "replace": "C $\\mathrm{A^{-1}\\,s^{-1}}$\n"}
+{"id": "WPH_hb1_ch08_q01", "why": "单位上标在公式外(评为 degraded),写进 \\mathrm{}", "find": "D A^{-1} s\n", "replace": "D $\\mathrm{A^{-1}\\,s}$\n"}
+{"id": "WPH_hb1_ch06_q03", "why": "对照题图核对:书上选项印成 A、B、C、C(没有 D),OCR 照印;检查报缺选项 D"}
+{"id": "WPH_hb1_ch07_q01", "why": "对照题图核对:选项写在 $$\\begin{aligned}…$$ 里，内容完整;检查误报"}
+{"id": "WPH_hb1_ch07_q05", "why": "对照题图核对:选项写在 $$\\begin{aligned}…$$ 里，内容完整;检查误报"}
+{"id": "WPH_hb1_ch11_q02", "why": "对照题图核对:选项字母写成公式里的 \\mathbf{A},内容完整;检查误报"}
+{"id": "WPH_hb1_ch11_q03", "why": "对照题图核对:选项字母写成公式里的 \\mathbf{A},内容完整;检查误报"}
+{"id": "WPH_hb1_ch10_q07", "why": "对照题图核对:OCR 读出了表格图片里的 (i)–(v),比文字层全;检查误报"}

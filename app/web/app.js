@@ -11,6 +11,7 @@ const { createInkPad } = await import(window.QB_INKPAD || "/inksync/inkpad.js");
 
 const app = {
   exam: null, filters: {}, lists: {}, question: null, view: null, saved, remember,
+  tag: {},                  // the tag (精选 ...) each exam's list is narrowed to, if any
 
   async setExam(exam) {
     if (!app.filters[exam]) return;
@@ -27,8 +28,16 @@ const app = {
   },
 
   async refreshList() {
-    app.lists[app.exam] = await api(`/api/questions?syllabus=${encodeURIComponent(app.exam)}`);
+    const t = app.tag[app.exam];
+    app.lists[app.exam] = await api(`/api/questions?syllabus=${encodeURIComponent(app.exam)}`
+      + (t ? `&tag=${encodeURIComponent(t)}` : ""));
     if (app.view === "work") work.refresh();
+  },
+
+  async setTag(t) {
+    app.tag[app.exam] = t || null;
+    await app.refreshList();
+    show(app.view);
   },
 
   async open(qid, opts = {}) {

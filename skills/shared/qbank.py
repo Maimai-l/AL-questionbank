@@ -12,7 +12,10 @@
 
 The bank (caie.db, about 65 MB) is downloaded once from GitHub into --cache
 (default ~/.cache/qbank). It holds 9709, 9231, 9618 and 9702 papers 2021-2026
-(the admissions tests were archived in 2026-11). Question and scheme text was checked against the original papers
+(the admissions tests were archived in 2026-11), and 220 Edexcel physics exercises
+under syllabus WPH (ids WPH_hb1_ch03_q11, tagged 精选: the end-of-chapter questions of
+Hodder's Edexcel A Level Physics 1, grouped by book chapter, with no mark scheme; their
+figures are images under imgWPH/fig/). Question and scheme text was checked against the original papers
 (not yet for 9702: its text is OCR or, where q_quality is partial, the PDF text layer);
 diagrams are described in the text only, so look at the PDF when a question has one
 (has_diagram = 1). Mark scheme text is the scheme as printed, split by question.
@@ -24,7 +27,7 @@ markdown files on the same branch. `chapter` downloads only the chapters asked f
 the cache and prints them, with figure links pointing at GitHub; --save DIR writes the
 chapter and its figures to DIR instead (the 9702 chapters are text only). Each CAIE chapter
 is mapped to a syllabus topic: list with --topic to find the chapter for a weak topic
-(the bank holds no Edexcel syllabus or papers, so the WPH chapters have no topic).
+(the bank holds no Edexcel syllabus or papers yet, so the WPH chapters have no topic).
 --refresh downloads again what the command uses (the bank changes as it is checked).
 """
 import argparse, json, os, re, sqlite3, sys, urllib.error, urllib.parse, urllib.request

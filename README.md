@@ -1,6 +1,6 @@
 # AL Question Bank
 
-离线题库,共 6531 题:
+离线题库,共 6751 题:
 
 | 科目 | 题数 | 卷子 | 年份 | 核对情况 |
 |---|---:|---:|---|---|
@@ -8,6 +8,10 @@
 | 9231 Further Mathematics | 1009 | 144 | 2021–2026 | 同上 |
 | 9618 Computer Science | 970 | 130 | 2021–2026 | 同上;卷 1–3 有分小问详解 |
 | 9702 Physics(卷 1、2、4、5) | 2482 | 168 | 2021–2026 | 已 OCR,未对照原卷审校 |
+| WPH 精选:Hodder Edexcel A Level Physics 1 章末练习 | 220 | 16 章 | 2015(出版) | 题图、OCR 题干;书中无答案，没有评分细则 |
+
+精选题是真题以外的练习题，打了标签(`questions.tags`,如 `["精选", "Hodder Edexcel A Level Physics 1"]`),
+刷题页、练习工作台与数据管理页都能按标签筛选。
 
 另有 136 章教材正文(Markdown,含 Edexcel IAL 物理两册 29 章),以及官方大纲的解析结果。
 入学考(TMUA、TSA、BMAT)已于 2026-11 归档：数据在 `archive-admissions` 分支，脚本在 `attic/admissions/`。

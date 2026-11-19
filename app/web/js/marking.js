@@ -27,6 +27,8 @@ export function marking(onChange) {
     put(body, ...q.parts.map((p, pi) => part(p, pi)));
     const whole = q.scheme && !q.parts.some((p) => p.ms) && q.parts[0]?.kind !== "choice";
     if (whole) body.append(h("div.part", h("div.part-h", h("span.lab", "评分细则"), schemeToggle(q.scheme))));
+    // textbook exercises (精选) come without a scheme: every part takes a score
+    if (!q.scheme) body.prepend(h("p.noms", "本题没有评分细则(教材未附答案),按原题自评,每个小问填得分。"));
     tex(body);
     sync();
   }

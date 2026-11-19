@@ -16,7 +16,7 @@
 | `www.cambridgeinternational.org` | CAIE 大纲 PDF(9709/9231/9618/9702 syllabus;9702 用 2025–2027 版 664565) | `pipeline/tags/syllabus.py` 的输入,手动下载 | 可访问(2026-09-29 加入白名单后) |
 | `pypi.org` `files.pythonhosted.org` | 安装 PyMuPDF、requests | `pip` | 默认放行 |
 | `archive.ubuntu.com` `security.ubuntu.com` | 安装 poppler-utils(`pdftotext`) | `apt-get` | 默认放行 |
-| `github.com` | 推送 `main` 与 `data` 分支;Edexcel IAL 物理教材 PDF(`Maimai-l/blender-workspace` 的 release `temp-blobs`:Book 1 为 `edexcel-international-a-level-physics-student-book-.pdf.zip`,Book 2 为 `physics2.zip`,跳转到 `*.githubusercontent.com` 下载),手动下载 | `git`;教材是 `ocr_book_pages.py` 的输入 | 可访问(2026-11-18) |
+| `github.com` | 推送 `main` 与 `data` 分支;Edexcel IAL 物理教材 PDF(`Maimai-l/blender-workspace` 的 release `temp-blobs`:Book 1 为 `edexcel-international-a-level-physics-student-book-.pdf.zip`,Book 2 为 `physics2.zip`;Hodder Edexcel A Level Physics 1 为 `as1.Edexcel.A.Level.Physics.Student.pdf`,跳转到 `*.githubusercontent.com` 下载),手动下载 | `git`;Edexcel IAL 教材是 `ocr_book_pages.py` 的输入，Hodder 一册是 `book_questions.py` 的输入 | 可访问(2026-11-18) |
 | `cdn.jsdelivr.net` | KaTeX 的备用加载源,页面已内置离线副本 | `assets/*.html` | 可访问 |
 | `raw.githubusercontent.com` | 复习页嵌入的字体(google/fonts 仓库的 Noto Sans SC、JetBrains Mono 与 OFL 许可),首次 build 时下载到 `raw/fonts/`;claude.ai 的 skill 从本仓库 data 分支取 `caie.db` 与 `papers/` | `pipeline/explain/concept_pages.py`、`skills/shared/get_paper.py`、`qbank.py` | 可访问(2026-10-10) |
 

@@ -31,9 +31,10 @@ export function overview(app) {
     const papers = new Set(rows.map(sittingKey)).size;
     return h("header.masthead",
       h("div",
-        h("div.kicker", isCaie(exam) ? "Cambridge International AS & A Level" : "Admissions test"),
-        h("h1", f.name, " ", h("em", isCaie(exam) ? exam : "")),
-        h("div.sub.num", `${papers} 套卷 · ${rows.length} 题 · ${Math.min(...years)}–${Math.max(...years)}`)),
+        h("div.kicker", isCaie(exam) ? "Cambridge International AS & A Level" : f.kicker || "Admissions test"),
+        h("h1", f.name, " ", h("em", isCaie(exam) || f.kicker ? exam : "")),
+        h("div.sub.num", `${papers} ${f.kicker ? "章" : "套卷"} · ${rows.length} 题` + (f.kicker ? "" : ` · ${Math.min(...years)}–${Math.max(...years)}`)),
+        tagBar(exam, f)),
       h("div.figures",
         figure(done.length, `/${rows.length}`, "已做"),
         figure(max ? pct(got, max) : "—", max ? "%" : "", "得分率"),
@@ -52,6 +53,16 @@ export function overview(app) {
       h("span.mono", `${paperCode(next)} · Q${next.q}`),
       h("span", { html: icon("forward") }));
   }
+  // the tags of this exam's questions; picking one narrows the list (the server's ?tag=)
+  function tagBar(exam, f) {
+    const names = Object.keys(f.tags || {}).sort();
+    if (!names.length) return null;
+    const cur = app.tag?.[exam] || null;
+    return h("div.tagbar",
+      h(`button${cur ? "" : ".on"}`, { on: { click: () => app.setTag(null) } }, "全部"),
+      ...names.map((t) => h(`button${cur === t ? ".on" : ""}`, { "data-tag": t, on: { click: () => app.setTag(t) } },
+        t, h("span.num", ` ${f.tags[t]}`))));
+  }
   const figure = (v, unit, label) => h("div.fig", h("b", v, unit ? h("small", unit) : null), h("span", label));
 
   function legend() {
@@ -64,7 +75,7 @@ export function overview(app) {
 
   function components(exam, f) {
     const width = Math.max(main.clientWidth - 80, 600);
-    const comps = [...new Set(rows.map((r) => r.component))].sort();
+    const comps = [...new Set(rows.map((r) => r.component))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
     return comps.map((c) => {
       const cr = rows.filter((r) => r.component === c);
       const variants = [...new Set(cr.map((r) => r.variant))].sort();
@@ -101,7 +112,7 @@ export function overview(app) {
         h("div.paper-head",
           h("h2", isCaie(exam) ? `Paper ${c}` : (f.components[c] || "").split(" (")[0]),
           h("span.meta", isCaie(exam) ? f.components[c] : ""),
-          h("span.meta.num", [min ? fmtMin(min) : null, maxMarks ? `${maxMarks}${isCaie(exam) ? " 分" : " 题"}` : null].filter(Boolean).join(" · ")),
+          h("span.meta.num", [min ? fmtMin(min) : null, maxMarks ? `${maxMarks}${isCaie(exam) || f.kicker ? " 分" : " 题"}` : null].filter(Boolean).join(" · ")),
           h("span.pstat.num", `${doneQ} / ${cr.length}`)),
         grid);
     });

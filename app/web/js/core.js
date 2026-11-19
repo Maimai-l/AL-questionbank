@@ -71,19 +71,25 @@ export const remember = (patch) => {
 
 // ------------------------------------------------------------------ the exams
 
-export const EXAMS = ["9709", "9231", "9618", "9702"];
+export const EXAMS = ["9709", "9231", "9618", "9702", "WPH"];
 export const isCaie = (syl) => /^\d{4}$/.test(syl);
 const SERIES = { m: "F/M", s: "M/J", w: "O/N" };
 const SERIES_ORDER = { w: 3, s: 2, m: 1 };
 
-/** 9709/12/M/J/23, the code printed on every Cambridge paper; TMUA P1 2023 otherwise. */
+/** A textbook's exercises (精选, series "hb1"): one "paper" per chapter. */
+export const isBook = (r) => /^hb\d/.test(r.series || "");
+
+/** 9709/12/M/J/23, the code printed on every Cambridge paper; WPH HB1 第 3 章 for a
+ *  textbook chapter; TMUA P1 2023 otherwise. */
 export function paperCode(r) {
   const yy = (r.series || "").slice(1);
   if (isCaie(r.paper.split("/")[0])) return `${r.paper}/${SERIES[r.series[0]] || "?"}/${yy}`;
+  if (isBook(r)) return `${r.paper.split("/")[0]} ${r.series.toUpperCase()} 第 ${r.component} 章`;
   const [syl, c] = r.paper.split("/");
   return `${syl} ${syl === "TMUA" ? "P" : "S"}${c} · ${r.year}`;
 }
 export function sessionShort(r) {
+  if (isBook(r)) return r.series.toUpperCase();
   return isCaie(r.paper.split("/")[0]) ? `${SERIES[r.series[0]] || "?"} ${(r.series || "").slice(1)}` : String(r.year);
 }
 /** Newest first: a year's November, then June, then March. */

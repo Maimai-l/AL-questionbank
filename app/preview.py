@@ -77,7 +77,8 @@ SHIM = r"""
     if (u.pathname.endsWith("/api/filters")) return d.filters;
     if (u.pathname.endsWith("/api/questions")) {
       const s = all();
-      return (d.lists[q.get("syllabus") || "9709"] || []).map((r) => {
+      return (d.lists[q.get("syllabus") || "9709"] || [])
+        .filter((r) => !q.get("tag") || (r.tags || []).includes(q.get("tag"))).map((r) => {
         const a = s[r.id]; const last = a && a[a.length - 1];
         return { ...r, avail: !!d.details[r.id],
           attempt: last ? { attempts: a.length, score: last.score, max: last.max, marked: last.marked } : null };

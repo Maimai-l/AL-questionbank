@@ -127,6 +127,7 @@ details.msbox summary{cursor:pointer;color:var(--accent);font-size:14px;margin-b
 <aside id="side">
   <h3>筛选</h3>
   <div class="f"><label>科目</label><select id="fSyl"></select></div>
+  <div class="f"><label>标签</label><select id="fTag"></select></div>
   <div class="f"><label>试卷</label><select id="fComp"></select></div>
   <div class="f"><label>主题</label><select id="fTopic"></select></div>
   <div class="f"><label>分值</label><div class="row2">
@@ -220,7 +221,10 @@ function richText(src){
   const lines = String(src || "").split("\n");
   const out = [];
   for (let i = 0; i < lines.length; i++){
-    const im = lines[i].trim().match(/^!\[\]\((\S+)\)$/);
+    // a figure: ![](path), or the OCR's <img src="imgWPH/fig/..."> (textbook exercises),
+    // on a line of its own; paths are relative to data/, where this page is
+    const im = lines[i].trim().match(/^!\[\]\((\S+)\)$/) ||
+               lines[i].trim().match(/^(?:<div[^>]*>)?\s*<img\s[^>]*src="([^"]+)"[^>]*>\s*(?:<\/div>)?$/i);
     if (im){ out.push({t:"img", v:im[1]}); continue; }
     if (!isRow(lines[i])) { out.push({t:"p", v:lines[i].replace(/<br>/g, "\n")}); continue; }
     const rows = [];
@@ -257,6 +261,7 @@ const $ = id => document.getElementById(id);
 const F = {};
 function readFilters(){
   F.syl=$("fSyl").value; F.comp=$("fComp").value; F.topic=$("fTopic").value;
+  F.tag=$("fTag").value;
   F.minM=+$("fMinM").value||0; F.maxM=+$("fMaxM").value||0;
   F.y0=+$("fY0").value||0; F.y1=+$("fY1").value||0;
   F.text=$("fText").value.trim().toLowerCase();
@@ -266,6 +271,7 @@ function readFilters(){
 }
 function match(q){
   if (F.syl && q.s !== F.syl) return false;
+  if (F.tag && !(q.tg || []).includes(F.tag)) return false;
   if (F.comp && q.c !== F.comp) return false;
   if (F.topic && q.t !== F.topic) return false;
   if (F.minM && !(q.m >= F.minM)) return false;
@@ -307,10 +313,11 @@ function metaHtml(q){
     q.tn ? `<span class="pill tag">${esc(q.t)} ${esc(q.tn)}</span>` : "",
     q.st ? `<span class="pill">${esc(q.st)} ${esc(q.stn || "")}</span>` : "",
     q.dia ? `<span class="pill">含图</span>` : "",
+    ...(q.tg || []).map(t => `<span class="pill tag">${esc(t)}</span>`),
   ];
   if (q.qq === "partial") bits.push(`<span class="pill warn">文字版不完整 · 以原题图为准</span>`);
   if (q.qq === "missing")  bits.push(`<span class="pill warn">无文字版 · 看原题图</span>`);
-  if (!q.ms)               bits.push(`<span class="pill warn">此题无公布答案</span>`);
+  if (!q.ms)               bits.push(`<span class="pill warn">${CAIE.has(q.s) ? "此题无公布答案" : "没有评分细则"}</span>`);
   if (q.tsrc !== "model" && q.tmar === 0) bits.push(`<span class="pill warn">主题标签存疑</span>`);
   bits.push(`<span class="pill">${esc(q.id)}</span>`);
   return `<div class="meta">${bits.join("")}</div>`;
@@ -343,7 +350,9 @@ function cardHtml(q, opts){
     ${q.ms ? `<details class="msbox" ${opts.openMs?"open":""}>
         <summary>显示答案 / Mark scheme${q.msq==="degraded"?"（排版有损，但内容可读）":""}</summary>
         <div class="ms">${richText(q.ms)}</div>
-      </details>` : `<p style="color:var(--dim);font-size:13px">这一题 Cambridge 没有公布 mark scheme。</p>`}
+      </details>` : `<p class="noms" style="color:var(--dim);font-size:13px">${CAIE.has(q.s)
+        ? "这一题 Cambridge 没有公布 mark scheme。"
+        : "本题没有评分细则（教材未附答案），做完对照原题图自评。"}</p>`}
     ${opts.noBar ? "" : `<div class="bar noprint">
       <div class="grade">
         <button data-g="good" class="${g==="good"?"on":""}">会了 <span class="kbd">1</span></button>
@@ -384,6 +393,7 @@ function hydrate(root){
   typeset(root);
 }
 const BY = {}; QB.forEach(q => BY[q.id] = q);
+const CAIE = new Set(["9709","9231","9618","9702"]);   // past papers; other rows are textbook exercises
 
 /* --------------------------------------------------------------- drill --- */
 let LIST = [], IDX = 0;
@@ -594,16 +604,23 @@ function fillSelects(){
   const syls = [...new Set(QB.map(q=>q.s))].sort();
   $("fSyl").innerHTML = `<option value="">全部科目</option>` +
     syls.map(s=>`<option value="${s}">${s}</option>`).join("");
+  const tags = {};
+  QB.forEach(q => (q.tg || []).forEach(t => tags[t] = (tags[t] || 0) + 1));
+  $("fTag").innerHTML = `<option value="">全部</option>` +
+    Object.keys(tags).sort().map(t=>`<option value="${esc(t)}">${esc(t)}（${tags[t]}）</option>`).join("");
+  $("fTag").closest(".f").style.display = Object.keys(tags).length ? "" : "none";
   refreshDependent();
 }
 function refreshDependent(){
   const s = $("fSyl").value;
-  const sub = QB.filter(q => !s || q.s===s);
-  const comps = [...new Set(sub.map(q=>q.c))].sort();
+  const tag = $("fTag").value;
+  const sub = QB.filter(q => (!s || q.s===s) && (!tag || (q.tg || []).includes(tag)));
+  const comps = [...new Set(sub.map(q=>q.c))].sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}));
   const keepC = $("fComp").value;
   $("fComp").innerHTML = `<option value="">全部试卷</option>` + comps.map(c=>{
     const name = (sub.find(q=>q.c===c)||{}).cn || "";
-    return `<option value="${c}">Paper ${c}${name?" · "+name:""}</option>`;
+    const book = sub.some(q => q.c===c && !CAIE.has(q.s));   // a textbook's chapter
+    return `<option value="${c}">${book ? "第 "+c+" 章" : "Paper "+c}${name?" · "+name:""}</option>`;
   }).join("");
   if (comps.includes(keepC)) $("fComp").value = keepC;
   const c = $("fComp").value;
@@ -623,12 +640,20 @@ function apply(){
   else if (VIEW==="paper") drawPaper();
   else drawStats();
 }
-["fSyl","fComp"].forEach(id => $(id).addEventListener("change", ()=>{refreshDependent(); apply();}));
+$("fComp").addEventListener("change", ()=>{refreshDependent(); apply();});
+// textbook questions have no mark scheme: choosing a tag (or subject) where none has
+// one clears "只看有答案的", which would otherwise leave nothing
+["fSyl","fTag"].forEach(id => $(id).addEventListener("change", ()=>{
+  const s = $("fSyl").value, t = $("fTag").value;
+  const sel = QB.filter(q => (!s || q.s===s) && (!t || (q.tg || []).includes(t)));
+  if ((s || t) && sel.length && !sel.some(q => q.ms)) $("fMs").checked = false;
+  refreshDependent(); apply();
+}));
 ["fTopic","fState","fMs","fClean","fDia","fShuffle"].forEach(id => $(id).addEventListener("change", apply));
 ["fMinM","fMaxM","fY0","fY1","fText"].forEach(id => $(id).addEventListener("input", debounce(apply, 250)));
 function debounce(fn, ms){ let t; return (...a)=>{clearTimeout(t); t=setTimeout(()=>fn(...a), ms);}; }
 $("reset").onclick = () => {
-  ["fSyl","fComp","fTopic","fState","fMinM","fMaxM","fY0","fY1","fText"].forEach(id=>$(id).value="");
+  ["fSyl","fTag","fComp","fTopic","fState","fMinM","fMaxM","fY0","fY1","fText"].forEach(id=>$(id).value="");
   $("fMs").checked = true; $("fClean").checked = false;
   $("fDia").checked = false; $("fShuffle").checked = true;
   SEED++; refreshDependent(); apply();
