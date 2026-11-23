@@ -641,12 +641,14 @@ function apply(){
   else drawStats();
 }
 $("fComp").addEventListener("change", ()=>{refreshDependent(); apply();});
-// textbook questions have no mark scheme: choosing a tag (or subject) where none has
-// one clears "只看有答案的", which would otherwise leave nothing
+// textbook questions have no mark scheme: choosing a subject where none has one clears
+// "只看有答案的", which would otherwise leave nothing; choosing a tag clears it as soon as
+// some of the tag's questions have none (精选 holds the workbook, with schemes, and the
+// Hodder exercises, without), so the tag shows all its questions
 ["fSyl","fTag"].forEach(id => $(id).addEventListener("change", ()=>{
   const s = $("fSyl").value, t = $("fTag").value;
   const sel = QB.filter(q => (!s || q.s===s) && (!t || (q.tg || []).includes(t)));
-  if ((s || t) && sel.length && !sel.some(q => q.ms)) $("fMs").checked = false;
+  if (sel.length && ((t && sel.some(q => !q.ms)) || (s && !sel.some(q => q.ms)))) $("fMs").checked = false;
   refreshDependent(); apply();
 }));
 ["fTopic","fState","fMs","fClean","fDia","fShuffle"].forEach(id => $(id).addEventListener("change", apply));
