@@ -433,8 +433,9 @@ class FlowsPage(Api):
             self.assertTrue(any(p.endswith(f"fig/{name}") for p in files), layout)
             md = next(c for p, c in files.items() if p.endswith("question.md"))
             self.assertIn(link + name, md.decode() if isinstance(md, bytes) else md)
-        cond9709 = [m for m in await self.json("GET", "/api/meta") if m["exam"] == "9709"][0]
-        self.assertEqual(cond9709["tags"], [])
+        meta = {m["exam"]: m for m in await self.json("GET", "/api/meta")}
+        self.assertEqual(meta["9231"]["tags"], [])                  # an exam with no tags
+        self.assertTrue(any(t["value"].startswith("力学 ") for t in meta["9709"]["tags"]))   # paper 4 chapters
         await self.json("DELETE", f"/api/flows/{g['id']}")
 
     def test_season_is_written_as_the_papers_write_it(self):
@@ -514,7 +515,8 @@ class PracticeServer(unittest.IsolatedAsyncioTestCase):
     async def test_tag_and_no_scheme(self):
         f = await self.get("/api/filters")
         self.assertGreater(f["WPH"]["tags"].get("精选", 0), 0)
-        self.assertEqual(f["9709"]["tags"], {})
+        self.assertEqual(f["9231"]["tags"], {})
+        self.assertGreater(f["9709"]["tags"].get("力学 5 Connected particles", 0), 0)
         rows = await self.get("/api/questions?syllabus=WPH&tag=" + "精选")
         self.assertEqual(len(rows), f["WPH"]["tags"]["精选"])
         self.assertEqual(await self.get("/api/questions?syllabus=9709&tag=精选"), [])

@@ -20,6 +20,11 @@ Pearson Edexcel International A Level Physics(WPH)Student Book 1(`edx_ial_phy1`,
 题库里没有 Edexcel 的考纲和试卷。做法与已知的识别问题见 `docs/pipeline.md` 的「Edexcel 物理教材(2026-11)」;
 有公式的 304 页已由 Haiku 子 agent 对照原页校对(2026-11-18),310 处改正记在 `pipeline/books/book_fixes.jsonl`,教材页 KaTeX 无报错。没有公式的 115 页未校对。
 
+## 9709 卷 4 力学章节标签(2026-11-23)
+
+292 道卷 4 题按「CIE Mechanics 练习册」的 9 章打了标签(`力学 1 Velocity and acceleration` 等，可多个，主章节在前),
+刷题页可按标签筛选。练习册题测试主章节准确率 91%。做法见 `docs/pipeline.md` 的「力学章节标签」。
+
 ## 9702 物理(2026-11-14 加入)
 
 卷 1、2、4、5,2021–2026 年 168 份试卷、2482 题(卷 1 选择题 1680 题、卷 2 281 题、卷 4 437 题、卷 5 84 题),
