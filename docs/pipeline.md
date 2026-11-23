@@ -514,6 +514,33 @@ python3 pipeline/export/build_site.py
 8. **没有做的。** 题目之间的引用没有拼进题图:第 7 章第 5 题(引用第 1 题，共用数据已在图中)、第 8 章第 9 题(第 7 题)、
    第 11 题(第 10 题)、第 15 题(第 3 题的数据表)、第 9 章第 7 题(第 6 题)。题号前的彩色圆点(前言说练习题按难度分级)没有记录。
 
+## 力学章节标签(CIE Mechanics 练习册，2026-11-23)
+
+用户提供的「CIE Mechanics 练习册(学生版)」把 140 道 9709 卷 4 真题(2016–2020)与 5 道教材练习按 9 章编排(Velocity and
+acceleration、Force and motion in one dimension、Forces in two dimensions、Friction、Connected particles、General motion in a
+straight line、Momentum、Work and energy、The work-energy principle and power)。题库的卷 4 是 2021–2026 年，与练习册没有重合，
+所以把这 9 章当作分类标准，给题库 292 道卷 4 题打标签(tags 列，如 `力学 5 Connected particles`,主章节在前，最多 3 个)。
+考纲主题(4.1–4.5)不变。
+
+```bash
+cp <练习册>.pdf raw/textbooks/cie_mech_wb.pdf
+python3 -I pipeline/books/ocr_book_pages.py ocr raw/textbooks/cie_mech_wb.pdf cie_mech_wb --from 3 --to 154 --chunk 80
+python3 pipeline/tags/chapter_labels.py examples pipeline/tags/labels_mech.json cie_mech_wb   # 145 题，已知章节
+python3 pipeline/tags/chapter_labels.py plan pipeline/tags/labels_mech.json --set test --out test1
+python3 pipeline/tags/chapter_labels.py score pipeline/tags/labels_mech.json --out test1
+python3 pipeline/tags/chapter_labels.py plan pipeline/tags/labels_mech.json --set bank --out bank1
+python3 pipeline/tags/chapter_labels.py apply pipeline/tags/labels_mech.json --out bank1 --write
+python3 pipeline/tags/chapter_labels.py apply pipeline/tags/labels_mech.json --saved --write   # 重建数据库后
+```
+
+1. **标签表** `pipeline/tags/labels_mech.json`:9 章各自的方法范围与目录页码。结果存在 `labels_mech_result.json`(提交)。
+2. **切题。** 练习册的出处写在题末，章标题 OCR 不一定识别(第 5、8 章没识别出来);按「### N.」切题，题号回到 1 即换章，
+   目录页码核对。第 2 章的 5 题出自教材 Chapter Review Exercise,只作示例。
+3. **验证。** 2016–2017 年的题与教材练习作示例，2018–2020 年的 100 题让 Haiku 子 agent 分类，与练习册的章节比对：主章节对
+   91 题，练习册章节在标签中 97 题。错得最多的是功与能的题判成摩擦(3 题),规则补上「能量方法归 8、功率与功能原理归 9」。
+4. **题库。** 292 题 9 批(每批 35 题，题干上限 4000 字),共约 80 万 subagent token。与考纲主题交叉核对：4.1→3/4/5、
+   4.2→1/6、4.3→7、4.4→2/4/5、4.5→8/9;不一致的 6 题逐题看过，改了 1 题(9709_m24_42_q03 用功率求摩擦系数，补上 9)。
+
 ## 子 agent 批次大小实验(2026-11-14)
 
 问题：审校批次每批放几题最省钱、质量又不下降。做法：同一组 40 道 9702 题(卷 2、4、5,含 4 处已核实的错误)

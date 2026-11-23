@@ -25,7 +25,9 @@ plan      writes prompt files raw/labels/<table>/<run>/batch_NN.md. The prompt s
 score     compares a --set test run with the workbook's chapters.
 apply     checks a --set bank run and, with --write, puts the labels into the
           questions' tags as "<prefix> <n> <name>" (prefix and names from the
-          table), main chapter first, replacing earlier tags with that prefix.
+          table), main chapter first, replacing earlier tags with that prefix, and
+          keeps the labels in <table>_result.json beside the table (committed);
+          apply --saved --write puts them back after the database is rebuilt.
 """
 import argparse
 import glob
@@ -159,7 +161,7 @@ def plan(a):
     for n, b in enumerate(range(0, len(items), a.size), 1):
         out = os.path.relpath(os.path.join(run, "out", f"batch_{n:02d}.json"), paths.ROOT)
         body = [PROMPT.format(n=n, table=table, examples="\n".join(shots), out=out)]
-        body += [f"### {i}\n```\n{t[:1800]}\n```\n" for i, t in items[b:b + a.size]]
+        body += [f"### {i}\n```\n{t[:4000]}\n```\n" for i, t in items[b:b + a.size]]
         path = os.path.join(run, f"batch_{n:02d}.md")
         open(path, "w", encoding="utf-8").write("\n".join(body))
         print(f"{os.path.relpath(path, paths.ROOT)}  {len(items[b:b + a.size])} 题")
@@ -202,9 +204,17 @@ def score(a):
         print(f"  练习册 {t} -> 判为 {g}:{k} 题")
 
 
+def saved(table):
+    """The labels a written run left, kept with the code: {id: [chapter, ...]}."""
+    return os.path.splitext(table)[0] + "_result.json"
+
+
 def apply(a):
     spec = load(a.table)
-    got, problems = results(a, spec)
+    if a.saved:                       # replay after a rebuild of the database
+        got, problems = json.load(open(saved(a.table), encoding="utf-8")), []
+    else:
+        got, problems = results(a, spec)
     for p in problems:
         print(p)
     pre = spec["prefix"] + " "
@@ -222,6 +232,12 @@ def apply(a):
     if a.write:
         con.executemany("UPDATE questions SET tags = ? WHERE id = ?", upd)
         con.commit()
+        if not a.saved:
+            merged = json.load(open(saved(a.table), encoding="utf-8")) if os.path.exists(saved(a.table)) else {}
+            merged.update(got)
+            with open(saved(a.table), "w", encoding="utf-8") as fh:     # one question per line
+                fh.write("{\n" + ",\n".join(f'"{k}": {json.dumps(v)}' for k, v in sorted(merged.items())) + "\n}\n")
+            print(f"标签另存于 {os.path.relpath(saved(a.table), paths.ROOT)}")
 
 
 def main():
@@ -233,6 +249,7 @@ def main():
     p = sub.add_parser("score"); p.add_argument("table"); p.add_argument("--out", default="run1")
     p = sub.add_parser("apply"); p.add_argument("table"); p.add_argument("--out", default="run1")
     p.add_argument("--write", action="store_true")
+    p.add_argument("--saved", action="store_true", help="用已保存的 <table>_result.json,不读批次结果")
     a = ap.parse_args()
     {"examples": examples, "plan": plan, "score": score, "apply": apply}[a.cmd](a)
 
