@@ -163,7 +163,7 @@ class QueryByTag(Page):
         self.go("query")
         rows = p.locator("table tbody tr[data-k]")
         expect(rows.first).to_be_visible()
-        expect(p.locator(".dm-cond .sec", has_text="标签")).to_have_count(0)      # 9709 has no tags
+        expect(p.locator(".dm-cond .sec", has_text="标签")).to_have_count(1)      # 9709: the paper 4 chapter tags
         p.locator(".dm-cond .select").first.click()
         p.get_by_role("option", name="WPH Edexcel Physics · 精选").click()
         tag = p.locator(".dm-cond label.check", has_text="精选")
