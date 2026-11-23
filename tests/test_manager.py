@@ -410,7 +410,8 @@ class FlowsPage(Api):
         self.assertTrue(set(s["items"]) <= tagged)
         # the query page: the exam's tags with counts, each row's tags, a question's panel
         meta = next(m for m in await self.json("GET", "/api/meta") if m["exam"] == "WPH")
-        self.assertEqual({t["value"]: t["n"] for t in meta["tags"]}["精选"], len(tagged))
+        wph = {i for i in tagged if i.startswith("WPH_")}       # 精选 is also on the 9709 workbook questions
+        self.assertEqual({t["value"]: t["n"] for t in meta["tags"]}["精选"], len(wph))
         rows = await self.json("GET", "/api/questions?exam=WPH")
         self.assertTrue(all("精选" in r["tags"] for r in rows))
         d = await self.json("GET", f"/api/question/{s['items'][0]}")
@@ -519,7 +520,9 @@ class PracticeServer(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(f["9709"]["tags"].get("力学 5 Connected particles", 0), 0)
         rows = await self.get("/api/questions?syllabus=WPH&tag=" + "精选")
         self.assertEqual(len(rows), f["WPH"]["tags"]["精选"])
-        self.assertEqual(await self.get("/api/questions?syllabus=9709&tag=精选"), [])
+        self.assertEqual(await self.get("/api/questions?syllabus=9231&tag=精选"), [])
+        wb = await self.get("/api/questions?syllabus=9709&tag=精选")         # the mechanics workbook
+        self.assertTrue(wb and all(r["id"].startswith("9709_mwb_") for r in wb))
         from lib import db
         mcq = db.connect().execute("SELECT id FROM questions WHERE syllabus = 'WPH' AND qtype = 'mcq' "
                                    "AND (answer IS NULL OR answer = '') LIMIT 1").fetchone()[0]
