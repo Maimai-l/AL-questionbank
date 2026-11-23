@@ -13,7 +13,8 @@ in a known chapter and names its source paper.
 examples  cuts the workbook's OCR'd pages (raw/book_ocr/BOOK/pages, made by
           pipeline/books/ocr_book_pages.py) into questions at each "(9709_s17_qp_41)"
           source mark and assigns each the chapter its page falls in, into
-          raw/labels/<table>/examples.json.
+          raw/labels/<table>/examples.json. Questions with no paper as source
+          (textbook exercises) only serve as worked examples.
 plan      writes prompt files raw/labels/<table>/<run>/batch_NN.md. The prompt shows
           the label table and, as worked examples, the workbook questions from
           2016-2017; --set test asks for labels on the workbook questions from
@@ -56,39 +57,56 @@ def chapter_of(page, labels):
     return best
 
 
+QNUM = re.compile(r"(?m)^#{0,4}\s*(\d{1,3})\s*[.．]\s*$")
+CHAP = re.compile(r"(?mi)^#{0,4}\s*Chapter\s+(\d+)\b")
+SOURCE = re.compile(r"\(([^()\n]*(?:\d{4}_[msw]\d\d_qp_\d\d|第\s*\d+\s*题)[^()\n]*)\)")
+
+
 def examples(a):
+    """Each question runs from its "### N." heading to the next heading (question or
+    chapter); its source, "(9709_s17_qp_41)" or "(... Chapter Review Exercise 2-第 8 题)",
+    closes it. Numbering restarts at 1 in each chapter, which gives the chapter (the
+    "Chapter N" headings are not always read); the contents page numbers check it."""
     spec = load(a.table)
     pages = sorted(glob.glob(os.path.join(paths.RAW, "book_ocr", a.book, "pages", "page_*.md")))
     if not pages:
         sys.exit(f"没有 raw/book_ocr/{a.book}/pages,先运行 ocr_book_pages.py")
-    stream = []                        # (page, text) in reading order
+    text, starts = "", []
     for p in pages:
-        n = int(re.search(r"page_(\d+)", p).group(1))
-        stream.append((n, re.sub(r"<[^>]+>", " ", open(p, encoding="utf-8").read())))
-    out, cur = [], None
-    for page, text in stream:
-        pos = 0
-        for m in REF.finditer(text):
-            if cur:
-                cur["text"] += "\n" + text[pos:m.start()]
-                out.append(cur)
-            cur = {"ref": m.group(1), "page": page, "chapter": chapter_of(page, spec["labels"]), "text": ""}
-            pos = m.end()
-        if cur:
-            cur["text"] += "\n" + text[pos:]
-    if cur:
-        out.append(cur)
-    for i, x in enumerate(out, 1):
-        x["id"] = f"wb{i:03d}"
-        x["year"] = 2000 + int(x["ref"][6:8])
-        x["text"] = re.sub(r"\n\s*\d{1,3}\s*[.．]\s*$", "", re.sub(r"\n{3,}", "\n\n", x["text"]).strip())
+        starts.append((len(text), int(re.search(r"page_(\d+)", p).group(1))))
+        text += re.sub(r"<[^>]+>", " ", open(p, encoding="utf-8").read()) + "\n"
+    page_at = lambda pos: max(n for s, n in starts if s <= pos)
+    marks = sorted([(m.start(), "q", m) for m in QNUM.finditer(text)] +
+                   [(m.start(), "c", m) for m in CHAP.finditer(text)], key=lambda t: t[0])
+    order = sorted(spec["labels"], key=lambda c: spec["labels"][c]["pdf_from"])
+    out, chap, last = [], None, 0
+    for k, (pos, kind, m) in enumerate(marks):
+        if kind == "c":
+            continue
+        n = int(m.group(1))
+        if chap is None or (n == 1 and last != 0):     # numbering restarts in each chapter
+            chap = order[0] if chap is None else order[order.index(chap) + 1]
+        last = n
+        end = marks[k + 1][0] if k + 1 < len(marks) else len(text)
+        body = text[m.end():end]
+        src = SOURCE.findall(body)
+        ref = re.search(r"\d{4}_[msw]\d\d_qp_\d\d", src[-1]) if src else None
+        body = SOURCE.sub("", body)
+        if chapter_of(page_at(pos), spec["labels"]) not in (chap, order[max(order.index(chap) - 1, 0)]):
+            print(f"注意：第 {page_at(pos)} 页第 {n} 题按题号属第 {chap} 章，按目录页码不是")
+        out.append({"id": f"wb{len(out) + 1:03d}", "n": n, "chapter": chap,
+                    "page": page_at(pos), "source": src[-1].strip() if src else None,
+                    "ref": ref.group(0) if ref else None,
+                    "year": 2000 + int(ref.group(0)[6:8]) if ref else None,
+                    "text": re.sub(r"\n{3,}", "\n\n", body).strip()})
     os.makedirs(work(a.table), exist_ok=True)
     path = os.path.join(work(a.table), "examples.json")
     json.dump(out, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
     by = {}
     for x in out:
         by[x["chapter"]] = by.get(x["chapter"], 0) + 1
-    print(f"{len(out)} 题 -> {os.path.relpath(path, paths.ROOT)};各章 {dict(sorted(by.items(), key=lambda kv: int(kv[0])))}")
+    print(f"{len(out)} 题 -> {os.path.relpath(path, paths.ROOT)};各章 {dict(sorted(by.items(), key=lambda kv: int(kv[0])))};"
+          f"无出处 {sum(1 for x in out if not x['source'])} 题，非真题 {sum(1 for x in out if x['source'] and not x['ref'])} 题")
 
 
 PROMPT = """# 力学题按练习册章节分类：批次 {n}
@@ -123,11 +141,11 @@ def plan(a):
     ex = json.load(open(os.path.join(work(a.table), "examples.json"), encoding="utf-8"))
     shots = []
     for code in spec["labels"]:
-        pool = [x for x in ex if x["chapter"] == code and x["year"] <= 2017][:2]
+        pool = [x for x in ex if x["chapter"] == code and (x["year"] or 0) <= 2017 and x["text"]][:2]
         shots += [f"- 章节 {code}:\n```\n{x['text'][:700]}\n```" for x in pool]
     table = "\n".join(f"- **{c}** {lab['name']}:{lab['scope']}" for c, lab in spec["labels"].items())
     if a.set == "test":
-        items = [(x["id"], x["text"]) for x in ex if x["year"] >= 2018]
+        items = [(x["id"], x["text"]) for x in ex if (x["year"] or 0) >= 2018]
     else:
         con = db.connect()
         items = [(r["id"], r["text"] or "") for r in con.execute(
