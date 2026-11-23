@@ -1,0 +1,26 @@
+{
+  "source": "CIE Mechanics 练习册(学生版),9 章，每章题目注明出处(9709_s17_qp_41 等,2016–2020)",
+  "syllabus": "9709",
+  "component": "4",
+  "prefix": "力学",
+  "labels": {
+    "1": {"name": "Velocity and acceleration", "pdf_from": 3,
+          "scope": "constant acceleration along a line: the suvat formulae, displacement-time and velocity-time graphs made of straight lines (gradient, area), vertical motion under gravity, two particles meeting or overtaking"},
+    "2": {"name": "Force and motion in one dimension", "pdf_from": 28,
+          "scope": "Newton's second law for one body moving along a line: F = ma with weight, a driving force and a resistance, lifts and vertical motion with forces, no resolving at an angle and no friction coefficient"},
+    "3": {"name": "Forces in two dimensions", "pdf_from": 32,
+          "scope": "resolving forces at angles: resultant of several forces, equilibrium of a particle under three or more forces, a particle on a smooth inclined plane, forces on a particle held by strings"},
+    "4": {"name": "Friction", "pdf_from": 53,
+          "scope": "the model F ≤ μR: limiting friction, coefficient of friction, a particle on a rough horizontal or inclined plane, about to slip or moving with friction"},
+    "5": {"name": "Connected particles", "pdf_from": 71,
+          "scope": "two or more bodies joined by strings, rods or couplings: pulleys and pegs, a particle on a table or plane connected over a pulley to a hanging particle, car and trailer or tow bar, tension and thrust, motion after the string breaks or a particle reaches the ground"},
+    "6": {"name": "General motion in a straight line", "pdf_from": 93,
+          "scope": "variable acceleration: velocity or displacement given as a function of time, differentiating and integrating to find acceleration, velocity or distance, maximum velocity, times at rest, change of direction"},
+    "7": {"name": "Momentum", "pdf_from": 113,
+          "scope": "conservation of momentum in collisions along a line: coalescing particles, change of direction, a series of collisions, loss of kinetic energy in a collision"},
+    "8": {"name": "Work and energy", "pdf_from": 122,
+          "scope": "work done by a force (including at an angle), kinetic energy, gravitational potential energy, conservation of mechanical energy on smooth surfaces or slopes"},
+    "9": {"name": "The work-energy principle and power", "pdf_from": 128,
+          "scope": "the work-energy principle with work done against resistance or friction, power P = Fv, driving force of a car or cyclist, maximum or steady speed, rate of working on a slope"}
+  }
+}
