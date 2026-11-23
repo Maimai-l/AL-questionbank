@@ -541,6 +541,22 @@ python3 pipeline/tags/chapter_labels.py apply pipeline/tags/labels_mech.json --s
 4. **题库。** 292 题 9 批(每批 35 题，题干上限 4000 字),共约 80 万 subagent token。与考纲主题交叉核对：4.1→3/4/5、
    4.2→1/6、4.3→7、4.4→2/4/5、4.5→8/9;不一致的 6 题逐题看过，改了 1 题(9709_m24_42_q03 用功率求摩擦系数，补上 9)。
 
+## 练习册题入库与评分细则(2026-11-23)
+
+```bash
+python3 pipeline/books/workbook_questions.py --write             # 145 题：题图、OCR 题干与插图、标签
+python3 skills/shared/get_paper.py <31 份 qp 与 ms> --out raw/mwb_papers
+python3 pipeline/books/workbook_questions.py --schemes --write   # 按出处补评分细则与原卷分值
+python3 pipeline/text/split_parts.py --syllabus 9709 --write
+```
+
+- 题图：练习册文字层里有题号行「1.」与出处行「(9709_s17_qp_41)」,从题号顶到出处底裁出，跨页拼接。
+- 原卷题号：`split_qp.py` 切原卷，按共有词(Jaccard)找练习册题对应的题：最佳匹配相似度都在 0.68 以上，比第二名高 0.34 以上。
+- 评分细则：2016–2020 年有三种版式(2016 年无表格;2017–18 年表头「Mark」单数、每小问以「Total: n」收尾;2019 年起与现行相同)。
+  每题取三种读法(`split_ms.py`、`old_scheme`、`any_scheme`)中合计等于原卷分值的那一个，`split_ms.py` 本身没改。
+- 小问：不写 parts、marks_parts,由 `split_parts.py` 按练习册题干自己的小问标签拆(写原卷的小问标签反而只拆开 58 题)。
+- 刷题页：选标签时只要其中有题没有评分细则，就取消「只看有答案的」(「精选」里练习册题有评分细则,Hodder 题没有)。
+
 ## 子 agent 批次大小实验(2026-11-14)
 
 问题：审校批次每批放几题最省钱、质量又不下降。做法：同一组 40 道 9702 题(卷 2、4、5,含 4 处已核实的错误)

@@ -23,8 +23,10 @@ Pearson Edexcel International A Level Physics(WPH)Student Book 1(`edx_ial_phy1`,
 ## 9709 卷 4 力学章节标签(2026-11-23)
 
 练习册本身的 145 题(140 道 2016–2020 年卷 4 真题、5 道教材练习)已入库：`9709_mwb_ch05_q03` 这样的题号，题图从练习册裁出，
-题干为 OCR(插图在 img9709/fig/),标签「精选」「CIE Mechanics 练习册」与所在章节，主题按章节对应考纲。**暂无评分细则**:
-出处记在 topic_note,之后下载原卷与评分细则补上(`pipeline/books/workbook_questions.py`)。
+题干为 OCR(插图在 img9709/fig/),标签「精选」「CIE Mechanics 练习册」与所在章节，主题按章节对应考纲。
+评分细则(2026-11-23)按出处从 31 份原卷补上:140 道真题中 139 题有评分细则，133 题合计与原卷分值一致;分值改用原卷的。
+没有评分细则的:9709_mwb_ch06_q20(w19_43 第 6 题，评分细则切不出)与第 2 章 5 道教材练习。合计不一致的 6 题多是练习册只截了
+原题的几个小问(评分细则是整题的)。原卷 PDF 在 raw/mwb_papers(不在 data/)。
 292 道卷 4 题按「CIE Mechanics 练习册」的 9 章打了标签(`力学 1 Velocity and acceleration` 等，可多个，主章节在前),
 刷题页可按标签筛选。练习册题测试主章节准确率 91%。做法见 `docs/pipeline.md` 的「力学章节标签」。
 

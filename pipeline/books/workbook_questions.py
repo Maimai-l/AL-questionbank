@@ -15,8 +15,13 @@ kept copied to data/img9709/fig/.
 Rows: id 9709_mwb_ch05_q03 (chapter 5, question 3 of the workbook), syllabus 9709,
 component 4, series "mwb", year from the source paper, topic from the chapter
 (CHAPTER_TOPIC), tags 精选 + the workbook + the chapter label. No mark scheme: the
-workbook has none (source papers are noted in topic_note so the scheme can be
-fetched later).
+workbook has none.
+
+--schemes fills the mark schemes from the source papers: the 31 question papers and
+schemes named in the sources, downloaded to raw/mwb_papers with skills/shared/get_paper.py;
+the workbook question is matched to the paper's question by shared words (split_qp.py
+splits the paper), and the 2016-2020 scheme table (old_scheme) gives that question's
+block. ms_pdf points at raw/mwb_papers (the PDFs are not in data/).
 """
 import argparse
 import glob
@@ -127,10 +132,170 @@ def figures(md, qid):
     return re.sub(r'(<img\s[^>]*?src=")([^"]+)(")', one, md), n
 
 
+# ------------------------------------------------------------------ mark schemes from the source papers
+
+OLD_HDR = re.compile(r"^\s*Question\s+Answer\s+Marks?\b")
+OLD_LABEL = re.compile(r"^\s{0,12}(\d{1,2})(\([a-z]\))?(\((?:i{1,3}|iv|vi{0,3}|ix|x)\))?(?=\s\s|\s*$)")
+OLD_FURN = re.compile(r"©\s*UCLES|PUBLISHED|^\s*9709/\d\d\s|Cambridge International|Page \d+ of \d+|^\s*Question\s+Answer")
+TOTAL = re.compile(r"^\s*Total\s*:?\s*(\d{1,2})\s*$")
+WORD = re.compile(r"[a-z]+|\d+(?:\.\d+)?")
+PAPERS = os.path.join(paths.RAW, "mwb_papers")
+
+
+def old_scheme(path):
+    """{question: (text, total)} from a 2016-2020 scheme: the table "Question | Answer | Mark |
+    Guidance" (Mark singular) with a "Total: n" line closing each part. The text follows the
+    bank's 9709 ms_text: a part label opens each block, columns are two spaces apart, a
+    part's total stands on a line of its own."""
+    import subprocess
+    lines = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True).stdout.split("\n")
+    start = next((i for i, l in enumerate(lines) if OLD_HDR.match(l)), None)
+    if start is None:
+        return {}
+    out, q = {}, None
+    for line in lines[start:]:
+        if OLD_FURN.search(line) or not line.strip():
+            continue
+        t = TOTAL.match(line.replace("Total:", " Total:").strip()) or TOTAL.match(line)
+        m = OLD_LABEL.match(line)
+        if m:
+            q = int(m.group(1))
+            out.setdefault(q, [[], 0])
+        if q is None:
+            continue
+        if t:
+            out[q][0].append(f"  {t.group(1)}")
+            out[q][1] += int(t.group(1))
+            continue
+        text = re.sub(r" {2,}", "  ", line.strip())
+        out[q][0].append(text if m else "  " + text)
+    return {k: ("\n".join(v[0]), v[1]) for k, v in out.items()}
+
+
+START = re.compile(r"^\s{0,8}(\d{1,2})(?=\s*\(|\s{2,}|\s*$)")
+PART = re.compile(r"^\s{0,12}(?:\d{1,2})?\s*\((?:[a-z]|i{1,3}|iv|vi{0,3})\)")
+ALT = re.compile(r"Alternative|\bAlt\b", re.I)
+CODE = re.compile(r"(?<![A-Za-z(])\*?D?[MAB](\d)(?![A-Za-z\d)])")
+
+
+def any_scheme(path):
+    """{question: (text, award total)} from a scheme of any year 2016-2020: past the
+    abbreviations, questions start at a left-hand number taken in order 1, 2, 3 (so a
+    stray number does not start one); the total adds the award codes (M1 A1 B2), leaving
+    out an "Alternative method" until the next part label."""
+    import subprocess
+    lines = subprocess.run(["pdftotext", "-layout", path, "-"], capture_output=True, text=True).stdout.split("\n")
+    out, q, expect, alt = {}, None, 1, False
+    for line in lines:
+        if OLD_FURN.search(line) or re.search(r"Page \d+|Mark Scheme|Syllabus\s+Paper", line) or not line.strip():
+            continue
+        m = START.match(line)
+        if m and int(m.group(1)) == expect and (expect > 1 or CODE.search(line) or "(" in line[:12]):
+            q, expect, alt = expect, expect + 1, False
+            out[q] = [[], 0]
+        if q is None:
+            continue
+        if ALT.search(line):
+            alt = True
+        elif PART.match(line) or (m and int(m.group(1)) == q):
+            alt = False
+        out[q][0].append(line)
+        if not alt:
+            out[q][1] += sum(int(d) for d in CODE.findall(line))
+    return {k: (compact("\n".join(v[0])), v[1]) for k, v in out.items()}
+
+
+def compact(text):
+    """Layout text as the bank keeps ms_text: the label flush left, columns two spaces apart."""
+    out = []
+    for line in text.split("\n"):
+        if not line.strip() or OLD_FURN.search(line):
+            continue
+        t = re.sub(r" {2,}", "  ", line.strip())
+        out.append(t if OLD_LABEL.match(line) else "  " + t)
+    return "\n".join(out)
+
+
+def words(t):
+    return set(WORD.findall((t or "").lower()))
+
+
+def best_question(text, questions):
+    """The paper question whose text shares most words with the workbook's (Jaccard)."""
+    w = words(text)
+    scored = sorted(((len(w & words(q["text"])) / max(1, len(w | words(q["text"]))), q["q"]) for q in questions),
+                    reverse=True)
+    return scored[0] if scored else (0, None)
+
+
+def schemes(a):
+    from pipeline.split import split_ms, split_qp
+    from pipeline.text.audit_text import classify_ms
+    con = db.connect()
+    rows = con.execute("SELECT id, topic_note, question_text, marks FROM questions WHERE id LIKE '9709_mwb_%'").fetchall()
+    papers, upd, report = {}, [], []
+    for r in rows:
+        ref = REF.search(r["topic_note"] or "")
+        if not ref:
+            report.append(f"{r['id']}: 出处不是真题，跳过")
+            continue
+        code = ref.group(0)
+        if code not in papers:
+            qp = os.path.join(PAPERS, f"{code}.pdf")
+            ms = os.path.join(PAPERS, code.replace("_qp_", "_ms_") + ".pdf")
+            if not (os.path.exists(qp) and os.path.exists(ms)):
+                papers[code] = None
+            else:
+                cur = {m["q"]: (compact(m["ms_text"]), m["ms_total"]) for m in split_ms.parse(ms)}
+                papers[code] = (split_qp.split_paper(qp), [cur, old_scheme(ms), any_scheme(ms)])
+        if not papers[code]:
+            report.append(f"{r['id']}: 没有 {code} 的原卷或评分细则")
+            continue
+        qs, ms = papers[code]
+        score, q = best_question(r["question_text"], qs)
+        if q is None or score < 0.3:
+            report.append(f"{r['id']}: 在 {code} 里找不到对应的题(最高相似度 {score:.2f})")
+            continue
+        paper_q = next(x for x in qs if x["q"] == q)
+        marks, mparts = paper_q.get("marks"), paper_q.get("marks_parts")
+        # parts and their marks stay empty: split_parts.py splits the workbook text by its own
+        # labels (136 of 145); handed the paper's labels it splits only 58
+        labels, mparts = None, None
+        # three readings of the scheme (the current table, the 2017-18 table with "Total:",
+        # any year): the first whose total is the paper's marks, else the last that has it
+        found = [p[q] for p in ms if q in p and p[q][0].strip()]
+        if not found:
+            report.append(f"{r['id']}: {code} 第 {q} 题，评分细则里没有这一题")
+            continue
+        text, total = next((f for f in found if f[1] == marks), found[-1])
+        codes = re.findall(r"(?<![A-Za-z])(\*?D?[MAB]\d|FT|CAO|CWO|AEF|OE|SOI|ISW|AWRT|WWW|AG)(?![A-Za-z])", text)
+        agree = int(bool(marks) and total == marks)
+        if not agree:
+            report.append(f"{r['id']}: {code} 第 {q} 题，评分细则合计 {total},原卷 {marks},练习册 {r['marks']}")
+        note = re.sub(r";原卷第 \d+ 题.*$", "", r["topic_note"]) + f";原卷第 {q} 题(相似度 {score:.2f})"
+        upd.append((text, json.dumps(codes), total, agree, classify_ms(text, True),
+                    os.path.relpath(os.path.join(PAPERS, code.replace("_qp_", "_ms_") + ".pdf"), paths.ROOT),
+                    note, marks, json.dumps(mparts) if mparts else None,
+                    json.dumps(labels) if labels else None, r["id"]))
+    for x in report:
+        print(x)
+    print(f"{len(upd)} 题找到评分细则，{sum(u[3] for u in upd)} 题合计与题面一致")
+    if a.write:
+        con.executemany("UPDATE questions SET ms_text=?, mark_codes=?, ms_total=?, totals_agree=?, ms_quality=?, "
+                        "ms_pdf=?, topic_note=?, marks=?, marks_parts=?, parts=? WHERE id=?", upd)
+        con.executemany("UPDATE q_fts SET ms_text=? WHERE id=?", [(u[0], u[-1]) for u in upd])
+        con.commit()
+        print("已写入")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--write", action="store_true")
+    ap.add_argument("--schemes", action="store_true",
+                    help="不重新入库，只从原卷(raw/mwb_papers,get_paper.py 下载)补评分细则")
     a = ap.parse_args()
+    if a.schemes:
+        return schemes(a)
     spec = json.load(open(TABLE, encoding="utf-8"))
     names = {c: lab["name"] for c, lab in spec["labels"].items()}
     order = sorted(spec["labels"], key=lambda c: spec["labels"][c]["pdf_from"])
