@@ -97,7 +97,7 @@ def parts(row):
     # marked by entering a score, below
     if syl in ("TMUA", "TSA", "BMAT") or (row["qtype"] == "mcq" and (row["answer"] or "").strip()):
         opts = json.loads(row["option_texts"]) if row["option_texts"] else None
-        if opts is None and syl == "9702" and row["options"]:   # the options are in the image
+        if opts is None and row["options"]:     # the options are in the image (9702, the WPH kmcq)
             opts = {letter: "" for letter in json.loads(row["options"])}
         return [{"label": "", "marks": 1, "kind": "choice", "options": opts,
                  "answer": (row["answer"] or "").strip()}]

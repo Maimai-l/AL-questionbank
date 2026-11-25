@@ -78,6 +78,9 @@ const SERIES_ORDER = { w: 3, s: 2, m: 1 };
 
 /** A textbook's exercises (精选, series "hb1"): one "paper" per chapter. */
 export const isBook = (r) => /^hb\d/.test(r.series || "");
+/** A practice collection (精选, e.g. series "kmcq"): one "paper" WPH/<series>. */
+export const isCollection = (r) => !isBook(r) && !isCaie((r.paper || "").split("/")[0])
+  && (r.paper || "").split("/")[1] === r.series;
 
 /** 9709/12/M/J/23, the code printed on every Cambridge paper; WPH HB1 第 3 章 for a
  *  textbook chapter; TMUA P1 2023 otherwise. */
@@ -85,11 +88,12 @@ export function paperCode(r) {
   const yy = (r.series || "").slice(1);
   if (isCaie(r.paper.split("/")[0])) return `${r.paper}/${SERIES[r.series[0]] || "?"}/${yy}`;
   if (isBook(r)) return `${r.paper.split("/")[0]} ${r.series.toUpperCase()} 第 ${r.component} 章`;
+  if (isCollection(r)) return `${r.paper.split("/")[0]} ${r.series.toUpperCase()}`;
   const [syl, c] = r.paper.split("/");
   return `${syl} ${syl === "TMUA" ? "P" : "S"}${c} · ${r.year}`;
 }
 export function sessionShort(r) {
-  if (isBook(r)) return r.series.toUpperCase();
+  if (isBook(r) || isCollection(r)) return r.series.toUpperCase();
   return isCaie(r.paper.split("/")[0]) ? `${SERIES[r.series[0]] || "?"} ${(r.series || "").slice(1)}` : String(r.year);
 }
 /** Newest first: a year's November, then June, then March. */

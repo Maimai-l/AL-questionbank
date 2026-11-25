@@ -1,4 +1,4 @@
-# 数据现状与待办(2026-11-19)
+# 数据现状与待办(2026-11-25)
 
 ## 精选题:Hodder Edexcel A Level Physics 1(2026-11-19 加入)
 
@@ -13,10 +13,16 @@ Stretch and challenge(18 题)共 220 题进了题库:syllabus `WPH`,`tags` 为 `
 - 待办(可选):自己写参考答案或评分要点;5 道题引用前面的题(如第 8 章第 15 题要用第 3 题的数据表),题图里没有被引用的题。
 - claude.ai 的 skill(`skills/shared/qbank.py` 的说明)仍写着题库里没有 Edexcel 的题，下次改 skill 时一并更新。
 
-## 待入库的练习材料
+## Kinematics 练习题(2026-11-25 入库)
 
-- `data/sources/WPH/kinematics/`(2026-11-25):Edexcel IAL 物理 Kinematics 练习题 3 份 PDF(PMT 按题整理的 63 页扫描、
-  PMT Questions by Topic 7 页、按考季编的选择题 6 页),只保存了原件，尚未切题入库。
+`data/sources/WPH/kinematics/` 的 3 份 Edexcel IAL 物理 Kinematics 练习 PDF 已切题入库，共 94 题(syllabus `WPH`,标签「精选」
+「WPH Kinematics」加来源标签):PMT 扫描汇编 31 题(`WPH_kpmt_q01`–`q31`)、PMT Questions by Topic 7 题(`WPH_ktop_q01`–`q07`,
+与前者没有重复)、选择题 56 题(`WPH_kmcq_q01`–`q56`,2002–2010 年考季，答案取文末答案表，刷题页可判对错)。题图在
+`data/imgWPH/`,题干为 OCR(插图 142 张),小问已切。做法见 `docs/pipeline.md` 的「Kinematics 练习题(2026-11-25)」。
+
+- 前两份没有评分细则(`ms_quality='missing'`);ktop 的 4 道选择题没有答案。
+- kpmt 的分值是从题图里找方括号读出来的(OCR 丢掉了右对齐的 [n]),没有原卷可对，可能偏小;第 30、31 题没拆小问。
+- kpmt 是剑桥 9702 卷 2 式结构题，原卷没有认出，`topic` 为空。
 
 ## Edexcel IAL 物理教材(2026-11-18 加入)
 
