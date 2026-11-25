@@ -220,6 +220,34 @@ class PracticePage(unittest.TestCase):
         ctx.close()
         self.assertEqual(errors, [])
 
+    @unittest.skipUnless(READY, "needs Playwright and data/")
+    def test_practice_collection_mcq(self):
+        """WPH + 标签 WPH Kinematics lists the Kinematics practice questions; a kmcq question
+        checks the letter picked against the key."""
+        from lib import db, paths
+        r = db.connect().execute("SELECT id, answer FROM questions WHERE series = 'kmcq' "
+                                 "AND answer IS NOT NULL ORDER BY q LIMIT 1").fetchone()
+        if not r or not os.path.exists(os.path.join(paths.DATA, "data.js")):
+            self.skipTest("no kmcq questions, or data.js missing")
+        ctx = BROWSER.new_context()
+        p = ctx.new_page()
+        errors = []
+        p.on("pageerror", lambda e: errors.append(str(e)))
+        p.goto("file://" + os.path.join(paths.DATA, "practice.html"))
+        p.select_option("#fSyl", "WPH")
+        p.select_option("#fTag", "WPH Kinematics")
+        expect(p.locator("#fComp option", has_text="Kinematics 选择题")).to_have_count(1)
+        p.fill("#fText", r["id"])
+        card = p.locator(f".card[data-id='{r['id']}']")
+        expect(card).to_be_visible()
+        wrong = next(x for x in "ABCD" if x != r["answer"])
+        card.locator(f".mcq button[data-pick='{wrong}']").click()
+        expect(card.locator(".mcqmsg")).to_contain_text(f"正确答案是 {r['answer']}")
+        card.locator(f".mcq button[data-pick='{r['answer']}']").click()
+        expect(card.locator(".mcqmsg")).to_contain_text("对了")
+        ctx.close()
+        self.assertEqual(errors, [])
+
 
 class QueryByPaper(Page):
     def test_find_a_paper(self):

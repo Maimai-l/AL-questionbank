@@ -12,10 +12,13 @@
 
 The bank (caie.db, about 65 MB) is downloaded once from GitHub into --cache
 (default ~/.cache/qbank). It holds 9709, 9231, 9618 and 9702 papers 2021-2026
-(the admissions tests were archived in 2026-11), and 220 Edexcel physics exercises
-under syllabus WPH (ids WPH_hb1_ch03_q11, tagged 精选: the end-of-chapter questions of
-Hodder's Edexcel A Level Physics 1, grouped by book chapter, with no mark scheme; their
-figures are images under imgWPH/fig/). Question and scheme text was checked against the original papers
+(the admissions tests were archived in 2026-11). Practice material tagged 精选 (find --tag):
+314 Edexcel physics questions under syllabus WPH (220 end-of-chapter questions of Hodder's
+Edexcel A Level Physics 1, ids WPH_hb1_ch03_q11, no mark scheme; 94 kinematics questions,
+WPH_kpmt_*/WPH_ktop_* without schemes and 56 multiple choice WPH_kmcq_* with answers), and
+145 9709 paper 4 questions from a mechanics workbook (9709_mwb_ch05_q03, 139 with the
+scheme of their source paper). Figures in their text are images under imgWPH/fig/ and
+img9709/fig/. Question and scheme text was checked against the original papers
 (not yet for 9702: its text is OCR or, where q_quality is partial, the PDF text layer);
 diagrams are described in the text only, so look at the PDF when a question has one
 (has_diagram = 1). Mark scheme text is the scheme as printed, split by question.

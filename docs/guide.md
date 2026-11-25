@@ -80,8 +80,8 @@ python3 qb.py serve            # 默认端口 8900,自动打开浏览器
 ```
 
 总览、练习(白板作答、按评分细则判分、看详解)与复盘三个视图。作答与手写记录存在 `qb-work/`。
-顶栏的 WPH 是精选题(Hodder Edexcel A Level Physics 1 章末练习,一章一卷);总览标题下的标签按钮按标签筛选。
-这些题没有评分细则，判分时每个小问直接填得分。
+顶栏的 WPH 是精选题(Hodder Edexcel A Level Physics 1 章末练习，一章一卷;Kinematics 练习三份，一份一卷，标签「WPH Kinematics」);
+总览标题下的标签按钮按标签筛选。这些题大多没有评分细则，判分时每个小问直接填得分;Kinematics 选择题(KMCQ)有答案，选字母即判。
 说明见 [app/README.md](../app/README.md)。
 
 ### 数据管理页(`manager/`)

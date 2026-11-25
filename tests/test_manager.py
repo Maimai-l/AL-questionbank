@@ -539,3 +539,29 @@ class PracticeServer(unittest.IsolatedAsyncioTestCase):
             self.assertEqual(r.status, 200)
         review = await self.get("/api/review?syllabus=WPH")
         self.assertTrue(review["history"])
+
+    async def test_practice_collections(self):
+        """The Kinematics practice PDFs (series kpmt / ktop / kmcq, tag WPH Kinematics): the tag
+        narrows to them, a kmcq question is marked against its key, a kpmt question by score;
+        the data manager names each collection as one paper (WPH/KMCQ)."""
+        from lib import db
+        from manager import bank
+        con = db.connect()
+        n = con.execute("SELECT COUNT(*) FROM questions WHERE series IN ('kpmt', 'ktop', 'kmcq')").fetchone()[0]
+        if not n:
+            self.skipTest("no practice collections in this bank")
+        f = await self.get("/api/filters")
+        self.assertEqual(f["WPH"]["tags"].get("WPH Kinematics"), n)
+        rows = await self.get("/api/questions?syllabus=WPH&tag=WPH Kinematics")
+        self.assertEqual(len(rows), n)
+        self.assertEqual({r["series"] for r in rows}, {"kpmt", "ktop", "kmcq"})
+        r = con.execute("SELECT * FROM questions WHERE series = 'kmcq' ORDER BY q LIMIT 1").fetchone()
+        self.assertEqual(bank.paper_code(r), "WPH/KMCQ")
+        d = await self.get(f"/api/question/{r['id']}")
+        self.assertEqual([p["kind"] for p in d["parts"]], ["choice"])
+        self.assertEqual(d["parts"][0]["answer"], r["answer"])
+        self.assertEqual(sorted(d["parts"][0]["options"]), ["A", "B", "C", "D"])
+        qid = con.execute("SELECT id FROM questions WHERE series = 'kpmt' AND marks > 1 LIMIT 1").fetchone()[0]
+        d = await self.get(f"/api/question/{qid}")
+        self.assertIsNone(d["scheme"])
+        self.assertTrue(d["parts"] and all(p["kind"] == "score" for p in d["parts"]))

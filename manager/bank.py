@@ -19,11 +19,14 @@ MONTH = {"m": 3, "s": 6, "w": 11}
 
 def paper_code(r):
     """9709/12/M/J/23 for CAIE; WPH/3/HB1 for chapter 3 of a textbook (series hb1);
+    WPH/KMCQ for a practice collection (paper WPH/<series>, pipeline/books/kinematics_questions.py);
     TMUA/1/2016 for the admissions tests."""
     if r["syllabus"] in CIE:
         return f'{r["paper"]}/{SEASON.get(r["series"][0], "?")}/{r["series"][1:]}'
     if re.match(r"hb\d", r["series"] or ""):
         return f'{r["paper"]}/{r["series"].upper()}'
+    if r["series"] and r["paper"] == f'{r["syllabus"]}/{r["series"]}':
+        return f'{r["syllabus"]}/{r["series"].upper()}'
     return f'{r["paper"]}/{r["year"]}'
 
 

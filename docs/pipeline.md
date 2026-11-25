@@ -557,6 +557,60 @@ python3 pipeline/text/split_parts.py --syllabus 9709 --write
 - 小问：不写 parts、marks_parts,由 `split_parts.py` 按练习册题干自己的小问标签拆(写原卷的小问标签反而只拆开 58 题)。
 - 刷题页：选标签时只要其中有题没有评分细则，就取消「只看有答案的」(「精选」里练习册题有评分细则,Hodder 题没有)。
 
+## Kinematics 练习题(2026-11-25)
+
+用户提供的三份 Edexcel IAL 物理 Kinematics 练习 PDF(`data/sources/WPH/kinematics/`,说明见该目录 README)作为精选题入库，
+共 94 题，脚本 `pipeline/books/kinematics_questions.py`。三份都没有附评分细则，只有选择题有答案表。
+
+```bash
+python3 -I pipeline/books/kinematics_questions.py extract          # 题图 + raw/book_questions/kinematics/questions.json
+python3 pipeline/ocr/ocr.py raw/book_questions/kinematics/ocr_input.json data/imgWPH raw/ocr/q_WPH_kin_fig.jsonl 4 \
+  --pack 10 --figures data/imgWPH/fig
+python3 pipeline/books/kinematics_questions.py marks               # 找回 OCR 丢掉的分值 -> raw/ocr/q_WPH_kin_fig_marked.jsonl
+python3 pipeline/books/kinematics_questions.py add --write         # 先备份 data/caie.db;三份的旧行整体替换
+python3 pipeline/text/split_parts.py --syllabus WPH --write
+python3 pipeline/export/build_site.py
+```
+
+| series | 文件 | 题数 | 题号 | 分值 | 评分细则 |
+|---|---|---:|---|---|---|
+| kpmt | kinematics_pmt_questions.pdf(63 页扫描) | 31 | `WPH_kpmt_q01`–`q31`,Q1–Q31 齐全(Q11 在第 16 页，不缺) | 各 [n] 之和，共 256 分 | 无 |
+| ktop | kinematics_pmt_qp.pdf(7 页) | 7 | `WPH_ktop_q01`–`q07` | Total,共 26 分 | 无 |
+| kmcq | kinematics_mcq.pdf(6 页) | 56 | `WPH_kmcq_q01`–`q56` | 每题 1 分 | 答案表 |
+
+1. **字段。** 一份一「卷」:`component` 与 `series` 都是 kpmt / ktop / kmcq,`paper` 为 `WPH/<series>`,
+   `component_name` 与 `session` 为来源名(kmcq 的 session 带考季，如 `Kinematics 选择题 · Nov 2008`)。kmcq 的 `year`、`month`
+   取题前的考季标题(May 02 → 2002 年 5 月，范围 2002–2010),kpmt、ktop 的 `year` 为提供年份 2026、`month` 0,`topic_note` 写明。
+   `tags` 为 `["精选", "WPH Kinematics", <来源标签>]`,来源标签为「PMT Kinematics 真题汇编」「PMT IAL Questions by Topic: Kinematics」
+   「Kinematics 选择题 2002–2010」。`topic` 为空。`qp_pdf` 为文件名(不在 data/papers,数据管理页不提供原卷)。
+   约定「`paper` 等于 `<科目>/<series>`」即练习合集：`manager/bank.paper_code` 写作 `WPH/KMCQ`,练习工作台(`app/web/js/core.js`
+   的 `isCollection`)写作 `WPH KMCQ`;刷题页的试卷下拉框对非数字的 component 只显示名称(不写「第 kpmt 章」)。
+2. **切题。** kpmt:文字层只有「Qn.」与页码，题目是整页扫描图;从「Qn.」到下一个「Qn.」,按页取其间的图片上下界，跨页拼接，
+   没有图片的第 59–63 页跳过。题目是剑桥 9702 卷 2 式结构题(题前印原卷题号，如「Q1.」下是「2 (a) (i)」),原卷没有认出
+   (题库的 9702 只有 2021 年以后)。ktop:没有文字层(Print to PDF 把字转成了曲线),整份 7 页先 OCR 一次
+   (`raw/book_ocr/kinematics/ktop_pages.jsonl`,32 秒),用版面框里的「Qn.」与「(Total for question = n mark)」定位;非末页的下界
+   按渲染后的墨迹找(页脚 748 pt 以上)。kmcq:两栏，按文字层的题号「n.」(须按 1、2、3… 连续)、考季标题与「Answers」切，
+   阅读顺序为左栏、右栏、下一页;题图按栏裁，题干 `question_text` 用文字层。题图 150 dpi、16 级灰度，共 94 张 3.4 MB。
+3. **去重。** ktop 每题与 kpmt 各题按 OCR 文字的词集 Jaccard 比较，最高 0.18(阈值 0.5),没有重复;ktop 是 Edexcel IAL 题，
+   kpmt 是剑桥式题，本来就不同。
+4. **OCR。** 94 张题图 10 个任务 2.7 分钟，无错误;插图 142 张(2.7 MB,75 题 `has_diagram=1`)。写入时去掉题图顶上的「Qn.」/「## Q9」,
+   `*(b)` 改作 `(b) *`(星号是 Edexcel 的书面表达题记号，不改则小问标号认不出),删掉 OCR 把答题虚线读成的
+   `\begin{array}…\cdots…` 乱码，`\textsc{A}` 改 `\text{A}`(KaTeX 不支持)。94 题 `q_quality='ok'`,`check_latex.py` 无报错。
+5. **分值(已知问题)。** OCR 把右对齐的 [n]、(n) 当页面装饰丢掉，这两份又没有文字层可补。ktop 从整页 OCR 的版面框取 (n)
+   (7 处全在)。kpmt 的整页与右侧窄条 OCR 都只认出少数几个 [2](版面模型把孤立的小方括号当图片或不检测);最后用
+   `bracket_boxes` 在题图右半部按笔画找方括号(13–34 px 高的竖笔，一侧上下有衬线、中间空),每个候选框放大三倍、一页一个、
+   **关掉版面检测**(`useLayoutDetection: false`)读字，读成「[n]」的算分值:301 个候选读出 130 个分值(约 4 分钟，一次服务端 500
+   重跑后成功;单个任务超过 100 页时 `ocr_job` 按 100 页分批)。每个分值归它上方最近的小问标号(标号高度取自题图再 OCR 一次的
+   版面框),几个小问合印一个分值时前面的记 `null`(与 Hodder 题相同)。29 题拆出小问，30、31 题 OCR 文字的小问标号与版面框不一致，
+   不拆(整题一个小问)。kpmt 的分值没有原卷可对，对照题图抽查第 1、2、7、22 题，分值与小问归属都对;漏认的方括号会让总分偏小。
+   分值放回题干文字用 `book_questions.restore_marks`,有 10 处找不到锚点没放回(分值仍计入 marks)。
+6. **选择题。** kmcq 56 题 `qtype='mcq'`,`options` 为 A–D,`answer` 取文末答案表(56 题全有，与答案表逐题核对一致);评分细则照
+   9702 卷 1 的存法:`ms_text` 为 `<题号>  <答案>  |  1`,`mark_codes='[]'`,`ms_total=1`,`totals_agree=1`,`ms_quality='ok'`,
+   `ms_pdf` 为 kinematics_mcq.pdf。部分选项画在图里(如第 2 题四张图),题干文字里只有图。练习工作台按答案判对错
+   (`app/marking.py` 原来只给 9702 补选项字母，现在凡有 `options` 的都补);刷题页点字母即判。ktop 的 4 道选择题
+   (Q1、2、5、6)没有答案，与 Hodder 的选择题一样 `answer` 为空、填分。
+7. **小问。** `split_parts.py --syllabus WPH`:WPH 314 题 757 个小问，按小问切开 313 题。
+
 ## 子 agent 批次大小实验(2026-11-14)
 
 问题：审校批次每批放几题最省钱、质量又不下降。做法：同一组 40 道 9702 题(卷 2、4、5,含 4 处已核实的错误)

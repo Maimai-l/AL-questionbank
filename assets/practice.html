@@ -352,7 +352,7 @@ function cardHtml(q, opts){
         <div class="ms">${richText(q.ms)}</div>
       </details>` : `<p class="noms" style="color:var(--dim);font-size:13px">${CAIE.has(q.s)
         ? "这一题 Cambridge 没有公布 mark scheme。"
-        : "本题没有评分细则（教材未附答案），做完对照原题图自评。"}</p>`}
+        : "本题没有评分细则（来源未附答案），做完对照原题图自评。"}</p>`}
     ${opts.noBar ? "" : `<div class="bar noprint">
       <div class="grade">
         <button data-g="good" class="${g==="good"?"on":""}">会了 <span class="kbd">1</span></button>
@@ -619,8 +619,9 @@ function refreshDependent(){
   const keepC = $("fComp").value;
   $("fComp").innerHTML = `<option value="">全部试卷</option>` + comps.map(c=>{
     const name = (sub.find(q=>q.c===c)||{}).cn || "";
-    const book = sub.some(q => q.c===c && !CAIE.has(q.s));   // a textbook's chapter
-    return `<option value="${c}">${book ? "第 "+c+" 章" : "Paper "+c}${name?" · "+name:""}</option>`;
+    const book = sub.some(q => q.c===c && !CAIE.has(q.s));   // a textbook's chapter, or a collection (kmcq)
+    const label = book ? (/^\d+$/.test(c) ? "第 "+c+" 章" : "") : "Paper "+c;
+    return `<option value="${c}">${label}${label && name ? " · " : ""}${name || (label ? "" : c)}</option>`;
   }).join("");
   if (comps.includes(keepC)) $("fComp").value = keepC;
   const c = $("fComp").value;

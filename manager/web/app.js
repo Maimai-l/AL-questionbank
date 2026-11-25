@@ -861,7 +861,7 @@
         h(E.Tabs, { variant: 'line', items: tabs, value: tab, onChange: setTab, ariaLabel: '题目资料' })),
       h('div', { className: 'detail-body', ref: body },
         tab === 'ms' ? (d.scheme ? h(Scheme, { rows: d.scheme }) : d.solution ? h(Markdown, { text: d.solution })
-          : h('p', { className: 'dm-prose noms' }, '本题没有评分细则(教材未附答案)。')) : null,
+          : h('p', { className: 'dm-prose noms' }, '本题没有评分细则(来源未附答案)。')) : null,
         tab === 'text' ? h(Tex, { tag: 'div', className: 'dm-prose', text: d.text }) : null,
         tab === 'ex' && hasEx ? d.explanation.parts.map((p, i) => h(ExPart, { key: i, p })) : null));
   }
