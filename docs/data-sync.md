@@ -25,6 +25,7 @@
 | `imgWPH/fig/` | 精选题题干里的插图(OCR 版面检测切出),`<题号>_<序号>.jpg`,`question_latex` 以 `<img src="imgWPH/fig/…">` 引用 | `pipeline/ocr/ocr.py --figures` |
 | `img9709_ans/` `img9231_ans/` `img9618_ans/` `img9702_ans/` | 带答题区的裁图,刷题页白板以此为底图;只收题图漏掉了点线答题行的题,文件名与题图相同 | `pipeline/split/recrop.py --rows` |
 | `books/<书>/` | 教材章节 Markdown 与插图 | `pipeline/books/split_chapters.py` |
+| `sources/<考试>/<主题>/` | 用户提供、尚未入库的练习材料原件(PDF),各目录有 README.md 说明来源 | 手动放入 |
 | `papers/` | 原卷与评分细则 PDF,文件名即 `questions.qp_pdf`、`questions.ms_pdf`;数据管理页打开原卷、整卷题目卷直接用原卷 | 从 `raw/pdf`、`raw/ms` 复制 |
 | `data.js` `textbooks.js` | 页面读取的数据 | `pipeline/export/build_site.py` |
 | `practice.html` `textbook.html` `vendor/` | 从 `assets/` 复制的页面 | `pipeline/export/build_site.py` |

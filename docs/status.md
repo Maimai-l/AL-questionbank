@@ -13,6 +13,11 @@ Stretch and challenge(18 题)共 220 题进了题库:syllabus `WPH`,`tags` 为 `
 - 待办(可选):自己写参考答案或评分要点;5 道题引用前面的题(如第 8 章第 15 题要用第 3 题的数据表),题图里没有被引用的题。
 - claude.ai 的 skill(`skills/shared/qbank.py` 的说明)仍写着题库里没有 Edexcel 的题，下次改 skill 时一并更新。
 
+## 待入库的练习材料
+
+- `data/sources/WPH/kinematics/`(2026-11-25):Edexcel IAL 物理 Kinematics 练习题 3 份 PDF(PMT 按题整理的 63 页扫描、
+  PMT Questions by Topic 7 页、按考季编的选择题 6 页),只保存了原件，尚未切题入库。
+
 ## Edexcel IAL 物理教材(2026-11-18 加入)
 
 Pearson Edexcel International A Level Physics(WPH)Student Book 1(`edx_ial_phy1`,14 章)与 Book 2(`edx_ial_phy2`,
