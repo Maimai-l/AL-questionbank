@@ -1,3 +1,8 @@
+## Forces 练习题(2026-11-26)
+
+`data/sources/WPH/forces/forces_1_3_2.pdf`(旧版 Edexcel「Force Questions」第 8–23 题)已入库为 WPH_frc_q08–q23,
+16 题、124 分，标签「精选」「WPH Forces」;15 题带插图，没有评分细则。`pipeline/books/forces_questions.py`。
+
 # 数据现状与待办(2026-11-25)
 
 ## 精选题:Hodder Edexcel A Level Physics 1(2026-11-19 加入)
