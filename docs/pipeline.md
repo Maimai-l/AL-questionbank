@@ -611,6 +611,20 @@ python3 pipeline/export/build_site.py
    (Q1、2、5、6)没有答案，与 Hodder 的选择题一样 `answer` 为空、填分。
 7. **小问。** `split_parts.py --syllabus WPH`:WPH 314 题 757 个小问，按小问切开 313 题。
 
+## Forces 练习题(2026-11-26)
+
+```bash
+python3 -I pipeline/books/forces_questions.py extract
+python3 pipeline/ocr/ocr.py raw/book_questions/forces/ocr_input.json data/imgWPH raw/ocr/q_WPH_frc_fig.jsonl 4 --pack 8 --figures data/imgWPH/fig
+python3 pipeline/books/forces_questions.py add --write
+python3 pipeline/text/split_parts.py --syllabus WPH --write
+```
+
+- 有文字层：题号「8.」在左边距，题尾「(Total n marks)」,按两者裁题、跨页拼接;图是矢量图,OCR 切出插图(15 题)。
+- OCR 丢掉右侧的小问分值「(n)」:按文字层的标号与分值顺序放回题干(`[n]`),并写 parts、marks_parts;几个小问共用一个分值
+  (20(b)(i)–(ii))时记在上一级。答题横线被读成公式(「Force = ⋯⋯ 90分」)的删去。
+- 第 8–19 题本身没有小问标号，整题一个分值;第 20 题小问分值已写，题干未按小问切开。
+
 ## 子 agent 批次大小实验(2026-11-14)
 
 问题：审校批次每批放几题最省钱、质量又不下降。做法：同一组 40 道 9702 题(卷 2、4、5,含 4 处已核实的错误)
